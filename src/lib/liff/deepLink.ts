@@ -1,0 +1,61 @@
+/**
+ * `liff.state` deep links (design-system.md §4: LINE messages deep-link to the exact screen). LINE
+ * opens the LIFF endpoint (`/liff`) with `?liff.state=<path>` for `https://liff.line.me/<id>/<path>`;
+ * this turns that into an in-app path — or `/` when it is anything but a plain, known, same-origin path.
+ * Never an open redirect.
+ */
+export const LIFF_STATE_PARAM = "liff.state";
+
+/** First path segments a deep link may target (L2–L4 add their routes here). */
+export const DEEP_LINK_ROOTS = [
+  "",
+  "bills",
+  "invoices",
+  "pay",
+  "receipts",
+  "usage",
+  "requests",
+  "lease",
+  "notice",
+  "announcements",
+  "parcels",
+  "profile",
+  "technician",
+] as const;
+
+export function resolveLiffState(search: string | URLSearchParams | null | undefined): string {
+  const params = typeof search === "string" || search == null ? new URLSearchParams(search ?? "") : search;
+  const raw = params.get(LIFF_STATE_PARAM);
+  if (!raw) return "/";
+
+  let value = raw.trim();
+  // LINE sometimes double-encodes the state.
+  if (/%2f/i.test(value)) {
+    try {
+      value = decodeURIComponent(value);
+    } catch {
+      return "/";
+    }
+  }
+  if (!value.startsWith("/")) value = `/${value}`;
+
+  // Protocol-relative, backslash tricks, schemes and control characters are refused outright.
+  const hasControl = [...value].some((char) => char.charCodeAt(0) < 0x20 || char.charCodeAt(0) === 0x7f);
+  if (value.startsWith("//") || value.includes("\\") || hasControl || /^\/[a-z][a-z0-9+.-]*:/i.test(value)) {
+    return "/";
+  }
+
+  let url: URL;
+  try {
+    url = new URL(value, "https://liff.invalid");
+  } catch {
+    return "/";
+  }
+  if (url.origin !== "https://liff.invalid") return "/";
+
+  const root = url.pathname.split("/")[1] ?? "";
+  // `URL` has already resolved `..`, so `/bills/../bff` is judged as `/bff`.
+  if (!(DEEP_LINK_ROOTS as readonly string[]).includes(root)) return "/";
+
+  return `${url.pathname}${url.search}${url.hash}`;
+}

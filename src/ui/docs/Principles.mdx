@@ -1,0 +1,37 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+{/* copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: zone table for this app */}
+
+<Meta title="Docs/Principles" />
+
+# getproperty design system
+
+**บิลทำเอง เก็บเงินเอง ถูกกฎหมาย** — operated by Collective Group (Thailand). The owner's screen is a
+*morning dashboard*: what needs me today. The resident's screen is *a bill that is pleasant to pay* (D-100).
+
+## Experience principles (design-system.md §1)
+
+1. **Clarity over decoration** — every screen answers "where am I, what is the status, what should I do next?". One primary action per view.
+2. **Show the evidence** — a bill shows its readings and the meter photo; a deposit deduction shows the before/after photos.
+3. **Lawful by design, visibly** — the tariff cap, the deposit clock and the legal reference are part of the UI. A compliance refusal is explained (`<Callout tone="danger" legalRef>`), never hidden or overridden.
+4. **Money and dates are the API's** — the UI formats (`formatTHB`, `formatUnits`, `formatDate`), never calculates. The ESLint rule `getproperty/no-money-arithmetic` enforces it.
+5. **Thai-first, human copy** — short, polite, specific Thai. See *Voice & tone*.
+6. **Fast on real devices** — a mid-range Android on 4G inside LINE for residents; a 6" phone in sunlight for staff.
+7. **Accessible by default** — WCAG 2.2 AA. Every story here is rendered through axe in `pnpm test`; the token pairs pass the contrast gate in all three themes.
+8. **Consistent and composable** — zones compose `src/ui`; they never restyle primitives locally.
+
+## This app
+
+`getproperty-liff` has one zone, `resident` (ADR-0004): the LINE Mini App for residents and, in R2,
+technicians. It follows the phone's light/dark setting, uses the 16 px base and 48 px targets, a bottom
+nav, and pads for the safe areas. The owner console, staff PWA and platform admin are
+`getproperty-web`, the source these tokens and components are copied from until `collective-shared`
+exists (D-154, D-155). Use the **Theme** toolbar switch to view any story in all three themes.
+
+## Colour has meaning
+
+- **Teal (`primary`)** — actions, links, focus. The brand.
+- **Amber (`warning`)** — needs attention: due soon, estimated reading, a slip waiting. *Never* for money that is merely due (D-100).
+- **Red (`danger`)** — overdue, refused by compliance, device offline, destructive actions (outline, never the loudest thing on the page).
+- **Green (`success`)** — paid, synced, healthy.
+- Status is always **icon + text** (`<StatusBadge>` from `src/domain/status`), never colour alone.

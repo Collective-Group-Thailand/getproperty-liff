@@ -1,0 +1,7 @@
+{
+  "technician": {
+    "title": "My work orders",
+    "body": "Work orders assigned to you will appear here (R2, L4)",
+    "empty": "No work orders yet"
+  }
+}

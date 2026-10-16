@@ -1,0 +1,8 @@
+/*
+ * The single CSS entry point (same shape as getproperty-web): tokens and base are copied from it
+ * (docs/shared-copies.md); the density and safe-area rules are `src/ui/styles/zones.css`.
+ */
+@import "tailwindcss";
+@import "../ui/generated/tokens.css";
+@import "../ui/styles/base.css";
+@import "../ui/styles/zones.css";

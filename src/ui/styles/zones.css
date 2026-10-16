@@ -1,0 +1,17 @@
+/* copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: single resident zone */
+/*
+ * Resident density (design-system.md §5, getproperty-liff CLAUDE.md). The zone is `data-zone="resident"`
+ * on `<html>`, stamped by the root layout: 16 px base (the shared scale), 48 px targets, and the safe
+ * areas of a notched phone inside LINE's in-app browser.
+ */
+
+[data-zone="resident"] main :is(button, a, [role="button"], input, select)[data-size="md"] {
+  min-height: 3rem;
+}
+
+[data-zone="resident"] body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}

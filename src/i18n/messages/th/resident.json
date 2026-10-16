@@ -1,0 +1,55 @@
+{
+  "resident": {
+    "nav": {
+      "home": "หน้าแรก",
+      "bills": "บิล",
+      "usage": "การใช้",
+      "requests": "แจ้งซ่อม",
+      "me": "ฉัน"
+    },
+    "home": {
+      "greeting": "สวัสดี {name}",
+      "unit": {
+        "title": "ห้องของคุณ",
+        "unitCode": "ห้อง {code}",
+        "building": "อาคาร {name}",
+        "leaseUntil": "สัญญาถึง {date}"
+      },
+      "openInvoice": {
+        "title": "บิลที่ต้องชำระ",
+        "period": "บิลรอบ {period}",
+        "due": "ครบกำหนด {date}",
+        "pay": "สแกนจ่าย",
+        "details": "ดูรายละเอียด"
+      },
+      "tiles": {
+        "title": "เมนู",
+        "bills": "บิลและใบเสร็จ",
+        "usage": "การใช้น้ำไฟ",
+        "serviceRequest": "แจ้งซ่อม",
+        "lease": "สัญญาเช่า",
+        "announcements": "ประกาศ",
+        "parcels": "พัสดุ"
+      }
+    },
+    "liff": {
+      "title": "กำลังเปิด getproperty ใน LINE",
+      "steps": {
+        "init": "เชื่อมต่อ LINE",
+        "login": "ยืนยันตัวตนด้วย LINE",
+        "link": "ไปยังหน้าที่ขอ"
+      },
+      "state": {
+        "pending": "รอ",
+        "running": "กำลังทำ",
+        "done": "เสร็จแล้ว",
+        "failed": "ไม่สำเร็จ"
+      },
+      "mock": "โหมดทดสอบ: ใช้ LINE จำลอง",
+      "continue": "ไปต่อ",
+      "error": "เปิดใน LINE ไม่สำเร็จ",
+      "errorBody": "ปิดหน้านี้แล้วเปิดลิงก์จาก LINE อีกครั้ง",
+      "outsideLine": "เปิดนอก LINE — จะใช้ลิงก์ยืนยันทาง SMS แทน (L1)"
+    }
+  }
+}
