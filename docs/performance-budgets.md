@@ -34,6 +34,29 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### L3 screens (2026-10-17, same method)
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/lease` (→ the one lease) | 176.7 KB | 180 KB |
+| `resident` | `/lease/<id>/notice` | 173.3 KB | 180 KB |
+| `resident` | `/deposit` (held) | 174.0 KB | 180 KB |
+| `resident` | `/usage` (chart lazy) | 173.4 KB | 180 KB |
+| `resident` | `/profile` | 178.5 KB | 180 KB |
+| `resident` | `/profile/privacy` | 173.4 KB | 180 KB |
+| `resident-sign` | `/lease/<id>/sign` | 174.2 KB (first cut 181.9) | 180 KB |
+| `resident-moveout` | `/deposit` (settlement to answer) | 174.0 KB | 180 KB |
+
+CLS 0 and accessibility 1.0 on every L3 URL; LCP 1.5–3.3 s lab (warning, as before — the run shared the machine
+with another Lighthouse job). How the e-signature page got under the limit: the reading step is rendered on the
+server and handed to the client flow as a prop (`SignReader`), and the steps that are not on screen when the page
+opens load on demand — `SignaturePad` and `OTPInput` (`lazyWarm`, warmed by the first tap or key press) and the
+"I have read it" checkbox (Radix) once the end of the lease has been reached. The usage chart is its own chunk
+(`next/dynamic`, `ssr: false`) behind a server-rendered data table. `/profile/privacy` had CLS 0.16–0.17 from the
+display font re-wrapping long Thai consent titles; those titles are now body-font text (not headings) and the page
+title is shorter — CLS 0. **`/profile` has the least headroom (≈ 1.5 KB)**: the next client widget there should be
+lazy.
+
 ## What made the difference
 
 Measured in three steps on the same pages (the first step bundles four changes made together):
@@ -55,8 +78,12 @@ Measured in three steps on the same pages (the first step bundles four changes m
 
 ## Sets
 
-`resident` (`/`, `/link` — signed in through the mock API's seed refresh token sent as a cookie) and `public`
-(`/liff`, `/auth`, `/auth/otp`, `/signed-out`). `pnpm lhci` starts a production server on 3400 against a
+`resident` (`/`, `/link`, L3: `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/profile`,
+`/profile/privacy` — signed in through the mock API's seed refresh token sent as a cookie), `resident-sign`
+(`/lease/<id>/sign` of the mock signer) and `resident-moveout` (`/deposit` with a settlement to answer) — lease ids
+in URLs are derived from the mock subject (`mocks/residence.ts` `mockLeaseId`, checked by `mocks.test.ts`) — and
+`public` (`/liff`, `/auth`, `/auth/otp`, `/signed-out`). Set `CHROME_PATH` where Chrome is not installed (e.g. the
+Playwright Chromium). `pnpm lhci` starts a production server on 3400 against a
 `NEXT_PUBLIC_LIFF_MOCK=1` build with `API_MOCKS=1`; as root it adds `--no-sandbox` to Chrome. CI job
 `lighthouse`. To see what is in a bundle: `pnpm analyze` (webpack build with `@next/bundle-analyzer`,
 `.next/analyze/client.html`) or `pnpm exec next analyze` (Turbopack's analyzer); rebuild before `pnpm lhci`.
@@ -71,3 +98,5 @@ preloaded), `next/image` with `sizes` for meter photos, no layout shift from fon
   (failing); the gap was recorded as a deferred decision.
 - **D-179 (2026-10-17)** — budget re-based to 180 KB and enforced as a hard limit after the reductions above;
   both sets pass.
+- **L3 (2026-10-17)** — eight more URLs in three sets, all under 180 KB (sign page 181.9 → 174.2 KB by
+  server-rendering the reader and loading later steps on demand).

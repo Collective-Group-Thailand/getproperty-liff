@@ -13,6 +13,8 @@ landing in slices).
 - **Vendored, pinned contract.** `pnpm gen:api --adopt` copies `API_CONTRACT_SOURCE` (default
   `../getproperty-api/contract/openapi.json`) to `contract/openapi.json` and writes `contract.lock.json`
   (`version`, `sha256`, the API's `sourceCommit`). Bumping is a reviewable PR; nothing fetches at build time.
+  From a git checkout only a **committed** contract is adopted: `API_CONTRACT_REF` (default `HEAD`) names the
+  commit and a dirty working copy is refused unless `--allow-dirty` (L3, ported from getproperty-web).
 - **Generated, committed, checked.** `pnpm gen:api` writes `src/lib/api/schema.d.ts` (openapi-typescript — the
   only source of API types), `src/lib/api/operations.generated.ts` (the operations this app may call and which
   need an `Idempotency-Key`) and `mocks/generated/operations.ts` (each operation's success example and every

@@ -33,7 +33,11 @@ the re-sync after getproperty-web's F1 and initial-JS work: per-icon glyph modul
 `scripts/build-icons.ts`), `lib/lazy.tsx` + `components/overlays.tsx` (no Popover here), the toast facade
 (`Toast` + `ToastViewport`), `SegmentedControl` without Radix, `toE164` in `lib/phone.ts`, new `Breadcrumbs`,
 `CountBadge`, `EnvBadge`, `IconButton` `badge`, `BottomNav` `size="lg"`, the `ErrorState` request-id contrast
-fix, and design-system.md §7 with the D-179 budgets.
+fix, and design-system.md §7 with the D-179 budgets. **L3 (2026-10-17)**: `SignaturePad` (+ stories) from
+**`6a8ffcf`** (getproperty-web F4 4.1, which built it in `src/ui` — L3 3.1 asks for exactly that order); `curated.ts`
+gains only that commit's `undo`, `sign`, `image` (same keys and Lucide glyphs, so the generated glyph files are
+byte-identical) and is `adapted` until the full re-sync of 6a8ffcf's other additions (torch, backspace, swap, …),
+which no resident screen needs yet. `shared:check` may report drift where getproperty-web has uncommitted edits.
 
 
 ## Design system — `src/ui`
@@ -94,6 +98,8 @@ fix, and design-system.md §7 with the D-179 budgets.
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/SignaturePad.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Skeleton.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Spinner.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Spinner.tsx` | verbatim | `f57d4dc` |
@@ -124,7 +130,7 @@ fix, and design-system.md §7 with the D-179 budgets.
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | verbatim | `f57d4dc` |
+| `src/ui/icons/curated.ts` | adapted | `f57d4dc` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
 | `src/ui/icons/glyphs/*.ts` | generated | `f57d4dc` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |

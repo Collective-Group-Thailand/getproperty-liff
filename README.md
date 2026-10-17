@@ -32,7 +32,8 @@ In mock mode open `/liff` (signs in as a resident with one unit), `/liff?liff.st
 pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm gen:api --check
 pnpm build && pnpm release:hygiene   # plain build: no fake LIFF, mock API or source maps in the bundle
 pnpm e2e               # mock build (fake LIFF + contract mocks), 360 × 780, axe on every page
-pnpm e2e:integration   # the same app against the real getproperty-api (PostgreSQL via its db:local)
+pnpm e2e:integration   # the same app against the real getproperty-api (PostgreSQL via its db:local);
+                       # GETPROPERTY_API_REF=<commit> runs that committed API (git archive, built in a temp dir)
 pnpm build-storybook && pnpm test:visual   # Storybook + visual snapshots of the shell
 NEXT_PUBLIC_LIFF_MOCK=1 pnpm build && pnpm lhci   # Lighthouse budgets (docs/performance-budgets.md)
 pnpm shared:check      # warn-only drift report of the copies from ../getproperty-web
