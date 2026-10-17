@@ -16,6 +16,17 @@ Techniques: RSC by default, client components only where interactive (the LIFF e
 the LIFF SDK loaded by dynamic import only where LIFF is used, self-hosted Thai-first fonts (two
 preloaded), `next/image` with `sizes` for meter photos, no layout shift from fonts or images.
 
-## L0 status
-`pnpm lhci` is configured for `/` and `/liff`; it needs Chrome and a mock build and is not part of
-`pnpm test`. The CI job is added in L1.
+## Sets
+`resident` (`/`, `/link` — signed in through the mock API's seed refresh token sent as a cookie) and `public`
+(`/liff`, `/auth`, `/auth/otp`, `/signed-out`). `pnpm lhci` starts a production server on 3400 against a
+`NEXT_PUBLIC_LIFF_MOCK=1` build with `API_MOCKS=1`; as root it adds `--no-sandbox` to Chrome. CI job `lighthouse`.
+
+## L1 status (2026-10-17, measured here with Chromium 141)
+Accessibility 1.0 on every page; LCP 2.2–3.8 s under the simulated 4× CPU / 1.6 Mbps profile (warning);
+**initial JS 193–209 KB gz (`resource-summary`) against the 150 KB budget — failing; CLS 0.** Of that, the framework alone (React 19
+`react-dom` ≈ 74 KB, the Next 16 runtime ≈ 57 KB) is ≈ 130 KB; the rest is next-intl's message runtime
+(≈ 12 KB), the design system's icon registry (lucide, ≈ 17 KB — every icon in one module), TanStack Query
+(≈ 8 KB), Radix Slot + CVA (≈ 8 KB) and app code. L1 already keeps zod out of the browser, loads the settings and
+unit sheets (Radix Dialog) on first open and sonner on first interaction. Closing the gap needs a decision
+(docs/PROGRESS.md, deferred): per-icon imports in getproperty-web's registry, precompiled messages, or a budget
+that reflects the framework baseline.

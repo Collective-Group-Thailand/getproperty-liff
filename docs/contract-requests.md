@@ -1,7 +1,15 @@
 # Contract requests — getproperty-liff
 
-Endpoints this app needs that the backend contract does not yet publish (contract §1) — `/v1/resident/*`,
-`/v1/auth/resident/*` and (R2) `/v1/technician/*` only. Mocks are marked `// CONTRACT-REQUEST`.
+Endpoints and fields this app needs that the backend contract does not yet publish (contract §1) — `/v1/resident/*`,
+`/v1/auth/resident/*` and (R2) `/v1/technician/*` only. Each is mocked in `mocks/contract-requests.ts` and marked
+`// CONTRACT-REQUEST` where it is called; delete the mock when the contract ships it (`pnpm gen:api --adopt`).
+Problem codes reuse what the contract already documents. Contract pinned at getproperty-api `98d4291`.
 
-| Date | Method | Path | Purpose | Fields | Status |
-|---|---|---|---|---|---|
+| # | Date | Method | Path | Purpose | Fields | Status |
+|---|---|---|---|---|---|---|
+| 1 | 2026-10-17 | POST | `/v1/resident/link` | Accept an operator's invitation code from the invite QR/SMS deep link (`liff.state=/link?code=…`) and link the signed-in resident to the invited party (D-061); the code is single-use and expires (`invitation.expiry_days`, D-167). | Request `{ code: string }`. 200 `{ units: ResidentUnitDto[] }` — the units the party now occupies. Problems: 404 `invitation.not_found`, 409 `invitation.not_pending` (used, revoked or expired), 422 `validation.failed`. Tokens issued before the link do not carry the new `unit:` scope — the response should say whether the client must refresh (or the API rotates scopes on the next refresh, which the BFF already does). | Requested |
+| 2 | 2026-10-17 | GET | `/v1/resident/me` → `entitlements` | Menu entitlements for the bottom nav and home tiles (contract §4 lists "menu entitlements" in `/me`). | `entitlements: ("bills" \| "usage" \| "service_requests" \| "lease" \| "announcements" \| "parcels")[]` on `ResidentMeDto`, per the selected unit's tenant plan and modules (usage only where IoT meters exist, D-063). Until then the app shows Bills only. | Requested |
+| 3 | 2026-10-17 | PATCH | `/v1/resident/me` | The language switcher writes the resident's language so LINE messages and documents follow it (D-064; L1 1.2 §6). | Request `{ language: "th" \| "en" \| "my" \| "km" \| "lo" \| "zh" }`. 200 `ResidentMeDto`. 422 `validation.failed`. | Requested |
+| 4 | 2026-10-17 | — | SMS magic link of `POST /v1/auth/resident/otp/request` | The SMS link is `PUBLIC_RESIDENT_APP_URL/auth/otp` with no challenge; opened in another browser than the one that asked, it cannot be completed. | Link `…/auth/otp?c=<challengeId>` (the code stays in the SMS text only). Also: the API's `PUBLIC_RESIDENT_APP_URL` default is `http://localhost:3002`; this app's dev port is 3300. | Requested |
+| 5 | 2026-10-17 | POST | `/v1/resident/push-subscriptions` | Register a web-push subscription after the first payment (L1 1.3 §4, used from L2); the VAPID key is `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (the API's `/v1/auth/web-push/public-key` is outside the BFF allow-list). | Request = `PushSubscription.toJSON()` (`endpoint`, `keys.p256dh`, `keys.auth`), `Idempotency-Key`. 201 `{ id }`. `DELETE /v1/resident/push-subscriptions/{id}` to stop. | Requested |
+| 6 | 2026-10-17 | — | Status enums | `InvoiceStatus`, `PaymentStatus`, `LeaseStatus`, `DepositStatus`, `ServiceRequestStatus`, `WorkOrderStatus`, `ParcelStatus`, `ReadingSource` as named schemas, so `src/domain/status` is typed to the contract (today: schema-design v2 values as fallback, `ContractEnum`). | Named enum schemas with the schema-design v2 values. Arrive with B2–B5 endpoints. | Requested |

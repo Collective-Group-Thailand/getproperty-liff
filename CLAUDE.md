@@ -29,4 +29,4 @@ The operator console, staff PWA and platform admin are `getproperty-web`; the ba
 - Plan Mode first for each deliverable; wait for approval. Small vertical slices, Conventional Commits, green CI per slice. When ambiguous: record the assumption in `docs/PROGRESS.md` and take the most conservative option.
 
 ## Commands
-`pnpm dev` (http://localhost:3300 — needs `NEXT_PUBLIC_LIFF_ID`) · `pnpm dev:mock` (fake LIFF + MSW, no LINE account, no backend) · `pnpm gen:api` · `pnpm lint` · `pnpm typecheck` · `pnpm test` · `pnpm e2e` · `pnpm storybook` · `pnpm build` · `pnpm lhci` · `pnpm shared:check`
+`pnpm dev` (http://localhost:3300 — needs `NEXT_PUBLIC_LIFF_ID`, `API_INTERNAL_URL`) · `pnpm dev:mock` (fake LIFF + contract mocks, no LINE account, no backend) · `pnpm gen:api` (`--check`, `--adopt`) · `pnpm lint` · `pnpm format:check` · `pnpm typecheck` · `pnpm test` · `pnpm e2e` · `pnpm e2e:integration` (real API) · `pnpm storybook` · `pnpm test:visual` · `pnpm build` · `pnpm release:hygiene` · `pnpm lhci` · `pnpm shared:check`
