@@ -1,5 +1,5 @@
 import { fakeLineIdToken } from "./fakeLineToken";
-import type { LiffClient } from "./types";
+import type { LiffClient, LiffTextMessage } from "./types";
 
 /**
  * An in-memory LIFF for unit tests, Playwright and `pnpm dev:mock` (`NEXT_PUBLIC_LIFF_MOCK=1`). It
@@ -18,10 +18,19 @@ export const DEFAULT_FAKE_SUB = "U0000000000000000000000mockresident";
  */
 export const FAKE_LIFF_COOKIE = "gp_fake_liff";
 
+/**
+ * What the browser fake recorded, on `window.__gpFakeLiff` (mock builds only) so e2e tests can assert what would
+ * have opened or been shared in LINE.
+ */
+export interface FakeLiffRecord {
+  opened: { url: string; external?: boolean }[];
+  shared: LiffTextMessage[][];
+}
+
 /** Browser fake for mock builds: options from the cookie, LINE Login simulated as a navigation. */
 export function createBrowserFakeLiff(): FakeLiff {
   const options = fakeOptionsFromCookie(document.cookie);
-  return createFakeLiff({
+  const fake = createFakeLiff({
     ...options,
     redirect: (redirectUri) => {
       const next = encodeURIComponent(JSON.stringify({ ...options, loggedIn: true }));
@@ -29,6 +38,11 @@ export function createBrowserFakeLiff(): FakeLiff {
       window.location.assign(redirectUri ?? window.location.href);
     },
   });
+  (window as typeof window & { __gpFakeLiff?: FakeLiffRecord }).__gpFakeLiff = {
+    opened: fake.opened,
+    shared: fake.shared,
+  };
+  return fake;
 }
 
 export function fakeOptionsFromCookie(cookie: string): FakeLiffOptions {
@@ -52,6 +66,8 @@ export interface FakeLiffOptions {
   name?: string;
   /** Overrides the id token entirely (`null` = LINE returned none). */
   idToken?: string | null;
+  /** `shareTargetPicker` availability (default: inside LINE only) and the picker's answer (default: sent). */
+  share?: "available" | "unavailable" | "cancel";
   /** Make `init` reject, to exercise the error path. */
   failInit?: string;
   /**
@@ -65,6 +81,7 @@ export interface FakeLiff extends LiffClient {
   readonly marker: typeof FAKE_LIFF_MARKER;
   readonly calls: string[];
   readonly opened: { url: string; external?: boolean }[];
+  readonly shared: LiffTextMessage[][];
   readonly initialised: boolean;
 }
 
@@ -73,6 +90,7 @@ export function createFakeLiff(options: FakeLiffOptions = {}): FakeLiff {
   let initialised = false;
   const calls: string[] = [];
   const opened: { url: string; external?: boolean }[] = [];
+  const shared: LiffTextMessage[][] = [];
   const idToken =
     options.idToken === undefined
       ? fakeLineIdToken({ sub: options.sub ?? DEFAULT_FAKE_SUB, name: options.name ?? "สมชาย ใจดี" })
@@ -87,6 +105,7 @@ export function createFakeLiff(options: FakeLiffOptions = {}): FakeLiff {
     marker: FAKE_LIFF_MARKER,
     calls,
     opened,
+    shared,
     get initialised() {
       return initialised;
     },
@@ -132,6 +151,17 @@ export function createFakeLiff(options: FakeLiffOptions = {}): FakeLiff {
     },
     closeWindow() {
       guard("closeWindow");
+    },
+    isApiAvailable(api) {
+      guard("isApiAvailable");
+      if (api !== "shareTargetPicker") return false;
+      return options.share ? options.share !== "unavailable" : (options.inClient ?? true);
+    },
+    async shareTargetPicker(messages) {
+      guard("shareTargetPicker");
+      if (options.share === "cancel") return false;
+      shared.push(messages);
+      return true;
     },
   };
 }

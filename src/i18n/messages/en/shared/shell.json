@@ -26,12 +26,12 @@
     "signingOut": "Signing out…"
   },
   "unitSwitcher": {
-    "open": "Unit {unit}, {building} — switch unit",
     "title": "Choose a unit",
     "description": "{count, plural, one {You have # unit on this account} other {You have # units on this account}}",
     "current": "Selected unit",
     "unit": "Unit {unit}",
-    "place": "{building} · {operator}"
+    "place": "{building} · {operator}",
+    "switch": " — switch unit"
   },
   "envBadge": "{name} environment"
 }

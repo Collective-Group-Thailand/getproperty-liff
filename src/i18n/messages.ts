@@ -18,7 +18,21 @@ type Messages = Record<string, unknown>;
 
 export const MESSAGE_FILES = {
   shared: ["brand", "common", "errors", "shell", "status"],
-  resident: ["auth", "consent", "deposit", "home", "lease", "liff", "link", "nav", "profile", "usage"],
+  resident: [
+    "auth",
+    "consent",
+    "deposit",
+    "home",
+    "invoices",
+    "lease",
+    "liff",
+    "link",
+    "nav",
+    "pay",
+    "profile",
+    "receipts",
+    "usage",
+  ],
   technician: ["workOrders"],
 } as const satisfies Record<Namespace, readonly string[]>;
 

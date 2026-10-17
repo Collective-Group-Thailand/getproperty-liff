@@ -80,5 +80,13 @@
     "fulfilled": "เสร็จแล้ว",
     "rejected": "ปฏิเสธคำขอ",
     "withdrawn": "ถอนคำขอแล้ว"
+  },
+  "slip": {
+    "pending_verification": "กำลังตรวจสลิป",
+    "auto_confirmed": "ยืนยันแล้ว",
+    "pending_review": "รอผู้ดูแลตรวจสอบ",
+    "approved": "ผู้ดูแลยืนยันแล้ว",
+    "rejected": "ไม่ผ่านการตรวจ",
+    "duplicate": "สลิปนี้เคยส่งแล้ว"
   }
 }

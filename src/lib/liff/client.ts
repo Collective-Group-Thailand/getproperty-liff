@@ -1,4 +1,4 @@
-import type { LiffClient } from "./types";
+import type { LiffClient, LiffTextMessage } from "./types";
 
 /**
  * The one place that loads a LIFF implementation. `NEXT_PUBLIC_LIFF_MOCK` is inlined at build time,
@@ -54,6 +54,43 @@ export async function openExternal(url: string, { external = true }: { external?
   }
 }
 
+/** Initialises the SDK when a page other than the LIFF entry needs it (a reload of /receipts, a link from SMS). */
+async function ready(): Promise<LiffClient> {
+  const liff = await getLiff();
+  try {
+    liff.isInClient();
+  } catch {
+    const id = liffId();
+    if (!id) throw new Error("no LIFF id");
+    await liff.init({ liffId: id });
+  }
+  return liff;
+}
+
+/**
+ * Shares a message to a LINE chat through `liff.shareTargetPicker` (the resident picks friends or groups) —
+ * `"unavailable"` outside LINE, on old LINE versions or when the channel has the picker off; the caller then
+ * offers the system share sheet or a copy instead.
+ */
+export async function shareToLine(messages: LiffTextMessage[]): Promise<"sent" | "cancelled" | "unavailable"> {
+  try {
+    const liff = await ready();
+    if (!liff.isInClient() || !liff.isApiAvailable("shareTargetPicker")) return "unavailable";
+    return (await liff.shareTargetPicker(messages)) ? "sent" : "cancelled";
+  } catch {
+    return "unavailable";
+  }
+}
+
+/** True inside the LINE app (false outside it, or when the SDK cannot start). */
+export async function inLineClient(): Promise<boolean> {
+  try {
+    return (await ready()).isInClient();
+  } catch {
+    return false;
+  }
+}
+
 type Sdk = (typeof import("@line/liff"))["default"];
 
 function fromSdk(liff: Sdk): LiffClient {
@@ -68,5 +105,8 @@ function fromSdk(liff: Sdk): LiffClient {
     getOS: () => liff.getOS(),
     openWindow: (params) => liff.openWindow(params),
     closeWindow: () => liff.closeWindow(),
+    isApiAvailable: (api) => liff.isApiAvailable(api),
+    // `shareTargetPicker` resolves `undefined` when the resident closed the picker (SDK ≥ 2.x).
+    shareTargetPicker: async (messages) => Boolean(await liff.shareTargetPicker(messages, { isMultiple: true })),
   };
 }

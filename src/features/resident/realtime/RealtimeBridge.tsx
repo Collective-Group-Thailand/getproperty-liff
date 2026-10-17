@@ -6,6 +6,26 @@ import { browserApi } from "@/lib/api/browser";
 import { peekQueryClient } from "@/lib/api/query-runtime";
 import { backoff, queriesFor } from "@/lib/realtime/events";
 
+/** Named SSE events this app reacts to (contract §6; the API's event types, `src/core/events/event-types.ts`). */
+const REALTIME_EVENTS = [
+  "payment.confirmed",
+  "payment.failed",
+  "payment.reversed",
+  "invoice.issued",
+  "invoice.paid",
+  "invoice.partially_paid",
+  "invoice.balance_changed",
+  "invoice.overdue",
+  "invoice.voided",
+  "receipt.issued",
+  "receipt.voided",
+  "tax_invoice.issued",
+  "slip.review_requested",
+  "slip.reviewed",
+  "notification.created",
+  "consent.changed",
+] as const;
+
 /**
  * Server-sent events for the signed-in resident (contract §6): `POST /v1/resident/realtime/auth` (through the
  * BFF) gives a 60-second stream token and URL; the stream is read through the BFF's streaming passthrough; each
@@ -51,15 +71,7 @@ export function RealtimeBridge() {
         attempt = 0;
       });
       source.onmessage = onEvent;
-      for (const name of [
-        "payment.confirmed",
-        "payment.failed",
-        "invoice.issued",
-        "invoice.paid",
-        "receipt.issued",
-        "notification.created",
-        "consent.changed",
-      ]) {
+      for (const name of REALTIME_EVENTS) {
         source.addEventListener(name, onEvent as EventListener);
       }
       source.onerror = () => {

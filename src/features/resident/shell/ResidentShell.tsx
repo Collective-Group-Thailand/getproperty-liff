@@ -24,7 +24,7 @@ export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
  */
 export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph; needs?: ResidentEntitlement }[] = [
   { key: "home", href: "/", icon: IconHome },
-  { key: "bills", href: "/bills", icon: IconBill, needs: "bills" },
+  { key: "bills", href: "/invoices", icon: IconBill, needs: "bills" },
   { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
   { key: "requests", href: "/requests", icon: IconTicket, needs: "service_requests" },
   { key: "me", href: "/profile", icon: IconResident },

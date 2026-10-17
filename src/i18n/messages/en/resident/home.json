@@ -5,7 +5,8 @@
     "unitCode": "Unit {code}",
     "building": "{name}",
     "operator": "Managed by {name}",
-    "since": "Living here since {date}"
+    "since": "Living here since {date}",
+    "lease": "Lease {number} · {status}"
   },
   "bills": {
     "title": "Bills for this unit",
@@ -14,12 +15,13 @@
   },
   "tiles": {
     "title": "Menu",
-    "bills": "Bills & receipts",
+    "bills": "Bills",
     "usage": "Water & electricity",
     "serviceRequest": "Service request",
     "lease": "Lease",
     "announcements": "Announcements",
-    "parcels": "Parcels"
+    "parcels": "Parcels",
+    "receipts": "Receipts"
   },
   "noUnit": {
     "title": "No unit on this account yet",
@@ -30,5 +32,17 @@
     "signTitle": "Lease waiting for signatures",
     "signBody": "Unit {unit} · {building}",
     "signCta": "Open the lease"
+  },
+  "invoice": {
+    "title": "Bill for {period}",
+    "pay": "Scan to pay",
+    "details": "See the bill",
+    "more": "{count, plural, one {# more bill} other {# more bills}} to pay",
+    "nothingDue": "Nothing to pay",
+    "nothingDueBody": "You are all paid up. When a new bill is ready, you will hear about it in LINE."
+  },
+  "inbox": {
+    "title": "Latest notifications",
+    "unread": "New:"
   }
 }

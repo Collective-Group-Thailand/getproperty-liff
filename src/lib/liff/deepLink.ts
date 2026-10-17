@@ -17,6 +17,9 @@ export const DEEP_LINK_ROOTS = [
   "requests",
   "lease",
   "notice",
+  // L3/L2: the API's LINE messages link `/deposits/{id}` (deposit statement) and `/receipts/{id}`.
+  "deposit",
+  "deposits",
   "announcements",
   "parcels",
   "profile",

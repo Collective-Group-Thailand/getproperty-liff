@@ -20,6 +20,19 @@ export interface LiffClient {
   /** The only way to open a URL from inside LINE (no `window.open`, CLAUDE.md). */
   openWindow(params: { url: string; external?: boolean }): void;
   closeWindow(): void;
+  /** Whether an SDK API works in this environment (`shareTargetPicker` needs LINE 10.3+ and the channel setting). */
+  isApiAvailable(api: "shareTargetPicker"): boolean;
+  /**
+   * LINE's share target picker (friends and groups). Resolves `true` when sent, `false` when the resident
+   * closed the picker; rejects when the SDK refused.
+   */
+  shareTargetPicker(messages: LiffTextMessage[]): Promise<boolean>;
+}
+
+/** The one LINE message type this app shares (a receipt summary with a link back into the app). */
+export interface LiffTextMessage {
+  type: "text";
+  text: string;
 }
 
 export type LiffStepName = "init" | "login" | "session" | "link";

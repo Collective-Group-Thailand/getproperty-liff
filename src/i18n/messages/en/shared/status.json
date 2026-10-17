@@ -80,5 +80,13 @@
     "fulfilled": "Done",
     "rejected": "Refused",
     "withdrawn": "Withdrawn"
+  },
+  "slip": {
+    "pending_verification": "Checking the slip",
+    "auto_confirmed": "Confirmed",
+    "pending_review": "Waiting for the office",
+    "approved": "Confirmed by the office",
+    "rejected": "Not accepted",
+    "duplicate": "Already sent before"
   }
 }

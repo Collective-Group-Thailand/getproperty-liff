@@ -1,0 +1,115 @@
+{
+  "title": "Pay the bill",
+  "subtitle": "Bill {number}",
+  "loading": "Preparing the QR…",
+  "loadFailed": "Could not load the payment details. Try again.",
+  "amountLabel": "Amount to pay",
+  "includesEarlier": "Includes what is unpaid on earlier bills (this bill: {balance}); payments go to the oldest bill first.",
+  "qrAlt": "Thai QR to pay {amount}, reference {reference}",
+  "renew": "Get a new QR",
+  "reference": "Reference",
+  "referenceShort": "Ref. {reference}",
+  "payee": "Pay to",
+  "validUntil": "QR valid until {date}",
+  "validityLabel": "QR validity",
+  "validFor": "QR valid for {time} more",
+  "expiredTitle": "This QR has expired",
+  "expiredBody": "Get a new one — the amount stays the same.",
+  "save": "Save the QR picture",
+  "saveHintLine": "In LINE you can also press and hold the QR to save it.",
+  "saveFailed": "Could not save the picture — take a screenshot instead.",
+  "openBank": "Open my banking app",
+  "openBankHint": "Pick your bank, then scan the saved QR from your photos. If nothing opens, open the banking app yourself.",
+  "banks": {
+    "kbank": "Kasikorn (K PLUS)",
+    "scb": "SCB (SCB EASY)",
+    "ktb": "Krungthai (NEXT)",
+    "bbl": "Bangkok Bank",
+    "bay": "Krungsri (KMA)",
+    "ttb": "ttb (ttb touch)",
+    "gsb": "GSB (MyMo)"
+  },
+  "steps": {
+    "save": "Save the QR picture or take a screenshot.",
+    "scan": "Open your banking app, choose scan, and pick the QR from your photos.",
+    "back": "Come back here — we confirm the payment by ourselves."
+  },
+  "waitingShort": "Waiting for payment",
+  "waiting": "Waiting for your payment — this screen updates by itself when the money arrives.",
+  "noQrTitle": "Pay by bank transfer",
+  "noQrTransfer": "Transfer to {bank}, account {account} ({name}), then send us the slip.",
+  "noQrContact": "Ask the building office how to pay this bill.",
+  "slipCta": "Paid by transfer? Send the slip",
+  "paid": {
+    "title": "Payment received",
+    "alreadyTitle": "This bill is paid",
+    "body": "{amount} for bill {number}. Thank you!",
+    "receipt": "See receipt {number}",
+    "receipts": "See my receipts",
+    "done": "Done"
+  },
+  "push": {
+    "title": "Hear about your next bill?",
+    "body": "Turn on notifications in this browser to know when a new bill is ready or a payment arrived.",
+    "accept": "Turn on notifications",
+    "decline": "Not now",
+    "on": "Notifications are on.",
+    "denied": "The browser blocked notifications. You can change that in its settings.",
+    "failed": "Could not turn on notifications. Try again later."
+  },
+  "slip": {
+    "stepsLabel": "Sending a slip",
+    "stepOf": "Step {step} of {total}",
+    "steps": {
+      "choose": "Choose the slip",
+      "check": "Check it",
+      "send": "Send and wait"
+    },
+    "lead": "Transfer {amount} to the landlord's account, then send the transfer slip.",
+    "account": "Receiving account: {bank} {account} ({name})",
+    "gallery": "Choose the slip from photos",
+    "camera": "Photograph a paper slip",
+    "shoot": "Take the photo",
+    "shootHint": "Keep the slip inside the frame, numbers readable.",
+    "cancelCamera": "Close the camera",
+    "backToQr": "Back to the QR",
+    "problem": {
+      "too_large": {
+        "title": "The file is too large",
+        "body": "Choose a slip picture or PDF under 3.5 MB."
+      },
+      "unsupported": {
+        "title": "This file cannot be opened",
+        "body": "Send the slip as a picture (JPEG, PNG, WebP) or a PDF."
+      }
+    },
+    "checkTitle": "Is this the right slip?",
+    "checkBody": "Check that it is the slip of this transfer, for {amount}, and that it is readable.",
+    "previewAlt": "The slip you chose",
+    "pdf": "PDF: {name}",
+    "send": "Send the slip",
+    "another": "Choose another slip",
+    "outcomeTitle": "Your slip",
+    "sentAt": "Sent {date}",
+    "outcome": {
+      "pending": "Checking the slip — it takes a moment; this screen updates by itself.",
+      "pendingNoStatus": "We have your slip. Once it is confirmed the bill turns paid and the receipt comes in LINE.",
+      "confirmedTitle": "Payment confirmed",
+      "confirmedBody": "The slip passed the check; the receipt follows.",
+      "reviewTitle": "Waiting for the office",
+      "reviewBody": "It could not be confirmed automatically. The building office will check it and tell you in LINE.",
+      "reasons": {
+        "not_recognised": "The slip could not be read, or it is not a transfer slip.",
+        "duplicate_reference": "This transfer reference was used before.",
+        "receiver_mismatch": "The receiving account on the slip is not the landlord's.",
+        "amount_above_due": "The amount on the slip is more than what is due.",
+        "amount_below_due": "The amount on the slip is less than what is due.",
+        "amount_unreadable": "The amount on the slip could not be read."
+      },
+      "duplicateTitle": "This slip was sent before",
+      "duplicateBody": "One transfer can pay only once. If you made a new transfer, send that slip.",
+      "rejectedTitle": "The slip was not accepted",
+      "rejectedBody": "The office did not accept this slip. Contact the building office or pay with the QR."
+    }
+  }
+}

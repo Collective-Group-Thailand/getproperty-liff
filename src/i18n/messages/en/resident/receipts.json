@@ -1,0 +1,33 @@
+{
+  "title": "Receipts",
+  "empty": "No receipts yet",
+  "emptyBody": "A receipt is issued automatically once a bill is paid.",
+  "itemMeta": "{date} · {issuer} · Unit {unit}",
+  "voided": "Voided",
+  "voidedBody": "This receipt was voided because its payment was reversed.",
+  "pages": "Receipt pages",
+  "newer": "Newer",
+  "older": "Older",
+  "detailTitle": "Receipt {number}",
+  "kind": {
+    "payment": "Payment received",
+    "deposit": "Deposit received",
+    "advance": "Paid in advance"
+  },
+  "issuedAt": "Date",
+  "issuer": "Issued by",
+  "unit": "Unit",
+  "paidInvoices": "Bills paid",
+  "pdf": "Open the receipt (PDF)",
+  "share": {
+    "button": "Share in LINE",
+    "title": "Receipt {number}",
+    "text": "Receipt {number} — {amount} paid to {issuer}. {link}",
+    "outcome": {
+      "sent": "Sent.",
+      "shared": "Shared.",
+      "copied": "Copied — paste it in a chat.",
+      "failed": "Sharing is not possible in this browser."
+    }
+  }
+}

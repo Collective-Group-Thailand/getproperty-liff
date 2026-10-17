@@ -51,7 +51,6 @@ export function UnitSwitcherView({ units, currentId, onSelect }: UnitSwitcherVie
         type="button"
         className="rounded-control hover:bg-bg-subtle -ms-2 flex min-h-12 min-w-0 items-center gap-1 px-2 text-start"
         aria-haspopup="dialog"
-        aria-label={t("open", { unit: current.unitNo, building: current.buildingName })}
         onClick={() => {
           setLoaded(true);
           setOpen(true);
@@ -59,6 +58,8 @@ export function UnitSwitcherView({ units, currentId, onSelect }: UnitSwitcherVie
         data-testid="unit-switcher"
       >
         {label}
+        {/* The visible unit and building are the name; the action is appended for screen readers (WCAG 2.5.3). */}
+        <span className="sr-only">{t("switch")}</span>
         <Icon icon={IconChevronsUpDown} className="text-muted shrink-0" />
       </button>
       {loaded ? (

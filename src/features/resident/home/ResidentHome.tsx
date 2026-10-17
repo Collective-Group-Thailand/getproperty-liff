@@ -1,26 +1,36 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-import { formatDate } from "@/i18n/format";
+import { Due } from "@/features/resident/invoices/Due";
+import { PayLauncher } from "@/features/resident/pay/PayLauncher";
+import { dueState, needsAttention, openFirst } from "@/features/resident/invoices/model";
+import { LEASE_STATUS } from "@/domain/status/lease";
+import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
-import type { ResidentEntitlement, ResidentMe, ResidentUnit } from "@/lib/api/types";
+import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InboxItem, ResidentEntitlement, ResidentMe, ResidentUnit } from "@/lib/api/types";
 import type { ResidentNavEntitlements } from "@/lib/auth/entitlements";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
+import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { Icon, type IconGlyph } from "@/ui/icons";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
+import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLease } from "@/ui/icons/glyphs/lease";
 import { IconParcel } from "@/ui/icons/glyphs/parcel";
+import { IconPayment } from "@/ui/icons/glyphs/payment";
 import { IconRoom } from "@/ui/icons/glyphs/room";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
 const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitlement }[] = [
-  { key: "bills", href: "/bills", icon: IconBill, needs: "bills" },
+  { key: "bills", href: "/invoices", icon: IconBill, needs: "bills" },
+  { key: "receipts", href: "/receipts", icon: IconPayment, needs: "bills" },
   { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
   { key: "serviceRequest", href: "/requests", icon: IconTicket, needs: "service_requests" },
   { key: "lease", href: "/lease", icon: IconLease, needs: "lease" },
@@ -28,26 +38,55 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
 ];
 
+/** The selected unit's invoices: by `unitId` when the API sends it (CONTRACT-REQUEST #15), else unit no. + landlord. */
+function ofUnit(invoices: InvoiceView[], unit: ResidentUnit): InvoiceView[] {
+  return invoices.filter((invoice) =>
+    invoice.unitId
+      ? invoice.unitId === unit.unitId
+      : invoice.unitNo === unit.unitNo && invoice.issuerName === unit.tenantName,
+  );
+}
+
 /**
- * Resident home (design-system.md §4 "Mobile hero + tiles"), driven by `/v1/resident/me`: the greeting, the
- * selected unit (unit no., building, the operator that runs it, since when), the bills card and the tiles the
- * resident is entitled to. The open-invoice hero with the amount and the QR arrives with the invoice endpoints
- * (L2); nothing here is sample data.
+ * Resident home (design-system.md §4 "Mobile hero + tiles", L2 2.1 §1), driven by `/v1/resident/me` and my open
+ * invoices: the selected unit (unit no., building, the operator that runs it, since when, its lease), the open
+ * invoice of that unit as the hero — amount, due date in words (amber only when attention is needed, never red,
+ * D-100) and "scan to pay" straight into the QR sheet — the tiles the resident is entitled to, and the latest
+ * notifications. Nothing here is sample data and nothing is computed: amounts are the API's strings.
  */
 export async function ResidentHome({
   me,
   unit,
   entitlements,
+  openInvoices,
+  notifications,
+  today,
+  vapidKey,
 }: {
   me: ResidentMe;
   unit: ResidentUnit | null;
   entitlements: ResidentNavEntitlements;
+  /** `null` when the invoices could not be loaded (the hero then links to the list instead). */
+  openInvoices: InvoiceView[] | null;
+  notifications: InboxItem[];
+  today: string;
+  vapidKey?: string;
 }) {
   const t = await getTranslations("resident.home");
+  const root = await getTranslations();
   const current = await getLocale();
   const locale = isLocale(current) ? current : "th";
   // A lease the office sent for signature (D-062) — also before the resident occupies any unit.
   const pending = me.leases.find((lease) => lease.status === "pending_signature");
+  const unitLease = unit
+    ? me.leases.find(
+        (lease) =>
+          lease.unitNo === unit.unitNo && lease.tenantId === unit.tenantId && lease.status !== "pending_signature",
+      )
+    : undefined;
+  const due = unit && openInvoices ? openFirst(ofUnit(openInvoices, unit)).open : [];
+  const hero = due[0];
+  const heroState = hero ? dueState(hero, today) : null;
 
   return (
     <div className="flex flex-col gap-4 py-5" data-testid="resident-home">
@@ -77,6 +116,56 @@ export async function ResidentHome({
 
       {unit ? (
         <>
+          {entitlements.has("bills") ? (
+            hero && heroState ? (
+              <Card
+                as="section"
+                aria-labelledby="bills-title"
+                padding="lg"
+                className="bg-primary-subtle border-transparent"
+                data-testid="home-invoice"
+                data-invoice={hero.id}
+              >
+                <h2 id="bills-title" className="text-primary-subtle-fg font-semibold">
+                  {t("invoice.title", { period: formatDate(hero.periodStart, locale, { style: "month" }) })}
+                </h2>
+                <MoneyDisplay
+                  amount={hero.balance}
+                  locale={locale}
+                  size="hero"
+                  tone={needsAttention(heroState) ? "attention" : "default"}
+                />
+                <Due state={heroState} dueDate={hero.dueDate} locale={locale} className="mt-1" />
+                <div className="mt-4 flex flex-col gap-2">
+                  <PayLauncher invoice={hero} label={t("invoice.pay")} testId="home-pay" vapidKey={vapidKey} />
+                  <Button asChild variant="ghost" block iconEnd={IconForward}>
+                    <Link href={`/invoices/${hero.id}`}>{t("invoice.details")}</Link>
+                  </Button>
+                  {due.length > 1 ? (
+                    <Link href="/invoices" className="text-primary min-h-12 self-center py-3 text-sm font-medium">
+                      {t("invoice.more", { count: due.length - 1 })}
+                    </Link>
+                  ) : null}
+                </div>
+              </Card>
+            ) : (
+              <Card as="section" aria-labelledby="bills-title" padding="md" data-testid="home-no-invoice">
+                <h2 id="bills-title" className="flex items-center gap-2 font-semibold">
+                  {openInvoices ? <Icon icon={IconCheckCircle} className="text-success-subtle-fg" /> : null}
+                  {openInvoices ? t("invoice.nothingDue") : t("bills.title")}
+                </h2>
+                <p className="text-muted mt-1 text-sm">
+                  {openInvoices ? t("invoice.nothingDueBody") : t("bills.body")}
+                </p>
+                <div className="mt-3">
+                  <Button asChild block variant="secondary" iconEnd={IconForward}>
+                    <Link href="/invoices">{t("bills.cta")}</Link>
+                  </Button>
+                </div>
+              </Card>
+            )
+          ) : null}
+
           <Card as="section" aria-labelledby="unit-title" padding="md" data-testid="unit-card">
             <h2 id="unit-title" className="text-muted text-sm">
               {t("unit.title")}
@@ -85,26 +174,19 @@ export async function ResidentHome({
             <p className="text-muted text-sm">{t("unit.building", { name: unit.buildingName })}</p>
             <p className="text-muted text-sm">{t("unit.operator", { name: unit.tenantName })}</p>
             <p className="text-muted mt-1 text-xs">{t("unit.since", { date: formatDate(unit.validFrom, locale) })}</p>
+            {unitLease ? (
+              <Link
+                href={`/lease/${unitLease.leaseId}`}
+                className="text-primary mt-1 inline-flex min-h-12 items-center gap-1 text-sm font-medium"
+                data-testid="unit-lease"
+              >
+                {t("unit.lease", {
+                  number: unitLease.number ?? "—",
+                  status: root(LEASE_STATUS[unitLease.status].labelKey),
+                })}
+              </Link>
+            ) : null}
           </Card>
-
-          {entitlements.has("bills") ? (
-            <Card
-              as="section"
-              aria-labelledby="bills-title"
-              padding="lg"
-              className="bg-primary-subtle border-transparent"
-            >
-              <h2 id="bills-title" className="text-primary-subtle-fg font-semibold">
-                {t("bills.title")}
-              </h2>
-              <p className="text-muted mt-1 text-sm">{t("bills.body")}</p>
-              <div className="mt-4">
-                <Button asChild block variant="secondary" iconEnd={IconForward}>
-                  <Link href="/bills">{t("bills.cta")}</Link>
-                </Button>
-              </div>
-            </Card>
-          ) : null}
 
           <section aria-labelledby="tiles-title">
             <h2 id="tiles-title" className="sr-only">
@@ -126,6 +208,31 @@ export async function ResidentHome({
               ))}
             </ul>
           </section>
+
+          {notifications.length ? (
+            <section aria-labelledby="inbox-title" data-testid="home-notifications">
+              <h2 id="inbox-title" className="mb-1 flex items-center gap-2 font-semibold">
+                <Icon icon={IconBell} />
+                {t("inbox.title")}
+              </h2>
+              <ul>
+                {notifications.map((item) => (
+                  <li key={item.id} className="border-border border-b py-2 last:border-b-0">
+                    <p className="flex items-start justify-between gap-2">
+                      <span className={item.readAt ? "font-medium" : "font-semibold"}>
+                        {item.readAt ? null : <span className="sr-only">{t("inbox.unread")} </span>}
+                        {item.title ?? item.body}
+                      </span>
+                      <time dateTime={item.createdAt} className="text-muted shrink-0 text-xs">
+                        {formatRelativeTime(item.createdAt, locale)}
+                      </time>
+                    </p>
+                    {item.title ? <p className="text-muted text-sm">{item.body}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </>
       ) : pending ? null : (
         <EmptyState

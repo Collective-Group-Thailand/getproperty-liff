@@ -26,12 +26,12 @@
     "signingOut": "กำลังออกจากระบบ…"
   },
   "unitSwitcher": {
-    "open": "ห้อง {unit} อาคาร {building} — เปลี่ยนห้อง",
     "title": "เลือกห้อง",
     "description": "{count, plural, other {คุณมี # ห้องในบัญชีนี้}}",
     "current": "ห้องที่เลือกอยู่",
     "unit": "ห้อง {unit}",
-    "place": "{building} · {operator}"
+    "place": "{building} · {operator}",
+    "switch": " — เปลี่ยนห้อง"
   },
   "envBadge": "สภาพแวดล้อม {name}"
 }

@@ -1,0 +1,84 @@
+{
+  "due": {
+    "overdue": "{days, plural, one {# day} other {# days}} late (due {date})",
+    "today": "Due today ({date})",
+    "inDays": "Due in {days, plural, one {# day} other {# days}} ({date})",
+    "paid": "Paid",
+    "void": "Cancelled"
+  },
+  "list": {
+    "title": "Bills",
+    "receipts": "Receipts",
+    "openTitle": "To pay",
+    "period": "Bill for {period}",
+    "issuerUnit": "{issuer} · Unit {unit}",
+    "pay": "Scan to pay",
+    "nothingDue": "Nothing to pay",
+    "nothingDueBody": "When the building issues a new bill, you will hear about it in LINE.",
+    "historyTitle": "Earlier bills",
+    "noHistory": "No earlier bills yet.",
+    "pages": "Bill pages",
+    "newer": "Newer",
+    "older": "Older"
+  },
+  "detail": {
+    "metaTitle": "Bill",
+    "back": "All bills",
+    "title": "Bill for {period}",
+    "meta": "{number} · {issuer} · Unit {unit}",
+    "periodIssued": "Billing period {from} – {to} · issued {issued}",
+    "toPay": "To pay",
+    "stillDue": "Still to pay",
+    "total": "Bill amount",
+    "pay": "Scan to pay",
+    "linesTitle": "What is on this bill",
+    "totals": {
+      "total": "This bill",
+      "prior": "Unpaid from earlier bills",
+      "amountDue": "Amount due",
+      "balance": "Still to pay"
+    },
+    "receipts": "Receipts for this bill",
+    "pdf": "Open the bill (PDF)"
+  },
+  "lines": {
+    "groups": {
+      "rent": "Rent",
+      "meter": "Electricity and water",
+      "service": "Services",
+      "common_fee": "Common fee",
+      "fund": "Fund",
+      "penalty": "Penalties",
+      "deposit": "Deposit",
+      "adjustment": "Adjustments"
+    },
+    "period": "{from} – {to}",
+    "readAt": "Read {date}",
+    "previous": "Previous reading",
+    "current": "This reading",
+    "used": "Used",
+    "pricePerUnit": "Price per unit",
+    "rate": "฿{rate} per unit",
+    "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
+    "quantityTimesPrice": "{quantity} × ฿{rate}",
+    "estimated": "This is an estimate; it is corrected on the next bill once the meter is read.",
+    "photoOpen": "See the meter photo",
+    "photoAlt": "Meter photo: {title}",
+    "photoCaption": "Photo taken at the reading",
+    "estimatedBadge": "Estimate"
+  },
+  "explained": {
+    "title": "Why this amount",
+    "rent": "Rent is the monthly rent in your lease.",
+    "meters": "Electricity and water are the units you used (this reading minus the previous one) times the price per unit. Every meter line above shows the readings, the units and the price per unit.",
+    "sources": "The label next to a line says where the reading came from: a smart meter, a photo, read by staff, or an estimate.",
+    "estimate": "This bill has an estimated line because there was no actual reading; the difference is settled on the next bill once the meter is read.",
+    "prior": "This bill includes {amount} left unpaid on earlier bills. Payments go to the oldest bill first.",
+    "late": "This bill is past its due date. A late fee can only be charged if your lease says so, and it would be on a later bill — never added to this one.",
+    "questions": "Questions about a line? Contact {issuer} directly.",
+    "lawTitle": "The law protects you",
+    "lawBody": "A landlord may not charge more for electricity and water than the electricity and water authorities charge the building, and the bill must show the units used and the price per unit.",
+    "legalRef": "Contract Committee announcement on residential rental as a contract-controlled business, B.E. 2568, clause 5 (6)",
+    "lawLink": "Read the OCPB announcement"
+  }
+}

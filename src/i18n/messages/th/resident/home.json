@@ -5,7 +5,8 @@
     "unitCode": "ห้อง {code}",
     "building": "{name}",
     "operator": "ดูแลโดย {name}",
-    "since": "เข้าพักตั้งแต่ {date}"
+    "since": "เข้าพักตั้งแต่ {date}",
+    "lease": "สัญญาเช่า {number} · {status}"
   },
   "bills": {
     "title": "บิลของห้องนี้",
@@ -14,12 +15,13 @@
   },
   "tiles": {
     "title": "เมนู",
-    "bills": "บิลและใบเสร็จ",
+    "bills": "บิล",
     "usage": "การใช้น้ำไฟ",
     "serviceRequest": "แจ้งซ่อม",
     "lease": "สัญญาเช่า",
     "announcements": "ประกาศ",
-    "parcels": "พัสดุ"
+    "parcels": "พัสดุ",
+    "receipts": "ใบเสร็จ"
   },
   "noUnit": {
     "title": "ยังไม่มีห้องในบัญชีนี้",
@@ -30,5 +32,17 @@
     "signTitle": "สัญญาเช่ารอการลงนาม",
     "signBody": "ห้อง {unit} · {building}",
     "signCta": "เปิดสัญญาเช่า"
+  },
+  "invoice": {
+    "title": "บิลเดือน {period}",
+    "pay": "สแกนจ่าย",
+    "details": "ดูรายละเอียดบิล",
+    "more": "มีอีก {count} บิลที่ต้องจ่าย",
+    "nothingDue": "ไม่มีบิลค้างจ่าย",
+    "nothingDueBody": "จ่ายครบแล้ว เมื่อบิลใหม่ออก คุณจะได้รับแจ้งใน LINE"
+  },
+  "inbox": {
+    "title": "แจ้งเตือนล่าสุด",
+    "unread": "ใหม่:"
   }
 }
