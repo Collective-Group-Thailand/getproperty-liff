@@ -6,6 +6,7 @@
  *   …newcomer…  first sign-in: the consent purposes are unanswered (D-025)
  *   …multi…     two units in two buildings (unit switcher)
  *   …invitee…   no unit yet (accepts an invitation code) and consents unanswered
+ *   …signer… / …moveout… / …manual…   lease, deposit and usage scenarios (`mocks/residence.ts`)
  *   …disabled…  the account is disabled (`auth.account_disabled`)
  */
 import type { components } from "../src/lib/api/schema";
@@ -27,11 +28,11 @@ export interface MockAccount {
   displayName: string;
   phone: string | null;
   lineLinked: boolean;
-  language: string;
+  language: components["schemas"]["ResidentLanguage"];
   units: Unit[];
   consents: MockConsent[];
   disabled: boolean;
-  /** Invitation codes this account accepted (CONTRACT-REQUEST #1). */
+  /** Invitation codes this account accepted (`POST /v1/resident/link`). */
   accepted: Set<string>;
 }
 

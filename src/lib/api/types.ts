@@ -30,11 +30,8 @@ export type OtpChallenge = Schemas["OtpChallengeDto"];
 export type TechnicianMe = Schemas["TechnicianMeDto"];
 export type RealtimeAuth = Schemas["RealtimeAuthDto"];
 
-/**
- * Menu entitlements of the resident (contract §4 lists "menu entitlements" in `/me`).
- * CONTRACT-REQUEST: `ResidentMeDto.entitlements` is not in the contract yet (docs/contract-requests.md #2);
- * the keys are this app's menu entries.
- */
+/** Menu entitlements of the resident (`ResidentMeDto.entitlements`, D-063); the keys are this app's menu entries. */
+export type ResidentEntitlement = Schemas["ResidentEntitlement"];
 export const RESIDENT_ENTITLEMENTS = [
   "bills",
   "usage",
@@ -42,22 +39,32 @@ export const RESIDENT_ENTITLEMENTS = [
   "lease",
   "announcements",
   "parcels",
-] as const;
-export type ResidentEntitlement = (typeof RESIDENT_ENTITLEMENTS)[number];
+] as const satisfies readonly ResidentEntitlement[];
 
 /** `/v1/resident/me` as this app reads it. */
-export type ResidentMe = Schemas["ResidentMeDto"] & {
-  /** CONTRACT-REQUEST #2 — absent from the contract today; see `entitlementsOf()`. */
-  entitlements?: string[];
-};
+export type ResidentMe = Schemas["ResidentMeDto"];
+export type ResidentLeaseSummary = Schemas["ResidentLeaseSummaryDto"];
+export type ResidentLanguage = Schemas["ResidentLanguage"];
 
-/**
- * CONTRACT-REQUEST #1 (`POST /v1/resident/link`, docs/contract-requests.md): accepting an operator's invitation
- * code links the signed-in resident to the invited party and answers with the units they now occupy.
- */
-export interface InvitationAcceptBody {
-  code: string;
-}
-export interface InvitationAccepted {
-  units: ResidentUnit[];
-}
+/** `POST /v1/resident/link` (D-061): the invitation code from the invite QR/SMS deep link. */
+export type ResidentLinkBody = Schemas["ResidentLinkDto"];
+export type ResidentLinked = Schemas["ResidentLinkedDto"];
+
+// L3 — lease, e-signature, notice, deposit, usage, profile & privacy (B2.3, B2.4, B3.2, B1.3).
+export type ResidentLease = Schemas["ResidentLeaseDto"];
+export type LeaseParty = Schemas["LeasePartyViewDto"];
+export type LeaseLine = Schemas["LeaseLineDto"];
+export type AddendumClause = Schemas["AddendumClauseDto"];
+export type ContractDownload = Schemas["ContractDownloadDto"];
+export type SignatureOtp = Schemas["ResidentSignatureOtpDto"];
+export type ResidentDeposit = Schemas["ResidentDepositDto"];
+export type ResidentDeduction = Schemas["ResidentDeductionDto"];
+export type Settlement = Schemas["SettlementDto"];
+export type ResidentUsage = Schemas["ResidentUsageDto"];
+export type UtilityUsage = Schemas["UtilityUsageDto"];
+export type UsagePoint = Schemas["UsagePointDto"];
+export type SeriesBucket = Schemas["SeriesBucket"];
+export type ResidentPrivacy = Schemas["ResidentPrivacyDto"];
+export type Dsr = Schemas["DsrDto"];
+export type DsrKind = Schemas["DsrKind"];
+export type DsrCreate = Schemas["DsrCreateDto"];

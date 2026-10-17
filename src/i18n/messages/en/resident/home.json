@@ -25,5 +25,10 @@
     "title": "No unit on this account yet",
     "body": "Ask your building's office for an invitation code, then enter it to link your unit",
     "cta": "Enter an invitation code"
+  },
+  "lease": {
+    "signTitle": "Lease waiting for signatures",
+    "signBody": "Unit {unit} · {building}",
+    "signCta": "Open the lease"
   }
 }

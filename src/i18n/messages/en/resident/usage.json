@@ -1,0 +1,49 @@
+{
+  "title": "Water & electricity use",
+  "rangeLabel": "Period",
+  "range": {
+    "24h": "24 hours",
+    "7d": "7 days",
+    "30d": "30 days"
+  },
+  "utility": {
+    "electric": "Electricity",
+    "water": "Water"
+  },
+  "summary": {
+    "current": "This period",
+    "previous": "Previous period",
+    "cycle": "So far this billing cycle (since {date}): {usage}",
+    "cycleEstimated": "Estimated so far this billing cycle (since {date}): {usage} — the bill uses the meter reading"
+  },
+  "chartLabel": "{utility} use, {period}, compared with the period before. The values are in the table below",
+  "series": {
+    "current": {
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days"
+    },
+    "previous": {
+      "24h": "The 24 hours before",
+      "7d": "The 7 days before",
+      "30d": "The 30 days before"
+    }
+  },
+  "showTable": "Show as a table",
+  "hideTable": "Hide the table",
+  "hour": "Hour",
+  "day": "Day",
+  "tableCaption": "{utility} use in {unit}",
+  "tips": {
+    "title": "Tips to save",
+    "fridge": "Keep the fridge at 3–5 °C and its door seal clean",
+    "aircon": "Set the air conditioner to 26 °C and clean its filter every month",
+    "standby": "Switch off chargers and TVs at the plug when you go out",
+    "shower": "A shorter shower saves water and the water heater's electricity"
+  },
+  "manual": {
+    "title": "Water & electricity use",
+    "body": "The meters of your unit are read by the building's staff once a month, so there is no daily chart",
+    "bills": "Each month's reading and the meter photo are on your bill"
+  }
+}

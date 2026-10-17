@@ -8,16 +8,24 @@
  *
  * Needs a sibling checkout `../getproperty-api` with `pnpm install` done and `pnpm build:fast` run (the harness
  * runs it when `dist/` is missing). State lives in a temp dir and is removed afterwards.
+ *
+ * `GETPROPERTY_API_REF=<commit>` runs a **committed** API instead of the working tree: the commit is exported with
+ * `git archive` into the temp dir (the checkout's `node_modules` linked in) and built there, so the run is pinned to
+ * the contract this app adopted (`contract.lock.json` → `sourceCommit`) and never writes into the checkout.
  */
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
-import { chownSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { createHash, createHmac, randomUUID } from "node:crypto";
+import { chownSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 export const API_DIR = resolve(process.env.GETPROPERTY_API_DIR ?? join(__dirname, "../../../getproperty-api"));
+/** Exported to the test workers by the global setup. */
+export const INT_DATABASE_ENV = "GP_INT_DATABASE_URL";
+/** The development HMAC key of the API (`LOOKUP_HASH` of OTP codes) — the harness never sets FIELD_HASH_KEY. */
+export const DEV_FIELD_HASH_KEY = "getproperty-dev-field-hash-key";
 export const API_PORT = Number(process.env.INTEGRATION_API_PORT ?? 4610);
 /** The LINE user id the fake LIFF signs in with; the harness gives this party an occupancy. */
 export const RESIDENT_LINE_SUB = "U0000000000000000000000integration";
@@ -45,9 +53,24 @@ async function freePort(): Promise<number> {
   });
 }
 
-function pnpm(args: string[], env: Record<string, string> = {}): void {
-  const result = spawnSync("pnpm", args, { cwd: API_DIR, stdio: "inherit", env: { ...process.env, ...env } });
-  if (result.status !== 0) throw new Error(`pnpm ${args.join(" ")} failed in ${API_DIR}`);
+function pnpm(args: string[], cwd: string, env: Record<string, string> = {}): void {
+  const result = spawnSync("pnpm", args, { cwd, stdio: "inherit", env: { ...process.env, ...env } });
+  if (result.status !== 0) throw new Error(`pnpm ${args.join(" ")} failed in ${cwd}`);
+}
+
+/** `git archive <ref>` of the API checkout into `target`, with the checkout's dependencies linked in, built. */
+function snapshotApi(ref: string, target: string): string {
+  const dir = join(target, "api");
+  mkdirSync(dir, { recursive: true });
+  const archive = spawnSync("git", ["-C", API_DIR, "archive", "--format=tar", ref], { maxBuffer: 1024 * 1024 * 1024 });
+  if (archive.status !== 0) throw new Error(`git archive ${ref} failed: ${archive.stderr.toString()}`);
+  const untar = spawnSync("tar", ["-x", "-C", dir], { input: archive.stdout });
+  if (untar.status !== 0) throw new Error(`tar failed: ${untar.stderr.toString()}`);
+  symlinkSync(join(API_DIR, "node_modules"), join(dir, "node_modules"), "dir");
+  // The Prisma client is generated (gitignored) — from this commit's schema, like the API's postinstall does.
+  pnpm(["prisma:generate"], dir);
+  pnpm(["build:fast"], dir);
+  return dir;
 }
 
 function waitForLine(child: ChildProcess, pattern: RegExp, timeoutMs: number, what: string): Promise<void> {
@@ -105,12 +128,15 @@ function stopGroup(child: ChildProcess | undefined): Promise<void> {
 }
 
 /** Same algorithm and bookkeeping as getproperty-api's `test/support/prisma-migrations.ts`. */
-async function applyPrismaMigrations(db: { query: (sql: string, params?: unknown[]) => Promise<unknown> }) {
+async function applyPrismaMigrations(
+  db: { query: (sql: string, params?: unknown[]) => Promise<unknown> },
+  apiDir: string,
+) {
   await db.query(`CREATE TABLE IF NOT EXISTS public."_prisma_migrations" (
     "id" VARCHAR(36) PRIMARY KEY NOT NULL, "checksum" VARCHAR(64) NOT NULL, "finished_at" TIMESTAMPTZ,
     "migration_name" VARCHAR(255) NOT NULL, "logs" TEXT, "rolled_back_at" TIMESTAMPTZ,
     "started_at" TIMESTAMPTZ NOT NULL DEFAULT now(), "applied_steps_count" INTEGER NOT NULL DEFAULT 0)`);
-  const dir = join(API_DIR, "prisma/migrations");
+  const dir = join(apiDir, "prisma/migrations");
   for (const name of readdirSync(dir)
     .filter((d) => /^\d{14}_/.test(d))
     .sort()) {
@@ -135,10 +161,11 @@ export async function startHarness(): Promise<Harness> {
   if (!existsSync(join(API_DIR, "package.json"))) {
     throw new Error(`getproperty-api not found at ${API_DIR} (set GETPROPERTY_API_DIR)`);
   }
-  if (!existsSync(join(API_DIR, "dist/src/main.js"))) pnpm(["build:fast"]);
-
   // 1. PostgreSQL via the API's `pnpm db:local` (runs as OS user postgres when we are root).
   const parent = mkdtempSync(join(tmpdir(), "gp-liff-int-"));
+  const ref = process.env.GETPROPERTY_API_REF;
+  const apiDir = ref ? snapshotApi(ref, parent) : API_DIR;
+  if (!existsSync(join(apiDir, "dist/src/main.js"))) pnpm(["build:fast"], apiDir);
   const isRoot = typeof process.getuid === "function" && process.getuid() === 0;
   if (isRoot) {
     const id = (flag: string) => Number(spawnSync("id", [flag, "postgres"], { encoding: "utf8" }).stdout.trim());
@@ -146,7 +173,7 @@ export async function startHarness(): Promise<Harness> {
   }
   const pgPort = await freePort();
   const pg = spawn("pnpm", ["db:local", "start"], {
-    cwd: API_DIR,
+    cwd: apiDir,
     detached: true,
     env: { ...process.env, LOCAL_PG_DIR: join(parent, "data"), LOCAL_PG_PORT: String(pgPort) },
   });
@@ -154,19 +181,19 @@ export async function startHarness(): Promise<Harness> {
   const databaseUrl = `postgresql://gp:gp@127.0.0.1:${pgPort}/getproperty`;
 
   // 2. Migrations (asset-core, then the API's) and the reference + dev seeds, as the API's integration suite does.
-  const requireFromApi = createRequire(join(API_DIR, "package.json"));
+  const requireFromApi = createRequire(join(apiDir, "package.json"));
   const { Client } = requireFromApi("pg") as { Client: new (options: { connectionString: string }) => PgClient };
   const { assetCoreMigrate } = requireFromApi("@collective/asset-core") as {
     assetCoreMigrate: (o: { client: unknown }) => Promise<unknown>;
   };
-  const { runSeed } = requireFromApi(join(API_DIR, "dist/prisma/seed/run.js")) as {
+  const { runSeed } = requireFromApi(join(apiDir, "dist/prisma/seed/run.js")) as {
     runSeed: (db: unknown, mode: "dev") => Promise<unknown>;
   };
   const db = new Client({ connectionString: databaseUrl });
   await db.connect();
   try {
     await assetCoreMigrate({ client: db });
-    await applyPrismaMigrations(db);
+    await applyPrismaMigrations(db, apiDir);
     await runSeed(db, "dev");
     // 3. The resident: a party with the fake LINE user id and an occupancy of the first dev unit (D-061 line_match).
     const party = await db.query<{ id: string }>(
@@ -186,7 +213,7 @@ export async function startHarness(): Promise<Harness> {
 
   // 4. The API.
   const api = spawn(process.execPath, ["dist/src/main.js"], {
-    cwd: API_DIR,
+    cwd: apiDir,
     detached: true,
     env: {
       ...process.env,
@@ -216,6 +243,7 @@ export async function startHarness(): Promise<Harness> {
     throw new Error(`${(error as Error).message}\n--- api log ---\n${apiLog.slice(-4000)}`);
   }
 
+  process.env[INT_DATABASE_ENV] = databaseUrl;
   return {
     async stop() {
       await stopGroup(api);
@@ -223,4 +251,38 @@ export async function startHarness(): Promise<Harness> {
       rmSync(parent, { recursive: true, force: true });
     },
   };
+}
+
+/** A database client for a test (the harness's PostgreSQL), through the API checkout's `pg`. */
+export async function intDatabase(): Promise<PgClient> {
+  const url = process.env[INT_DATABASE_ENV];
+  if (!url) throw new Error(`${INT_DATABASE_ENV} is not set — run through playwright.integration.config.ts`);
+  const { Client } = createRequire(join(API_DIR, "package.json"))("pg") as {
+    Client: new (options: { connectionString: string }) => PgClient;
+  };
+  const db = new Client({ connectionString: url });
+  await db.connect();
+  return db;
+}
+
+/**
+ * Sets the code of the newest OTP challenge of `purpose` to `code`. With `INTEGRATIONS_MODE=fake` the SMS stays in
+ * the API's memory; the challenge row holds only the HMAC of the code (D-148), so the test replaces it with the
+ * HMAC of a code it knows (same key and binding as the API's `LookupHasher.secret`).
+ */
+export async function setLatestOtpCode(purpose: string, code: string): Promise<string> {
+  const db = await intDatabase();
+  try {
+    const { rows } = await db.query<{ id: string }>(
+      `SELECT id FROM platform.otp_challenge WHERE purpose = $1 ORDER BY created_at DESC LIMIT 1`,
+      [purpose],
+    );
+    const id = rows[0]?.id;
+    if (!id) throw new Error(`no ${purpose} OTP challenge`);
+    const hash = createHmac("sha256", DEV_FIELD_HASH_KEY).update(`${id}|${code}`, "utf8").digest();
+    await db.query(`UPDATE platform.otp_challenge SET code_hash = $2 WHERE id = $1`, [id, hash]);
+    return id;
+  } finally {
+    await db.end();
+  }
 }

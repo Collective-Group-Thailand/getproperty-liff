@@ -10,7 +10,7 @@ import {
   serializeCookie,
   sessionCookies,
 } from "./cookies";
-import { DEFAULT_ENTITLEMENTS, entitlementsOf } from "./entitlements";
+import { entitlementsOf } from "./entitlements";
 import { consentPath, isLineInAppBrowser, signInPath } from "./redirects";
 import { refreshTokens, resetRefreshCacheForTesting } from "./refresh";
 import { renewBeforeRender, sessionKindForPath } from "./renew";
@@ -123,11 +123,11 @@ describe("refreshTokens", () => {
   });
 });
 
-describe("entitlements (CONTRACT-REQUEST #2)", () => {
-  it("defaults to bills only and shows nothing without a unit", () => {
-    expect([...entitlementsOf({ units: [{} as never] })]).toEqual([...DEFAULT_ENTITLEMENTS]);
-    expect([...entitlementsOf({ units: [] })]).toEqual([]);
-    expect([...entitlementsOf({ units: [{} as never], entitlements: ["usage", "bills", "admin"] })]).toEqual([
+describe("entitlements (ResidentMeDto.entitlements, D-063)", () => {
+  it("shows what the API lists, ignores unknown values and shows nothing without a unit", () => {
+    expect([...entitlementsOf({ units: [{} as never], entitlements: [] })]).toEqual([]);
+    expect([...entitlementsOf({ units: [], entitlements: ["bills"] })]).toEqual([]);
+    expect([...entitlementsOf({ units: [{} as never], entitlements: ["usage", "bills", "admin" as never] })]).toEqual([
       "usage",
       "bills",
     ]);

@@ -19,6 +19,15 @@ function documentLanguage(): string | undefined {
   return typeof document === "undefined" ? undefined : document.documentElement.lang || undefined;
 }
 
+/**
+ * The page's language for operations whose contract declares a required `accept-language` header parameter
+ * (consents, link, privacy, signature OTP — reported in docs/contract-requests.md #13); the middleware sends the
+ * same value on every other call.
+ */
+export function acceptLanguage(): string {
+  return documentLanguage() ?? "th";
+}
+
 export const browserApi = createClient<ApiPaths>({ baseUrl: BFF_BASE, credentials: "same-origin" });
 
 browserApi.use({

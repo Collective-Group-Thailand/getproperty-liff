@@ -6,6 +6,7 @@ import { cookies, headers } from "next/headers";
 import { SESSION_COOKIES, type SessionKind } from "@/lib/auth/cookies";
 import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/i18n/routing";
 
+import { problemFromParsed, type ApiError } from "./problem";
 import type { ApiPaths } from "./types";
 import { apiBaseUrl, MOCK_SCENARIO_COOKIE, MOCK_SCENARIO_HEADER, upstreamFetch } from "./upstream";
 
@@ -42,4 +43,23 @@ export async function serverApi(kind: SessionKind = "resident"): Promise<Client<
 export async function hasSessionCookie(kind: SessionKind = "resident"): Promise<boolean> {
   const jar = await cookies();
   return jar.has(SESSION_COOKIES[kind].access) || jar.has(SESSION_COOKIES[kind].refresh);
+}
+
+/**
+ * A server-side call outside the typed client — only for endpoints the contract does not publish yet, each marked
+ * `CONTRACT-REQUEST` at the call site (docs/contract-requests.md, `src/lib/api/contract-requests.ts`). Same headers
+ * as `serverApi()`; resolves with the parsed body or an `ApiError`.
+ */
+export async function serverJson<T>(
+  path: string,
+  kind: SessionKind = "resident",
+): Promise<{ data: T; error?: undefined } | { data?: undefined; error: ApiError }> {
+  const client = await serverApi(kind);
+  const { data, error, response } = await (
+    client as unknown as {
+      GET: (p: string) => Promise<{ data?: unknown; error?: unknown; response: Response }>;
+    }
+  ).GET(path);
+  if (response.ok && error === undefined) return { data: data as T };
+  return { error: problemFromParsed(response, error) };
 }

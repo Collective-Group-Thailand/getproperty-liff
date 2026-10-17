@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { parseCookieHeader } from "../src/lib/auth/cookies";
 import { createBffHandler } from "../src/lib/bff/handler";
 import { fakeLineIdToken } from "../src/lib/liff/fakeLineToken";
-import { MOCK_INVITATION } from "./contract-requests";
+import { MOCK_CONTRACT_SHA, SIGNATURE_OTP } from "./residence";
+import { MOCK_INVITATION } from "./resident";
 import { GENERATED_OPERATIONS } from "./generated/operations";
 import { OTP_CODE } from "./handlers";
 import { handleMockRequest } from "./server";
@@ -84,13 +85,26 @@ describe("mock API through the BFF", () => {
     expect(unknown.body).toMatchObject({ code: "consent.unknown_purpose" });
   });
 
-  it("accepts an invitation once and explains used and unknown codes (CONTRACT-REQUEST #1)", async () => {
+  it("accepts an invitation once, after consent, and explains used and unknown codes (D-061)", async () => {
     const b = browser();
     await b.signIn("Umock-invitee-3");
     expect((await b.call("GET", "/v1/resident/me")).body).toMatchObject({ units: [] });
+    expect((await b.call("POST", "/v1/resident/link", { code: MOCK_INVITATION.valid })).body).toMatchObject({
+      code: "consent.required",
+    });
+    await b.call("POST", "/v1/resident/consents", {
+      items: [{ purposeKey: "resident.service", version: 1, granted: true }],
+    });
     const linked = await b.call("POST", "/v1/resident/link", { code: MOCK_INVITATION.valid });
     expect(linked.status).toBe(200);
+    expect(linked.body).toMatchObject({ refreshRequired: true });
     expect((linked.body as { units: { unitNo: string }[] }).units[0]!.unitNo).toBe("A-201");
+    const lease = await b.call("POST", "/v1/resident/link", { code: MOCK_INVITATION.lease });
+    expect(lease.body).toMatchObject({ units: [] });
+    expect((await b.call("GET", `/v1/resident/leases/${String(lease.body!.leaseId)}`)).body).toMatchObject({
+      status: "pending_signature",
+    });
+    expect((await b.call("POST", "/auth/refresh")).status).toBe(200);
     expect((await b.call("POST", "/v1/resident/link", { code: MOCK_INVITATION.valid })).body).toMatchObject({
       code: "invitation.not_pending",
     });
@@ -165,7 +179,8 @@ describe("mock API through the BFF", () => {
         "idempotency-key": "3b241101-e2bb-4255-8caf-4136c566a962",
       });
       expect(result.status, `${op.operationId} ${JSON.stringify(result.body)}`).toBeLessThan(500);
-      expect(result.body?.code, op.operationId).not.toBe("http.not_found");
+      // A documented 404 of a stateful mock (an id the account does not have) is fine; an unmocked path is not.
+      expect(String(result.body?.detail ?? ""), op.operationId).not.toMatch(/^No mock for/);
     }
   });
 
@@ -177,5 +192,104 @@ describe("mock API through the BFF", () => {
       new Request(`${API}/v1/resident/me`, { headers: { authorization: `Bearer ${access}` } }),
     );
     expect(response.status).toBe(403);
+  });
+
+  it("L3: signs a lease with the OTP, the contract hash and a PNG, once per Idempotency-Key", async () => {
+    const b = browser();
+    await b.signIn("Umock-signer-20");
+    const [lease] = (await b.call("GET", "/v1/resident/leases")).body as unknown as { id: string }[];
+    const path = `/v1/resident/leases/${lease!.id}`;
+    expect((await b.call("GET", path)).body).toMatchObject({ signatureRequired: true, rulesAcknowledgedAt: null });
+    const contract = await b.call("GET", `${path}/contract`);
+    expect(contract.body).toMatchObject({ sha256: MOCK_CONTRACT_SHA, signed: false });
+    const otp = await b.call("POST", `${path}/signature/otp`, {});
+    const challengeId = otp.body!.challengeId as string;
+    const png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const sign = (code: string, key: string | null, sha = MOCK_CONTRACT_SHA) =>
+      b.call(
+        "POST",
+        `${path}/sign`,
+        { challengeId, code, contractSha256: sha, signaturePng: png },
+        key ? { "idempotency-key": key } : {},
+      );
+    expect((await sign(SIGNATURE_OTP, null)).body).toMatchObject({ code: "idempotency.key_required" });
+    expect((await sign(SIGNATURE_OTP, crypto.randomUUID(), "a".repeat(64))).body).toMatchObject({
+      code: "lease.contract_changed",
+    });
+    expect((await sign("000001", crypto.randomUUID())).body).toMatchObject({ code: "auth.otp_invalid" });
+    const key = crypto.randomUUID();
+    const signed = await sign(SIGNATURE_OTP, key);
+    expect(signed).toMatchObject({ status: 200, body: { signatureRequired: false, status: "pending_signature" } });
+    expect((await sign(SIGNATURE_OTP, key)).body).toEqual(signed.body);
+    const ack = await b.call("POST", `${path}/rules/acknowledge`);
+    expect(ack.body!.rulesAcknowledgedAt).toEqual(expect.any(String));
+  });
+
+  it("L3: a notice before the API's earliest date is refused with its legal reference", async () => {
+    const b = browser();
+    await b.signIn("Umock-notice-21");
+    const [lease] = (await b.call("GET", "/v1/resident/leases")).body as unknown as {
+      id: string;
+      noticeEarliestDate: string;
+    }[];
+    const early = await b.call("POST", `/v1/resident/leases/${lease!.id}/notice`, { effectiveDate: "2020-01-01" });
+    expect(early).toMatchObject({ status: 422, body: { code: "compliance.notice_period" } });
+    expect(early.body!.legalRef).toEqual(expect.any(String));
+    const ok = await b.call("POST", `/v1/resident/leases/${lease!.id}/notice`, {
+      effectiveDate: lease!.noticeEarliestDate,
+    });
+    expect(ok.body).toMatchObject({ status: "notice_given", notice: { effectiveDate: lease!.noticeEarliestDate } });
+  });
+
+  it("L3: disputes a proposed settlement with uploaded photos; usage series for IoT units", async () => {
+    const b = browser();
+    await b.signIn("Umock-moveout-22");
+    const [deposit] = (await b.call("GET", "/v1/resident/deposits")).body as unknown as {
+      id: string;
+      leaseId: string;
+      deductions: { beforeEvidenceUrls: string[] }[];
+    }[];
+    expect(deposit!.deductions[0]!.beforeEvidenceUrls).toHaveLength(1);
+    const upload = await b.call("POST", "/v1/resident/uploads", {
+      purpose: "deposit_dispute",
+      contentType: "image/jpeg",
+      sizeBytes: 3,
+    });
+    const fileId = upload.body!.fileId as string;
+    expect(
+      (
+        await b.call("POST", `/v1/resident/deposits/${deposit!.id}/actions/dispute`, {
+          reason: "รอยมีก่อนเข้าพัก",
+          photoDocumentIds: [fileId],
+        })
+      ).body,
+    ).toMatchObject({ code: "validation.failed" });
+    expect((await b.call("PUT", `/v1/resident/uploads/${fileId}/content`, "abc")).status).toBe(200);
+    const disputed = await b.call("POST", `/v1/resident/deposits/${deposit!.id}/actions/dispute`, {
+      reason: "รอยมีก่อนเข้าพัก",
+      photoDocumentIds: [fileId],
+    });
+    expect(disputed.body).toMatchObject({ status: "disputed", settlement: { residentResponse: "disputed" } });
+    const usage = await b.call("GET", `/v1/resident/leases/${deposit!.leaseId}/usage?bucket=1d`);
+    const series = usage.body!.series as { utility: string; points: unknown[] }[];
+    expect(series.map((s) => s.utility)).toEqual(["electric", "water"]);
+    expect(series[0]!.points.length).toBeGreaterThanOrEqual(30);
+  });
+});
+
+describe("Lighthouse URLs of mock leases", () => {
+  it("match the ids the mock derives from the seeded subjects (lighthouse/*.json)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { mockLeaseId } = await import("./residence");
+    const urls = ["resident", "resident-sign"].flatMap(
+      (set) =>
+        (
+          JSON.parse(readFileSync(new URL(`../lighthouse/${set}.json`, import.meta.url), "utf8")) as {
+            ci: { collect: { url: string[] } };
+          }
+        ).ci.collect.url,
+    );
+    expect(urls).toContain(`http://localhost:3400/lease/${mockLeaseId("line:Ulighthouse-resident", 0)}/notice`);
+    expect(urls).toContain(`http://localhost:3400/lease/${mockLeaseId("line:Ulighthouse-signer", 0)}/sign`);
   });
 });

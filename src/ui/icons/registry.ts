@@ -36,6 +36,9 @@ import { IconRefresh } from "./glyphs/refresh";
 import { IconCamera } from "./glyphs/camera";
 import { IconScan } from "./glyphs/scan";
 import { IconQr } from "./glyphs/qr";
+import { IconUndo } from "./glyphs/undo";
+import { IconSign } from "./glyphs/sign";
+import { IconImage } from "./glyphs/image";
 import { IconShow } from "./glyphs/show";
 import { IconHide } from "./glyphs/hide";
 import { IconCheck } from "./glyphs/check";
@@ -126,6 +129,9 @@ export const ICONS: { readonly [N in IconName]: IconGlyph<N> } = {
   camera: IconCamera,
   scan: IconScan,
   qr: IconQr,
+  undo: IconUndo,
+  sign: IconSign,
+  image: IconImage,
   show: IconShow,
   hide: IconHide,
   check: IconCheck,

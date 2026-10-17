@@ -31,6 +31,7 @@ export { LazyAlertDialog, LazyDialog, LazyDropdownMenu, LazySheet } from "./over
 export { PhoneInput, toE164, type PhoneInputProps } from "./PhoneInput";
 export { SegmentedControl, type SegmentedControlProps, type SegmentOption } from "./SegmentedControl";
 export { Sheet, type SheetProps } from "./Sheet";
+export { SignaturePad, blobToBase64, type SignaturePadProps } from "./SignaturePad";
 export { Skeleton, SkeletonText } from "./Skeleton";
 export { Spinner, type SpinnerProps } from "./Spinner";
 export { Stat, type StatProps } from "./Stat";

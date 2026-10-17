@@ -6,7 +6,9 @@
   "success": {
     "title": "Unit linked",
     "body": "{count, plural, one {This account now has # new unit} other {This account now has # new units}}",
-    "continue": "Continue"
+    "continue": "Continue",
+    "lease": "Your lease is linked to this account. Read and sign it to move in",
+    "openLease": "Open my lease"
   },
   "notFound": {
     "title": "Invitation code not found",

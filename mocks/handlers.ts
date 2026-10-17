@@ -23,6 +23,7 @@ import {
   type MockAccount,
   type MockSession,
 } from "./state";
+import { residenceOf } from "./residence";
 import { bangkokIso, mockAccessToken, readMockAccessToken, TTL } from "./tokens";
 
 type Schemas = components["schemas"];
@@ -31,8 +32,8 @@ export const OTP_CODE = "123456";
 export const OTP_EXPIRED_CODE = "000000";
 const OTP_MAX_ATTEMPTS = 5;
 
-/** Resident menu entitlements of the mock (CONTRACT-REQUEST #2: not in `ResidentMeDto` yet). */
-export const MOCK_ENTITLEMENTS = ["bills", "usage", "lease"];
+/** Resident menu entitlements of the mock (`ResidentMeDto.entitlements`); `…manual…` accounts have no IoT usage. */
+export const MOCK_ENTITLEMENTS = ["bills", "usage", "lease"] as const;
 
 function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
   const base = example<Schemas["TokenPairDto"]>("auth.residentLine.exchange");
@@ -77,8 +78,19 @@ function consentComplete(account: MockAccount): boolean {
   return account.consents.every((c) => !c.required || (c.granted === true && c.grantedVersion === c.version));
 }
 
-export function residentMe(account: MockAccount) {
+export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
   const base = example<Schemas["ResidentMeDto"]>("resident.me.get");
+  const residence = residenceOf(account);
+  const leases = residence.leases.map(({ dto }) => ({
+    leaseId: dto.id,
+    number: dto.number,
+    status: dto.status,
+    role: "lessee" as const,
+    unitNo: dto.unitNo,
+    buildingName: dto.buildingName,
+    tenantId: dto.tenantId,
+    tenantName: dto.tenantName,
+  }));
   return {
     ...base,
     consentComplete: consentComplete(account),
@@ -88,22 +100,24 @@ export function residentMe(account: MockAccount) {
       required: c.required,
       version: c.version,
     })),
-    scopes: account.units.map((u) => `unit:${u.unitId}`),
+    scopes: [...account.units.map((u) => `unit:${u.unitId}`), ...leases.map((l) => `lease:${l.leaseId}`)],
     units: account.units,
+    leases,
+    leaseIds: leases.map((l) => l.leaseId),
     user: {
       ...base.user,
       id: account.userId,
       displayName: account.displayName,
-      phone: account.phone,
+      // The phone the office recorded on the party (shown in the profile, used for the signature OTP).
+      phone: account.phone ?? (account.units.length ? base.user.phone : null),
       language: account.language,
       lineLinked: account.lineLinked,
     },
-    // CONTRACT-REQUEST #2: menu entitlements (docs/contract-requests.md).
-    entitlements: MOCK_ENTITLEMENTS,
+    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot"),
   };
 }
 
-function purposes(account: MockAccount, language: "th" | "en"): Schemas["ConsentPurposeDto"][] {
+export function purposesFor(account: MockAccount, language: "th" | "en"): Schemas["ConsentPurposeDto"][] {
   const base = example<Schemas["ConsentPurposeDto"][]>("resident.consents.list")[0]!;
   return account.consents.map((c) => {
     const text = PURPOSES[c.key as keyof typeof PURPOSES][language];
@@ -212,7 +226,7 @@ export const contractHandlers: HttpHandler[] = [
   http.get(mswPath("/v1/resident/consents"), ({ request }) => {
     const auth = authenticate(request, "resident", "resident.consents.list");
     if (auth instanceof Response) return auth;
-    return HttpResponse.json(purposes(auth.account, languageOf(request)));
+    return HttpResponse.json(purposesFor(auth.account, languageOf(request)));
   }),
 
   http.post(mswPath("/v1/resident/consents"), async ({ request }) => {
@@ -232,7 +246,7 @@ export const contractHandlers: HttpHandler[] = [
       consent.capturedAt = capturedAt;
     }
     return HttpResponse.json(
-      { recorded: body.items.length, purposes: purposes(auth.account, languageOf(request)) },
+      { recorded: body.items.length, purposes: purposesFor(auth.account, languageOf(request)) },
       { status: 201 },
     );
   }),

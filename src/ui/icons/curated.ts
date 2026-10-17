@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155) — adapted: + undo, sign, image from 6a8ffcf (L3 SignaturePad), the rest of 6a8ffcf's icons not copied yet
 /**
  * The curated icon set (design-system.md §2): our name for an icon's *meaning* → the Lucide glyph
  * drawn for it. Zones never import from `lucide-react`; `pnpm icons` turns this map into
@@ -41,6 +41,9 @@ export const CURATED_ICONS = {
   camera: "camera",
   scan: "scan-line",
   qr: "qr-code",
+  undo: "undo-2",
+  sign: "signature",
+  image: "image",
   show: "eye",
   hide: "eye-off",
   // status

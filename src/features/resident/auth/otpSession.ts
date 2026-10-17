@@ -2,8 +2,9 @@
 
 /**
  * The pending SMS challenge of this tab (sessionStorage: gone when the tab closes, never sent anywhere). The SMS
- * link opens `/auth/otp`; the API's link carries no challenge id yet (CONTRACT-REQUEST #4), so the page finds it
- * here when the link is opened in the same browser, or in `?c=` when it is.
+ * link is `PUBLIC_RESIDENT_APP_URL/auth/otp?c=<challengeId>` (contract request #4, done): the page reads `?c=`,
+ * and this tab's pending challenge when the link is opened in the same browser (it also carries the phone, so a
+ * code can be resent).
  */
 export interface PendingOtp {
   challengeId: string;

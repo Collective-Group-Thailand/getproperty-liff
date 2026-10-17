@@ -1,0 +1,122 @@
+{
+  "title": "My profile",
+  "privacyCta": "Privacy and consent",
+  "signOut": "Sign out",
+  "account": {
+    "title": "Account",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "line": "LINE",
+    "lineLinked": "Linked to this account",
+    "lineNotLinked": "Not linked — sign in with LINE to link it",
+    "none": "Not recorded",
+    "changeHint": "To change your name or phone, contact your building's office"
+  },
+  "language": {
+    "title": "Language",
+    "label": "Language",
+    "hint": "LINE messages and documents follow this language"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unavailable": "Notification settings will be available soon",
+    "topic": {
+      "billing": "Bills and payments",
+      "lease": "Lease and notices",
+      "service_requests": "Repairs",
+      "announcements": "Announcements",
+      "parcels": "Parcels"
+    },
+    "locked": "Required — you always get these",
+    "line": "LINE",
+    "sms": "SMS",
+    "save": "Save",
+    "saved": "Notification settings saved"
+  },
+  "documents": {
+    "title": "My documents",
+    "unavailable": "Your documents will be listed here soon",
+    "empty": "No documents yet",
+    "kind": {
+      "lease_contract": "Lease",
+      "lease_notice": "Move-out notice",
+      "deposit_statement": "Deposit statement",
+      "receipt": "Receipt"
+    },
+    "view": "View",
+    "open": "View {title}"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "lead": "Your personal data under the Personal Data Protection Act (PDPA)",
+    "incomplete": "A required consent is missing. The app asks for it again before you can use it"
+  },
+  "consents": {
+    "title": "My consents",
+    "granted": "Given on {date} (version {version})",
+    "withdrawn": "Withdrawn on {date}",
+    "unanswered": "Not answered (version {version})",
+    "withdraw": "Withdraw consent",
+    "withdrawRequired": "This consent is needed to use the app. If you withdraw it, the app asks for it again and you cannot use it until you agree",
+    "withdrawOptional": "You will stop receiving what this consent covers. You can give it again at any time",
+    "withdrawConfirm": "Withdraw",
+    "grant": "Give consent"
+  },
+  "controllers": {
+    "title": "Who holds my data",
+    "lead": "Each building operator is the data controller of what it holds about you",
+    "fields": "Holds: {fields}",
+    "field": {
+      "name": "name",
+      "phone": "phone",
+      "email": "email",
+      "line_id": "LINE account",
+      "id_number": "ID number",
+      "id_document_image": "ID document photo",
+      "date_of_birth": "date of birth",
+      "address": "address",
+      "emergency_contact": "emergency contact",
+      "tm30": "TM.30 report"
+    }
+  },
+  "dsr": {
+    "title": "My PDPA requests",
+    "lead": "Ask for a copy, a correction or deletion of your data. The operator must answer by the due date",
+    "dates": "Sent {received} · due {due}",
+    "kind": "What do you want to ask for?",
+    "kindMissing": "Choose one",
+    "kinds": {
+      "access": {
+        "title": "Get a copy of my data",
+        "body": "A copy of the personal data the building holds about you"
+      },
+      "rectification": {
+        "title": "Correct my data",
+        "body": "Something about you is wrong or out of date"
+      },
+      "erasure": {
+        "title": "Delete my data",
+        "body": "Data that is no longer needed — some must be kept by law, e.g. tax records"
+      },
+      "portability": {
+        "title": "Move my data",
+        "body": "Your data in a file you can give to someone else"
+      },
+      "objection": {
+        "title": "Object to a use",
+        "body": "Stop a use of your data you did not agree to"
+      },
+      "restriction": {
+        "title": "Pause a use",
+        "body": "Hold a use of your data while a question is being checked"
+      }
+    },
+    "details": "Details (optional)",
+    "detailsHint": "Help the operator find what you mean",
+    "submit": "Send request",
+    "sentTitle": "Request sent",
+    "sentBody": "The building operator has been told and must answer by the due date shown in the list",
+    "another": "Send another request"
+  }
+}

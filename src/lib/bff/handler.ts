@@ -18,6 +18,8 @@ import { refreshRejected, refreshTokens } from "@/lib/auth/refresh";
  *   /bff/auth/line                  LIFF id token → `/v1/auth/resident/line` → cookies
  *   /bff/auth/technician/line       same for technicians (FEATURE_TECHNICIAN=1)
  *   /bff/auth/logout                `/v1/auth/logout` for every session of this browser, cookies cleared
+ *   /bff/auth/refresh               rotate the resident session now (POST) — after `/v1/resident/link` answers
+ *                                   `refreshRequired`, so the new `lease:`/`unit:` scopes arrive (D-061)
  *
  * Rules: allow-list (`/v1/resident`, `/v1/auth/resident`; `/v1/technician`, `/v1/auth/technician` with the
  * technician flag) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
@@ -70,7 +72,8 @@ const FORWARDED_RESPONSE_HEADERS = [
 type Route =
   | { type: "proxy"; path: string; kind: SessionKind; auth: boolean }
   | { type: "exchange"; path: string; kind: SessionKind }
-  | { type: "logout" };
+  | { type: "logout" }
+  | { type: "refresh"; kind: SessionKind };
 
 function problem(status: number, code: string, detail: string, requestId: string, extra: Headers = new Headers()) {
   const headers = new Headers(extra);
@@ -112,6 +115,7 @@ export function routeFor(pathname: string, technicianEnabled: boolean): Route | 
     return technicianEnabled ? { type: "exchange", path: "/v1/auth/technician/line", kind: "technician" } : null;
   }
   if (path === "/auth/logout") return { type: "logout" };
+  if (path === "/auth/refresh") return { type: "refresh", kind: "resident" };
   if (RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: true };
   if (AUTH_RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: false };
   if (technicianEnabled && TECHNICIAN.test(path)) return { type: "proxy", path, kind: "technician", auth: true };
@@ -205,6 +209,17 @@ function downstreamHeaders(upstream: Response, requestId: string, cookies: Cooki
   return headers;
 }
 
+/** A 401 whose problem is about the session (`auth.unauthenticated`, or no readable code), not about a code typed. */
+async function sessionProblem(response: Response): Promise<boolean> {
+  try {
+    const body: unknown = await response.clone().json();
+    const code = body && typeof body === "object" ? (body as { code?: unknown }).code : undefined;
+    return typeof code !== "string" || code === "auth.unauthenticated";
+  } catch {
+    return true;
+  }
+}
+
 function isTokenPair(value: unknown): value is TokenPairLike & { subject?: unknown } {
   return (
     !!value &&
@@ -278,6 +293,31 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
       return new Response(null, { status: 204, headers: downstreamHeaders(new Response(), requestId, cookies) });
     }
 
+    // ── forced rotation: new scopes after linking an invitation (refreshRequired, D-061) ──────────
+    if (route.type === "refresh") {
+      if (request.method !== "POST") return problem(405, "http.method_not_allowed", "Use POST", requestId);
+      const refreshToken = jar.get(SESSION_COOKIES[route.kind].refresh);
+      if (!refreshToken) return problem(401, "auth.unauthenticated", "Sign in again", requestId);
+      const outcome = await refreshTokens(
+        cfg.apiBaseUrl,
+        refreshToken,
+        cfg.upstream,
+        { "x-request-id": requestId, ...extra },
+        now,
+      );
+      if (outcome.ok) {
+        const out = downstreamHeaders(new Response(), requestId, sessionCookies(route.kind, outcome.pair, now()));
+        out.set("content-type", "application/json");
+        return new Response(JSON.stringify(sessionView(outcome.pair)), { status: 200, headers: out });
+      }
+      if (refreshRejected(outcome)) {
+        const out = problem(401, "auth.unauthenticated", "Sign in again", requestId);
+        for (const cookie of clearedCookies(route.kind)) out.headers.append("set-cookie", serializeCookie(cookie));
+        return out;
+      }
+      return unavailable();
+    }
+
     // ── id-token exchange: the response's tokens become cookies ───────────────────────────────
     if (route.type === "exchange" || (route.type === "proxy" && !route.auth)) {
       const response = await call(route.path + url.search, { method: request.method, headers, body });
@@ -341,7 +381,10 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
     };
 
     let response = await send();
-    if (response && response.status === 401 && !refreshed && refresh) {
+    // Only a 401 about the session itself means "refresh": an `auth.otp_invalid` / `auth.otp_expired` (the code a
+    // resident typed to sign a lease, D-062) is the resident's answer, and retrying would spend another attempt.
+    const sessionExpired = response?.status === 401 && (await sessionProblem(response));
+    if (response && sessionExpired && !refreshed && refresh) {
       const outcome = await refreshOnce();
       if (outcome === "ok") {
         await response.body?.cancel();
@@ -353,7 +396,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
       for (const cookie of cookies) out.headers.append("set-cookie", serializeCookie(cookie));
       return out;
     }
-    if (response.status === 401 && access && !refresh) {
+    if (response.status === 401 && sessionExpired && access && !refresh) {
       // The API no longer accepts this access token and there is no refresh token left to renew it with.
       cookies.push(...clearedCookies(route.kind));
     }

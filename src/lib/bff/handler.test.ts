@@ -275,6 +275,20 @@ describe("authenticated passthrough", () => {
     expect(cookies.find((c) => c.startsWith("__Host-gp_rt="))).toContain("rt-5");
   });
 
+  it("never refreshes on a 401 about a typed code (signature OTP): the attempt is not spent twice", async () => {
+    const { handler, calls } = setup(() => problem(401, "auth.otp_invalid"));
+    const response = await handler(
+      req("/v1/resident/leases/l1/sign", {
+        method: "POST",
+        body: "{}",
+        cookies: { "__Host-gp_at": freshAccess, "__Host-gp_rt": "rt-1" },
+      }),
+    );
+    expect(response.status).toBe(401);
+    expect(calls.map((c) => c.path)).toEqual(["/v1/resident/leases/l1/sign"]);
+    expect(setCookies(response)).toEqual([]);
+  });
+
   it("never refreshes twice in one request", async () => {
     const { handler, calls } = setup((request) =>
       new URL(request.url).pathname === "/v1/auth/refresh" ? json(pair(6)) : problem(401, "auth.unauthenticated"),
@@ -422,5 +436,37 @@ describe("logout", () => {
       "__Host-gp_trt",
     ]);
     for (const cookie of cookies) expect(cookie).toContain("Max-Age=0");
+  });
+});
+
+describe("forced refresh (refreshRequired after linking, D-061)", () => {
+  it("rotates the resident session now and writes the new cookies without returning the tokens", async () => {
+    const { handler, calls } = setup(() => json(pair(9)));
+    const response = await handler(
+      req("/auth/refresh", { method: "POST", cookies: { "__Host-gp_at": freshAccess, "__Host-gp_rt": "rt-8" } }),
+    );
+    expect(response.status).toBe(200);
+    expect(calls.map((c) => [c.path, JSON.parse(c.body)])).toEqual([["/v1/auth/refresh", { refreshToken: "rt-8" }]]);
+    const body = await response.json();
+    expect(JSON.stringify(body)).not.toContain(pair(9).refreshToken);
+    expect(body.subject.scopes).toEqual(["unit:x"]);
+    expect(setCookies(response).find((c) => c.startsWith("__Host-gp_rt="))).toContain("rt-9");
+  });
+
+  it("needs POST with the CSRF header, a refresh cookie, and ends the session when the API refuses", async () => {
+    const { handler } = setup(() => problem(401, "auth.refresh_invalid"));
+    expect((await handler(req("/auth/refresh", { cookies: { "__Host-gp_rt": "rt" } }))).status).toBe(405);
+    const csrf = await handler(
+      req("/auth/refresh", {
+        method: "POST",
+        headers: { "x-getproperty-csrf": "0" },
+        cookies: { "__Host-gp_rt": "rt" },
+      }),
+    );
+    expect(csrf.status).toBe(403);
+    expect((await handler(req("/auth/refresh", { method: "POST" }))).status).toBe(401);
+    const refused = await handler(req("/auth/refresh", { method: "POST", cookies: { "__Host-gp_rt": "rt-x" } }));
+    expect(refused.status).toBe(401);
+    for (const cookie of setCookies(refused)) expect(cookie).toContain("Max-Age=0");
   });
 });

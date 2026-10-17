@@ -19,8 +19,8 @@ export async function afterResidentSignIn(target: string): Promise<string> {
     const secure = window.location.protocol === "https:" ? "; secure" : "";
     document.cookie = `${LOCALE_COOKIE}=${data.user.language}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax${secure}`;
   }
-  // Linking an invitation comes before consent: the consent rows are written per controller tenant, which the
-  // resident only has once a unit is linked.
-  if (!data.consentComplete && !next.startsWith("/link") && !next.startsWith("/consent")) return consentPath(next);
+  // Consent comes first, invitation links included: `POST /v1/resident/link` refuses with `consent.required`
+  // until the required purposes are granted (D-025, D-061).
+  if (!data.consentComplete && !next.startsWith("/consent")) return consentPath(next);
   return next;
 }

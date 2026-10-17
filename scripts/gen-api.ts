@@ -1,11 +1,12 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: resident/technician operations only, MSW operation table, idempotency list, source commit in the lock
+// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: resident/technician operations only, MSW operation table, idempotency list, source commit in the lock; committed-contract adopt (API_CONTRACT_REF) ported from getproperty-web
 /**
  * Generates the typed API surface from `getproperty-api`'s OpenAPI contract (ADR-0005).
  *
  *   pnpm gen:api           regenerate from the vendored contract
  *   pnpm gen:api --check   fail if the committed output is stale or was hand-edited (CI `contract` job)
- *   pnpm gen:api --adopt   copy the contract named by API_CONTRACT_SOURCE into contract/openapi.json
- *                          and rewrite contract.lock.json (version, sha256, source commit), then regenerate
+ *   pnpm gen:api --adopt   copy the contract named by API_CONTRACT_SOURCE (at the commit API_CONTRACT_REF,
+ *                          default HEAD; never an uncommitted copy unless --allow-dirty) into
+ *                          contract/openapi.json and rewrite contract.lock.json, then regenerate
  *
  * Written, all committed:
  *   src/lib/api/schema.d.ts                the only source of API types (CLAUDE.md)
@@ -26,7 +27,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import openapiTS, { astToString } from "openapi-typescript";
@@ -56,12 +57,45 @@ interface ContractLock {
 
 const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
-function gitCommit(path: string): string | undefined {
+function git(cwd: string, args: string[]): string | undefined {
   try {
-    return execFileSync("git", ["-C", dirname(path), "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    return execFileSync("git", ["-C", cwd, ...args], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      maxBuffer: 64 * 1024 * 1024,
+    });
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Reads the contract to adopt (ported from getproperty-web's gen-api). From a git checkout of
+ * getproperty-api only a **committed** contract is adopted — `API_CONTRACT_REF` (default `HEAD`) names the
+ * commit — so the lock always points at a version that exists in the backend's history; a working copy with
+ * uncommitted contract changes is refused unless `--allow-dirty`. A source outside git is read as is.
+ */
+function readSource(path: string): { text: string; commit?: string } {
+  const top = git(dirname(path), ["rev-parse", "--show-toplevel"])?.trim();
+  if (!top) return { text: readFileSync(path, "utf8") };
+  const relativePath = relative(top, path);
+  const ref = process.env.API_CONTRACT_REF ?? "HEAD";
+  const dirty = git(top, ["status", "--porcelain", "--", relativePath])?.trim();
+  if (dirty && !process.env.API_CONTRACT_REF && !process.argv.includes("--allow-dirty")) {
+    console.error(
+      `${relativePath} has uncommitted changes in ${top}. Adopt a commit (API_CONTRACT_REF=<sha>) or pass --allow-dirty.`,
+    );
+    process.exit(1);
+  }
+  if (dirty && process.argv.includes("--allow-dirty") && !process.env.API_CONTRACT_REF) {
+    return { text: readFileSync(path, "utf8"), commit: `${git(top, ["rev-parse", "HEAD"])?.trim()}+dirty` };
+  }
+  const text = git(top, ["show", `${ref}:${relativePath}`]);
+  if (text === undefined) {
+    console.error(`${ref}:${relativePath} does not exist in ${top}.`);
+    process.exit(1);
+  }
+  return { text, commit: git(top, ["rev-parse", ref])?.trim() };
 }
 
 function adopt(): void {
@@ -73,7 +107,7 @@ function adopt(): void {
     );
     process.exit(1);
   }
-  const text = readFileSync(path, "utf8");
+  const { text, commit } = readSource(path);
   const document = JSON.parse(text) as { info?: { version?: string } };
   mkdirSync(dirname(VENDORED), { recursive: true });
   writeFileSync(VENDORED, text);
@@ -83,7 +117,7 @@ function adopt(): void {
     version: document.info?.version ?? "0.0.0",
     sha256: sha256(text),
     source,
-    sourceCommit: gitCommit(path),
+    sourceCommit: commit,
   };
   writeFileSync(LOCK, `${JSON.stringify(lock, null, 2)}\n`);
   console.info(`adopted contract ${lock.version} from ${source}${lock.sourceCommit ? ` @ ${lock.sourceCommit}` : ""}`);

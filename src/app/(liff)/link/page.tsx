@@ -11,8 +11,9 @@ export async function generateMetadata() {
 
 /**
  * Invitation acceptance (D-061): the operator's invite QR/SMS opens `liff.line.me/<id>/link?code=…`, the LIFF
- * entry signs the resident in and lands here. Consent comes after linking (the purposes are recorded per
- * controller tenant, which the resident only has once linked).
+ * entry signs the resident in and lands here. The required consents come first (`POST /v1/resident/link` answers
+ * 409 `consent.required` otherwise, D-025): the guard sends a first-time resident to the consent screen, which
+ * brings them back here with the code.
  */
 export default async function LinkPage({
   searchParams,
@@ -22,7 +23,7 @@ export default async function LinkPage({
   const params = await searchParams;
   const code = typeof params.code === "string" ? params.code.trim().toUpperCase().slice(0, 32) : "";
   const self = code ? `/link?code=${encodeURIComponent(code)}` : "/link";
-  await requireResident({ consent: false, path: self });
+  await requireResident({ path: self });
   return (
     <ResidentShell active={null} chrome="minimal">
       <LinkInvitation initialCode={code} />

@@ -1,0 +1,159 @@
+{
+  "list": {
+    "title": "Lease",
+    "emptyTitle": "No lease yet",
+    "emptyBody": "When your building's office sends you a lease, it appears here"
+  },
+  "back": {
+    "home": "Home",
+    "lease": "Lease"
+  },
+  "view": {
+    "title": "Lease · unit {unit}",
+    "subtitle": "{building} · managed by {operator}",
+    "number": "No. {number}",
+    "signTitle": "Your signature is needed",
+    "signBody": "Read the lease and sign it here; the office signs after you",
+    "signCta": "Read and sign",
+    "waitingTitle": "Waiting for the office's signature",
+    "waitingBody": "You have signed. The lease comes into force when the office signs too — you will get a LINE message",
+    "noticeCta": "Give notice to move out",
+    "depositCta": "Deposit and refund"
+  },
+  "notice": {
+    "givenTitle": "Notice given",
+    "givenBody": "Move-out on {date} (notice given on {given})",
+    "givenNoDate": "Notice given on {given}"
+  },
+  "terms": {
+    "title": "Terms",
+    "unit": "Unit",
+    "term": "Term",
+    "termValue": "{start} – {end} ({months, plural, one {# month} other {# months}})",
+    "rent": "Rent",
+    "perMonth": "{amount} / month",
+    "once": "{amount} once",
+    "deposit": "Security deposit",
+    "advance": "Advance rent",
+    "utilities": "Water & electricity",
+    "utilityMode": {
+      "metered": "Billed by meter",
+      "included": "Included in the rent"
+    },
+    "charges": "Other charges"
+  },
+  "parties": {
+    "title": "People on this lease",
+    "hidden": "(name not shown)",
+    "role": {
+      "lessee": "Lessee",
+      "co_tenant": "Co-resident",
+      "guarantor": "Guarantor",
+      "occupant": "Occupant"
+    },
+    "signed": "signed {date}",
+    "notSigned": "not signed yet"
+  },
+  "document": {
+    "open": "Open the lease (PDF)",
+    "openSigned": "Open the signed lease (PDF)"
+  },
+  "rules": {
+    "title": "Building rules",
+    "lead": "These rules are part of your lease. Please confirm you have read them",
+    "checkbox": "I have read the building rules",
+    "submit": "Confirm",
+    "acknowledged": "You confirmed the building rules on {date}"
+  },
+  "addendum": {
+    "title": "Other terms"
+  },
+  "sign": {
+    "pageTitle": "Sign the lease",
+    "progress": "Step {step} of {total}",
+    "back": "Back",
+    "unavailableTitle": "Nothing to sign",
+    "unavailableBody": "This lease cannot be signed right now. Contact your building's office",
+    "alreadySigned": "You have already signed this lease",
+    "read": {
+      "title": "Read the lease",
+      "lead": "Scroll to the end before you sign. The full lease (PDF) is the binding text",
+      "region": "Lease to read",
+      "unit": "Unit",
+      "unitValue": "{unit} · {building} · managed by {operator}",
+      "term": "Term",
+      "rent": "Rent",
+      "deposit": "Security deposit",
+      "advance": "Advance rent",
+      "charges": "Other charges",
+      "clauses": "Terms added by the office",
+      "binding": "The standard residential lease of the Office of the Consumer Protection Board applies; the PDF holds every clause",
+      "end": "End of the lease summary",
+      "openPdf": "Read the full lease (PDF)",
+      "scrollHint": "Scroll the lease above to the end to continue",
+      "confirm": "I have read the whole lease and agree to it",
+      "next": "Continue to signature"
+    },
+    "draw": {
+      "title": "Your signature",
+      "lead": "Sign inside the box with your finger",
+      "label": "Your signature",
+      "placeholder": "Sign here",
+      "clear": "Clear",
+      "undo": "Undo",
+      "upload": "Use a photo of my signature",
+      "tooLarge": "This picture is too large. Draw your signature or choose a smaller photo",
+      "uploadHint": "Can't draw? Use a photo or scan of your signature instead",
+      "next": "Continue"
+    },
+    "otp": {
+      "title": "Confirm with the SMS code",
+      "lead": "We sent a 6-digit code to {phone}",
+      "sending": "Sending a code to your phone…",
+      "digit": "Digit {index}",
+      "wrong": "{count, plural, =0 {Wrong code. No tries left — ask for a new code} one {Wrong code. # try left} other {Wrong code. # tries left}}",
+      "submit": "Sign the lease",
+      "resend": "Send a new code",
+      "resendIn": "Send a new code in {seconds} s"
+    },
+    "done": {
+      "title": "Lease signed",
+      "activeTitle": "Your lease is in force",
+      "activeBody": "The office has signed too. The signed copy is with your documents",
+      "waitingTitle": "Signed — waiting for the office",
+      "waitingBody": "The lease comes into force when the office signs. You will get a LINE message",
+      "hashTitle": "Document fingerprint",
+      "hashBody": "The SHA-256 of the exact document you signed, kept as evidence",
+      "back": "Back to the lease"
+    }
+  },
+  "noticeForm": {
+    "title": "Give notice to move out",
+    "lead": "Tell the office in writing at least 30 days before you leave",
+    "date": "Move-out date",
+    "dateHint": "The earliest date you can choose is {date}",
+    "dateHintNone": "At least 30 days from today; the office's system checks the date",
+    "reason": "Reason (optional)",
+    "reasonHint": "Only the office sees this",
+    "review": "Review notice",
+    "unavailableTitle": "Notice not available",
+    "unavailableBody": "Only the lessee of a lease in force can give notice here. Contact your building's office",
+    "alreadyGiven": "You have already given notice on this lease",
+    "confirm": {
+      "title": "Check your notice",
+      "body": "You will move out of unit {unit}, {building}, on {date}",
+      "reason": "Reason: {reason}",
+      "final": "Once sent, the notice is recorded and the office is told. To change it, talk to the office",
+      "submit": "Send notice",
+      "change": "Change"
+    },
+    "done": {
+      "title": "Notice sent",
+      "calloutTitle": "Your notice is recorded",
+      "body": "You move out of unit {unit} on {date}",
+      "document": "The notice is kept with your documents. The office will contact you about the move-out inspection and your deposit",
+      "back": "Back to the lease",
+      "documents": "My documents"
+    }
+  }
+}

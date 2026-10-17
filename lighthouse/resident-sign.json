@@ -1,0 +1,51 @@
+{
+  "extends": "./shared.json",
+  "$comment": "L3 e-signature (D-062): the heaviest resident page (SignaturePad, OTP input) on a lease that waits for the mock signer's signature. Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:3400/lease/a3ac4ed4-3c37-46a1-8b09-d71b7499e405/sign"],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-signer"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

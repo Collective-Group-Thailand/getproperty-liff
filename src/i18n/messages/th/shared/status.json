@@ -63,5 +63,22 @@
     "notified": "แจ้งแล้ว",
     "picked_up": "รับไปแล้ว",
     "returned": "ส่งคืน"
+  },
+  "settlement": {
+    "opened": "เปิดเรื่องแล้ว",
+    "inspected": "ตรวจห้องแล้ว",
+    "proposed": "รอคุณตอบรับ",
+    "agreed": "ตกลงแล้ว",
+    "disputed": "โต้แย้งแล้ว",
+    "refunded": "คืนเงินแล้ว",
+    "closed": "ปิดเรื่องแล้ว"
+  },
+  "dsr": {
+    "received": "ได้รับคำขอแล้ว",
+    "verifying": "กำลังยืนยันตัวตน",
+    "in_progress": "กำลังดำเนินการ",
+    "fulfilled": "เสร็จแล้ว",
+    "rejected": "ปฏิเสธคำขอ",
+    "withdrawn": "ถอนคำขอแล้ว"
   }
 }

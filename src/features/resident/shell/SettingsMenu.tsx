@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/routing";
-import { bffJson } from "@/lib/api/browser";
+import { browserApi } from "@/lib/api/browser";
 import { signOut } from "@/lib/auth/client";
 
 import { SettingsMenuView } from "./SettingsMenuView";
@@ -19,9 +19,9 @@ export function SettingsMenu({ locale, signedIn }: { locale: Locale; signedIn: b
         const secure = window.location.protocol === "https:" ? "; secure" : "";
         document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax${secure}`;
         if (signedIn) {
-          // CONTRACT-REQUEST #3: PATCH /v1/resident/me { language } is not in the contract yet. The cookie is
-          // already written, so a failure here only means the API keeps the old language for LINE messages.
-          await bffJson("/v1/resident/me", { method: "PATCH", body: { language: next } }).catch(() => undefined);
+          // `PATCH /v1/resident/me` (D-064): LINE messages and documents follow. The cookie is already written, so a
+          // failure here only means the API keeps the old language for LINE messages.
+          await browserApi.PATCH("/v1/resident/me", { body: { language: next } }).catch(() => undefined);
         }
         router.refresh();
       }}

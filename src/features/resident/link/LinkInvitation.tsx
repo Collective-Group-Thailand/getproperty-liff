@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { bffJson } from "@/lib/api/browser";
+import { acceptLanguage, bffJson, browserApi, unwrap } from "@/lib/api/browser";
 import { isApiError, type ApiError } from "@/lib/api/problem";
-import type { InvitationAccepted, ResidentUnit } from "@/lib/api/types";
+import type { ResidentLinked } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -29,7 +29,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
   const router = useRouter();
   const [code, setCode] = useState(initialCode);
   const [error, setError] = useState<ApiError | null>(null);
-  const [linked, setLinked] = useState<ResidentUnit[] | null>(null);
+  const [linked, setLinked] = useState<ResidentLinked | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function submit(event: React.FormEvent) {
@@ -37,14 +37,20 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
     setError(null);
     setBusy(true);
     try {
-      // CONTRACT-REQUEST #1 (docs/contract-requests.md).
-      const result = await bffJson<InvitationAccepted>("/v1/resident/link", {
-        method: "POST",
-        body: { code: code.trim() },
-      });
-      setLinked(result.units);
+      const result = unwrap(
+        await browserApi.POST("/v1/resident/link", {
+          params: { header: { "accept-language": acceptLanguage() } },
+          body: { code: code.trim() },
+        }),
+      );
+      if (result.refreshRequired) await bffJson("/auth/refresh", { method: "POST" });
+      setLinked(result);
     } catch (caught) {
       if (!isApiError(caught)) throw caught;
+      if (caught.code === "consent.required") {
+        router.replace(`/consent?next=${encodeURIComponent(`/link?code=${encodeURIComponent(code.trim())}`)}`);
+        return;
+      }
       setError(caught);
     } finally {
       setBusy(false);
@@ -52,13 +58,14 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
   }
 
   if (linked) {
+    const next = linked.units.length ? "/" : `/lease/${linked.leaseId}`;
     return (
       <div className="flex flex-col gap-5 py-6" data-testid="link-success">
         <Callout tone="success" title={t("success.title")}>
-          {t("success.body", { count: linked.length })}
+          {linked.units.length ? t("success.body", { count: linked.units.length }) : t("success.lease")}
         </Callout>
         <ul className="flex flex-col gap-2" role="list">
-          {linked.map((unit) => (
+          {linked.units.map((unit) => (
             <li key={unit.unitId}>
               <Card padding="md" className="flex items-center gap-3">
                 <Icon icon={IconRoom} className="text-primary text-2xl" />
@@ -72,12 +79,12 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
           block
           iconEnd={IconForward}
           onClick={() => {
-            router.replace("/");
+            router.replace(next);
             router.refresh();
           }}
           data-testid="link-continue"
         >
-          {t("success.continue")}
+          {linked.units.length ? t("success.continue") : t("success.openLease")}
         </Button>
       </div>
     );

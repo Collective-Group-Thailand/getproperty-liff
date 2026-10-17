@@ -11,8 +11,9 @@ import { getResponse } from "msw";
 import { findOperation, problem, problemResponse } from "./contract";
 import { contractRequestHandlers } from "./contract-requests";
 import { contractHandlers, exampleHandlers } from "./handlers";
+import { residentHandlers } from "./resident";
 
-const handlers = [...contractRequestHandlers, ...contractHandlers, ...exampleHandlers];
+const handlers = [...contractRequestHandlers, ...residentHandlers, ...contractHandlers, ...exampleHandlers];
 
 export const MOCK_HEADER = "x-gp-mock";
 

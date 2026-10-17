@@ -63,5 +63,22 @@
     "notified": "Notified",
     "picked_up": "Picked up",
     "returned": "Returned"
+  },
+  "settlement": {
+    "opened": "Opened",
+    "inspected": "Inspected",
+    "proposed": "Proposed to you",
+    "agreed": "Agreed",
+    "disputed": "Disputed",
+    "refunded": "Refunded",
+    "closed": "Closed"
+  },
+  "dsr": {
+    "received": "Received",
+    "verifying": "Verifying your identity",
+    "in_progress": "In progress",
+    "fulfilled": "Done",
+    "rejected": "Refused",
+    "withdrawn": "Withdrawn"
   }
 }

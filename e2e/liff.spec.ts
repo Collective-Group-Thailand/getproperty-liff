@@ -65,13 +65,16 @@ test.describe("LIFF entry", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("an invitation deep link links the unit, then consent, then home (D-061)", async ({
+  test("an invitation deep link asks for consent first, then links the unit, then home (D-025, D-061)", async ({
     page,
     context,
     baseURL,
   }) => {
     await fakeLiff(context, baseURL!, { sub: subject("invitee") });
     await page.goto("/liff?liff.state=%2Flink%3Fcode%3DOK-7KQ2M9");
+    await expect(page).toHaveURL(/\/consent\?next=%2Flink%3Fcode%3DOK-7KQ2M9$/);
+    await page.locator('[data-purpose="resident.service"]').getByRole("checkbox").click();
+    await page.getByTestId("consent-submit").click();
     await expect(page).toHaveURL(/\/link\?code=OK-7KQ2M9$/);
     await expect(page.getByRole("textbox", { name: "รหัสคำเชิญ" })).toHaveValue("OK-7KQ2M9");
     await expectAxeClean(page);
@@ -80,15 +83,12 @@ test.describe("LIFF entry", () => {
     const success = page.getByTestId("link-success");
     await expect(success.getByText("ห้อง A-201 · อาคาร A")).toBeVisible();
     await page.getByTestId("link-continue").click();
-
-    await expect(page).toHaveURL(/\/consent$/);
-    await page.locator('[data-purpose="resident.service"]').getByRole("checkbox").click();
-    await page.getByTestId("consent-submit").click();
     await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
   });
 
   test("an expired or used invitation says so; an unknown one too", async ({ page, context, baseURL }) => {
-    await fakeLiff(context, baseURL!, { sub: subject("invitee") });
+    // A resident who already consented (a second unit): the code is checked straight away.
+    await fakeLiff(context, baseURL!, { sub: subject("linker") });
     await page.goto("/liff?liff.state=%2Flink%3Fcode%3DEXPIRED-9X3L1C");
     await page.getByTestId("link-submit").click();
     await expect(page.getByText("รหัสนี้ใช้ไม่ได้แล้ว")).toBeVisible();

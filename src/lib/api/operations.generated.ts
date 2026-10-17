@@ -21,7 +21,58 @@ export const OPERATIONS = [
     path: "/v1/resident/data-subject-requests",
     idempotent: true,
   },
+  { operationId: "resident.deposits.list", method: "GET", path: "/v1/resident/deposits", idempotent: false },
+  { operationId: "resident.deposits.get", method: "GET", path: "/v1/resident/deposits/{depositId}", idempotent: false },
+  {
+    operationId: "resident.deposits.accept",
+    method: "POST",
+    path: "/v1/resident/deposits/{depositId}/actions/accept",
+    idempotent: true,
+  },
+  {
+    operationId: "resident.deposits.dispute",
+    method: "POST",
+    path: "/v1/resident/deposits/{depositId}/actions/dispute",
+    idempotent: true,
+  },
+  {
+    operationId: "resident.invitations.preview",
+    method: "GET",
+    path: "/v1/resident/invitations/{code}",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.invitations.accept",
+    method: "POST",
+    path: "/v1/resident/invitations/{code}/accept",
+    idempotent: true,
+  },
+  { operationId: "resident.leases.list", method: "GET", path: "/v1/resident/leases", idempotent: false },
+  { operationId: "resident.leases.get", method: "GET", path: "/v1/resident/leases/{leaseId}", idempotent: false },
+  {
+    operationId: "resident.leases.contract",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/contract",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.leases.giveNotice",
+    method: "POST",
+    path: "/v1/resident/leases/{leaseId}/notice",
+    idempotent: false,
+  },
+  { operationId: "resident.leases.sign", method: "POST", path: "/v1/resident/leases/{leaseId}/sign", idempotent: true },
+  {
+    operationId: "resident.leases.requestSignatureOtp",
+    method: "POST",
+    path: "/v1/resident/leases/{leaseId}/signature/otp",
+    idempotent: false,
+  },
+  { operationId: "resident.usage.get", method: "GET", path: "/v1/resident/leases/{leaseId}/usage", idempotent: false },
+  { operationId: "resident.link.create", method: "POST", path: "/v1/resident/link", idempotent: true },
   { operationId: "resident.me.get", method: "GET", path: "/v1/resident/me", idempotent: false },
+  { operationId: "resident.me.update", method: "PATCH", path: "/v1/resident/me", idempotent: false },
+  { operationId: "resident.privacy.get", method: "GET", path: "/v1/resident/me/privacy", idempotent: false },
   { operationId: "resident.notifications.list", method: "GET", path: "/v1/resident/notifications", idempotent: false },
   {
     operationId: "resident.notifications.markRead",
@@ -30,6 +81,18 @@ export const OPERATIONS = [
     idempotent: false,
   },
   { operationId: "resident.system.ping", method: "GET", path: "/v1/resident/ping", idempotent: false },
+  {
+    operationId: "resident.pushSubscriptions.create",
+    method: "POST",
+    path: "/v1/resident/push-subscriptions",
+    idempotent: true,
+  },
+  {
+    operationId: "resident.pushSubscriptions.delete",
+    method: "DELETE",
+    path: "/v1/resident/push-subscriptions/{subscriptionId}",
+    idempotent: false,
+  },
   { operationId: "resident.realtime.auth", method: "POST", path: "/v1/resident/realtime/auth", idempotent: false },
   { operationId: "resident.realtime.stream", method: "GET", path: "/v1/resident/realtime/stream", idempotent: false },
   { operationId: "technician.me.get", method: "GET", path: "/v1/technician/me", idempotent: false },
@@ -51,4 +114,12 @@ export const OPERATIONS = [
 export type OperationId = (typeof OPERATIONS)[number]["operationId"];
 
 /** `METHOD /path/{template}` of every operation whose contract requires an `Idempotency-Key` (contract §3). */
-export const IDEMPOTENT_OPERATIONS: readonly string[] = ["POST /v1/resident/data-subject-requests"];
+export const IDEMPOTENT_OPERATIONS: readonly string[] = [
+  "POST /v1/resident/data-subject-requests",
+  "POST /v1/resident/deposits/{depositId}/actions/accept",
+  "POST /v1/resident/deposits/{depositId}/actions/dispute",
+  "POST /v1/resident/invitations/{code}/accept",
+  "POST /v1/resident/leases/{leaseId}/sign",
+  "POST /v1/resident/link",
+  "POST /v1/resident/push-subscriptions",
+];

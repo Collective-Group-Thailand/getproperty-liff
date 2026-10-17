@@ -19,8 +19,8 @@ import { UnitSwitcher } from "./UnitSwitcher";
 export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
 
 /**
- * Bottom nav entries and the entitlement each needs (`/v1/resident/me`; CONTRACT-REQUEST #2 until the contract
- * lists entitlements). Home and Me are always there; Repairs is R2.
+ * Bottom nav entries and the entitlement each needs (`ResidentMeDto.entitlements`, D-063). Home and Me are always
+ * there; Repairs is R2.
  */
 export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph; needs?: ResidentEntitlement }[] = [
   { key: "home", href: "/", icon: IconHome },

@@ -1,11 +1,11 @@
 "use client";
 
-import { bffJson } from "@/lib/api/browser";
+import { browserApi, unwrap } from "@/lib/api/browser";
 
 /**
  * Web push (VAPID), offered after a meaningful action — the first payment (L2) — never on first open. Not
  * available inside LINE's in-app browser (LINE messages already reach the resident there) or without a VAPID key.
- * CONTRACT-REQUEST #5: `POST /v1/resident/push-subscriptions` is not in the contract yet.
+ * The subscription goes to `POST /v1/resident/push-subscriptions` (re-registering an endpoint updates it).
  */
 export function pushSupported(vapidKey: string | undefined, inLineClient: boolean): boolean {
   return (
@@ -41,8 +41,17 @@ export async function subscribeToPush(vapidKey: string): Promise<"subscribed" | 
         userVisibleOnly: true,
         applicationServerKey: vapidKeyBytes(vapidKey),
       }));
-    // CONTRACT-REQUEST #5 (docs/contract-requests.md).
-    await bffJson("/v1/resident/push-subscriptions", { method: "POST", body: subscription.toJSON() });
+    const json = subscription.toJSON();
+    if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) return "failed";
+    unwrap(
+      await browserApi.POST("/v1/resident/push-subscriptions", {
+        body: {
+          endpoint: json.endpoint,
+          keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+          ...(json.expirationTime ? { expiresAt: new Date(json.expirationTime).toISOString() } : {}),
+        },
+      }),
+    );
     return "subscribed";
   } catch {
     return "failed";

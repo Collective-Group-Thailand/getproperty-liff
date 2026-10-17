@@ -230,4 +230,14 @@ describe("client", () => {
       { url: "https://getproperty.co/help", external: false },
     ]);
   });
+
+  it("initialises the SDK first on pages other than the LIFF entry (a reloaded /lease)", async () => {
+    const fake = createFakeLiff();
+    setLiffForTesting(fake);
+    vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "1234567890-abcdefgh");
+    await openExternal("https://storage.example.com/lease.pdf");
+    vi.unstubAllEnvs();
+    expect(fake.initialised).toBe(true);
+    expect(fake.opened).toEqual([{ url: "https://storage.example.com/lease.pdf", external: true }]);
+  });
 });

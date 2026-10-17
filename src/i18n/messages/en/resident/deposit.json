@@ -1,0 +1,63 @@
+{
+  "listTitle": "Deposit",
+  "emptyTitle": "No deposit",
+  "emptyBody": "Deposits of your leases appear here",
+  "title": "Deposit · unit {unit}",
+  "noSettlement": "Your deposit is held by the office. When you move out, the refund and any deductions appear here",
+  "held": {
+    "title": "Held",
+    "security": "Security deposit",
+    "advance": "Advance rent",
+    "receipt": "Receipt {number}"
+  },
+  "settlement": {
+    "title": "Settlement",
+    "moveOut": "Moved out on {date}",
+    "held": "Deposit held",
+    "deductions": "Deductions",
+    "utilities": "Final water & electricity",
+    "proposed": "Proposed refund",
+    "agreed": "Agreed refund",
+    "refunded": "Refunded",
+    "deadline": "The office refunds by {date}",
+    "late": "The refund is past its deadline. The office has been reminded",
+    "disputedTitle": "Your dispute"
+  },
+  "deductions": {
+    "title": "Deductions",
+    "kind": {
+      "damage": "Damage",
+      "missing_item": "Missing item",
+      "cleaning": "Cleaning",
+      "unpaid_invoice": "Unpaid bill",
+      "other": "Other"
+    },
+    "before": "At move-in",
+    "after": "At move-out",
+    "beforeAlt": "{item} at move-in",
+    "afterAlt": "{item} at move-out",
+    "noBefore": "No photo"
+  },
+  "respond": {
+    "title": "Your answer",
+    "lead": "Check the deductions and photos, then accept the refund or dispute it",
+    "accept": "Accept refund of {amount}",
+    "acceptNoAmount": "Accept the settlement",
+    "dispute": "Dispute",
+    "acceptTitle": "Accept the refund?",
+    "acceptBody": "You agree to a refund of {amount}. The office then pays it by the deadline",
+    "acceptBodyNoAmount": "You agree to the settlement. The office then pays the refund by the deadline",
+    "acceptSubmit": "Accept",
+    "back": "Back",
+    "disputeTitle": "Dispute the settlement",
+    "disputeLead": "Say what you disagree with. Photos help the office review it",
+    "reason": "What do you disagree with?",
+    "reasonMissing": "Please write a few words",
+    "addPhoto": "Add a photo",
+    "photoHint": "Up to {max} photos",
+    "photos": "Photos to send",
+    "photoAlt": "Photo {index}",
+    "removePhoto": "Remove photo {index}",
+    "disputeSubmit": "Send dispute"
+  }
+}

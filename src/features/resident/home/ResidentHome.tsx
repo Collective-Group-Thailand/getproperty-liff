@@ -46,10 +46,34 @@ export async function ResidentHome({
   const t = await getTranslations("resident.home");
   const current = await getLocale();
   const locale = isLocale(current) ? current : "th";
+  // A lease the office sent for signature (D-062) — also before the resident occupies any unit.
+  const pending = me.leases.find((lease) => lease.status === "pending_signature");
 
   return (
     <div className="flex flex-col gap-4 py-5" data-testid="resident-home">
       <h1 className="font-display text-2xl font-semibold">{t("greeting", { name: me.user.displayName })}</h1>
+
+      {pending ? (
+        <Card
+          as="section"
+          aria-labelledby="pending-lease-title"
+          padding="lg"
+          className="bg-primary-subtle border-transparent"
+          data-testid="home-pending-lease"
+        >
+          <h2 id="pending-lease-title" className="text-primary-subtle-fg font-semibold">
+            {t("lease.signTitle")}
+          </h2>
+          <p className="text-muted mt-1 text-sm">
+            {t("lease.signBody", { unit: pending.unitNo, building: pending.buildingName })}
+          </p>
+          <div className="mt-4">
+            <Button asChild block iconStart={IconLease} iconEnd={IconForward}>
+              <Link href={`/lease/${pending.leaseId}`}>{t("lease.signCta")}</Link>
+            </Button>
+          </div>
+        </Card>
+      ) : null}
 
       {unit ? (
         <>
@@ -103,7 +127,7 @@ export async function ResidentHome({
             </ul>
           </section>
         </>
-      ) : (
+      ) : pending ? null : (
         <EmptyState
           icon={IconRoom}
           title={t("noUnit.title")}

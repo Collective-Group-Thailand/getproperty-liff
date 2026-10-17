@@ -37,8 +37,21 @@ export function liffId(): string | undefined {
  * LINE for the system browser — banking apps, PDFs the in-app viewer cannot show.
  */
 export async function openExternal(url: string, { external = true }: { external?: boolean } = {}): Promise<void> {
-  const liff = await getLiff();
-  liff.openWindow({ url, external });
+  try {
+    const liff = await getLiff();
+    try {
+      liff.openWindow({ url, external });
+    } catch {
+      // Pages other than the LIFF entry may not have initialised the SDK yet (a reload of /lease, a link from SMS).
+      const id = liffId();
+      if (!id) throw new Error("no LIFF id");
+      await liff.init({ liffId: id });
+      liff.openWindow({ url, external });
+    }
+  } catch {
+    // Outside LINE without a usable SDK: a plain navigation (never `window.open`, CLAUDE.md).
+    window.location.assign(url);
+  }
 }
 
 type Sdk = (typeof import("@line/liff"))["default"];

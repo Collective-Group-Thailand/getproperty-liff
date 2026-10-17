@@ -4,12 +4,14 @@ import { loadMessages } from "@/i18n/messages";
 import { ICONS } from "@/ui/icons/registry";
 
 import { DEPOSIT_STATUS } from "./deposit";
+import { DSR_STATE } from "./dsr";
 import { INVOICE_STATUS } from "./invoice";
 import { LEASE_STATUS } from "./lease";
 import { PARCEL_STATUS } from "./parcel";
 import { PAYMENT_STATUS } from "./payment";
 import { READING_SOURCE } from "./reading";
 import { SERVICE_REQUEST_STATUS } from "./serviceRequest";
+import { SETTLEMENT_STATUS } from "./settlement";
 import { WORK_ORDER_STATUS } from "./workOrder";
 
 const MAPS = {
@@ -21,6 +23,8 @@ const MAPS = {
   workOrder: WORK_ORDER_STATUS,
   parcel: PARCEL_STATUS,
   readingSource: READING_SOURCE,
+  settlement: SETTLEMENT_STATUS,
+  dsr: DSR_STATE,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {
