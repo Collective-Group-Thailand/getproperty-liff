@@ -39,6 +39,17 @@ gains only that commit's `undo`, `sign`, `image` (same keys and Lucide glyphs, s
 byte-identical) and is `adapted` until the full re-sync of 6a8ffcf's other additions (torch, backspace, swap, …),
 which no resident screen needs yet. `shared:check` may report drift where getproperty-web has uncommitted edits.
 
+**L2 (2026-10-17) — re-sync from getproperty-web's committed `777d767`** (`SHARED_SOURCE=<git archive of 777d767>
+pnpm shared:check --strict`: 0 drift, so working-tree edits of other sessions never leak in): the real
+**`CameraCapture`** (live rear camera, torch, guide frame, multi-shot tray, on-device compression; `labels` prop) and its
+stories from **`6a8ffcf`** — `ScanButton` moved out of it there and is not copied (a resident never scans) —, **`lib/image.ts`**
+(+ test, `compressImage`/`toFile`) and **`SignaturePad`** (`initial` draft) from **`7b560af`**, **`Progress`** (upload and QR validity
+bars) and **`Stepper`** (the slip steps) with their stories, `curated.ts` back to **verbatim** with every glyph of `6a8ffcf`
+(unused glyphs cost nothing: one module per icon), `registry.ts`, `stories.test.ts`. Not copied, no resident screen needs
+them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanPanel`, `Combobox`, `DataTable`, `DatePicker`,
+`Popover`, `RadioCards`, `Select`, `Switch`, `Tooltip`. The deposit dispute moved to the new `CameraCapture` API
+(`useCameraLabels`, `common.camera` copy as in getproperty-web's `staff.capture.camera`).
+
 
 ## Design system — `src/ui`
 
@@ -62,8 +73,8 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/components/Button.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Callout.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Callout.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/CameraCapture.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/CameraCapture.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/CameraCapture.stories.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/CameraCapture.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Checkbox.stories.tsx` | verbatim | `4d107cc` |
@@ -92,6 +103,8 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/components/PhoneInput.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.test.ts` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Progress.stories.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/Progress.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SegmentedControl.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/SegmentedControl.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
@@ -99,12 +112,14 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
-| `src/ui/components/SignaturePad.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
 | `src/ui/components/Skeleton.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Spinner.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Spinner.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stat.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stat.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Stepper.stories.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/Stepper.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Tabs.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Tabs.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Timeline.stories.tsx` | verbatim | `f57d4dc` |
@@ -113,7 +128,7 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/components/Toast.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Toast.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ToastViewport.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/index.ts` | adapted | `f57d4dc` |
+| `src/ui/components/index.ts` | adapted | `6a8ffcf` |
 | `src/ui/components/overlays.tsx` | adapted | `f57d4dc` |
 | `src/ui/docs/Principles.mdx` | adapted | `08ff63b` |
 | `src/ui/docs/Tokens.mdx` | verbatim | `08ff63b` |
@@ -130,15 +145,16 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | adapted | `f57d4dc` |
+| `src/ui/icons/curated.ts` | verbatim | `6a8ffcf` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/glyphs/*.ts` | generated | `f57d4dc` |
+| `src/ui/icons/glyphs/*.ts` | generated | `6a8ffcf` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/registry.ts` | generated | `f57d4dc` |
-
+| `src/ui/icons/registry.ts` | generated | `6a8ffcf` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
 | `src/ui/lib/cn.ts` | verbatim | `08ff63b` |
+| `src/ui/lib/image.test.ts` | verbatim | `7b560af` |
+| `src/ui/lib/image.ts` | verbatim | `7b560af` |
 | `src/ui/lib/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/lazy.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/lib/lazy.tsx` | verbatim | `f57d4dc` |
@@ -149,7 +165,7 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `src/ui/test/axe.ts` | verbatim | `08ff63b` |
 | `src/ui/test/setup.ts` | verbatim | `08ff63b` |
 | `src/ui/test/stories.a11y.test.tsx` | verbatim | `08ff63b` |
-| `src/ui/test/stories.test.ts` | verbatim | `f57d4dc` |
+| `src/ui/test/stories.test.ts` | verbatim | `6a8ffcf` |
 | `src/ui/theme/ThemeProvider.tsx` | verbatim | `08ff63b` |
 | `src/ui/theme/ThemeToggle.tsx` | verbatim | `f57d4dc` |
 | `src/ui/theme/index.ts` | verbatim | `08ff63b` |
@@ -185,7 +201,6 @@ which no resident screen needs yet. `shared:check` may report drift where getpro
 | `eslint-rules/no-money-arithmetic.test.ts` | verbatim | `08ff63b` |
 | `scripts/build-icons.ts` | verbatim | `f57d4dc` |
 | `scripts/build-tokens.ts` | verbatim | `08ff63b` |
-
 | `scripts/check-contrast.ts` | verbatim | `08ff63b` |
 | `scripts/copy-fonts.ts` | verbatim | `08ff63b` |
 | `scripts/gen-api.ts` | adapted | `08ff63b` |

@@ -13,5 +13,16 @@
   "notFoundBody": "The link may have expired or is not open yet",
   "goHome": "Back to home",
   "required": "Required",
-  "optional": "Optional"
+  "optional": "Optional",
+  "camera": {
+    "viewfinder": "Camera",
+    "torchOn": "Turn the torch on",
+    "torchOff": "Turn the torch off",
+    "done": "Use {count, plural, one {this photo} other {these # photos}}",
+    "remove": "Remove photo {index}",
+    "taken": "{count, plural, one {# photo} other {# photos}} taken",
+    "chooseFile": "Choose a photo",
+    "starting": "Starting the camera…",
+    "unavailable": "The camera cannot start. Allow the camera in the browser, or choose a photo instead."
+  }
 }

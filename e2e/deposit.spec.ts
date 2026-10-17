@@ -38,6 +38,8 @@ test.describe("deposit settlement (D-023)", () => {
       { name: "wall-1.png", mimeType: "image/png", buffer: PHOTO },
       { name: "wall-2.png", mimeType: "image/png", buffer: PHOTO },
     ]);
+    // CameraCapture (multi-shot) keeps the shots until "use these photos".
+    await form.getByTestId("camera-done").click();
     await expect(page.getByTestId("deposit-photos").getByRole("listitem")).toHaveCount(2);
     await page.getByRole("button", { name: "ลบรูปที่ 2" }).click();
     await expect(page.getByTestId("deposit-photos").getByRole("listitem")).toHaveCount(1);

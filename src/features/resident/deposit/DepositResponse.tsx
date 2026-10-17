@@ -9,6 +9,7 @@ import { newIdempotencyKey } from "@/lib/api/idempotency";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { useCameraLabels } from "@/features/shared/useCameraLabels";
 import { Button } from "@/ui/components/Button";
 import { CameraCapture } from "@/ui/components/CameraCapture";
 import { Card } from "@/ui/components/Card";
@@ -43,6 +44,7 @@ export function DepositResponse({
   canDispute: boolean;
 }) {
   const t = useTranslations("resident.deposit.respond");
+  const cameraLabels = useCameraLabels();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("choose");
   const [reason, setReason] = useState("");
@@ -147,7 +149,11 @@ export function DepositResponse({
         <CameraCapture
           label={t("addPhoto")}
           hint={t("photoHint", { max: MAX_PHOTOS })}
+          labels={cameraLabels}
           multiple
+          maxShots={Math.max(1, MAX_PHOTOS - photos.length)}
+          guide="none"
+          fileBaseName="dispute"
           disabled={photos.length >= MAX_PHOTOS || busy}
           onCapture={(files) => {
             setPhotos((current) =>
