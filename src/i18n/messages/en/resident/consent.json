@@ -1,0 +1,11 @@
+{
+  "title": "Use of your personal data",
+  "lead": "Before you start, please read and give your consent under Thailand's Personal Data Protection Act (PDPA)",
+  "changed": "The text has been updated. Please read it and confirm again",
+  "version": "Version {version}",
+  "agreeRequired": "I consent (needed to use the app)",
+  "agreeOptional": "I consent",
+  "submit": "Confirm and continue",
+  "requiredMissing": "Consent to the required items is needed to use the app",
+  "later": "You can change optional consents at any time under Me › Privacy"
+}

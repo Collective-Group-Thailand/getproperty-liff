@@ -1,0 +1,37 @@
+{
+  "skipToContent": "ข้ามไปยังเนื้อหา",
+  "bottomNav": "เมนูด่วน",
+  "theme": "ธีม",
+  "themeChoice": {
+    "system": "ตามอุปกรณ์",
+    "light": "สว่าง",
+    "dark": "มืด",
+    "hc": "คอนทราสต์สูง"
+  },
+  "language": "ภาษา",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English",
+    "my": "မြန်မာ",
+    "km": "ខ្មែរ",
+    "lo": "ລາວ",
+    "zh": "中文"
+  },
+  "languagePreview": "ภาษานี้ยังแปลไม่ครบ บางข้อความจะแสดงเป็นภาษาอังกฤษ",
+  "appTitle": "getproperty สำหรับผู้อยู่อาศัย",
+  "menu": {
+    "open": "การตั้งค่าและบัญชี",
+    "title": "การตั้งค่า",
+    "signOut": "ออกจากระบบ",
+    "signingOut": "กำลังออกจากระบบ…"
+  },
+  "unitSwitcher": {
+    "open": "ห้อง {unit} อาคาร {building} — เปลี่ยนห้อง",
+    "title": "เลือกห้อง",
+    "description": "{count, plural, other {คุณมี # ห้องในบัญชีนี้}}",
+    "current": "ห้องที่เลือกอยู่",
+    "unit": "ห้อง {unit}",
+    "place": "{building} · {operator}"
+  },
+  "envBadge": "สภาพแวดล้อม {name}"
+}

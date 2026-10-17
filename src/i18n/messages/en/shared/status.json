@@ -1,0 +1,67 @@
+{
+  "readingSource": {
+    "iot": "Smart meter",
+    "ocr": "Read from photo",
+    "manual": "Read by staff",
+    "estimated": "Estimated"
+  },
+  "invoice": {
+    "draft": "Draft",
+    "issued": "To pay",
+    "partially_paid": "Partly paid",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "void": "Void"
+  },
+  "payment": {
+    "pending": "Awaiting confirmation",
+    "confirmed": "Received",
+    "failed": "Failed",
+    "refunded": "Refunded",
+    "reversed": "Reversed"
+  },
+  "lease": {
+    "draft": "Draft",
+    "pending_signature": "Awaiting signature",
+    "active": "Active",
+    "notice_given": "Notice given",
+    "ending": "Ending",
+    "ended": "Ended",
+    "terminated": "Terminated",
+    "cancelled": "Cancelled"
+  },
+  "deposit": {
+    "pending": "To pay",
+    "held": "Held",
+    "settling": "Being settled",
+    "refunded": "Refunded",
+    "forfeited_partially": "Partly deducted",
+    "forfeited": "Not refunded",
+    "disputed": "Disputed"
+  },
+  "serviceRequest": {
+    "new": "Reported",
+    "triaged": "Received",
+    "assigned": "Technician assigned",
+    "in_progress": "In progress",
+    "waiting_parts": "Waiting for parts",
+    "done": "Fixed",
+    "closed": "Closed",
+    "cancelled": "Cancelled"
+  },
+  "workOrder": {
+    "open": "Open",
+    "assigned": "Assigned",
+    "accepted": "Accepted",
+    "in_progress": "In progress",
+    "done": "Done",
+    "verified": "Verified",
+    "cancelled": "Cancelled"
+  },
+  "parcel": {
+    "received": "Received",
+    "notified": "Notified",
+    "picked_up": "Picked up",
+    "returned": "Returned"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Link your unit",
+  "lead": "Enter the invitation code from your building's office (in the QR code or SMS you received)",
+  "codeLabel": "Invitation code",
+  "submit": "Link unit",
+  "success": {
+    "title": "Unit linked",
+    "body": "{count, plural, one {This account now has # new unit} other {This account now has # new units}}",
+    "continue": "Continue"
+  },
+  "notFound": {
+    "title": "Invitation code not found",
+    "body": "Check the code, or ask your building's office for a new one"
+  },
+  "notPending": {
+    "title": "This code can no longer be used",
+    "body": "It has been used or has expired. Ask your building's office for a new one"
+  },
+  "unit": "Unit {unit} · {building}"
+}

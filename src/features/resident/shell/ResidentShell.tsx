@@ -1,58 +1,87 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
-import { Wordmark } from "@/ui/brand";
-import { AppShell, BottomNav, TopBar, type NavItem } from "@/ui/components/AppShell";
+import { isLocale } from "@/i18n/routing";
+import type { ResidentEntitlement } from "@/lib/api/types";
+import { getActor } from "@/lib/auth/actor";
+import { clientEnv } from "@/lib/env";
+import type { NavItem } from "@/ui/components/AppShell";
 import { Icon, type IconName } from "@/ui/icons";
 
-import { ResidentThemeToggle } from "./ResidentThemeToggle";
+import { ResidentShellView } from "./ResidentShellView";
+import { SettingsMenu } from "./SettingsMenu";
+import { UnitSwitcher } from "./UnitSwitcher";
 
 export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
 
-/** The resident bottom nav (L1 builds it from `/v1/resident/me` entitlements; "requests" is R2). */
-const NAV: { key: ResidentNavKey; href: string; icon: IconName }[] = [
+/**
+ * Bottom nav entries and the entitlement each needs (`/v1/resident/me`; CONTRACT-REQUEST #2 until the contract
+ * lists entitlements). Home and Me are always there; Repairs is R2.
+ */
+export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconName; needs?: ResidentEntitlement }[] = [
   { key: "home", href: "/", icon: "home" },
-  { key: "bills", href: "/bills", icon: "bill" },
-  { key: "usage", href: "/usage", icon: "electric" },
-  { key: "requests", href: "/requests", icon: "ticket" },
+  { key: "bills", href: "/bills", icon: "bill", needs: "bills" },
+  { key: "usage", href: "/usage", icon: "electric", needs: "usage" },
+  { key: "requests", href: "/requests", icon: "ticket", needs: "service_requests" },
   { key: "me", href: "/profile", icon: "resident" },
 ];
 
 /**
- * The resident app frame: a phone-width column (`AppShell variant="mobile"`), a top bar with the
- * wordmark and the theme picker, and the bottom nav. Works inside LIFF and as a standalone mobile page;
- * safe areas come from `data-zone="resident"` (src/ui/styles/zones.css) and the bottom nav's own inset.
+ * The resident app frame, from `/v1/resident/me`: unit code + building name in the header (with the switcher
+ * for several occupancies), settings, and the bottom nav from the entitlements. `chrome="minimal"` (sign-in,
+ * consent, linking, errors) keeps only the wordmark and settings.
  */
 export async function ResidentShell({
   active,
+  chrome = "full",
   children,
 }: {
   active: ResidentNavKey | null;
+  chrome?: "full" | "minimal";
   children: React.ReactNode;
 }) {
-  const t = await getTranslations("shell");
-  const nav = await getTranslations("resident.nav");
-  const items: NavItem[] = NAV.map((item) => ({
-    href: item.href,
-    label: nav(item.key),
-    icon: <Icon name={item.icon} />,
-    active: item.key === active,
-  }));
+  const [t, nav, actor, current] = await Promise.all([
+    getTranslations("shell"),
+    getTranslations("resident.nav"),
+    getActor(),
+    getLocale(),
+  ]);
+  const locale = isLocale(current) ? current : "th";
+  const signedIn = actor.status === "signed-in";
+  const full = chrome === "full" && signedIn && actor.unit !== null;
+
+  const items: NavItem[] = full
+    ? RESIDENT_NAV.filter((item) => !item.needs || actor.entitlements.has(item.needs)).map((item) => ({
+        href: item.href,
+        label: nav(item.key),
+        icon: <Icon name={item.icon} />,
+        active: item.key === active,
+      }))
+    : [];
+
+  const badge = clientEnv().NEXT_PUBLIC_ENV_BADGE;
 
   return (
-    <AppShell
-      variant="mobile"
+    <ResidentShellView
       skipLabel={t("skipToContent")}
-      header={
-        <TopBar>
-          <Wordmark size="sm" />
-          <span className="ms-auto">
-            <ResidentThemeToggle />
-          </span>
-        </TopBar>
+      navLabel={t("bottomNav")}
+      navItems={items}
+      envBadge={badge ? t("envBadge", { name: badge }) : undefined}
+      unit={
+        signedIn && actor.unit && chrome === "full" ? (
+          <UnitSwitcher
+            currentId={actor.unit.unitId}
+            units={actor.me.units.map(({ unitId, unitNo, buildingName, tenantName }) => ({
+              unitId,
+              unitNo,
+              buildingName,
+              tenantName,
+            }))}
+          />
+        ) : undefined
       }
-      bottomNav={<BottomNav items={items} label={t("bottomNav")} />}
+      settings={<SettingsMenu locale={locale} signedIn={signedIn} />}
     >
       {children}
-    </AppShell>
+    </ResidentShellView>
   );
 }

@@ -1,17 +1,39 @@
 import { FALLBACK_LOCALE, type Locale } from "./routing";
 
 /**
- * Messages are `messages/<locale>/<namespace>.json`. `shared` and `resident` are always loaded;
- * `technician` only for the technician screens (R2), so a resident's bundle never carries them.
+ * Messages per feature (L1): `messages/<locale>/<namespace>/<feature>.json`.
  *
- * Fallback (D-064): every locale is merged over English, key by key, so a missing my/km/lo/zh string
- * renders in English rather than as a key. Thai and English must be complete (`messages.test.ts`).
+ * - `shared/<feature>.json` is mounted at the root (`shell.*`, `common.*`, `errors.*`, `status.*` …);
+ * - `resident/<feature>.json` under `resident.<feature>`; `technician/<feature>.json` under `technician.<feature>`.
+ *
+ * `shared` and `resident` are always loaded; `technician` only where the technician screens are (R2), so a
+ * resident's messages never carry them. `MESSAGE_FILES` is the manifest (`messages.test.ts` checks it against
+ * the folders): add a file there when a feature gets one.
+ *
+ * Fallback (D-064): every locale is merged over English, key by key, so a missing my/km/lo/zh string renders in
+ * English rather than as a key. Thai and English must be complete (`messages.test.ts`).
  */
 export type Namespace = "shared" | "resident" | "technician";
 type Messages = Record<string, unknown>;
 
-async function load(locale: Locale, namespace: Namespace): Promise<Messages> {
-  return (await import(`./messages/${locale}/${namespace}.json`)).default as Messages;
+export const MESSAGE_FILES = {
+  shared: ["brand", "common", "errors", "shell", "status"],
+  resident: ["auth", "consent", "home", "liff", "link", "nav"],
+  technician: ["workOrders"],
+} as const satisfies Record<Namespace, readonly string[]>;
+
+async function loadFile(locale: Locale, namespace: Namespace, feature: string): Promise<Messages> {
+  return (await import(`./messages/${locale}/${namespace}/${feature}.json`)).default as Messages;
+}
+
+async function loadNamespace(locale: Locale, namespace: Namespace): Promise<Messages> {
+  const files = MESSAGE_FILES[namespace];
+  const parts = await Promise.all(files.map((feature) => loadFile(locale, namespace, feature)));
+  const mounted: Messages = {};
+  files.forEach((feature, index) => {
+    mounted[feature] = parts[index];
+  });
+  return namespace === "shared" ? mounted : { [namespace]: mounted };
 }
 
 /** Deep merge: `over` wins key by key; nested objects merge, everything else replaces. */
@@ -34,8 +56,8 @@ export async function loadMessages(
 ): Promise<Messages> {
   const parts = await Promise.all(
     namespaces.map(async (namespace) => {
-      const own = await load(locale, namespace);
-      return locale === FALLBACK_LOCALE ? own : mergeMessages(await load(FALLBACK_LOCALE, namespace), own);
+      const own = await loadNamespace(locale, namespace);
+      return locale === FALLBACK_LOCALE ? own : mergeMessages(await loadNamespace(FALLBACK_LOCALE, namespace), own);
     }),
   );
   return parts.reduce<Messages>((all, part) => mergeMessages(all, part), {});

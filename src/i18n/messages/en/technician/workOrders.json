@@ -1,0 +1,6 @@
+{
+  "title": "My work orders",
+  "greeting": "Hello, {name}",
+  "body": "Work orders assigned to you will appear here",
+  "empty": "No work orders yet"
+}

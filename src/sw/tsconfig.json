@@ -1,0 +1,15 @@
+{
+  "$comment": "The service worker is type-checked on its own: the webworker and DOM libs conflict in one program.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["webworker", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "types": []
+  },
+  "include": ["./sw.ts"]
+}

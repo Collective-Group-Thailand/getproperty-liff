@@ -1,0 +1,67 @@
+{
+  "readingSource": {
+    "iot": "มิเตอร์อัตโนมัติ",
+    "ocr": "อ่านจากรูป",
+    "manual": "จดโดยเจ้าหน้าที่",
+    "estimated": "ประมาณการ"
+  },
+  "invoice": {
+    "draft": "ร่าง",
+    "issued": "รอชำระ",
+    "partially_paid": "ชำระบางส่วน",
+    "paid": "ชำระแล้ว",
+    "overdue": "เกินกำหนด",
+    "void": "ยกเลิก"
+  },
+  "payment": {
+    "pending": "รอยืนยัน",
+    "confirmed": "ได้รับเงินแล้ว",
+    "failed": "ไม่สำเร็จ",
+    "refunded": "คืนเงินแล้ว",
+    "reversed": "ยกเลิกรายการ"
+  },
+  "lease": {
+    "draft": "ร่าง",
+    "pending_signature": "รอลงนาม",
+    "active": "มีผล",
+    "notice_given": "แจ้งย้ายออกแล้ว",
+    "ending": "ใกล้สิ้นสุด",
+    "ended": "สิ้นสุดแล้ว",
+    "terminated": "เลิกสัญญา",
+    "cancelled": "ยกเลิก"
+  },
+  "deposit": {
+    "pending": "รอชำระ",
+    "held": "เก็บไว้",
+    "settling": "กำลังคำนวณคืน",
+    "refunded": "คืนแล้ว",
+    "forfeited_partially": "หักบางส่วน",
+    "forfeited": "ไม่ได้คืน",
+    "disputed": "โต้แย้งอยู่"
+  },
+  "serviceRequest": {
+    "new": "แจ้งแล้ว",
+    "triaged": "รับเรื่องแล้ว",
+    "assigned": "มอบหมายช่างแล้ว",
+    "in_progress": "กำลังซ่อม",
+    "waiting_parts": "รออะไหล่",
+    "done": "ซ่อมเสร็จ",
+    "closed": "ปิดงาน",
+    "cancelled": "ยกเลิก"
+  },
+  "workOrder": {
+    "open": "เปิดงาน",
+    "assigned": "มอบหมายแล้ว",
+    "accepted": "รับงานแล้ว",
+    "in_progress": "กำลังทำ",
+    "done": "เสร็จแล้ว",
+    "verified": "ตรวจรับแล้ว",
+    "cancelled": "ยกเลิก"
+  },
+  "parcel": {
+    "received": "รับเข้าแล้ว",
+    "notified": "แจ้งแล้ว",
+    "picked_up": "รับไปแล้ว",
+    "returned": "ส่งคืน"
+  }
+}

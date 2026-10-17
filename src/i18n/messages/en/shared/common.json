@@ -1,0 +1,17 @@
+{
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "save": "Save",
+  "back": "Back",
+  "next": "Next",
+  "continue": "Continue",
+  "retry": "Try again",
+  "loading": "Loading…",
+  "requestId": "Request id",
+  "notFoundTitle": "Page not found",
+  "notFoundBody": "The link may have expired or is not open yet",
+  "goHome": "Back to home",
+  "required": "Required",
+  "optional": "Optional"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Opening getproperty in LINE",
+  "steps": {
+    "init": "Connect to LINE",
+    "login": "Sign in with LINE",
+    "session": "Sign in to getproperty",
+    "link": "Go to the requested page"
+  },
+  "state": {
+    "pending": "Waiting",
+    "running": "In progress",
+    "done": "Done",
+    "failed": "Failed"
+  },
+  "mock": "Test mode: simulated LINE",
+  "continue": "Continue",
+  "error": "Could not open in LINE",
+  "errorBody": "Close this page and open the link from LINE again",
+  "accountDisabled": "This account is suspended. Please contact your building's office",
+  "tokenInvalid": "LINE could not confirm who you are. Open the link from LINE again",
+  "useSms": "Sign in with SMS instead",
+  "outsideLine": "Opened outside the LINE app — you'll confirm who you are with LINE first"
+}

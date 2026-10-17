@@ -1,0 +1,23 @@
+{
+  "title": "กำลังเปิด getproperty ใน LINE",
+  "steps": {
+    "init": "เชื่อมต่อ LINE",
+    "login": "ยืนยันตัวตนด้วย LINE",
+    "session": "เข้าสู่ระบบ getproperty",
+    "link": "ไปยังหน้าที่ขอ"
+  },
+  "state": {
+    "pending": "รอ",
+    "running": "กำลังทำ",
+    "done": "เสร็จแล้ว",
+    "failed": "ไม่สำเร็จ"
+  },
+  "mock": "โหมดทดสอบ: ใช้ LINE จำลอง",
+  "continue": "ไปต่อ",
+  "error": "เปิดใน LINE ไม่สำเร็จ",
+  "errorBody": "ปิดหน้านี้แล้วเปิดลิงก์จาก LINE อีกครั้ง",
+  "accountDisabled": "บัญชีนี้ถูกระงับ กรุณาติดต่อผู้ดูแลอาคาร",
+  "tokenInvalid": "LINE ยืนยันตัวตนไม่สำเร็จ ลองเปิดลิงก์จาก LINE อีกครั้ง",
+  "useSms": "เข้าสู่ระบบด้วย SMS แทน",
+  "outsideLine": "เปิดนอกแอป LINE — ระบบจะพาไปยืนยันตัวตนกับ LINE ก่อน"
+}

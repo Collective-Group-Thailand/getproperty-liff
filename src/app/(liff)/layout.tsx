@@ -3,12 +3,15 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { fontClassNames } from "@/ui/fonts";
-import { Toaster } from "@/ui/components/Toast";
 import { ThemeProvider } from "@/ui/theme/ThemeProvider";
 import { readThemeChoice } from "@/ui/theme/server";
 import { dataThemeAttribute } from "@/ui/theme/themes";
 import { oklchToHex } from "@/ui/tokens/color";
 import { THEMES } from "@/ui/tokens/semantic";
+
+import { DeferredToaster } from "@/features/shared/DeferredToaster";
+
+import { Providers } from "./providers";
 
 import "../globals.css";
 
@@ -16,7 +19,8 @@ import "../globals.css";
  * The one root layout (ADR-0004: a single zone, no host routing). It stamps what must be there before
  * the first paint — `lang` from the `gp_locale` cookie (set from `liff.getLanguage()` on first open),
  * `data-theme` from `gp_theme` (none = follow the phone), `data-zone="resident"` for the density and
- * safe-area rules, the font variables — and mounts the providers.
+ * safe-area rules, the font variables — and mounts the providers (TanStack Query, Web Vitals, the service
+ * worker). Every page is rendered per request: the proxy's CSP nonce must reach Next's scripts.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("shell");
@@ -55,8 +59,10 @@ export default async function LiffLayout({ children }: { children: React.ReactNo
       <body>
         <NextIntlClientProvider>
           <ThemeProvider initialChoice={choice} zone="resident">
-            {children}
-            <Toaster />
+            <Providers>
+              {children}
+              <DeferredToaster />
+            </Providers>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
