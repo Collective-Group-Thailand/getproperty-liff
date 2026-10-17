@@ -1,9 +1,9 @@
 {
   "extends": "./shared.json",
-  "$comment": "Resident LIFF pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 150 KB gz (docs/performance-budgets.md). Measured as a 360×780 phone with the Lighthouse mobile preset, LIFF mocked (NEXT_PUBLIC_LIFF_MOCK=1). L2 adds invoices/[id], pay, receipts; L3 usage, lease.",
+  "$comment": "Signed-in resident pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 150 KB gz (docs/performance-budgets.md). Measured as a 360×780 phone with the Lighthouse mobile preset on a mock build (NEXT_PUBLIC_LIFF_MOCK=1, API_MOCKS=1); the session comes from the mock API's seed refresh token, which the proxy turns into a session before the render (mocks/state.ts). The consent screen is covered by axe in e2e (it needs a first-use account, which a shared Lighthouse cookie cannot give). L2 adds invoices/[id], pay, receipts; L3 usage, lease.",
   "ci": {
     "collect": {
-      "url": ["http://localhost:3400/", "http://localhost:3400/liff"],
+      "url": ["http://localhost:3400/", "http://localhost:3400/link"],
       "numberOfRuns": 3,
       "settings": {
         "formFactor": "mobile",
@@ -15,14 +15,36 @@
           "disabled": false
         },
         "throttlingMethod": "simulate",
-        "throttling": { "rttMs": 150, "throughputKbps": 1638.4, "cpuSlowdownMultiplier": 4 }
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-resident"
+        }
       }
     },
     "assert": {
       "assertions": {
-        "largest-contentful-paint": ["warn", { "maxNumericValue": 2000 }],
-        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.05 }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 153600 }]
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 153600
+          }
+        ]
       }
     }
   }

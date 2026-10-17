@@ -1,0 +1,127 @@
+import { expect, test } from "@playwright/test";
+
+import { expectAxeClean, expectNoHorizontalScroll, seedSession, sessionCookieNames, subject } from "./support";
+
+/**
+ * L1 1.2 — signing in outside LINE (SMS code / magic link, D-060), guards, sign-out, and the audience boundary:
+ * a cookie from getproperty-web (another host, another audience) never authenticates here.
+ */
+test.describe("outside LINE", () => {
+  test("a signed-out visitor is sent to the sign-in page; inside LINE to the LIFF endpoint", async ({
+    browser,
+    baseURL,
+  }) => {
+    const web = await browser.newContext({ baseURL });
+    const page = await web.newPage();
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/auth$/);
+    await expect(page.getByTestId("open-in-line")).toHaveAttribute("href", "/liff?liff.state=%2F");
+    await expectAxeClean(page);
+    await expectNoHorizontalScroll(page);
+    await web.close();
+
+    const line = await browser.newContext({
+      baseURL,
+      userAgent:
+        "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/131 Mobile Safari/537.36 Line/14.19.1",
+    });
+    const inLine = await line.newPage();
+    const response = await inLine.request.get("/link?code=OK-1234", { maxRedirects: 0 });
+    expect(response.status()).toBe(307);
+    expect(response.headers().location).toBe("/liff?liff.state=%2Flink%3Fcode%3DOK-1234");
+    await line.close();
+  });
+
+  test("signs in with an SMS code: wrong code → tries left, right code → home", async ({ page }) => {
+    await page.goto("/auth?next=%2F");
+    await page.getByLabel("เบอร์มือถือ").fill("0810001234");
+    await page.getByTestId("send-code").click();
+
+    await expect(page).toHaveURL(/\/auth\/otp\?c=[0-9a-f-]{36}/);
+    await expect(page.getByText("ถ้าเบอร์ 081-000-1234 อยู่ในระบบ")).toBeVisible();
+    await expectAxeClean(page);
+
+    await page.getByLabel("หลักที่ 1").pressSequentially("999999");
+    await expect(page.getByText("รหัสไม่ถูกต้อง ลองได้อีก 4 ครั้ง")).toBeVisible();
+
+    await page.getByLabel("หลักที่ 1").pressSequentially("123456");
+    await expect(page.getByTestId("resident-home")).toBeVisible();
+    await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
+  });
+
+  test("an expired code sends the resident back for a new one", async ({ page }) => {
+    await page.goto("/auth");
+    await page.getByLabel("เบอร์มือถือ").fill("0899999999");
+    await page.getByTestId("send-code").click();
+    await page.getByLabel("หลักที่ 1").pressSequentially("000000");
+    await expect(page.getByTestId("verify-code")).toBeDisabled();
+    await expect(page.getByRole("link", { name: "เปลี่ยนเบอร์" })).toBeVisible();
+  });
+
+  test("rejects a number that is not a Thai mobile before calling the API", async ({ page }) => {
+    await page.goto("/auth");
+    await page.getByLabel("เบอร์มือถือ").fill("12");
+    await page.getByTestId("send-code").click();
+    await expect(page.getByText("กรอกเบอร์มือถือ 10 หลัก")).toBeVisible();
+  });
+
+  test("the SMS link opened in another browser asks for a new code", async ({ page }) => {
+    await page.goto("/auth/otp");
+    await expect(page.getByText("ลิงก์นี้ใช้กับเบราว์เซอร์อื่นหรือหมดอายุแล้ว")).toBeVisible();
+    await expectAxeClean(page);
+  });
+});
+
+test.describe("session boundary", () => {
+  test("an owner/staff cookie of getproperty-web never authenticates here", async ({ page, context, baseURL }) => {
+    // 1. getproperty-web's cookies are host-only on its own host: this browser never sends them here.
+    await context.addCookies([
+      { name: "__Host-gp_at", value: "operator-token", domain: "127.0.0.1", path: "/", secure: true, httpOnly: true },
+    ]);
+    // 2. An operator-audience token on this host is refused by the resident surface.
+    const b64 = (v: object) => Buffer.from(JSON.stringify(v)).toString("base64url");
+    const operator = `${b64({ alg: "EdDSA" })}.${b64({ aud: "operator", sid: "x", sub: "y", exp: 4102444800 })}.sig`;
+    await context.addCookies([
+      {
+        name: "__Host-gp_at",
+        value: operator,
+        domain: new URL(baseURL!).hostname,
+        path: "/",
+        secure: true,
+        httpOnly: true,
+        sameSite: "Lax",
+      },
+    ]);
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/auth$/);
+    const bff = await page.request.get("/bff/v1/resident/me");
+    expect(bff.status()).toBe(401);
+  });
+
+  test("signing out ends the session and clears every session cookie", async ({ page, context, baseURL }) => {
+    await seedSession(context, baseURL!, subject("signout"));
+    await page.goto("/");
+    await expect(page.getByTestId("resident-home")).toBeVisible();
+    await page.getByTestId("settings-open").click();
+    await page.getByTestId("sign-out").click();
+    await expect(page.getByTestId("signed-out")).toBeVisible();
+    expect(await sessionCookieNames(context)).toEqual([]);
+    await expectAxeClean(page);
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/auth$/);
+  });
+
+  test("the BFF answers only the resident's API and refuses cross-site writes", async ({ request }) => {
+    for (const path of ["/bff/v1/owner/me", "/bff/v1/admin/me", "/bff/v1/staff/me", "/bff/v1/auth/refresh"]) {
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(404);
+      expect((await response.json()).code).toBe("bff.not_allowed");
+    }
+    const csrf = await request.post("/bff/v1/resident/consents", {
+      data: {},
+      headers: { origin: "https://evil.example" },
+    });
+    expect(csrf.status()).toBe(403);
+    expect(csrf.headers()["cache-control"]).toBe("no-store");
+  });
+});

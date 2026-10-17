@@ -2,7 +2,7 @@
 /**
  * Runs Lighthouse CI once per URL set (`docs/performance-budgets.md`).
  *
- * `lhci autorun` takes one config; each set is its own config in `lighthouse/` (today: `resident`;
+ * `lhci autorun` takes one config; each set is its own config in `lighthouse/` (today: `resident`, `public`;
  * L4 adds `technician`), they share `lighthouse/shared.json`, and this runs them in turn against one
  * production server with LIFF mocked.
  *
@@ -73,7 +73,8 @@ async function main(): Promise<void> {
     console.error(`Port ${PORT} is already in use. Set LHCI_PORT to a free port.`);
     process.exit(1);
   }
-  const server = spawn("pnpm", ["start", "-p", String(PORT)], { cwd: ROOT, env, stdio: "ignore" });
+  // Its own process group, so stopping it also stops the `next-server` child pnpm starts.
+  const server = spawn("pnpm", ["start", "-p", String(PORT)], { cwd: ROOT, env, stdio: "ignore", detached: true });
   const failures: string[] = [];
 
   try {
@@ -81,7 +82,10 @@ async function main(): Promise<void> {
     for (const name of configs) {
       console.info(`\n── lighthouse: ${name} ──`);
       const config = configFor(name);
-      const result = spawnSync("pnpm", ["exec", "lhci", "autorun", `--config=${config.path}`], {
+      // Chrome refuses to sandbox as root (containers, CI images): only then is the sandbox switched off.
+      const asRoot = typeof process.getuid === "function" && process.getuid() === 0;
+      const flags = asRoot ? ["--collect.settings.chromeFlags=--no-sandbox --headless=new"] : [];
+      const result = spawnSync("pnpm", ["exec", "lhci", "autorun", `--config=${config.path}`, ...flags], {
         cwd: ROOT,
         env,
         stdio: "inherit",
@@ -90,7 +94,11 @@ async function main(): Promise<void> {
       if (result.status !== 0) failures.push(name);
     }
   } finally {
-    server.kill();
+    try {
+      if (server.pid) process.kill(-server.pid, "SIGTERM");
+    } catch {
+      server.kill();
+    }
   }
 
   if (failures.length > 0) {
