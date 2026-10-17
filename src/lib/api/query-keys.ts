@@ -9,7 +9,11 @@ export const qk = {
     consents: (language: string) => ["resident", "consents", language] as const,
     notifications: () => ["resident", "notifications"] as const,
     invoices: () => ["resident", "invoices"] as const,
+    invoice: (invoiceId: string) => ["resident", "invoices", invoiceId] as const,
     payments: () => ["resident", "payments"] as const,
+    payment: (invoiceId: string) => ["resident", "payments", invoiceId] as const,
+    allSlips: () => ["resident", "slips"] as const,
+    slips: (invoiceId: string) => ["resident", "slips", invoiceId] as const,
     receipts: () => ["resident", "receipts"] as const,
   },
   technician: {

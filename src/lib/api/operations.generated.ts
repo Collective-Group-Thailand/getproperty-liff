@@ -47,6 +47,32 @@ export const OPERATIONS = [
     path: "/v1/resident/invitations/{code}/accept",
     idempotent: true,
   },
+  { operationId: "resident.invoices.list", method: "GET", path: "/v1/resident/invoices", idempotent: false },
+  { operationId: "resident.invoices.get", method: "GET", path: "/v1/resident/invoices/{invoiceId}", idempotent: false },
+  {
+    operationId: "resident.invoices.document",
+    method: "GET",
+    path: "/v1/resident/invoices/{invoiceId}/document",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.invoices.payment",
+    method: "GET",
+    path: "/v1/resident/invoices/{invoiceId}/payment",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.invoices.uploadSlip",
+    method: "POST",
+    path: "/v1/resident/invoices/{invoiceId}/slips",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.invoices.byNumber",
+    method: "GET",
+    path: "/v1/resident/invoices/by-number/{number}",
+    idempotent: false,
+  },
   { operationId: "resident.leases.list", method: "GET", path: "/v1/resident/leases", idempotent: false },
   { operationId: "resident.leases.get", method: "GET", path: "/v1/resident/leases/{leaseId}", idempotent: false },
   {
@@ -95,6 +121,13 @@ export const OPERATIONS = [
   },
   { operationId: "resident.realtime.auth", method: "POST", path: "/v1/resident/realtime/auth", idempotent: false },
   { operationId: "resident.realtime.stream", method: "GET", path: "/v1/resident/realtime/stream", idempotent: false },
+  { operationId: "resident.receipts.list", method: "GET", path: "/v1/resident/receipts", idempotent: false },
+  {
+    operationId: "resident.receipts.document",
+    method: "GET",
+    path: "/v1/resident/receipts/{receiptId}/document",
+    idempotent: false,
+  },
   { operationId: "technician.me.get", method: "GET", path: "/v1/technician/me", idempotent: false },
   {
     operationId: "technician.notifications.list",

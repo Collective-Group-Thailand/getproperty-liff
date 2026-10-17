@@ -1,9 +1,18 @@
 /**
- * Shapes of what this app needs and the contract does not publish yet (docs/contract-requests.md #7–#11). Each
+ * Shapes of what this app needs and the contract does not publish yet (docs/contract-requests.md #7–#11, #15–#19). Each
  * is mocked in `mocks/contract-requests.ts` / `mocks/resident.ts` and read only where a `CONTRACT-REQUEST`
  * comment says so; delete a type here when `pnpm gen:api --adopt` brings the contract's own.
  */
-import type { ResidentDeduction, ResidentDeposit, ResidentLease } from "./types";
+import type {
+  InvoiceLineSourceType,
+  ResidentDeduction,
+  ResidentDeposit,
+  ResidentInvoice,
+  ResidentInvoiceLine,
+  ResidentLease,
+  ResidentReceipt,
+  ResidentSlipResult,
+} from "./types";
 
 /** CONTRACT-REQUEST #7 / #8 — fields the lease view needs on `ResidentLeaseDto`. */
 export interface LeaseRequestedFields {
@@ -52,3 +61,45 @@ export interface DocumentDownload {
   url: string;
   expiresAt: string;
 }
+
+/**
+ * CONTRACT-REQUEST #15 — the disclosure of each line (D-012, D-022): its `sourceType` (the contract groups
+ * by it on the owner side), when the closing reading was taken and the photo of the register when one exists
+ * (a 5-minute link); and the invoice's `unitId`. Read only when the API sends them.
+ */
+export interface InvoiceLineRequestedFields {
+  sourceType?: InvoiceLineSourceType;
+  readAt?: string | null;
+  readingPhotoUrl?: string | null;
+}
+export type InvoiceLineView = ResidentInvoiceLine & InvoiceLineRequestedFields;
+
+/** CONTRACT-REQUEST #19 — the receipts of the payments of an invoice (paid → "your receipt"). */
+export interface ReceiptRef {
+  id: string;
+  number: string;
+}
+export type InvoiceView = Omit<ResidentInvoice, "lines"> & {
+  lines: InvoiceLineView[];
+  unitId?: string;
+  receipts?: ReceiptRef[];
+};
+
+/** CONTRACT-REQUEST #17 — `GET /v1/resident/invoices/{invoiceId}/slips`: my slips with the verification outcome. */
+export type SlipReason =
+  | "not_recognised"
+  | "duplicate_reference"
+  | "receiver_mismatch"
+  | "amount_above_due"
+  | "amount_below_due"
+  | "amount_unreadable";
+export interface SlipView {
+  id: string;
+  status: ResidentSlipResult["status"];
+  reasons: SlipReason[];
+  uploadedAt: string;
+  decidedAt: string | null;
+}
+
+/** CONTRACT-REQUEST #19 — `GET /v1/resident/receipts/{receiptId}` with the invoices it paid. */
+export type ReceiptView = ResidentReceipt & { invoices?: ReceiptRef[] };

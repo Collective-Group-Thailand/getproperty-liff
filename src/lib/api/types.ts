@@ -68,3 +68,19 @@ export type ResidentPrivacy = Schemas["ResidentPrivacyDto"];
 export type Dsr = Schemas["DsrDto"];
 export type DsrKind = Schemas["DsrKind"];
 export type DsrCreate = Schemas["DsrCreateDto"];
+
+// L2 — invoices, pay, slips, receipts (B4.2, B4.4).
+export type ResidentInvoice = Schemas["ResidentInvoiceDto"];
+export type ResidentInvoiceLine = Schemas["ResidentInvoiceLineDto"];
+export type InvoiceLineKind = Schemas["InvoiceLineKind"];
+export type InvoiceLineSourceType = Schemas["InvoiceLineSourceType"];
+export type ResidentPayment = Schemas["ResidentPaymentDto"];
+export type ResidentQr = Schemas["ResidentQrDto"];
+export type ResidentAccount = Schemas["ResidentAccountDto"];
+export type SlipMimeType = Schemas["SlipMimeType"];
+export type ResidentSlipResult = Schemas["ResidentSlipResultDto"];
+export type ResidentReceipt = Schemas["ResidentReceiptDto"];
+export type ReceiptKind = Schemas["ReceiptKind"];
+export type DocumentLink = Schemas["DocumentDownloadDto"];
+export type PageMeta = Schemas["PageMeta"];
+export type InboxItem = Schemas["InboxItemDto"];
