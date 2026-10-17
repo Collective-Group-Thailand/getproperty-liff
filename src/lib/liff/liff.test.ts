@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getLiff, openExternal, setLiffForTesting } from "./client";
+import { getLiff, inLineClient, openExternal, setLiffForTesting, shareToLine } from "./client";
 import { resolveLiffState, safeInternalPath } from "./deepLink";
 import { audienceFor, runLiffEntry } from "./entry";
 import { createFakeLiff, DEFAULT_FAKE_SUB, FAKE_LIFF_MARKER, fakeOptionsFromCookie } from "./fake";
@@ -239,5 +239,28 @@ describe("client", () => {
     vi.unstubAllEnvs();
     expect(fake.initialised).toBe(true);
     expect(fake.opened).toEqual([{ url: "https://storage.example.com/lease.pdf", external: true }]);
+  });
+
+  it("shares to a LINE chat through shareTargetPicker when LINE offers it (L2 receipts)", async () => {
+    const message = [{ type: "text" as const, text: "ใบเสร็จ RCP-2026-00001" }];
+    const inside = createFakeLiff();
+    setLiffForTesting(inside);
+    vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "1234567890-abcdefgh");
+    expect(await shareToLine(message)).toBe("sent");
+    expect(inside.shared).toEqual([message]);
+    expect(await inLineClient()).toBe(true);
+
+    setLiffForTesting(createFakeLiff({ share: "cancel" }));
+    expect(await shareToLine(message)).toBe("cancelled");
+    setLiffForTesting(createFakeLiff({ share: "unavailable" }));
+    expect(await shareToLine(message)).toBe("unavailable");
+    const outside = createFakeLiff({ inClient: false });
+    setLiffForTesting(outside);
+    expect(await shareToLine(message)).toBe("unavailable");
+    expect(outside.shared).toEqual([]);
+    expect(await inLineClient()).toBe(false);
+    setLiffForTesting(createFakeLiff({ failInit: "boom" }));
+    expect(await shareToLine(message)).toBe("unavailable");
+    vi.unstubAllEnvs();
   });
 });

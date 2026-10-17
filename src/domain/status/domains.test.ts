@@ -12,6 +12,7 @@ import { PAYMENT_STATUS } from "./payment";
 import { READING_SOURCE } from "./reading";
 import { SERVICE_REQUEST_STATUS } from "./serviceRequest";
 import { SETTLEMENT_STATUS } from "./settlement";
+import { SLIP_STATUS } from "./slip";
 import { WORK_ORDER_STATUS } from "./workOrder";
 
 const MAPS = {
@@ -25,6 +26,7 @@ const MAPS = {
   readingSource: READING_SOURCE,
   settlement: SETTLEMENT_STATUS,
   dsr: DSR_STATE,
+  slip: SLIP_STATUS,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {

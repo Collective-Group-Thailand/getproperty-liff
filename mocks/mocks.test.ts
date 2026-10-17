@@ -291,5 +291,99 @@ describe("Lighthouse URLs of mock leases", () => {
     );
     expect(urls).toContain(`http://localhost:3400/lease/${mockLeaseId("line:Ulighthouse-resident", 0)}/notice`);
     expect(urls).toContain(`http://localhost:3400/lease/${mockLeaseId("line:Ulighthouse-signer", 0)}/sign`);
+    const { currentInvoiceId } = await import("./billing");
+    expect(urls).toContain(`http://localhost:3400/invoices/${currentInvoiceId("line:Ulighthouse-resident")}`);
+  });
+});
+
+describe("L2 billing mocks follow the contract", () => {
+  const keysOf = (operationId: string) => {
+    const op = GENERATED_OPERATIONS.find((o) => o.operationId === operationId)!;
+    return Object.keys(op.success.example as Record<string, unknown>);
+  };
+
+  it("serves invoices, the payment (a valid Thai QR) and receipts with every key of the contract examples", async () => {
+    const b = browser();
+    await b.signIn("Umock-billing-1");
+    const list = await b.call("GET", "/v1/resident/invoices?unpaid=true");
+    const [open] = list.body!.data as Record<string, unknown>[];
+    for (const key of keysOf("resident.invoices.get")) expect(open).toHaveProperty(key);
+    expect(open!.id).toBe((await import("./billing")).currentInvoiceId("line:Umock-billing-1"));
+    const payment = await b.call("GET", `/v1/resident/invoices/${open!.id as string}/payment`);
+    for (const key of keysOf("resident.invoices.payment")) expect(payment.body).toHaveProperty(key);
+    const qr = payment.body!.qr as { payload: string; amount: string; reference: string };
+    expect(qr.amount).toBe(open!.balance);
+    expect(qr.payload).toContain(qr.reference);
+    const { thaiQrPayload } = await import("./billing");
+    expect(qr.payload).toBe(thaiQrPayload(qr.reference, qr.amount));
+    const receipts = await b.call("GET", "/v1/resident/receipts");
+    for (const key of keysOf("resident.receipts.list")) expect(receipts.body).toHaveProperty(key);
+    expect((receipts.body!.data as unknown[]).length).toBe(2);
+  });
+
+  it("verifies a slip like the API (amount, account, duplicate) and replays an Idempotency-Key", async () => {
+    const b = browser();
+    await b.signIn("Umock-slips-2");
+    const [open] = (await b.call("GET", "/v1/resident/invoices?unpaid=true")).body!.data as {
+      id: string;
+      balance: string;
+    }[];
+    const slip = (amount: string, transRef: string) =>
+      Buffer.concat([
+        Buffer.from("89504e47", "hex"),
+        Buffer.from(JSON.stringify({ transRef, amount, receiverAccount: "xxx1234" })),
+      ]).toString("base64");
+    const key = crypto.randomUUID();
+    const first = await b.call(
+      "POST",
+      `/v1/resident/invoices/${open!.id}/slips`,
+      { image: slip("100.00", "T1"), mimeType: "image/png" },
+      { "idempotency-key": key },
+    );
+    expect(first.status).toBe(201);
+    expect(first.body).toMatchObject({ status: "pending_verification" });
+    const replay = await b.call(
+      "POST",
+      `/v1/resident/invoices/${open!.id}/slips`,
+      { image: slip("100.00", "T1"), mimeType: "image/png" },
+      { "idempotency-key": key },
+    );
+    expect(replay.body!.id).toBe(first.body!.id);
+    await new Promise((r) => setTimeout(r, 1400));
+    const again = await b.call("POST", `/v1/resident/invoices/${open!.id}/slips`, {
+      image: slip("100.00", "T1"),
+      mimeType: "image/png",
+    });
+    await new Promise((r) => setTimeout(r, 1400));
+    const slips = (await b.call("GET", `/v1/resident/invoices/${open!.id}/slips`)).body!.data as {
+      id: string;
+      status: string;
+      reasons: string[];
+    }[];
+    expect(slips.find((s) => s.id === first.body!.id)).toMatchObject({
+      status: "pending_review",
+      reasons: ["amount_below_due"],
+    });
+    expect(slips.find((s) => s.id === again.body!.id)).toMatchObject({ status: "duplicate" });
+    const good = await b.call("POST", `/v1/resident/invoices/${open!.id}/slips`, {
+      image: slip(open!.balance, "T2"),
+      mimeType: "image/png",
+    });
+    await new Promise((r) => setTimeout(r, 1400));
+    expect((await b.call("GET", `/v1/resident/invoices/${open!.id}`)).body).toMatchObject({
+      status: "paid",
+      balance: "0.00",
+    });
+    expect((await b.call("GET", `/v1/resident/invoices/${open!.id}/slips`)).body!.data).toContainEqual(
+      expect.objectContaining({ id: good.body!.id, status: "auto_confirmed" }),
+    );
+    expect(
+      (
+        await b.call("POST", `/v1/resident/invoices/${open!.id}/slips`, {
+          image: slip("1.00", "T3"),
+          mimeType: "image/png",
+        })
+      ).body,
+    ).toMatchObject({ code: "invoice.nothing_due" });
   });
 });

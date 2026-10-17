@@ -1,10 +1,13 @@
 {
   "extends": "./shared.json",
-  "$comment": "Signed-in resident pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 180 KB gz (D-179, docs/performance-budgets.md) — a hard limit. Measured as a 360×780 phone with the Lighthouse mobile preset on a mock build (NEXT_PUBLIC_LIFF_MOCK=1, API_MOCKS=1); the session comes from the mock API's seed refresh token, which the proxy turns into a session before the render (mocks/state.ts). The consent screen is covered by axe in e2e (it needs a first-use account, which a shared Lighthouse cookie cannot give). L2 adds invoices/[id], pay, receipts. L3: lease (redirects to the one lease), its notice form, deposit, usage (the chart is lazy), profile, privacy; the e-signature and a settlement to answer are their own sets (resident-sign, resident-moveout) because they need other mock accounts. Lease ids in URLs are derived from the mock subject (mocks/residence.ts mockLeaseId; mocks.test.ts checks them).",
+  "$comment": "Signed-in resident pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 180 KB gz (D-179, docs/performance-budgets.md) — a hard limit. Measured as a 360×780 phone with the Lighthouse mobile preset on a mock build (NEXT_PUBLIC_LIFF_MOCK=1, API_MOCKS=1); the session comes from the mock API's seed refresh token, which the proxy turns into a session before the render (mocks/state.ts). The consent screen is covered by axe in e2e (it needs a first-use account, which a shared Lighthouse cookie cannot give). L2: the invoice list, an open invoice and receipts (the pay sheet is opened by a tap and loaded on demand — its weight is checked in e2e, `bills.spec.ts`); the invoice id is derived from the mock subject (mocks/billing.ts mockInvoiceId; mocks.test.ts checks it). L3: lease (redirects to the one lease), its notice form, deposit, usage (the chart is lazy), profile, privacy; the e-signature and a settlement to answer are their own sets (resident-sign, resident-moveout) because they need other mock accounts. Lease ids in URLs are derived from the mock subject (mocks/residence.ts mockLeaseId; mocks.test.ts checks them).",
   "ci": {
     "collect": {
       "url": [
         "http://localhost:3400/",
+        "http://localhost:3400/invoices",
+        "http://localhost:3400/invoices/e54e334e-c064-4e67-8d23-09a654938d8b",
+        "http://localhost:3400/receipts",
         "http://localhost:3400/link",
         "http://localhost:3400/lease",
         "http://localhost:3400/lease/e133e7c2-feb2-4270-8892-a27d19a4be19/notice",

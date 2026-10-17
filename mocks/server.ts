@@ -9,11 +9,18 @@
 import { getResponse } from "msw";
 
 import { findOperation, problem, problemResponse } from "./contract";
+import { billingHandlers } from "./billing";
 import { contractRequestHandlers } from "./contract-requests";
 import { contractHandlers, exampleHandlers } from "./handlers";
 import { residentHandlers } from "./resident";
 
-const handlers = [...contractRequestHandlers, ...residentHandlers, ...contractHandlers, ...exampleHandlers];
+const handlers = [
+  ...billingHandlers,
+  ...contractRequestHandlers,
+  ...residentHandlers,
+  ...contractHandlers,
+  ...exampleHandlers,
+];
 
 export const MOCK_HEADER = "x-gp-mock";
 

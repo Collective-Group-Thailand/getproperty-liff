@@ -35,6 +35,8 @@ export interface FakeLiffSetup {
   inClient?: boolean;
   language?: string;
   os?: "ios" | "android" | "web";
+  /** `shareTargetPicker`: available (default inside LINE), unavailable, or the resident cancels. */
+  share?: "available" | "unavailable" | "cancel";
 }
 
 /** Configures the browser's fake LIFF (mock builds read `gp_fake_liff`). */
@@ -71,4 +73,58 @@ export async function sessionCookieNames(context: BrowserContext): Promise<strin
     .filter((c) => c.name.startsWith("__Host-gp_"))
     .map((c) => c.name)
     .sort();
+}
+
+/** What the browser fake LIFF would have opened or shared in LINE (`window.__gpFakeLiff`, mock builds only). */
+export async function fakeLiffRecord(page: Page): Promise<{
+  opened: { url: string; external?: boolean }[];
+  shared: { type: string; text: string }[][];
+}> {
+  return page.evaluate(
+    () =>
+      (
+        window as typeof window & {
+          __gpFakeLiff?: { opened: { url: string; external?: boolean }[]; shared: { type: string; text: string }[][] };
+        }
+      ).__gpFakeLiff ?? { opened: [], shared: [] },
+  );
+}
+
+/**
+ * Plays the payment provider's callback in the mock API (`POST /v1/resident/__mock/invoices/{id}/pay`, mocks only):
+ * the invoice is paid, a receipt issued and the events go down the resident's realtime stream.
+ */
+export async function mockProviderPays(page: Page, invoiceId: string): Promise<void> {
+  const origin = new URL(page.url()).origin;
+  const response = await page.request.post(`/bff/v1/resident/__mock/invoices/${invoiceId}/pay`, {
+    headers: { "x-getproperty-csrf": "1", origin },
+  });
+  expect(response.status(), await response.text()).toBe(200);
+}
+
+/** A 1×1 PNG. */
+export const PNG_1PX = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+/**
+ * A "slip" the fake verifiers read (getproperty-api `FakeSlipVerifier`, the mock's copy of it): a PNG followed by
+ * the JSON a real verifier would return.
+ */
+export function slipImage(fields: { transRef: string; amount: string; receiverAccount?: string }): Buffer {
+  return Buffer.concat([
+    PNG_1PX,
+    Buffer.from(
+      JSON.stringify({
+        transRef: fields.transRef,
+        amount: fields.amount,
+        paidAt: new Date().toISOString(),
+        receiverBankCode: "004",
+        receiverAccount: fields.receiverAccount ?? "xxx-x-x1234-x",
+        receiverName: "บริษัท หอพักตัวอย่าง จำกัด",
+        senderName: "ผู้เช่า ทดสอบ",
+      }),
+    ),
+  ]);
 }

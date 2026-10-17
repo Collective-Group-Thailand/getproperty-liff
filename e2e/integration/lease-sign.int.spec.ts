@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-import { API_PORT, intDatabase, setLatestOtpCode } from "./harness";
+import { API_PORT, intDatabase, ownerAccessToken, setLatestOtpCode } from "./harness";
 
 /**
  * L3 3.1 against the real getproperty-api (no mocks): the office drafts a lease for a party, sends it for
@@ -10,11 +10,10 @@ import { API_PORT, intDatabase, setLatestOtpCode } from "./harness";
  * links, reads the lease to the end, draws a signature, confirms with the SMS code and sees the document hash; the
  * office countersigns; the resident's lease is in force (D-061, D-062).
  *
- * The office's side is driven over HTTP with an operator session of the dev seed's Owner. SMS codes stay in the
+ * The office's side is driven over HTTP with an operator session of the dev seed's Owner (`ownerAccessToken`). SMS codes stay in the
  * fake SMS adapter's memory, so the test replaces the newest challenge's code hash with one it knows.
  */
 const API = `http://127.0.0.1:${API_PORT}`;
-const OWNER_PHONE = "+660000000001";
 const RESIDENT_SUB = "U00000000000000000000000l3signer01";
 const RESIDENT_PHONE = "+66810007788";
 const CODE = "246810";
@@ -27,16 +26,6 @@ function thaiId(prefix12: string): string {
   return `${prefix12}${(11 - (sum % 11)) % 10}`;
 }
 
-async function ownerToken(request: APIRequestContext): Promise<string> {
-  const challenge = await request.post(`${API}/v1/auth/operator/otp/request`, { data: { phone: OWNER_PHONE } });
-  expect(challenge.status(), await challenge.text()).toBe(200);
-  const { challengeId } = (await challenge.json()) as { challengeId: string };
-  await setLatestOtpCode("operator_login", CODE);
-  const verified = await request.post(`${API}/v1/auth/operator/otp/verify`, { data: { challengeId, code: CODE } });
-  expect(verified.status(), await verified.text()).toBe(200);
-  return ((await verified.json()) as { accessToken: string }).accessToken;
-}
-
 test("the office sends a lease; the resident links, reads, signs with OTP; countersigned → in force", async ({
   page,
   context,
@@ -44,7 +33,7 @@ test("the office sends a lease; the resident links, reads, signs with OTP; count
   request,
 }) => {
   test.setTimeout(180_000);
-  const owner = await ownerToken(request);
+  const owner = await ownerAccessToken(request);
   const headers = { authorization: `Bearer ${owner}` };
 
   // The office: a party with a phone (the signature OTP goes there), a lease on a free unit, sent, invitation.

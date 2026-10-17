@@ -4,7 +4,8 @@
  * integration suite uses (Prisma's schema engine cannot be downloaded everywhere), the reference + dev seeds, one
  * resident party carrying the fake LINE user id with an occupancy of a dev unit, and the API itself
  * (`DATA_STORES_MODE=real` on PostgreSQL; Redis and MQTT in memory; `INTEGRATIONS_MODE=fake`, so LINE is the fake
- * verifier that accepts the fake LIFF's `fake-line.` id tokens).
+ * verifier that accepts the fake LIFF's `fake-line.` id tokens, payments are the fake provider whose callbacks the
+ * tests sign, and PDFs/storage are fakes) and its worker process (L2: QR at issue, callbacks → payment → receipt).
  *
  * Needs a sibling checkout `../getproperty-api` with `pnpm install` done and `pnpm build:fast` run (the harness
  * runs it when `dist/` is missing). State lives in a temp dir and is removed afterwards.
@@ -15,7 +16,17 @@
  */
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { createHash, createHmac, randomUUID } from "node:crypto";
-import { chownSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
+import {
+  chownSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -211,33 +222,38 @@ export async function startHarness(): Promise<Harness> {
     await db.end();
   }
 
-  // 4. The API.
-  const api = spawn(process.execPath, ["dist/src/main.js"], {
-    cwd: apiDir,
-    detached: true,
-    env: {
-      ...process.env,
-      NODE_ENV: "development",
-      PORT: String(API_PORT),
-      LOG_PRETTY: "false",
-      LOG_LEVEL: "warn",
-      DATA_STORES_MODE: "real",
-      REDIS_MODE: "fake",
-      MQTT_MODE: "fake",
-      INTEGRATIONS_MODE: "fake",
-      DATABASE_URL: databaseUrl,
-      DATABASE_APP_ROLE: "gp_app",
-      DATABASE_PLATFORM_ROLE: "gp_platform",
-      PUBLIC_API_BASE_URL: `http://127.0.0.1:${API_PORT}`,
-      PUBLIC_RESIDENT_APP_URL: "http://localhost:3600",
-    },
-  });
+  // 4. The API and its worker (outbox relay → subscribers: the QR at issue, payment callbacks, receipts — L2). With
+  //    in-memory Redis each process has its own queue; the outbox in PostgreSQL is what they share.
+  const apiEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    NODE_ENV: "development",
+    PORT: String(API_PORT),
+    LOG_PRETTY: "false",
+    LOG_LEVEL: "warn",
+    DATA_STORES_MODE: "real",
+    REDIS_MODE: "fake",
+    MQTT_MODE: "fake",
+    INTEGRATIONS_MODE: "fake",
+    DATABASE_URL: databaseUrl,
+    DATABASE_APP_ROLE: "gp_app",
+    DATABASE_PLATFORM_ROLE: "gp_platform",
+    PUBLIC_API_BASE_URL: `http://127.0.0.1:${API_PORT}`,
+    PUBLIC_RESIDENT_APP_URL: "http://localhost:3600",
+  };
+  const api = spawn(process.execPath, ["dist/src/main.js"], { cwd: apiDir, detached: true, env: apiEnv });
   let apiLog = "";
   api.stdout?.on("data", (c: Buffer) => (apiLog += c.toString()));
   api.stderr?.on("data", (c: Buffer) => (apiLog += c.toString()));
+  const worker = spawn(process.execPath, ["dist/src/worker.js"], { cwd: apiDir, detached: true, env: apiEnv });
+  let workerLog = "";
+  worker.stdout?.on("data", (c: Buffer) => (workerLog += c.toString()));
+  worker.stderr?.on("data", (c: Buffer) => (workerLog += c.toString()));
   try {
     await waitForHttp(`http://127.0.0.1:${API_PORT}/v1/auth/ping`, 90_000);
+    if (worker.exitCode !== null)
+      throw new Error(`the API worker exited with ${worker.exitCode}:\n${workerLog.slice(-4000)}`);
   } catch (error) {
+    await stopGroup(worker);
     await stopGroup(api);
     await stopGroup(pg);
     throw new Error(`${(error as Error).message}\n--- api log ---\n${apiLog.slice(-4000)}`);
@@ -246,6 +262,7 @@ export async function startHarness(): Promise<Harness> {
   process.env[INT_DATABASE_ENV] = databaseUrl;
   return {
     async stop() {
+      await stopGroup(worker);
       await stopGroup(api);
       await stopGroup(pg);
       rmSync(parent, { recursive: true, force: true });
@@ -285,4 +302,42 @@ export async function setLatestOtpCode(purpose: string, code: string): Promise<s
   } finally {
     await db.end();
   }
+}
+
+/** Where the Owner's token of this run is kept: Playwright starts a new worker process after a failed test. */
+function ownerTokenFile(): string {
+  const run = createHash("sha256")
+    .update(process.env[INT_DATABASE_ENV] ?? "")
+    .digest("hex")
+    .slice(0, 16);
+  return join(tmpdir(), `gp-liff-int-owner-${run}.json`);
+}
+
+/**
+ * The dev seed's Owner (`+660000000001`) signed in over HTTP: an operator access token for the office's side. One
+ * sign-in per test run (the API refuses a second OTP to the same phone within its cooldown), reused for 10 minutes.
+ */
+export async function ownerAccessToken(request: {
+  post: (
+    url: string,
+    options: { data: unknown },
+  ) => Promise<{ status(): number; text(): Promise<string>; json(): Promise<unknown> }>;
+}): Promise<string> {
+  try {
+    const cached = JSON.parse(readFileSync(ownerTokenFile(), "utf8")) as { token: string; at: number };
+    if (Date.now() - cached.at < 10 * 60_000) return cached.token;
+  } catch {
+    // none yet
+  }
+  const api = `http://127.0.0.1:${API_PORT}`;
+  const code = "246810";
+  const challenge = await request.post(`${api}/v1/auth/operator/otp/request`, { data: { phone: "+660000000001" } });
+  if (challenge.status() !== 200) throw new Error(`owner OTP request: ${challenge.status()} ${await challenge.text()}`);
+  const { challengeId } = (await challenge.json()) as { challengeId: string };
+  await setLatestOtpCode("operator_login", code);
+  const verified = await request.post(`${api}/v1/auth/operator/otp/verify`, { data: { challengeId, code } });
+  if (verified.status() !== 200) throw new Error(`owner OTP verify: ${verified.status()} ${await verified.text()}`);
+  const token = ((await verified.json()) as { accessToken: string }).accessToken;
+  writeFileSync(ownerTokenFile(), JSON.stringify({ token, at: Date.now() }));
+  return token;
 }

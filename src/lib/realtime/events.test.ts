@@ -13,6 +13,17 @@ describe("realtime → query invalidation", () => {
     expect(queriesFor("heartbeat")).toEqual([]);
   });
 
+  it("maps invoice, receipt and slip events (L2)", () => {
+    expect(queriesFor("invoice.paid")).toEqual([["resident", "invoices"]]);
+    expect(queriesFor("invoice.balance_changed")).toEqual([["resident", "invoices"]]);
+    expect(queriesFor("tax_invoice.issued")).toEqual([["resident", "receipts"]]);
+    expect(queriesFor("slip.reviewed")).toEqual([
+      ["resident", "slips"],
+      ["resident", "invoices"],
+      ["resident", "payments"],
+    ]);
+  });
+
   it("backs off exponentially up to a minute", () => {
     expect(backoff(0, () => 0)).toBe(500);
     expect(backoff(3, () => 1)).toBe(8000);

@@ -24,9 +24,9 @@ test.describe("resident shell", () => {
     await expect(home.getByRole("heading", { level: 1 })).toHaveText("สวัสดี สมชาย ใจดี");
     await expect(page.getByTestId("unit-card")).toContainText("ห้อง A-201");
     await expect(page.getByTestId("unit-card")).toContainText("ดูแลโดย หอพักตัวอย่าง");
-    // Mock entitlements (CONTRACT-REQUEST #2): bills, usage, lease.
-    for (const tile of ["บิลและใบเสร็จ", "การใช้น้ำไฟ", "สัญญาเช่า"])
-      await expect(home.getByRole("link", { name: tile })).toBeVisible();
+    // Mock entitlements: bills (bills + receipts tiles), usage, lease.
+    for (const tile of ["บิล", "ใบเสร็จ", "การใช้น้ำไฟ", "สัญญาเช่า"])
+      await expect(home.getByRole("link", { name: tile, exact: true })).toBeVisible();
     await expect(home.getByRole("link", { name: "แจ้งซ่อม" })).toHaveCount(0);
 
     const nav = page.getByRole("navigation", { name: "เมนูด่วน" });
@@ -70,7 +70,7 @@ test.describe("resident shell", () => {
     await context.addCookies([{ name: "gp_locale", value: "km", url: baseURL! }]);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", "km");
-    await expect(page.getByRole("link", { name: "Bills & receipts" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Receipts", exact: true })).toBeVisible();
   });
 
   test("an API failure shows the error with its request id, not a blank page", async ({ page, context, baseURL }) => {

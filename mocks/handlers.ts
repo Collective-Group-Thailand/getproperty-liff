@@ -23,6 +23,7 @@ import {
   type MockAccount,
   type MockSession,
 } from "./state";
+import { subscribeEvents } from "./events";
 import { residenceOf } from "./residence";
 import { bangkokIso, mockAccessToken, readMockAccessToken, TTL } from "./tokens";
 
@@ -281,15 +282,25 @@ export const contractHandlers: HttpHandler[] = [
     if (!session) return problem("resident.realtime.stream", "realtime.token_invalid");
     const encoder = new TextEncoder();
     let timer: ReturnType<typeof setInterval> | undefined;
+    let unsubscribe: (() => void) | undefined;
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(
           encoder.encode(`event: ready\ndata: ${JSON.stringify({ channels: [`user:${session.userId}`] })}\n\n`),
         );
         timer = setInterval(() => controller.enqueue(encoder.encode("event: heartbeat\ndata: {}\n\n")), 25_000);
+        // Mock state changes (a payment, a slip decision) reach the stream as `{ type, ids }` (mocks/events.ts).
+        unsubscribe = subscribeEvents(session.userId, (type, ids) => {
+          try {
+            controller.enqueue(encoder.encode(`event: ${type}\ndata: ${JSON.stringify({ type, ids })}\n\n`));
+          } catch {
+            unsubscribe?.();
+          }
+        });
       },
       cancel() {
         clearInterval(timer);
+        unsubscribe?.();
       },
     });
     return new HttpResponse(stream, {
