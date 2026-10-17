@@ -1,7 +1,8 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { cn } from "../lib/cn";
+import { toE164 } from "../lib/phone";
 import { useFieldProps } from "./Field";
 import { controlVariants } from "./Input";
 
@@ -19,13 +20,7 @@ export interface PhoneInputProps {
   name?: string;
 }
 
-/** `0812345678` → `+66812345678`; anything that is not a 9–10 digit Thai number comes back null. */
-export function toE164(national: string): string | null {
-  const digits = national.replace(/\D/g, "");
-  if (/^0\d{8,9}$/.test(digits)) return `+66${digits.slice(1)}`;
-  if (/^66\d{8,9}$/.test(digits)) return `+${digits}`;
-  return null;
-}
+export { toE164 };
 
 /**
  * A Thai phone field (design-system.md §3): a fixed, decorative `+66` prefix and a numeric keypad.

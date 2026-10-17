@@ -1,5 +1,6 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
-import { Icon, type IconName } from "../icons";
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+import { Icon, type IconGlyph } from "../icons";
+import { IconDot } from "../icons/glyphs/dot";
 import { cn } from "../lib/cn";
 
 export interface TimelineEvent {
@@ -10,7 +11,7 @@ export interface TimelineEvent {
   timeTitle?: string;
   actor?: React.ReactNode;
   description?: React.ReactNode;
-  icon?: IconName;
+  icon?: IconGlyph;
   tone?: "neutral" | "primary" | "success" | "warning" | "danger";
   /** Evidence thumbnails (meter photos, slips) rendered by the caller. */
   evidence?: React.ReactNode;
@@ -37,7 +38,7 @@ export function Timeline({ events, className }: { events: TimelineEvent[]; class
               TONE[event.tone ?? "neutral"],
             )}
           >
-            <Icon name={event.icon ?? "dot"} />
+            <Icon icon={event.icon ?? IconDot} />
           </span>
           <div className="flex flex-wrap items-baseline justify-between gap-x-3">
             <p className="font-medium">{event.title}</p>

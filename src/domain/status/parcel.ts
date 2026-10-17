@@ -1,4 +1,8 @@
 import type { ContractEnum } from "@/lib/api/types";
+import { IconAnnounce } from "@/ui/icons/glyphs/announce";
+import { IconBack } from "@/ui/icons/glyphs/back";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconParcel } from "@/ui/icons/glyphs/parcel";
 
 import { defineStatuses } from "./index";
 
@@ -10,8 +14,8 @@ import { defineStatuses } from "./index";
 export type ParcelStatus = ContractEnum<"ParcelStatus", "received" | "notified" | "picked_up" | "returned">;
 
 export const PARCEL_STATUS = defineStatuses<ParcelStatus>("parcel", {
-  received: { tone: "primary", icon: "parcel" },
-  notified: { tone: "info", icon: "announce" },
-  picked_up: { tone: "success", icon: "check-circle" },
-  returned: { tone: "neutral", icon: "back" },
+  received: { tone: "primary", icon: IconParcel },
+  notified: { tone: "info", icon: IconAnnounce },
+  picked_up: { tone: "success", icon: IconCheckCircle },
+  returned: { tone: "neutral", icon: IconBack },
 });

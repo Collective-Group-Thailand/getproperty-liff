@@ -5,6 +5,7 @@ import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { currentPath, requireResident } from "@/lib/auth/guards";
 import { Button } from "@/ui/components/Button";
+import { IconRefresh } from "@/ui/icons/glyphs/refresh";
 
 /**
  * Every resident screen (home now; bills, usage, lease, profile… in L2–L4) sits behind this guard: a session,
@@ -20,7 +21,7 @@ export default async function ResidentAreaLayout({ children }: { children: React
         <ProblemPage
           error={actor.error}
           action={
-            <Button asChild variant="secondary" iconStart="refresh">
+            <Button asChild variant="secondary" iconStart={IconRefresh}>
               <a href={path}>{t("retry")}</a>
             </Button>
           }

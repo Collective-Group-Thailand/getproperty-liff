@@ -6,10 +6,12 @@ import { useState } from "react";
 import { ACTIVE_LOCALES, LOCALES, type Locale } from "@/i18n/routing";
 import { Button } from "@/ui/components/Button";
 import { SegmentedControl } from "@/ui/components/SegmentedControl";
+// eslint-disable-next-line no-restricted-imports -- this module is itself loaded on first open (SettingsMenuView, D-179)
 import { Sheet } from "@/ui/components/Sheet";
 import { cn } from "@/ui/lib/cn";
 import { useTheme } from "@/ui/theme/ThemeProvider";
 import type { ThemeChoice } from "@/ui/theme/themes";
+import { IconLogOut } from "@/ui/icons/glyphs/log-out";
 
 export interface SettingsSheetProps {
   open: boolean;
@@ -73,7 +75,7 @@ export default function SettingsSheet({ open, setOpen, locale, signedIn, onLangu
           <Button
             variant="secondary"
             block
-            iconStart="log-out"
+            iconStart={IconLogOut}
             loading={busy}
             onClick={async () => {
               setBusy(true);

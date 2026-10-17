@@ -1,20 +1,19 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import { browserApi } from "@/lib/api/browser";
+import { peekQueryClient } from "@/lib/api/query-runtime";
 import { backoff, queriesFor } from "@/lib/realtime/events";
 
 /**
  * Server-sent events for the signed-in resident (contract §6): `POST /v1/resident/realtime/auth` (through the
  * BFF) gives a 60-second stream token and URL; the stream is read through the BFF's streaming passthrough; each
- * event's type invalidates the matching TanStack queries (ids only — the data is refetched). A dropped stream is
+ * event's type invalidates the matching TanStack queries once a query client exists (ids only — the data is
+ * refetched). A dropped stream is
  * re-authorised with backoff; a hidden LIFF view closes it and reopens it when the resident comes back.
  */
 export function RealtimeBridge() {
-  const queryClient = useQueryClient();
-
   useEffect(() => {
     if (typeof EventSource === "undefined") return;
     let source: EventSource | null = null;
@@ -30,6 +29,9 @@ export function RealtimeBridge() {
       } catch {
         // `ready`/`heartbeat` may carry no JSON type; the SSE event name is enough.
       }
+      // TanStack Query loads on demand (D-179): no client yet means nothing cached to invalidate.
+      const queryClient = peekQueryClient();
+      if (!queryClient) return;
       for (const queryKey of queriesFor(type)) void queryClient.invalidateQueries({ queryKey });
     };
 
@@ -86,7 +88,7 @@ export function RealtimeBridge() {
       source?.close();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [queryClient]);
+  }, []);
 
   return null;
 }

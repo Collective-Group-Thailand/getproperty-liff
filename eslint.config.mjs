@@ -1,4 +1,4 @@
-// adapted from getproperty-web@08ff63b eslint.config.mjs: no zone boundaries (one zone), + LIFF rules
+// adapted from getproperty-web@f57d4dc eslint.config.mjs: no zone boundaries (one zone), + LIFF rules
 import coreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier";
@@ -58,6 +58,29 @@ const NO_WINDOW_OPEN = [
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.object.name=/^(window|globalThis|self)$/][callee.property.name='open']",
     message: "Inside LIFF use openExternal() from @/lib/liff (liff.openWindow), never window.open (CLAUDE.md).",
+  },
+];
+
+const LIFF_PATH = {
+  name: "@line/liff",
+  message: "Use the wrapper in @/lib/liff (getLiff, openExternal) — it is mockable.",
+};
+/** D-179: single glyphs only — the registry and Lucide would ship the whole icon set. */
+const ICON_PATHS = [
+  {
+    name: "lucide-react",
+    message: "Icons come from the curated set: import { IconX } from '@/ui/icons/glyphs/x' (D-179).",
+  },
+];
+const ICON_PATTERNS = [
+  {
+    regex: "(^@/ui/icons/registry$|/icons/registry$|^\\./registry$)",
+    message:
+      "The icon registry holds every glyph and is for Storybook/tests only. Import single glyphs from '@/ui/icons/glyphs/<name>' (D-179).",
+  },
+  {
+    regex: "^lucide-react/",
+    message: "Icons come from the curated set: import { IconX } from '@/ui/icons/glyphs/x' (D-179).",
   },
 ];
 
@@ -159,18 +182,40 @@ const eslintConfig = [
     rules: { "no-restricted-syntax": ["error", ...NO_WINDOW_OPEN] },
   },
   {
+    // The LINE SDK only behind the wrapper; icons one glyph at a time (D-179: the registry and Lucide would ship
+    // the whole set).
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/lib/liff/**"],
+    ignores: ["src/lib/liff/**", "**/*.stories.tsx", "**/*.test.{ts,tsx}", "src/ui/icons/registry.ts"],
+    rules: { "no-restricted-imports": ["error", { paths: [LIFF_PATH, ...ICON_PATHS], patterns: ICON_PATTERNS }] },
+  },
+  {
+    // D-179: app code opens overlays through `@/ui/components/overlays` (loaded on first open) and shows toasts
+    // through `@/ui/components/Toast`; a module that is itself loaded on first open says so where it imports one.
+    files: ["src/app/**/*.{ts,tsx}", "src/features/**/*.{ts,tsx}"],
+    ignores: ["**/*.stories.tsx", "**/*.test.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
-          paths: [
-            { name: "@line/liff", message: "Use the wrapper in @/lib/liff (getLiff, openExternal) — it is mockable." },
+          paths: [LIFF_PATH, ...ICON_PATHS],
+          patterns: [
+            ...ICON_PATTERNS,
+            {
+              regex: "^@/ui/components/(Sheet|Dialog|AlertDialog|DropdownMenu|ToastViewport)$",
+              allowTypeImports: true,
+              message:
+                "Use LazySheet / LazyDialog / LazyAlertDialog / LazyDropdownMenu from '@/ui/components/overlays' and toast/Toaster from '@/ui/components/Toast' (D-179).",
+            },
           ],
         },
       ],
     },
+  },
+  {
+    // The LIFF wrapper itself may import the SDK, but icons stay single glyphs there too.
+    files: ["src/lib/liff/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: { "no-restricted-imports": ["error", { paths: ICON_PATHS, patterns: ICON_PATTERNS }] },
   },
 
   {

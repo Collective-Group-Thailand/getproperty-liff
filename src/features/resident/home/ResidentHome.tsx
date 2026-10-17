@@ -8,15 +8,24 @@ import type { ResidentNavEntitlements } from "@/lib/auth/entitlements";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
-import { Icon, type IconName } from "@/ui/icons";
+import { Icon, type IconGlyph } from "@/ui/icons";
+import { IconAnnounce } from "@/ui/icons/glyphs/announce";
+import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconElectric } from "@/ui/icons/glyphs/electric";
+import { IconForward } from "@/ui/icons/glyphs/forward";
+import { IconKey } from "@/ui/icons/glyphs/key";
+import { IconLease } from "@/ui/icons/glyphs/lease";
+import { IconParcel } from "@/ui/icons/glyphs/parcel";
+import { IconRoom } from "@/ui/icons/glyphs/room";
+import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
-const TILES: { key: string; href: string; icon: IconName; needs: ResidentEntitlement }[] = [
-  { key: "bills", href: "/bills", icon: "bill", needs: "bills" },
-  { key: "usage", href: "/usage", icon: "electric", needs: "usage" },
-  { key: "serviceRequest", href: "/requests", icon: "ticket", needs: "service_requests" },
-  { key: "lease", href: "/lease", icon: "lease", needs: "lease" },
-  { key: "announcements", href: "/announcements", icon: "announce", needs: "announcements" },
-  { key: "parcels", href: "/parcels", icon: "parcel", needs: "parcels" },
+const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitlement }[] = [
+  { key: "bills", href: "/bills", icon: IconBill, needs: "bills" },
+  { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
+  { key: "serviceRequest", href: "/requests", icon: IconTicket, needs: "service_requests" },
+  { key: "lease", href: "/lease", icon: IconLease, needs: "lease" },
+  { key: "announcements", href: "/announcements", icon: IconAnnounce, needs: "announcements" },
+  { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
 ];
 
 /**
@@ -66,7 +75,7 @@ export async function ResidentHome({
               </h2>
               <p className="text-muted mt-1 text-sm">{t("bills.body")}</p>
               <div className="mt-4">
-                <Button asChild block variant="secondary" iconEnd="forward">
+                <Button asChild block variant="secondary" iconEnd={IconForward}>
                   <Link href="/bills">{t("bills.cta")}</Link>
                 </Button>
               </div>
@@ -85,7 +94,7 @@ export async function ResidentHome({
                     className="rounded-card border-border bg-surface shadow-card flex min-h-24 flex-col items-center justify-center gap-2 border p-2 text-center text-sm font-medium"
                   >
                     <span className="text-primary text-2xl">
-                      <Icon name={tile.icon} />
+                      <Icon icon={tile.icon} />
                     </span>
                     {t(`tiles.${tile.key}`)}
                   </Link>
@@ -96,11 +105,11 @@ export async function ResidentHome({
         </>
       ) : (
         <EmptyState
-          icon="room"
+          icon={IconRoom}
           title={t("noUnit.title")}
           description={t("noUnit.body")}
           action={
-            <Button asChild iconStart="key">
+            <Button asChild iconStart={IconKey}>
               <Link href="/link">{t("noUnit.cta")}</Link>
             </Button>
           }

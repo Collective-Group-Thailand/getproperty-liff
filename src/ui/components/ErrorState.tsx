@@ -1,5 +1,6 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import { Icon } from "../icons";
+import { IconAlert } from "../icons/glyphs/alert";
 import { cn } from "../lib/cn";
 
 export interface ErrorStateProps {
@@ -18,13 +19,13 @@ export function ErrorState({ title, description, requestId, requestIdLabel, acti
   return (
     <div role="alert" className={cn("flex flex-col items-center px-6 py-12 text-center", className)}>
       <span className="bg-danger-subtle text-danger-subtle-fg mb-4 flex size-14 items-center justify-center rounded-full text-3xl">
-        <Icon name="alert" />
+        <Icon icon={IconAlert} />
       </span>
       <h2 className="text-lg font-semibold">{title}</h2>
       {description ? <p className="text-muted mt-1 max-w-md text-sm">{description}</p> : null}
       {action ? <div className="mt-6">{action}</div> : null}
       {requestId ? (
-        <p className="text-subtle mt-6 font-mono text-xs">
+        <p className="text-muted mt-6 font-mono text-xs">
           {requestIdLabel ? `${requestIdLabel}: ` : null}
           {requestId}
         </p>

@@ -1,10 +1,11 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { Slot } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Icon, type IconName } from "../icons";
+import { Icon, type IconGlyph } from "../icons";
+import { IconSpinner } from "../icons/glyphs/spinner";
 import { cn } from "../lib/cn";
 
 /**
@@ -52,8 +53,8 @@ export interface ButtonProps
   /** Shows a spinner and marks the button busy. The label stays in place so the name does not vanish. */
   loading?: boolean;
   /** Decorative icon before/after the label; the label still carries the meaning. */
-  iconStart?: IconName;
-  iconEnd?: IconName;
+  iconStart?: IconGlyph;
+  iconEnd?: IconGlyph;
 }
 
 export function Button({
@@ -72,9 +73,9 @@ export function Button({
 }: ButtonProps) {
   const Component = asChild ? Slot.Root : "button";
   const iconBefore = loading ? (
-    <Icon name="spinner" className="animate-spin" />
+    <Icon icon={IconSpinner} className="animate-spin" />
   ) : iconStart ? (
-    <Icon name={iconStart} />
+    <Icon icon={iconStart} />
   ) : null;
 
   return (
@@ -88,7 +89,7 @@ export function Button({
     >
       {iconBefore}
       {asChild ? <Slot.Slottable>{children}</Slot.Slottable> : children}
-      {iconEnd ? <Icon name={iconEnd} /> : null}
+      {iconEnd ? <Icon icon={iconEnd} /> : null}
     </Component>
   );
 }

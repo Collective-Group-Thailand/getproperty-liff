@@ -5,7 +5,12 @@ import type { ResidentEntitlement } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
 import { clientEnv } from "@/lib/env";
 import type { NavItem } from "@/ui/components/AppShell";
-import { Icon, type IconName } from "@/ui/icons";
+import { Icon, type IconGlyph } from "@/ui/icons";
+import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconElectric } from "@/ui/icons/glyphs/electric";
+import { IconHome } from "@/ui/icons/glyphs/home";
+import { IconResident } from "@/ui/icons/glyphs/resident";
+import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
 import { ResidentShellView } from "./ResidentShellView";
 import { SettingsMenu } from "./SettingsMenu";
@@ -17,12 +22,12 @@ export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
  * Bottom nav entries and the entitlement each needs (`/v1/resident/me`; CONTRACT-REQUEST #2 until the contract
  * lists entitlements). Home and Me are always there; Repairs is R2.
  */
-export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconName; needs?: ResidentEntitlement }[] = [
-  { key: "home", href: "/", icon: "home" },
-  { key: "bills", href: "/bills", icon: "bill", needs: "bills" },
-  { key: "usage", href: "/usage", icon: "electric", needs: "usage" },
-  { key: "requests", href: "/requests", icon: "ticket", needs: "service_requests" },
-  { key: "me", href: "/profile", icon: "resident" },
+export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph; needs?: ResidentEntitlement }[] = [
+  { key: "home", href: "/", icon: IconHome },
+  { key: "bills", href: "/bills", icon: IconBill, needs: "bills" },
+  { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
+  { key: "requests", href: "/requests", icon: IconTicket, needs: "service_requests" },
+  { key: "me", href: "/profile", icon: IconResident },
 ];
 
 /**
@@ -53,7 +58,7 @@ export async function ResidentShell({
     ? RESIDENT_NAV.filter((item) => !item.needs || actor.entitlements.has(item.needs)).map((item) => ({
         href: item.href,
         label: nav(item.key),
-        icon: <Icon name={item.icon} />,
+        icon: <Icon icon={item.icon} />,
         active: item.key === active,
       }))
     : [];

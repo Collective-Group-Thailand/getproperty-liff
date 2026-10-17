@@ -1,5 +1,9 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
-import type { IconName } from "@/ui/icons/registry";
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155) — adapted: liff keeps its own per-domain status files (glyph icons, D-179)
+import type { IconGlyph } from "@/ui/icons";
+import { IconCamera } from "@/ui/icons/glyphs/camera";
+import { IconEdit } from "@/ui/icons/glyphs/edit";
+import { IconGateway } from "@/ui/icons/glyphs/gateway";
+import { IconHelp } from "@/ui/icons/glyphs/help";
 
 /**
  * Status presentation (design-system.md §2): every status the API returns maps to a tone, an icon and
@@ -14,7 +18,7 @@ export type StatusTone = "neutral" | "primary" | "success" | "warning" | "danger
 
 export interface StatusMeta {
   tone: StatusTone;
-  icon: IconName;
+  icon: IconGlyph;
   /** Key under `status.<domain>.<value>` in `src/i18n/messages`. */
   labelKey: string;
 }
@@ -39,8 +43,8 @@ export function defineStatuses<Value extends string>(
 export type ReadingSource = "iot" | "ocr" | "manual" | "estimated";
 
 export const READING_SOURCE = defineStatuses<ReadingSource>("readingSource", {
-  iot: { tone: "primary", icon: "gateway" },
-  ocr: { tone: "info", icon: "camera" },
-  manual: { tone: "neutral", icon: "edit" },
-  estimated: { tone: "warning", icon: "help" },
+  iot: { tone: "primary", icon: IconGateway },
+  ocr: { tone: "info", icon: IconCamera },
+  manual: { tone: "neutral", icon: IconEdit },
+  estimated: { tone: "warning", icon: IconHelp },
 });

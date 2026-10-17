@@ -11,6 +11,7 @@ import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
 import { PhoneInput, toE164 } from "@/ui/components/PhoneInput";
+import { IconChat } from "@/ui/icons/glyphs/chat";
 
 import { savePendingOtp } from "./otpSession";
 
@@ -62,7 +63,7 @@ export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
       </div>
 
       <Card as="section" padding="md" className="flex flex-col gap-3">
-        <Button asChild size="lg" block iconStart="chat">
+        <Button asChild size="lg" block iconStart={IconChat}>
           <a href={lineHref} data-testid="open-in-line">
             {t("openInLine")}
           </a>

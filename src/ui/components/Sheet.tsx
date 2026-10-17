@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { Dialog as DialogPrimitive } from "radix-ui";
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib/cn";
 import { useReturnFocus } from "../lib/useReturnFocus";
 import { IconButton } from "./IconButton";
+import { IconClose } from "../icons/glyphs/close";
 
 const sheetVariants = cva(
   [
@@ -74,7 +75,7 @@ export function Sheet({
               ) : null}
             </div>
             <DialogPrimitive.Close asChild>
-              <IconButton name="close" label={closeLabel} size="md" />
+              <IconButton icon={IconClose} label={closeLabel} size="md" />
             </DialogPrimitive.Close>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">{children}</div>

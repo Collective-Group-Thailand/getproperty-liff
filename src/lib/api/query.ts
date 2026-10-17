@@ -1,27 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { isApiError } from "./problem";
+import { announceQueryClient } from "./query-runtime";
 
-/**
- * Query keys, one factory for the whole app, so invalidation (realtime events, mutations) can name what it
- * touches: `queryClient.invalidateQueries({ queryKey: qk.resident.all })`.
- */
-export const qk = {
-  resident: {
-    all: ["resident"] as const,
-    me: () => ["resident", "me"] as const,
-    consents: (language: string) => ["resident", "consents", language] as const,
-    notifications: () => ["resident", "notifications"] as const,
-    invoices: () => ["resident", "invoices"] as const,
-    payments: () => ["resident", "payments"] as const,
-    receipts: () => ["resident", "receipts"] as const,
-  },
-  technician: {
-    all: ["technician"] as const,
-    me: () => ["technician", "me"] as const,
-    workOrders: () => ["technician", "work-orders"] as const,
-  },
-} as const;
+export { qk } from "./query-keys";
 
 /**
  * Defaults (design-system.md §7): data is fresh for 30 s; a LIFF view that comes back to the foreground
@@ -43,4 +25,19 @@ export function createQueryClient(): QueryClient {
       mutations: { retry: false },
     },
   });
+}
+
+let browserClient: QueryClient | undefined;
+
+/**
+ * The tab's one client (D-179: created on demand, by the first `QueryProvider` that mounts). Announced to
+ * `query-runtime` so realtime invalidation can reach it without importing TanStack Query itself.
+ */
+export function getQueryClient(): QueryClient {
+  if (typeof window === "undefined") return createQueryClient();
+  if (!browserClient) {
+    browserClient = createQueryClient();
+    announceQueryClient(browserClient);
+  }
+  return browserClient;
 }

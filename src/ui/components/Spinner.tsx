@@ -1,5 +1,6 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import { Icon } from "../icons";
+import { IconSpinner } from "../icons/glyphs/spinner";
 import { cn } from "../lib/cn";
 
 export interface SpinnerProps {
@@ -14,7 +15,7 @@ export function Spinner({ label, size = "md", className }: SpinnerProps) {
   return (
     <span role="status" className={cn("inline-flex items-center", className)}>
       <Icon
-        name="spinner"
+        icon={IconSpinner}
         className={cn(
           "animate-spin",
           size === "sm" && "text-base",

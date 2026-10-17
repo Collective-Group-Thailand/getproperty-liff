@@ -1,4 +1,10 @@
 import type { ContractEnum } from "@/lib/api/types";
+import { IconCheck } from "@/ui/icons/glyphs/check";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconStaff } from "@/ui/icons/glyphs/staff";
+import { IconTicket } from "@/ui/icons/glyphs/ticket";
+import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 
 import { defineStatuses } from "./index";
 
@@ -13,12 +19,12 @@ export type ServiceRequestStatus = ContractEnum<
 >;
 
 export const SERVICE_REQUEST_STATUS = defineStatuses<ServiceRequestStatus>("serviceRequest", {
-  new: { tone: "info", icon: "ticket" },
-  triaged: { tone: "info", icon: "check" },
-  assigned: { tone: "primary", icon: "staff" },
-  in_progress: { tone: "primary", icon: "clock" },
-  waiting_parts: { tone: "warning", icon: "clock" },
-  done: { tone: "success", icon: "check-circle" },
-  closed: { tone: "neutral", icon: "check" },
-  cancelled: { tone: "neutral", icon: "x-circle" },
+  new: { tone: "info", icon: IconTicket },
+  triaged: { tone: "info", icon: IconCheck },
+  assigned: { tone: "primary", icon: IconStaff },
+  in_progress: { tone: "primary", icon: IconClock },
+  waiting_parts: { tone: "warning", icon: IconClock },
+  done: { tone: "success", icon: IconCheckCircle },
+  closed: { tone: "neutral", icon: IconCheck },
+  cancelled: { tone: "neutral", icon: IconXCircle },
 });

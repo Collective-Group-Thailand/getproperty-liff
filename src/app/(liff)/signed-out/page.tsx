@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { Button } from "@/ui/components/Button";
 import { EmptyState } from "@/ui/components/EmptyState";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.auth.signedOut");
@@ -17,7 +18,7 @@ export default async function SignedOutPage() {
     <ResidentShell active={null} chrome="minimal">
       <div className="py-10" data-testid="signed-out">
         <EmptyState
-          icon="check-circle"
+          icon={IconCheckCircle}
           title={t("title")}
           description={t("body")}
           action={

@@ -13,9 +13,13 @@
  *   pnpm shared:check                    report against ../getproperty-web
  *   SHARED_SOURCE=/path pnpm shared:check another checkout
  *   pnpm shared:check --strict           exit 1 on drift (for a deliberate re-sync session)
+ *
+ * A row may name every file of one directory with an extension glob — `src/ui/icons/glyphs/*.ts` (D-179: one
+ * generated module per icon) — which stands for each such file in the source *and* in the copy, so a glyph
+ * added or removed on either side shows up as missing.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -77,11 +81,26 @@ export function compare(entry: ManifestEntry, copy: Buffer | null, source: Buffe
   return stripCopyHeader(text) === source.toString("utf8") ? "same" : "drift";
 }
 
+/** Expands a `dir/*.ext` row into one entry per file found in either tree; other rows pass through. */
+export function expandEntry(entry: ManifestEntry, roots: readonly string[]): ManifestEntry[] {
+  const glob = /^(.*)\/\*(\.[A-Za-z0-9]+)$/.exec(entry.path);
+  if (!glob) return [entry];
+  const [, dir, extension] = glob as unknown as [string, string, string];
+  const names = new Set<string>();
+  for (const root of roots) {
+    const path = join(root, dir);
+    if (!existsSync(path)) continue;
+    for (const name of readdirSync(path)) if (name.endsWith(extension)) names.add(name);
+  }
+  return [...names].sort().map((name) => ({ ...entry, path: `${dir}/${name}` }));
+}
+
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const sourceRoot = resolve(root, process.env.SHARED_SOURCE ?? "../getproperty-web");
   const strict = process.argv.includes("--strict");
-  const entries = parseManifest(readFileSync(join(root, "docs/shared-copies.md"), "utf8"));
+  const rows = parseManifest(readFileSync(join(root, "docs/shared-copies.md"), "utf8"));
+  const entries = rows.flatMap((row) => expandEntry(row, [root, sourceRoot]));
   const sourcePresent = existsSync(join(sourceRoot, "src/ui"));
 
   if (!sourcePresent) {

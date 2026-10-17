@@ -22,15 +22,21 @@ import { rememberLiffContext } from "@/lib/observability/liffContext";
 import { Badge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
-import type { IconName } from "@/ui/icons";
+import type { IconGlyph } from "@/ui/icons";
+import { IconAlert } from "@/ui/icons/glyphs/alert";
+import { IconCheck } from "@/ui/icons/glyphs/check";
+import { IconDot } from "@/ui/icons/glyphs/dot";
+import { IconForward } from "@/ui/icons/glyphs/forward";
+import { IconRefresh } from "@/ui/icons/glyphs/refresh";
+import { IconSpinner } from "@/ui/icons/glyphs/spinner";
 
 const STEPS: LiffStepName[] = ["init", "login", "session", "link"];
 
-const STATE_LOOK: Record<LiffStepState, { tone: "neutral" | "info" | "success" | "danger"; icon: IconName }> = {
-  pending: { tone: "neutral", icon: "dot" },
-  running: { tone: "info", icon: "spinner" },
-  done: { tone: "success", icon: "check" },
-  failed: { tone: "danger", icon: "alert" },
+const STATE_LOOK: Record<LiffStepState, { tone: "neutral" | "info" | "success" | "danger"; icon: IconGlyph }> = {
+  pending: { tone: "neutral", icon: IconDot },
+  running: { tone: "info", icon: IconSpinner },
+  done: { tone: "success", icon: IconCheck },
+  failed: { tone: "danger", icon: IconAlert },
 };
 
 /** Writes `gp_locale` from LINE's language on first open, so the next server render speaks it. */
@@ -138,7 +144,7 @@ export function LiffEntry({ technicianEnabled }: { technicianEnabled: boolean })
       {result?.status === "ready" && target ? (
         <>
           {result.inClient ? null : <Callout tone="neutral">{t("outsideLine")}</Callout>}
-          <Button asChild size="lg" block iconEnd="forward">
+          <Button asChild size="lg" block iconEnd={IconForward}>
             <Link href={target} replace data-testid="liff-continue">
               {t("continue")}
             </Link>
@@ -156,7 +162,7 @@ export function LiffEntry({ technicianEnabled }: { technicianEnabled: boolean })
               </span>
             ) : null}
           </Callout>
-          <Button size="lg" block iconStart="refresh" onClick={() => window.location.reload()}>
+          <Button size="lg" block iconStart={IconRefresh} onClick={() => window.location.reload()}>
             {common("retry")}
           </Button>
           <Button asChild variant="ghost" block>

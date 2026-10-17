@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { compare, hasCopyHeader, parseManifest, stripCopyHeader } from "./shared-check";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { compare, expandEntry, hasCopyHeader, parseManifest, stripCopyHeader } from "./shared-check";
 
 const H = "// copied from getproperty-web@08ff63b until collective-shared exists (D-155)";
 
@@ -53,5 +57,28 @@ describe("compare", () => {
     const font = { path: "src/ui/fonts/files/a.woff2", mode: "binary" as const, commit: "08ff63b" };
     expect(compare(font, buf("\u0001\u0002"), buf("\u0001\u0002"))).toBe("same");
     expect(compare(font, buf("\u0001"), buf("\u0002"))).toBe("drift");
+  });
+});
+
+describe("expandEntry", () => {
+  it("expands a dir/*.ext row to every such file in either tree and leaves plain rows alone", () => {
+    const base = mkdtempSync(join(tmpdir(), "shared-check-"));
+    const copy = join(base, "copy");
+    const source = join(base, "source");
+    for (const [root, files] of [
+      [copy, ["a.ts", "b.ts", "notes.md"]],
+      [source, ["b.ts", "c.ts"]],
+    ] as const) {
+      mkdirSync(join(root, "src/glyphs"), { recursive: true });
+      for (const file of files) writeFileSync(join(root, "src/glyphs", file), "x");
+    }
+    const row = { path: "src/glyphs/*.ts", mode: "generated" as const, commit: "f57d4dc" };
+    expect(expandEntry(row, [copy, source]).map((entry) => entry.path)).toEqual([
+      "src/glyphs/a.ts",
+      "src/glyphs/b.ts",
+      "src/glyphs/c.ts",
+    ]);
+    const plain = { path: "src/ui/index.ts", mode: "verbatim" as const, commit: "f57d4dc" };
+    expect(expandEntry(plain, [copy, source])).toEqual([plain]);
   });
 });

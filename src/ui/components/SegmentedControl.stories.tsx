@@ -1,8 +1,10 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { SegmentedControl } from "./SegmentedControl";
+import { IconElectric } from "../icons/glyphs/electric";
+import { IconWater } from "../icons/glyphs/water";
 
 const meta: Meta<typeof SegmentedControl> = {
   title: "Navigation/SegmentedControl",
@@ -11,8 +13,8 @@ const meta: Meta<typeof SegmentedControl> = {
     label: "สาธารณูปโภค",
     value: "electric",
     options: [
-      { value: "electric", label: "ไฟฟ้า", icon: "electric" },
-      { value: "water", label: "น้ำ", icon: "water" },
+      { value: "electric", label: "ไฟฟ้า", icon: IconElectric },
+      { value: "water", label: "น้ำ", icon: IconWater },
     ],
   },
 };

@@ -1,17 +1,19 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
+import { IconRoom } from "../icons/glyphs/room";
+import { IconUpload } from "../icons/glyphs/upload";
 
 const meta: Meta<typeof EmptyState> = {
   title: "Feedback/EmptyState",
   component: EmptyState,
   args: {
-    icon: "room",
+    icon: IconRoom,
     title: "ยังไม่มีห้อง",
     description: "เพิ่มห้องจาก Excel ใน 1 นาที หรือเพิ่มทีละห้อง",
-    action: <Button iconStart="upload">นำเข้าจาก Excel</Button>,
+    action: <Button iconStart={IconUpload}>นำเข้าจาก Excel</Button>,
   },
 };
 export default meta;

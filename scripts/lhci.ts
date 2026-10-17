@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: one zone, port 3400, LIFF mocked
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155) — adapted: one zone, port 3400, LIFF mocked
 /**
  * Runs Lighthouse CI once per URL set (`docs/performance-budgets.md`).
  *
@@ -68,6 +68,28 @@ function configFor(name: string): { path: string; cleanup: () => void } {
   return { path, cleanup: () => rmSync(join(ROOT, path), { force: true }) };
 }
 
+/**
+ * Prints the initial JS each URL of the set loaded — Lighthouse's `resource-summary` script transfer
+ * size, min–max over the runs — so a budget change in docs/performance-budgets.md quotes a measurement.
+ */
+function reportScriptSizes(name: string): void {
+  const dir = join(ROOT, ".lighthouseci");
+  const sizes = new Map<string, number[]>();
+  for (const file of readdirSync(dir).filter((entry) => /^lhr-\d+\.json$/.test(entry))) {
+    const report = JSON.parse(readFileSync(join(dir, file), "utf8")) as {
+      requestedUrl: string;
+      audits: Record<string, { details?: { items?: { resourceType: string; transferSize: number }[] } }>;
+    };
+    const script = report.audits["resource-summary"]?.details?.items?.find((item) => item.resourceType === "script");
+    if (!script) continue;
+    sizes.set(report.requestedUrl, [...(sizes.get(report.requestedUrl) ?? []), script.transferSize]);
+  }
+  for (const [url, values] of sizes) {
+    const kb = (bytes: number) => (bytes / 1024).toFixed(1);
+    console.info(`initial JS [${name}] ${url}: ${kb(Math.min(...values))}–${kb(Math.max(...values))} KB`);
+  }
+}
+
 async function main(): Promise<void> {
   if (await portTaken()) {
     console.error(`Port ${PORT} is already in use. Set LHCI_PORT to a free port.`);
@@ -91,6 +113,7 @@ async function main(): Promise<void> {
         stdio: "inherit",
       });
       config.cleanup();
+      reportScriptSizes(name);
       if (result.status !== 0) failures.push(name);
     }
   } finally {

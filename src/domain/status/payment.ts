@@ -1,4 +1,8 @@
 import type { ContractEnum } from "@/lib/api/types";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconRefresh } from "@/ui/icons/glyphs/refresh";
+import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 
 import { defineStatuses } from "./index";
 
@@ -10,9 +14,9 @@ import { defineStatuses } from "./index";
 export type PaymentStatus = ContractEnum<"PaymentStatus", "pending" | "confirmed" | "failed" | "refunded" | "reversed">;
 
 export const PAYMENT_STATUS = defineStatuses<PaymentStatus>("payment", {
-  pending: { tone: "info", icon: "clock" },
-  confirmed: { tone: "success", icon: "check-circle" },
-  failed: { tone: "danger", icon: "x-circle" },
-  refunded: { tone: "neutral", icon: "refresh" },
-  reversed: { tone: "warning", icon: "refresh" },
+  pending: { tone: "info", icon: IconClock },
+  confirmed: { tone: "success", icon: IconCheckCircle },
+  failed: { tone: "danger", icon: IconXCircle },
+  refunded: { tone: "neutral", icon: IconRefresh },
+  reversed: { tone: "warning", icon: IconRefresh },
 });

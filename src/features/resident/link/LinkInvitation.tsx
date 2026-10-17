@@ -14,6 +14,9 @@ import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
 import { Input } from "@/ui/components/Input";
 import { Icon } from "@/ui/icons";
+import { IconForward } from "@/ui/icons/glyphs/forward";
+import { IconKey } from "@/ui/icons/glyphs/key";
+import { IconRoom } from "@/ui/icons/glyphs/room";
 
 /**
  * Accepting an operator's invitation (D-061): the code comes from the invite QR/SMS deep link
@@ -58,7 +61,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
           {linked.map((unit) => (
             <li key={unit.unitId}>
               <Card padding="md" className="flex items-center gap-3">
-                <Icon name="room" className="text-primary text-2xl" />
+                <Icon icon={IconRoom} className="text-primary text-2xl" />
                 <span className="font-semibold">{t("unit", { unit: unit.unitNo, building: unit.buildingName })}</span>
               </Card>
             </li>
@@ -67,7 +70,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
         <Button
           size="lg"
           block
-          iconEnd="forward"
+          iconEnd={IconForward}
           onClick={() => {
             router.replace("/");
             router.refresh();
@@ -118,7 +121,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
         block
         loading={busy}
         disabled={code.trim().length < 4}
-        iconStart="key"
+        iconStart={IconKey}
         data-testid="link-submit"
       >
         {t("submit")}

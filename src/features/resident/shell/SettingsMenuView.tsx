@@ -5,6 +5,7 @@ import { lazy, Suspense, useState } from "react";
 
 import type { Locale } from "@/i18n/routing";
 import { IconButton } from "@/ui/components/IconButton";
+import { IconSettings } from "@/ui/icons/glyphs/settings";
 
 const SettingsSheet = lazy(() => import("./SettingsSheet"));
 
@@ -28,7 +29,7 @@ export function SettingsMenuView(props: SettingsMenuViewProps) {
   return (
     <>
       <IconButton
-        name="settings"
+        icon={IconSettings}
         label={t("menu.open")}
         variant="ghost"
         aria-haspopup="dialog"

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { lazy, Suspense, useState } from "react";
 
 import { Icon } from "@/ui/icons";
+import { IconChevronsUpDown } from "@/ui/icons/glyphs/chevrons-up-down";
 
 const UnitSheet = lazy(() => import("./UnitSheet"));
 
@@ -58,7 +59,7 @@ export function UnitSwitcherView({ units, currentId, onSelect }: UnitSwitcherVie
         data-testid="unit-switcher"
       >
         {label}
-        <Icon name="chevrons-up-down" className="text-muted shrink-0" />
+        <Icon icon={IconChevronsUpDown} className="text-muted shrink-0" />
       </button>
       {loaded ? (
         <Suspense fallback={null}>

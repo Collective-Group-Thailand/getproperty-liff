@@ -8,7 +8,11 @@ import commonTh from "@/i18n/messages/th/shared/common.json";
 import shellTh from "@/i18n/messages/th/shared/shell.json";
 import navTh from "@/i18n/messages/th/resident/nav.json";
 import { Card } from "@/ui/components/Card";
-import { Icon, type IconName } from "@/ui/icons";
+import { Icon, type IconGlyph } from "@/ui/icons";
+import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconElectric } from "@/ui/icons/glyphs/electric";
+import { IconHome } from "@/ui/icons/glyphs/home";
+import { IconResident } from "@/ui/icons/glyphs/resident";
 
 import { ResidentShellView } from "./ResidentShellView";
 import { SettingsMenuView } from "./SettingsMenuView";
@@ -39,11 +43,11 @@ const UNITS: SwitcherUnit[] = [
   { unitId: "b", unitNo: "B-105", buildingName: "อาคาร B", tenantName: "แมนชั่นตัวอย่าง" },
 ];
 
-const NAV: { key: keyof typeof navTh; href: string; icon: IconName }[] = [
-  { key: "home", href: "#", icon: "home" },
-  { key: "bills", href: "#bills", icon: "bill" },
-  { key: "usage", href: "#usage", icon: "electric" },
-  { key: "me", href: "#me", icon: "resident" },
+const NAV: { key: keyof typeof navTh; href: string; icon: IconGlyph }[] = [
+  { key: "home", href: "#", icon: IconHome },
+  { key: "bills", href: "#bills", icon: IconBill },
+  { key: "usage", href: "#usage", icon: IconElectric },
+  { key: "me", href: "#me", icon: IconResident },
 ];
 
 function navItems(locale: "th" | "en") {
@@ -51,7 +55,7 @@ function navItems(locale: "th" | "en") {
   return NAV.map((item, index) => ({
     href: item.href,
     label: labels[item.key],
-    icon: <Icon name={item.icon} />,
+    icon: <Icon icon={item.icon} />,
     active: index === 0,
   }));
 }

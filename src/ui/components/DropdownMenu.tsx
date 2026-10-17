@@ -1,15 +1,16 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { DropdownMenu as MenuPrimitive } from "radix-ui";
 
-import { Icon, type IconName } from "../icons";
+import { Icon, type IconGlyph } from "../icons";
+import { IconCheck } from "../icons/glyphs/check";
 import { cn } from "../lib/cn";
 
 export interface MenuItem {
   id: string;
   label: React.ReactNode;
-  icon?: IconName;
+  icon?: IconGlyph;
   onSelect?: () => void;
   /** Rendered with a check mark, for a menu of choices (theme, language). */
   selected?: boolean;
@@ -52,9 +53,9 @@ export function DropdownMenu({ label, trigger, items, align = "end", ...props }:
                   item.destructive && "text-danger-subtle-fg",
                 )}
               >
-                {item.icon ? <Icon name={item.icon} className="text-muted" /> : null}
+                {item.icon ? <Icon icon={item.icon} className="text-muted" /> : null}
                 <span className="flex-1">{item.label}</span>
-                {item.selected ? <Icon name="check" className="text-primary" /> : null}
+                {item.selected ? <Icon icon={IconCheck} className="text-primary" /> : null}
               </MenuPrimitive.Item>
             </div>
           ))}

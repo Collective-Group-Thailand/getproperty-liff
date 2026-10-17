@@ -1,9 +1,9 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Icon, type IconName } from "../icons";
+import { Icon, type IconGlyph } from "../icons";
 import { cn } from "../lib/cn";
 
 const iconButtonVariants = cva(
@@ -33,22 +33,26 @@ const iconButtonVariants = cva(
 
 export interface IconButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof iconButtonVariants> {
-  name: IconName;
+  icon: IconGlyph;
   /** Required: an icon-only control has no other accessible name. From `src/i18n`. */
   label: string;
+  /** A decorative count (`<CountBadge>`) on the icon; put the number in `label` too. */
+  badge?: React.ReactNode;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
-export function IconButton({ name, label, variant, size, className, type, ...props }: IconButtonProps) {
+export function IconButton({ icon, label, variant, size, className, type, badge, ...props }: IconButtonProps) {
   return (
     <button
       type={type ?? "button"}
       aria-label={label}
       title={label}
       data-size={size ?? "md"}
-      className={cn(iconButtonVariants({ variant, size }), className)}
+      className={cn(iconButtonVariants({ variant, size }), badge ? "relative" : undefined, className)}
       {...props}
     >
-      <Icon name={name} />
+      <Icon icon={icon} />
+      {badge}
     </button>
   );
 }

@@ -1,10 +1,10 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 /**
  * The design system (ADR-0002). Zones import from `@/ui`; nothing here knows about a zone, the API
  * or a route. Server-safe: the client components carry their own "use client".
  */
 export * from "./brand";
 export * from "./components";
-export { Icon, ICON_NAMES, ICONS, type IconName, type IconProps } from "./icons";
+export { Icon, type IconGlyph, type IconProps } from "./icons";
 export { cn } from "./lib/cn";
 export { ThemeProvider, ThemeToggle, useTheme, type Theme, type ThemeChoice } from "./theme";

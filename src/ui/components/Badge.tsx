@@ -1,9 +1,9 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import { cva, type VariantProps } from "class-variance-authority";
 
 import type { StatusMeta } from "@/domain/status";
 
-import { Icon, type IconName } from "../icons";
+import { Icon, type IconGlyph } from "../icons";
 import { cn } from "../lib/cn";
 
 export const badgeVariants = cva("inline-flex items-center gap-1 rounded-full font-medium whitespace-nowrap", {
@@ -27,14 +27,14 @@ export const badgeVariants = cva("inline-flex items-center gap-1 rounded-full fo
 
 export interface BadgeProps extends VariantProps<typeof badgeVariants> {
   children: React.ReactNode;
-  icon?: IconName;
+  icon?: IconGlyph;
   className?: string;
 }
 
 export function Badge({ tone, size, icon, children, className }: BadgeProps) {
   return (
     <span className={cn(badgeVariants({ tone, size }), className)}>
-      {icon ? <Icon name={icon} /> : null}
+      {icon ? <Icon icon={icon} /> : null}
       {children}
     </span>
   );

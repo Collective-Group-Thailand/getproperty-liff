@@ -1,10 +1,8 @@
 "use client";
 
-import { QueryClientProvider } from "@tanstack/react-query";
 import { useReportWebVitals } from "next/web-vitals";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { createQueryClient } from "@/lib/api/query";
 import { readLiffContext } from "@/lib/observability/liffContext";
 import { RUM_PATH, rumPayload } from "@/lib/observability/rum";
 import { registerServiceWorker } from "@/lib/pwa/register";
@@ -27,14 +25,17 @@ function WebVitals() {
   return null;
 }
 
-/** Client-side providers of the one root layout: TanStack Query, Web Vitals, the service worker. */
+/**
+ * Client-side providers of the one root layout: Web Vitals and the service worker. TanStack Query is not
+ * mounted here (D-179): components that use queries wrap themselves in `QueryProvider` (`@/lib/api`), so
+ * pages without a query do not ship it.
+ */
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(createQueryClient);
   useEffect(registerServiceWorker, []);
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <WebVitals />
       {children}
-    </QueryClientProvider>
+    </>
   );
 }

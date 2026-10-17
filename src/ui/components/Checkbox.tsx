@@ -1,10 +1,12 @@
-// copied from getproperty-web@4d107cc until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 "use client";
 
 import { useId } from "react";
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
 
 import { Icon } from "../icons";
+import { IconCheck } from "../icons/glyphs/check";
+import { IconRemove } from "../icons/glyphs/remove";
 import { cn } from "../lib/cn";
 
 export interface CheckboxProps {
@@ -34,7 +36,11 @@ export function Checkbox({ label, description, className, disabled, ...props }: 
         {...props}
       >
         <CheckboxPrimitive.Indicator className="text-primary-fg">
-          {props.checked === "indeterminate" ? <Icon name="remove" size={14} /> : <Icon name="check" size={14} />}
+          {props.checked === "indeterminate" ? (
+            <Icon icon={IconRemove} size={14} />
+          ) : (
+            <Icon icon={IconCheck} size={14} />
+          )}
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Root>
       <div className="min-h-6 leading-6">

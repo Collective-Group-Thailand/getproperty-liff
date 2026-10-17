@@ -1,7 +1,11 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Timeline } from "./Timeline";
+import { IconBill } from "../icons/glyphs/bill";
+import { IconCamera } from "../icons/glyphs/camera";
+import { IconChat } from "../icons/glyphs/chat";
+import { IconCheckCircle } from "../icons/glyphs/check-circle";
 
 const meta: Meta<typeof Timeline> = {
   title: "Data/Timeline",
@@ -14,7 +18,7 @@ const meta: Meta<typeof Timeline> = {
         time: "2 ชม. ที่แล้ว",
         timeTitle: "17 ก.ย. 2569 09:42",
         actor: "ธนาคารยืนยันอัตโนมัติ",
-        icon: "check-circle",
+        icon: IconCheckCircle,
         tone: "success",
       },
       {
@@ -23,7 +27,7 @@ const meta: Meta<typeof Timeline> = {
         time: "เมื่อวาน",
         timeTitle: "16 ก.ย. 2569 08:00",
         actor: "ระบบ",
-        icon: "chat",
+        icon: IconChat,
         tone: "primary",
       },
       {
@@ -33,7 +37,7 @@ const meta: Meta<typeof Timeline> = {
         timeTitle: "16 ก.ย. 2569 07:58",
         actor: "คุณสมศรี (เจ้าของ)",
         description: "ไฟ 04521.3 → 04612.8 kWh · น้ำ 00318 → 00325 m³",
-        icon: "bill",
+        icon: IconBill,
       },
       {
         id: "4",
@@ -41,7 +45,7 @@ const meta: Meta<typeof Timeline> = {
         time: "2 วันที่แล้ว",
         timeTitle: "15 ก.ย. 2569 10:12",
         actor: "คุณวิชัย (เจ้าหน้าที่)",
-        icon: "camera",
+        icon: IconCamera,
         tone: "neutral",
         evidence: <div aria-hidden="true" className="bg-bg-subtle rounded-control size-16" />,
       },

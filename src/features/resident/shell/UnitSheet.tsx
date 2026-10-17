@@ -3,7 +3,10 @@
 import { useTranslations } from "next-intl";
 
 import { Icon } from "@/ui/icons";
+import { IconCheck } from "@/ui/icons/glyphs/check";
+import { IconRoom } from "@/ui/icons/glyphs/room";
 import { cn } from "@/ui/lib/cn";
+// eslint-disable-next-line no-restricted-imports -- this module is itself loaded on first open (UnitSwitcherView, D-179)
 import { Sheet } from "@/ui/components/Sheet";
 
 import type { SwitcherUnit } from "./UnitSwitcherView";
@@ -45,7 +48,7 @@ export default function UnitSheet({ open, setOpen, units, current, onSelect }: U
                   if (!selected) onSelect(unit.unitId);
                 }}
               >
-                <Icon name="room" className="shrink-0 text-xl" />
+                <Icon icon={IconRoom} className="shrink-0 text-xl" />
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-semibold">{t("unit", { unit: unit.unitNo })}</span>
                   <span className="text-muted text-sm">
@@ -54,7 +57,7 @@ export default function UnitSheet({ open, setOpen, units, current, onSelect }: U
                 </span>
                 {selected ? (
                   <span className="flex shrink-0 items-center gap-1 text-sm">
-                    <Icon name="check" />
+                    <Icon icon={IconCheck} />
                     <span className="sr-only">{t("current")}</span>
                   </span>
                 ) : null}

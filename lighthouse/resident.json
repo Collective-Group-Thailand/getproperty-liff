@@ -1,6 +1,6 @@
 {
   "extends": "./shared.json",
-  "$comment": "Signed-in resident pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 150 KB gz (docs/performance-budgets.md). Measured as a 360×780 phone with the Lighthouse mobile preset on a mock build (NEXT_PUBLIC_LIFF_MOCK=1, API_MOCKS=1); the session comes from the mock API's seed refresh token, which the proxy turns into a session before the render (mocks/state.ts). The consent screen is covered by axe in e2e (it needs a first-use account, which a shared Lighthouse cookie cannot give). L2 adds invoices/[id], pay, receipts; L3 usage, lease.",
+  "$comment": "Signed-in resident pages on a mid-range Android over 4G inside LINE: LCP ≤ 2.0 s, CLS ≤ 0.05, initial JS ≤ 180 KB gz (D-179, docs/performance-budgets.md) — a hard limit. Measured as a 360×780 phone with the Lighthouse mobile preset on a mock build (NEXT_PUBLIC_LIFF_MOCK=1, API_MOCKS=1); the session comes from the mock API's seed refresh token, which the proxy turns into a session before the render (mocks/state.ts). The consent screen is covered by axe in e2e (it needs a first-use account, which a shared Lighthouse cookie cannot give). L2 adds invoices/[id], pay, receipts; L3 usage, lease.",
   "ci": {
     "collect": {
       "url": ["http://localhost:3400/", "http://localhost:3400/link"],
@@ -42,7 +42,7 @@
         "resource-summary:script:size": [
           "error",
           {
-            "maxNumericValue": 153600
+            "maxNumericValue": 184320
           }
         ]
       }

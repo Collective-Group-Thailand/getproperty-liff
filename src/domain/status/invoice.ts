@@ -1,4 +1,10 @@
 import type { ContractEnum } from "@/lib/api/types";
+import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconEdit } from "@/ui/icons/glyphs/edit";
+import { IconWarning } from "@/ui/icons/glyphs/warning";
+import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 
 import { defineStatuses } from "./index";
 
@@ -13,10 +19,10 @@ export type InvoiceStatus = ContractEnum<
 >;
 
 export const INVOICE_STATUS = defineStatuses<InvoiceStatus>("invoice", {
-  draft: { tone: "neutral", icon: "edit" },
-  issued: { tone: "primary", icon: "bill" },
-  partially_paid: { tone: "info", icon: "clock" },
-  paid: { tone: "success", icon: "check-circle" },
-  overdue: { tone: "warning", icon: "warning" },
-  void: { tone: "neutral", icon: "x-circle" },
+  draft: { tone: "neutral", icon: IconEdit },
+  issued: { tone: "primary", icon: IconBill },
+  partially_paid: { tone: "info", icon: IconClock },
+  paid: { tone: "success", icon: IconCheckCircle },
+  overdue: { tone: "warning", icon: IconWarning },
+  void: { tone: "neutral", icon: IconXCircle },
 });

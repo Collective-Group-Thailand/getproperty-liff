@@ -1,4 +1,4 @@
-import { qk } from "@/lib/api/query";
+import { qk } from "@/lib/api/query-keys";
 
 /**
  * Realtime events carry ids and a type only (contract §6); the client refetches through the API. This maps an

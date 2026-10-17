@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: without getproperty-web's Next/auth mocks for its zone-shell stories (the resident shell stories render views)
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 

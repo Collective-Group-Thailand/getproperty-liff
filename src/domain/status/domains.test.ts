@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { loadMessages } from "@/i18n/messages";
-import { ICON_NAMES } from "@/ui/icons/registry";
+import { ICONS } from "@/ui/icons/registry";
 
 import { DEPOSIT_STATUS } from "./deposit";
 import { INVOICE_STATUS } from "./invoice";
@@ -35,7 +35,7 @@ describe("domain status maps", () => {
     for (const meta of Object.values(map)) {
       expect(typeof lookup(th, meta.labelKey), meta.labelKey).toBe("string");
       expect(typeof lookup(en, meta.labelKey), meta.labelKey).toBe("string");
-      expect(ICON_NAMES).toContain(meta.icon);
+      expect(Object.values(ICONS)).toContain(meta.icon);
     }
   });
 

@@ -1,25 +1,27 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 
-import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { Button } from "@/ui/components/Button";
 import { ErrorState } from "@/ui/components/ErrorState";
 
+/**
+ * The root not-found boundary (e.g. the technician screens while their flag is off). It is part of every page's
+ * tree, so it renders without client components (D-179): no shell, a plain link home. Unknown paths get the
+ * shell version (`(shell)/not-found.tsx`).
+ */
 export default async function NotFound() {
   const t = await getTranslations("common");
   return (
-    <ResidentShell active={null}>
-      <div className="py-10">
-        <ErrorState
-          title={t("notFoundTitle")}
-          description={t("notFoundBody")}
-          action={
-            <Button asChild variant="secondary">
-              <Link href="/">{t("goHome")}</Link>
-            </Button>
-          }
-        />
-      </div>
-    </ResidentShell>
+    <main className="mx-auto max-w-lg px-4 py-16">
+      <ErrorState
+        title={t("notFoundTitle")}
+        description={t("notFoundBody")}
+        action={
+          // A full load home is right after a dead end, and `next/link` would add a client module to every page.
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
+          <a className="text-primary font-semibold underline underline-offset-4" href="/">
+            {t("goHome")}
+          </a>
+        }
+      />
+    </main>
   );
 }

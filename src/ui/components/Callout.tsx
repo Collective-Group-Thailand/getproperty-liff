@@ -1,7 +1,11 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Icon, type IconName } from "../icons";
+import { Icon, type IconGlyph } from "../icons";
+import { IconAlert } from "../icons/glyphs/alert";
+import { IconCheckCircle } from "../icons/glyphs/check-circle";
+import { IconInfo } from "../icons/glyphs/info";
+import { IconWarning } from "../icons/glyphs/warning";
 import { cn } from "../lib/cn";
 
 const calloutVariants = cva("flex gap-3 rounded-card border p-4 text-sm", {
@@ -19,12 +23,12 @@ const calloutVariants = cva("flex gap-3 rounded-card border p-4 text-sm", {
   defaultVariants: { tone: "info" },
 });
 
-const TONE_ICON: Record<NonNullable<VariantProps<typeof calloutVariants>["tone"]>, IconName> = {
-  info: "info",
-  success: "check-circle",
-  warning: "warning",
-  danger: "alert",
-  neutral: "info",
+const TONE_ICON: Record<NonNullable<VariantProps<typeof calloutVariants>["tone"]>, IconGlyph> = {
+  info: IconInfo,
+  success: IconCheckCircle,
+  warning: IconWarning,
+  danger: IconAlert,
+  neutral: IconInfo,
 };
 
 export interface CalloutProps extends VariantProps<typeof calloutVariants> {
@@ -33,7 +37,7 @@ export interface CalloutProps extends VariantProps<typeof calloutVariants> {
   /** A legal reference ("ตามประกาศ สคบ. ข้อ 4(1)") shown under the body, from the API's `legalRef`. */
   legalRef?: React.ReactNode;
   action?: React.ReactNode;
-  icon?: IconName;
+  icon?: IconGlyph;
   className?: string;
 }
 
@@ -42,7 +46,7 @@ export function Callout({ tone = "info", title, children, legalRef, action, icon
   const urgent = tone === "danger" || tone === "warning";
   return (
     <div role={urgent ? "alert" : "status"} className={cn(calloutVariants({ tone }), className)}>
-      <Icon name={icon ?? TONE_ICON[tone ?? "info"]} className="mt-0.5 shrink-0 text-lg" />
+      <Icon icon={icon ?? TONE_ICON[tone ?? "info"]} className="mt-0.5 shrink-0 text-lg" />
       <div className="min-w-0 flex-1 space-y-1">
         {title ? <p className="font-semibold">{title}</p> : null}
         <div>{children}</div>
