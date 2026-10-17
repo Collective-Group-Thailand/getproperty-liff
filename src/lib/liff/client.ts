@@ -11,7 +11,9 @@ let client: Promise<LiffClient> | null = null;
 export function getLiff(): Promise<LiffClient> {
   client ??=
     process.env.NEXT_PUBLIC_LIFF_MOCK === "1"
-      ? import("./fake").then(({ createFakeLiff }) => createFakeLiff())
+      ? import("./fake").then(({ createBrowserFakeLiff, createFakeLiff }) =>
+          typeof document === "undefined" ? createFakeLiff() : createBrowserFakeLiff(),
+        )
       : import("@line/liff").then(({ default: liff }) => fromSdk(liff));
   return client;
 }

@@ -21,11 +21,21 @@ export const DEEP_LINK_ROOTS = [
   "parcels",
   "profile",
   "technician",
+  // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
+  "link",
+  "consent",
 ] as const;
 
 export function resolveLiffState(search: string | URLSearchParams | null | undefined): string {
   const params = typeof search === "string" || search == null ? new URLSearchParams(search ?? "") : search;
-  const raw = params.get(LIFF_STATE_PARAM);
+  return safeInternalPath(params.get(LIFF_STATE_PARAM));
+}
+
+/**
+ * A `next` / `liff.state` value as an in-app path — or `/` for anything but a plain, known, same-origin path.
+ * Used for every redirect target that came from a URL (sign-in `next`, consent `next`, deep links).
+ */
+export function safeInternalPath(raw: string | null | undefined): string {
   if (!raw) return "/";
 
   let value = raw.trim();

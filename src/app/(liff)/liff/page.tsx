@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { LiffEntry } from "@/features/resident/liff/LiffEntry";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
+import { technicianEnabled } from "@/lib/flags";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.liff");
@@ -11,8 +12,8 @@ export async function generateMetadata() {
 /** The LIFF endpoint URL registered in the LINE Developers console (`https://<host>/liff`). */
 export default function LiffEntryPage() {
   return (
-    <ResidentShell active={null}>
-      <LiffEntry />
+    <ResidentShell active={null} chrome="minimal">
+      <LiffEntry technicianEnabled={technicianEnabled()} />
     </ResidentShell>
   );
 }

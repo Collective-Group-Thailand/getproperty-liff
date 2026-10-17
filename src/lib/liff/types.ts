@@ -22,10 +22,29 @@ export interface LiffClient {
   closeWindow(): void;
 }
 
-export type LiffStepName = "init" | "login" | "link";
+export type LiffStepName = "init" | "login" | "session" | "link";
 export type LiffStepState = "pending" | "running" | "done" | "failed";
 
+export type LiffAudience = "resident" | "technician";
+
+/**
+ * The outcome of the entry sequence. It never contains the LINE id token (`liff.test.ts` asserts it): the
+ * token is read, handed to `exchange` and dropped.
+ */
 export type LiffEntryResult =
-  | { status: "ready"; target: string; inClient: boolean }
+  | { status: "ready"; target: string; inClient: boolean; audience: LiffAudience }
   | { status: "redirecting" }
-  | { status: "error"; step: LiffStepName; message: string };
+  | {
+      status: "error";
+      step: LiffStepName;
+      message: string;
+      /** The API's problem code when the exchange was refused (`auth.line_token_invalid` …). */
+      code?: string;
+      requestId?: string;
+    };
+
+/** Exchanges the id token through the BFF for session cookies; never keeps the token. */
+export type LiffExchange = (
+  idToken: string,
+  audience: LiffAudience,
+) => Promise<{ ok: true } | { ok: false; code: string; message: string; requestId?: string }>;

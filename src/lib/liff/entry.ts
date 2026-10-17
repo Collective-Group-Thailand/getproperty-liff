@@ -1,5 +1,5 @@
 import { resolveLiffState } from "./deepLink";
-import type { LiffClient, LiffEntryResult, LiffStepName, LiffStepState } from "./types";
+import type { LiffAudience, LiffClient, LiffEntryResult, LiffExchange, LiffStepName, LiffStepState } from "./types";
 
 export interface LiffEntryOptions {
   liffId: string | undefined;
@@ -7,14 +7,23 @@ export interface LiffEntryOptions {
   search: string;
   /** Where LINE Login returns to outside the LINE app. */
   redirectUri?: string;
+  /** `POST /bff/auth/line` (or the technician one): id token → httpOnly session cookies. */
+  exchange: LiffExchange;
+  /** Technician screens exist (`FEATURE_TECHNICIAN=1`); otherwise every sign-in is a resident one. */
+  technicianEnabled?: boolean;
   onStep?: (step: LiffStepName, state: LiffStepState) => void;
 }
 
+/** A deep link into the technician screens signs in as a technician (R2); everything else as a resident. */
+export function audienceFor(target: string, technicianEnabled: boolean): LiffAudience {
+  return technicianEnabled && /^\/technician(\/|\?|#|$)/.test(target) ? "technician" : "resident";
+}
+
 /**
- * The LIFF entry sequence (L0 placeholder of L1's flow): init → login → resolve the `liff.state`
- * deep link. L1 inserts the id-token exchange through the BFF (`POST /bff/auth/line` →
- * `/v1/auth/resident/line` → httpOnly cookies) between login and link; until then the token is only
- * checked for presence and never read into anything that outlives this call.
+ * The LIFF entry sequence (master plan §3, ADR-0006): `liff.init` → login if needed (outside LINE this
+ * navigates to LINE Login and comes back here) → `liff.getIDToken()` → exchange through the BFF →
+ * the `liff.state` target. The id token exists only inside this function, between reading it from the SDK and
+ * handing it to `exchange`; it is not in the result, the step callbacks or any log.
  */
 export async function runLiffEntry(liff: LiffClient, options: LiffEntryOptions): Promise<LiffEntryResult> {
   const step = options.onStep ?? (() => undefined);
@@ -44,8 +53,24 @@ export async function runLiffEntry(liff: LiffClient, options: LiffEntryOptions):
   }
   step("login", "done");
 
-  step("link", "running");
   const target = resolveLiffState(options.search);
+  const audience = audienceFor(target, options.technicianEnabled ?? false);
+
+  step("session", "running");
+  const exchanged = await options.exchange(liff.getIDToken() ?? "", audience);
+  if (!exchanged.ok) {
+    step("session", "failed");
+    return {
+      status: "error",
+      step: "session",
+      message: exchanged.message,
+      code: exchanged.code,
+      ...(exchanged.requestId ? { requestId: exchanged.requestId } : {}),
+    };
+  }
+  step("session", "done");
+
+  step("link", "running");
   step("link", "done");
-  return { status: "ready", target, inClient: liff.isInClient() };
+  return { status: "ready", target, inClient: liff.isInClient(), audience };
 }
