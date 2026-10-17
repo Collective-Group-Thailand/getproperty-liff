@@ -71,6 +71,8 @@ const eslintConfig = [
       "playwright-report/**",
       "test-results/**",
       "storybook-static/**",
+      // Bundled by `pnpm sw` from src/sw/sw.ts (generated, git-ignored).
+      "public/sw.js",
       // Generated from the OpenAPI contract (F1). `pnpm gen:api --check` keeps it honest, not the linter.
       "src/lib/api/schema.d.ts",
       "mocks/generated/**",

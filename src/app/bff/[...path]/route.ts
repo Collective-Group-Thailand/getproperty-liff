@@ -1,26 +1,30 @@
-import { NextResponse } from "next/server";
+import { apiBaseUrl, MOCK_SCENARIO_COOKIE, MOCK_SCENARIO_HEADER, upstreamFetch } from "@/lib/api/upstream";
+import { parseCookieHeader } from "@/lib/auth/cookies";
+import { createBffHandler } from "@/lib/bff/handler";
+import { serverEnv } from "@/lib/env";
 
-/**
- * The resident BFF — **not implemented in L0** (src/lib/bff/README.md). L1 replaces this with
- * `createBffHandler()`: allow-list `/v1/resident/*`, `/v1/technician/*` (R2) and `/v1/auth/resident/*`,
- * bearer from the httpOnly cookie, one refresh on 401, same-origin + `x-getproperty-csrf: 1` on non-GET.
- * Until then every method answers `501` as an RFC 9457 problem so nothing mistakes it for an API.
- */
-function notImplemented() {
-  return NextResponse.json(
-    {
-      type: "about:blank",
-      title: "Not Implemented",
-      status: 501,
-      code: "bff.not_implemented",
-      detail: "The resident BFF arrives in L1 (docs/prompts/L1-foundation.md).",
+/** The resident BFF (`src/lib/bff/handler.ts`, ADR-0006). Never cached, always on the Node runtime. */
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const handler = createBffHandler(() => {
+  const env = serverEnv();
+  return {
+    apiBaseUrl: apiBaseUrl(),
+    upstream: upstreamFetch,
+    technicianEnabled: env.FEATURE_TECHNICIAN,
+    appOrigin: env.APP_ORIGIN,
+    upstreamHeaders: (request: Request): Record<string, string> => {
+      // Mock builds only (inlined; dropped from production bundles): the e2e scenario travels to the MSW handlers.
+      if (process.env.NEXT_PUBLIC_LIFF_MOCK !== "1") return {};
+      const scenario = parseCookieHeader(request.headers.get("cookie")).get(MOCK_SCENARIO_COOKIE);
+      return scenario ? { [MOCK_SCENARIO_HEADER]: scenario } : {};
     },
-    { status: 501, headers: { "content-type": "application/problem+json", "cache-control": "no-store" } },
-  );
-}
+  };
+});
 
-export const GET = notImplemented;
-export const POST = notImplemented;
-export const PUT = notImplemented;
-export const PATCH = notImplemented;
-export const DELETE = notImplemented;
+export const GET = handler;
+export const POST = handler;
+export const PUT = handler;
+export const PATCH = handler;
+export const DELETE = handler;

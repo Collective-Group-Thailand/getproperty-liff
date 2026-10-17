@@ -4,9 +4,9 @@ import type { NextConfig } from "next";
 import { securityHeaders } from "./src/lib/security/headers";
 
 /**
- * getproperty-liff — one zone, no host routing (ADR-0004). The LIFF-first CSP and the other security
- * headers come from `src/lib/security/headers.ts` (unit-tested); L1 moves the CSP into `src/proxy.ts`
- * with a per-request nonce.
+ * getproperty-liff — one zone, no host routing (ADR-0004). Static security headers (HSTS, noindex,
+ * Permissions-Policy, nosniff) for every response come from `src/lib/security/headers.ts`; the CSP is built per
+ * request with a nonce in `src/proxy.ts` (L1).
  */
 const nextConfig: NextConfig = {
   // CLAUDE.md is hand-written project documentation; Next 16 would otherwise overwrite it with

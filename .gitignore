@@ -25,3 +25,6 @@ lighthouse/.port-*.json
 # local / editor
 .DS_Store
 .shared-source/
+public/sw.js
+playwright-report-visual/
+playwright-report-integration/

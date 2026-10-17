@@ -17,8 +17,8 @@ by a copied script (`pnpm tokens`) and compared byte for byte · `binary`: font 
 **Re-sync procedure**: change the file in `getproperty-web` first (it is the source of truth), copy it
 here, update the header and the commit below, run `pnpm shared:check` (warn-only; `--strict` to fail on
 drift), then `pnpm test` (the axe gate runs every copied story). Not copied on purpose: DataTable,
-Combobox, Select, Checkbox, RadioCards, Switch, DatePicker, Popover, Tooltip (no hover-only UI in LIFF)
-— copy them when a resident screen first needs one.
+Combobox, Select, RadioCards, Switch, DatePicker, Popover, Tooltip (no hover-only UI in LIFF)
+— copy them when a resident screen first needs one. Checkbox was copied in L1 (`4d107cc`) for the consent screen.
 
 Tooling copied once at bootstrap and then owned here (not tracked): `.nvmrc`, `.prettierrc`,
 `.prettierignore`, `.gitignore`, `postcss.config.mjs`, `tsconfig.json`, `vitest.config.mts`,
@@ -53,6 +53,8 @@ that removed its resident zone).
 | `src/ui/components/CameraCapture.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/Checkbox.stories.tsx` | verbatim | `4d107cc` |
+| `src/ui/components/Checkbox.tsx` | verbatim | `4d107cc` |
 | `src/ui/components/Dialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Dialog.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/DropdownMenu.stories.tsx` | verbatim | `08ff63b` |
@@ -153,7 +155,7 @@ that removed its resident zone).
 | `scripts/build-tokens.ts` | verbatim | `08ff63b` |
 | `scripts/check-contrast.ts` | verbatim | `08ff63b` |
 | `scripts/copy-fonts.ts` | verbatim | `08ff63b` |
-| `scripts/gen-api.ts` | verbatim | `08ff63b` |
+| `scripts/gen-api.ts` | adapted | `08ff63b` |
 | `scripts/lhci.ts` | adapted | `08ff63b` |
 | `scripts/release-hygiene.ts` | adapted | `08ff63b` |
 | `src/app/global-error.tsx` | verbatim | `08ff63b` |

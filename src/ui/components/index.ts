@@ -6,6 +6,7 @@ export { Button, buttonVariants, type ButtonProps } from "./Button";
 export { Callout, type CalloutProps } from "./Callout";
 export { CameraCapture, ScanButton, type CameraCaptureProps, type ScanButtonProps } from "./CameraCapture";
 export { Card, CardHeader, type CardProps } from "./Card";
+export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { Dialog, DialogClose, type DialogProps } from "./Dialog";
 export { DropdownMenu, type DropdownMenuProps, type MenuItem } from "./DropdownMenu";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";

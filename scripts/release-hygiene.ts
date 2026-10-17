@@ -3,7 +3,8 @@
  * Release hygiene: fails when a production build ships what only development and the mock
  * API should see — the mock API's own markers, the copy that marks mock rows, `debugger`
  * statements, browser source maps — in the client bundles (`.next/static`) or the prerendered HTML
- * (`.next/server/app`). Run after `pnpm build`, which never sets `API_MOCKS` or `NEXT_PUBLIC_LIFF_MOCK`.
+ * (`.next/server/app`), and the in-process mock API anywhere in the server code (`.next/server`). Run after
+ * `pnpm build`, which never sets `API_MOCKS` or `NEXT_PUBLIC_LIFF_MOCK`.
  *
  * Third-party code that merely references `console.debug` is not a finding; a pattern is listed
  * here only when nothing legitimate in a production build can contain it.
@@ -13,9 +14,11 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = process.cwd();
-const TARGETS = [
+const TARGETS: { dir: string; ext: string[]; only?: string[] }[] = [
   { dir: ".next/static", ext: [".js", ".css"] },
   { dir: ".next/server/app", ext: [".html", ".rsc"] },
+  // Server code (BFF, proxy): the in-process mock API (`mocks/`) must be dropped from a production build.
+  { dir: ".next/server", ext: [".js"], only: ["in-process mock API"] },
 ];
 
 const RULES: { name: string; pattern: RegExp }[] = [
@@ -27,6 +30,7 @@ const RULES: { name: string; pattern: RegExp }[] = [
   { name: "browser source map", pattern: /\/\/# sourceMappingURL=/ },
   // The in-memory LIFF stand-in (src/lib/liff/fake.ts) exists for tests and `pnpm dev:mock` only.
   { name: "LIFF fake", pattern: /__GP_FAKE_LIFF__/ },
+  { name: "in-process mock API", pattern: /__gpMockStore|mock-rt\.seed\./ },
 ];
 
 function* files(dir: string, ext: string[]): Generator<string> {
@@ -52,7 +56,7 @@ for (const target of TARGETS) {
       continue;
     }
     const text = readFileSync(file, "utf8");
-    for (const rule of RULES) {
+    for (const rule of RULES.filter((r) => !target.only || target.only.includes(r.name))) {
       const match = rule.pattern.exec(text);
       if (match) {
         const at = Math.max(0, match.index - 40);
