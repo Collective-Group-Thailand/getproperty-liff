@@ -13,6 +13,12 @@ residents say. `src/i18n/messages.test.ts` fails if English resident copy calls 
 | invoice | bill (copy), invoice (code) | บิล | ใบแจ้งหนี้ in headings (too formal) |
 | payment | payment | การชำระเงิน, จ่าย | |
 | receipt | receipt | ใบเสร็จ | |
+| landlord — the payee on money screens (the tenant org that issued the invoice; D-042 "the landlord's own account") | landlord | ผู้ให้เช่า | tenant (EN) |
+| Thai QR (`ResidentQrDto`, Tag 30) | Thai QR, scan to pay | QR, สแกนจ่าย | PromptPay (it is not always PromptPay) |
+| slip (`SlipStatus`, D-043) | transfer slip, slip | สลิป, สลิปการโอน | proof, evidence |
+| meter reading / register | reading, previous / this reading | เลขมิเตอร์ครั้งก่อน / ครั้งนี้ | counter |
+| price per unit (`unitPrice`, D-022) | price per unit, ฿x per unit | ราคาต่อหน่วย, x บาท/หน่วย | rate, tariff (EN copy) |
+| due date / overdue (D-100) | due in n days, due today, n days late | ครบกำหนดในอีก n วัน, ครบกำหนดวันนี้, เลยกำหนด n วัน | "overdue!" in red |
 | service_request | repair / service request | แจ้งซ่อม | ticket |
 | work_order | work order | งานซ่อม | job |
 | announcement | announcement | ประกาศ | |

@@ -57,6 +57,28 @@ display font re-wrapping long Thai consent titles; those titles are now body-fon
 title is shorter — CLS 0. **`/profile` has the least headroom (≈ 1.5 KB)**: the next client widget there should be
 lazy.
 
+### L2 screens (2026-10-17, same method; `pnpm lhci resident public`, all sets pass)
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/` (home with the open invoice as the hero and "scan to pay") | 171.5 KB | 180 KB |
+| `resident` | `/invoices` | 171.5 KB | 180 KB |
+| `resident` | `/invoices/<id>` (open invoice: lines, meter photo, PDF, pay button) | 173.8 KB | 180 KB |
+| `resident` | `/receipts` | 173.7 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.6, 172.3, 176.1, 168.3 KB | 180 KB |
+
+The L1/L3 pages moved by ≈ +1.1–1.3 KB (the shared root: the LIFF wrapper's share picker, the realtime event
+list); **`/profile` is at 179.8 KB** — the next client code there must be lazy. CLS 0 and accessibility 1.0 on every
+URL; LCP 1.8–3.1 s lab (warning, as before).
+
+**The pay sheet is not initial JS.** It opens in place from the home hero, an invoice card or the invoice page and
+is loaded by that tap (`lazyOverlay`): the sheet (Radix Dialog), TanStack Query, the QR encoder (`uqr`), the QR panel
+and, warmed while it is open, the paid state — **46 KB gz on demand**, asserted ≤ 50 KB in e2e (`bills.spec.ts`,
+"loaded on demand by the tap"). The slip flow (camera, compression, stepper) is a further chunk loaded only when
+"send the slip" is tapped. A cold open of `/invoices/<id>?pay=1` (a link that asks for the sheet) loads both — 217 KB
+measured with the first cut — so no screen of the app links there; it exists for direct links only and is not in a
+Lighthouse set. First cut: the slip panel and the camera were inside the sheet chunk (55 KB on demand).
+
 ## What made the difference
 
 Measured in three steps on the same pages (the first step bundles four changes made together):
@@ -78,7 +100,8 @@ Measured in three steps on the same pages (the first step bundles four changes m
 
 ## Sets
 
-`resident` (`/`, `/link`, L3: `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/profile`,
+`resident` (`/`, L2: `/invoices`, `/invoices/<id>`, `/receipts` — the invoice id derived from the mock subject,
+`mocks/billing.ts` `mockInvoiceId` —, `/link`, L3: `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/profile`,
 `/profile/privacy` — signed in through the mock API's seed refresh token sent as a cookie), `resident-sign`
 (`/lease/<id>/sign` of the mock signer) and `resident-moveout` (`/deposit` with a settlement to answer) — lease ids
 in URLs are derived from the mock subject (`mocks/residence.ts` `mockLeaseId`, checked by `mocks.test.ts`) — and
@@ -100,3 +123,5 @@ preloaded), `next/image` with `sizes` for meter photos, no layout shift from fon
   both sets pass.
 - **L3 (2026-10-17)** — eight more URLs in three sets, all under 180 KB (sign page 181.9 → 174.2 KB by
   server-rendering the reader and loading later steps on demand).
+- **L2 (2026-10-17)** — four more URLs (home on real data, invoices, an invoice, receipts), all under 180 KB; the
+  pay sheet measured on demand (46 KB, budget 50 KB in e2e).
