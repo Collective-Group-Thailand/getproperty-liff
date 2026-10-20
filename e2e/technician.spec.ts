@@ -6,6 +6,7 @@ import {
   fakeLiff,
   PNG_1PX,
   seedSession,
+  showThread,
   sessionCookieNames,
   subject,
 } from "./support";
@@ -14,8 +15,9 @@ import {
  * L4 4.4 — technicians (audience `technician`, FEATURE_TECHNICIAN=1 in this suite): LINE sign-in through the same
  * LIFF entry, SMS sign-in outside LINE, my work orders by schedule, accept → check in → before photos → waiting for
  * parts → resume → cost line → after photos → complete; guards both ways; and the whole loop with a resident on the
- * mocks — the resident files, the owner assigns (mock control), the technician completes with photos, the resident
- * rates and the technician sees the rating.
+ * mocks — the resident files (with a preferred visit), the owner assigns (mock control), resident and technician talk
+ * on the request's thread (realtime on the resident's side), the technician completes with photos, the resident rates
+ * and the technician sees the rating (D-218).
  */
 
 async function addPhotos(page: Page, role: "before" | "after", count: number) {
@@ -156,6 +158,7 @@ test.describe("technician app (D-072, D-210)", () => {
     const form = resident.getByTestId("request-form");
     await form.getByTestId("request-category").selectOption({ label: "ไฟฟ้า" });
     await form.getByTestId("request-description").fill("ไฟห้องนอนกะพริบ");
+    await form.getByTestId("request-visit").selectOption("morning");
     await form.getByTestId("request-photos-add").click();
     await form
       .locator('input[type="file"]')
@@ -180,6 +183,27 @@ test.describe("technician app (D-072, D-210)", () => {
     await technician.getByTestId("technician-refresh").click();
     await technician.getByTestId("work-order-item").first().click();
     await expect(technician.getByTestId("work-order")).toContainText("ไฟห้องนอนกะพริบ");
+    await expect(technician.getByTestId("work-order")).toContainText("ผู้พักอาศัยสะดวก");
+    await expect(technician.getByTestId("work-order")).toContainText("ช่วงเช้า");
+
+    // One thread through the platform: the resident writes, the technician reads and answers, the resident's open
+    // page shows the answer without a reload (realtime `service_request.message`).
+    await showThread(resident);
+    await resident.getByTestId("thread-input").fill("อยู่ห้องทั้งเช้าค่ะ");
+    await resident.getByTestId("thread-send").click();
+    await expect(resident.getByTestId("thread-messages").locator('li[data-author="resident"]')).toHaveCount(1);
+    await technician.reload();
+    await showThread(technician);
+    const techThread = technician.getByTestId("request-thread");
+    await expect(techThread.getByRole("heading", { level: 2 })).toHaveText("ข้อความกับผู้พักอาศัย");
+    await expect(techThread.getByTestId("thread-messages")).toContainText("อยู่ห้องทั้งเช้าค่ะ");
+    await techThread.getByTestId("thread-input").fill("จะเข้าไป 9 โมงครับ");
+    await techThread.getByTestId("thread-send").click();
+    await expect(techThread.locator('li[data-author="technician"]')).toHaveCount(1);
+    await expect(resident.getByTestId("thread-messages")).toContainText("จะเข้าไป 9 โมงครับ", { timeout: 10_000 });
+    await expectAxeClean(technician);
+    await expectNoHorizontalScroll(technician);
+
     await technician.getByTestId("wo-check-in").click();
     await expect(technician.getByTestId("work-order")).toHaveAttribute("data-status", "in_progress");
     await addPhotos(technician, "after", 1);

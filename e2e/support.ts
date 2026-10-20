@@ -11,6 +11,14 @@ export const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 export async function expectAxeClean(page: Page) {
   // A refresh in flight (router.refresh after a mutation) may stream the head again: wait for the title.
   await expect.poll(() => page.title()).not.toBe("");
+  // A toast still fading in is read as low contrast (its colours are blended with the page): let it settle.
+  await page
+    .waitForFunction(
+      () => [...document.querySelectorAll("[data-sonner-toast]")].every((el) => getComputedStyle(el).opacity === "1"),
+      undefined,
+      { timeout: 5_000 },
+    )
+    .catch(() => undefined);
   const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
   expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
 }
@@ -129,4 +137,19 @@ export function slipImage(fields: { transRef: string; amount: string; receiverAc
       }),
     ),
   ]);
+}
+
+/**
+ * The request thread loads when it comes near the screen (D-179, `LazyRequestThread`): bring it into view before
+ * reading or writing it (assertions do not scroll by themselves).
+ */
+export async function showThread(page: Page) {
+  const thread = page.getByTestId("request-thread");
+  // The placeholder is replaced by the loaded thread (same test id), so a scroll may hit a detached node: retry.
+  await expect(async () => {
+    await thread.scrollIntoViewIfNeeded({ timeout: 2_000 });
+    await expect(thread.getByTestId("thread-input").or(thread.getByTestId("thread-closed"))).toBeVisible({
+      timeout: 2_000,
+    });
+  }).toPass({ timeout: 20_000 });
 }

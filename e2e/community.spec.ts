@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-import { expectAxeClean, expectNoHorizontalScroll, fakeLiff, fakeLiffRecord, seedSession, subject } from "./support";
+import {
+  expectAxeClean,
+  expectNoHorizontalScroll,
+  fakeLiff,
+  fakeLiffRecord,
+  forceProblems,
+  seedSession,
+  subject,
+} from "./support";
 
 /**
  * L4 4.2 — announcements with read receipts (and the LINE deep link), parcels with the pick-up code, facility
@@ -118,28 +126,72 @@ test.describe("community and access (D-070, D-073)", () => {
 
     await page.getByTestId("access-show").click();
     await expect(page.getByTestId("access-pin")).toHaveText(["246810", "135790"]);
+    // The operator allows visitor codes of up to 12 hours (`visitorPolicy`, D-218): no longer choice is offered.
+    await expect(page.getByTestId("visitor-code")).toContainText("12 ชั่วโมง");
+    await expect(page.getByTestId("visitor-hours").locator("option")).toHaveText([
+      "2 ชั่วโมง",
+      "4 ชั่วโมง",
+      "8 ชั่วโมง",
+      "12 ชั่วโมง",
+    ]);
     await page.getByTestId("visitor-submit").click();
     await expect(page.getByText("โปรดใส่ชื่อผู้มาเยือน")).toBeVisible();
     await page.getByTestId("visitor-name").fill("คุณแม่");
+    await page.getByTestId("visitor-hours").selectOption("12");
     await page.getByTestId("visitor-submit").click();
     await expect(page.getByTestId("visitor-created")).toContainText("รหัสสำหรับ คุณแม่");
+    await expect(page.getByTestId("visitor-pin")).toHaveText(/^\d{6}$/);
     await expectNoHorizontalScroll(page);
     await expectAxeClean(page);
     await page.getByTestId("access-hide").click();
     await expect(page.getByTestId("access-pin")).toHaveCount(0);
   });
 
-  test("a unit without smart locks says so; the operator may not allow visitor codes", async ({
+  test("a unit without smart locks has no door-code menu (the `access` entitlement, D-218)", async ({
     page,
     context,
     baseURL,
   }) => {
     await seedSession(context, baseURL!, subject("nolocks"));
+    await page.goto("/");
+    await expect(page.getByTestId("resident-home")).toBeVisible();
+    await expect(page.getByRole("link", { name: "จองห้องส่วนกลาง" })).toBeVisible();
+    await expect(page.locator('a[href="/access"]')).toHaveCount(0);
+    expect((await page.goto("/access"))?.status()).toBe(404);
+  });
+
+  test("where the operator does not offer visitor codes the resident is told so, kindly", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("novisitor"));
     await page.goto("/access");
     await page.getByTestId("access-show").click();
-    await expect(page.getByText("ห้องของคุณไม่มีกุญแจอัจฉริยะ")).toBeVisible();
+    await expect(page.getByTestId("access-pin")).toHaveCount(2);
     await expect(page.getByTestId("visitor-code")).toHaveCount(0);
-    await expect(page.getByTestId("unlock-log")).toContainText("ไม่มีการเปิดประตูใน 30 วันที่ผ่านมา");
+    await expect(page.getByTestId("visitor-disabled")).toContainText(
+      "อาคารของคุณไม่เปิดให้ผู้พักอาศัยสร้างรหัสผู้มาเยือน โปรดติดต่อสำนักงาน",
+    );
+    await expectNoHorizontalScroll(page);
+    await expectAxeClean(page);
+  });
+
+  test("an operator who turns visitor codes off meanwhile gets the same kind state (403)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("visitor-race"));
+    await forceProblems(context, baseURL!, { "resident.access.visitorCode": "access.visitor_codes_disabled" });
+    await page.goto("/access");
+    await page.getByTestId("access-show").click();
+    await page.getByTestId("visitor-name").fill("ช่างแอร์");
+    await page.getByTestId("visitor-submit").click();
+    await expect(page.getByTestId("visitor-disabled")).toBeVisible();
+    await expect(page.getByTestId("visitor-code")).toHaveCount(0);
+    // No problem callout: the refusal is the same kind state, not an error.
+    await expect(page.getByTestId("access-codes").getByRole("alert")).toHaveCount(0);
     await expectAxeClean(page);
   });
 });
