@@ -34,6 +34,26 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### Contract adoption api `18b160e` (2026-10-21, `pnpm lhci`, every set passes)
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident-r2` | `/requests/<id>` (photos, history, SLA, visit confirmation; thread loaded near the screen) | 175.4 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new` | 170.0, 176.8 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/contacts` | 171.0, 170.0, 171.5 KB | 180 KB |
+| `resident-r2` | `/facilities`, `/facilities/<id>`, `/rules`, `/access` (visitor policy) | 172.5, 174.5, 177.1, 176.4 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` (photo links, preferred visit, lazy thread) | 169.2, 179.1 KB | 180 KB |
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts` | 171.3, 171.3, 173.6, 173.5 KB | 180 KB |
+| `resident` | `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/link` | 177.8, 174.7, 177.7, 174.4, 171.8 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy` | **180.0**, 174.4 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.0, 171.8, 175.5, 167.8 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.4, 177.7 KB | 180 KB |
+
+The request thread (`LazyRequestThread`) loads when it comes within 200 px of the screen (and is warmed on the first
+tap): the technician work order went from 180.1 KB with the typed thread inline to 179.1 KB. `/profile` grew 0.2 KB
+from the shell's realtime bridge (the `service_request.message` signal to the open thread) and is **at the budget** —
+nothing more may be added to the shell or `/profile` without moving something out first.
+
 ### L4 screens (2026-10-21, same method; `pnpm lhci resident-r2 technician resident`, all sets pass)
 
 | Set | URL | Initial JS | Budget |
