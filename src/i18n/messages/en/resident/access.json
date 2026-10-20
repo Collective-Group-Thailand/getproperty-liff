@@ -1,0 +1,48 @@
+{
+  "title": "Door codes",
+  "lead": "Your own codes for your unit and the building doors. They last as long as your lease.",
+  "show": "Show my codes",
+  "showHint": "Each time the codes are shown, it is recorded for your safety.",
+  "hide": "Hide codes",
+  "none": "No smart locks for your unit",
+  "noneBody": "Your unit opens with a key. Ask the office if you need a spare.",
+  "lock": "Lock",
+  "code": "Code",
+  "codeLabel": "Code for {lock}",
+  "noCode": "Opens with the app or a card",
+  "since": "Valid from {date}",
+  "until": "Valid until {date}",
+  "untilLease": "Valid until your lease ends",
+  "log": {
+    "title": "Unlocks of my unit",
+    "lead": "Who opened your unit's door, for the last 30 days. Only your unit — never anyone else's.",
+    "empty": "No unlocks in the last 30 days",
+    "time": "Time",
+    "result": "Result",
+    "how": "How",
+    "caption": "Unlocks of unit {unit}",
+    "source": {
+      "app": "App",
+      "pin": "Code",
+      "card": "Card",
+      "remote": "Remote",
+      "vendor_sync": "Lock sync",
+      "face": "Face",
+      "qr": "QR code",
+      "fingerprint": "Fingerprint"
+    }
+  },
+  "visitor": {
+    "title": "Code for a visitor",
+    "lead": "A code for someone you expect, valid for up to {hours, plural, one {# hour} other {# hours}}.",
+    "name": "Visitor's name",
+    "nameMissing": "Write the visitor's name",
+    "from": "From",
+    "hours": "For how long",
+    "hoursOption": "{count, plural, one {# hour} other {# hours}}",
+    "submit": "Create the code",
+    "created": "Code for {name}",
+    "valid": "{from} – {to}",
+    "notAllowed": "Your building does not let residents create visitor codes. Ask the office."
+  }
+}

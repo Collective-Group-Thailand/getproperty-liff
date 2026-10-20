@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { loadMessages } from "@/i18n/messages";
 import { ICONS } from "@/ui/icons/registry";
 
+import { BOOKING_STATUS } from "./booking";
+import { ACCESS_RESULT, CREDENTIAL_STATUS } from "./credential";
 import { DEPOSIT_STATUS } from "./deposit";
 import { DSR_STATE } from "./dsr";
 import { INVOICE_STATUS } from "./invoice";
@@ -27,6 +29,9 @@ const MAPS = {
   settlement: SETTLEMENT_STATUS,
   dsr: DSR_STATE,
   slip: SLIP_STATUS,
+  booking: BOOKING_STATUS,
+  credential: CREDENTIAL_STATUS,
+  accessResult: ACCESS_RESULT,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {

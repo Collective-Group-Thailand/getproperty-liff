@@ -10,11 +10,23 @@ import { getResponse } from "msw";
 
 import { findOperation, problem, problemResponse } from "./contract";
 import { billingHandlers } from "./billing";
+import { communityHandlers } from "./community";
+import { contractRequestHandlers } from "./contract-requests";
 import { contractHandlers, exampleHandlers } from "./handlers";
 import { residentHandlers } from "./resident";
+import { serviceHandlers } from "./service";
 import { uploadHandlers } from "./uploads";
 
-const handlers = [...billingHandlers, ...uploadHandlers, ...residentHandlers, ...contractHandlers, ...exampleHandlers];
+const handlers = [
+  ...billingHandlers,
+  ...uploadHandlers,
+  ...serviceHandlers,
+  ...communityHandlers,
+  ...contractRequestHandlers,
+  ...residentHandlers,
+  ...contractHandlers,
+  ...exampleHandlers,
+];
 
 export const MOCK_HEADER = "x-gp-mock";
 

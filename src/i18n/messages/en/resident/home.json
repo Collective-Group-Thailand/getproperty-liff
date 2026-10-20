@@ -21,7 +21,11 @@
     "lease": "Lease",
     "announcements": "Announcements",
     "parcels": "Parcels",
-    "receipts": "Receipts"
+    "receipts": "Receipts",
+    "facilities": "Book a facility",
+    "access": "Door codes",
+    "rules": "House rules",
+    "contacts": "Contacts"
   },
   "noUnit": {
     "title": "No unit on this account yet",

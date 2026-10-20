@@ -33,8 +33,12 @@ export const OTP_CODE = "123456";
 export const OTP_EXPIRED_CODE = "000000";
 const OTP_MAX_ATTEMPTS = 5;
 
-/** Resident menu entitlements of the mock (`ResidentMeDto.entitlements`); `…manual…` accounts have no IoT usage. */
-export const MOCK_ENTITLEMENTS = ["bills", "usage", "lease"] as const;
+/**
+ * Resident menu entitlements of the mock (`ResidentMeDto.entitlements`); `…manual…` accounts have no IoT usage and
+ * `…nocommunity…` ones a tenant without the R2 modules (service requests, announcements, parcels).
+ */
+export const MOCK_ENTITLEMENTS = ["bills", "usage", "lease", "service_requests", "announcements", "parcels"] as const;
+const R2_MODULES = new Set<string>(["service_requests", "announcements", "parcels"]);
 
 function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
   const base = example<Schemas["TokenPairDto"]>("auth.residentLine.exchange");
@@ -116,7 +120,9 @@ export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
       language: account.language,
       lineLinked: account.lineLinked,
     },
-    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot"),
+    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot").filter(
+      (e) => !R2_MODULES.has(e) || !account.subject.toLowerCase().includes("nocommunity"),
+    ),
   };
 }
 
@@ -203,6 +209,45 @@ export const contractHandlers: HttpHandler[] = [
     return HttpResponse.json(tokenPair(openSession("resident", account.userId), account));
   }),
 
+  // Technicians (B5.1, D-210): SMS sign-in for a technician the owner entered with a phone; the phone match links
+  // the party, so the mock account is keyed `tech-phone:` (its work orders are seeded, `mocks/service.ts`).
+  http.post(mswPath("/v1/auth/technician/otp/request"), async ({ request }) => {
+    const body = await json<{ phone?: unknown }>(request);
+    const phone = typeof body?.phone === "string" ? body.phone.replace(/[\s-]/g, "") : "";
+    const match = THAI_MOBILE.exec(phone);
+    if (!match) return problem("auth.technicianOtp.request", "validation.failed");
+    const now = Date.now();
+    return HttpResponse.json({
+      challengeId: newChallenge(`+66${match[1]}`),
+      expiresAt: bangkokIso(now + 5 * 60_000),
+      resendAvailableAt: bangkokIso(now + 60_000),
+    } satisfies Schemas["OtpChallengeDto"]);
+  }),
+
+  http.post(mswPath("/v1/auth/technician/otp/verify"), async ({ request }) => {
+    const op = "auth.technicianOtp.verify";
+    const body = await json<{ challengeId?: unknown; code?: unknown }>(request);
+    if (typeof body?.challengeId !== "string" || typeof body.code !== "string") return problem(op, "validation.failed");
+    const pending = challenge(body.challengeId);
+    if (!pending || body.code === OTP_EXPIRED_CODE) return problem(op, "auth.otp_expired");
+    if (body.code !== OTP_CODE) {
+      pending.attempts += 1;
+      if (pending.attempts >= OTP_MAX_ATTEMPTS) {
+        dropChallenge(body.challengeId);
+        return problem(op, "auth.otp_attempts_exceeded");
+      }
+      return problem(op, "auth.otp_invalid", { attemptsRemaining: OTP_MAX_ATTEMPTS - pending.attempts });
+    }
+    dropChallenge(body.challengeId);
+    const account = accountFor(`tech-phone:${pending.phone}`, {
+      displayName: "ช่างสมชาย",
+      phone: pending.phone,
+      lineLinked: false,
+    });
+    if (account.disabled) return problem(op, "auth.account_disabled");
+    return HttpResponse.json(tokenPair(openSession("technician", account.userId), account));
+  }),
+
   http.post(mswPath("/v1/auth/refresh"), async ({ request }) => {
     const op = "auth.sessions.refresh";
     const body = await json<{ refreshToken?: unknown }>(request);
@@ -252,16 +297,6 @@ export const contractHandlers: HttpHandler[] = [
       { recorded: body.items.length, purposes: purposesFor(auth.account, languageOf(request)) },
       { status: 201 },
     );
-  }),
-
-  http.get(mswPath("/v1/technician/me"), ({ request }) => {
-    const auth = authenticate(request, "technician", "technician.me.get");
-    if (auth instanceof Response) return auth;
-    const base = example<Schemas["TechnicianMeDto"]>("technician.me.get");
-    return HttpResponse.json({
-      ...base,
-      user: { ...base.user, id: auth.account.userId, displayName: auth.account.displayName },
-    });
   }),
 
   http.post(mswPath("/v1/resident/realtime/auth"), ({ request }) => {

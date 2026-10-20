@@ -18,6 +18,8 @@ import { Icon, type IconGlyph } from "@/ui/icons";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
 import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconCalendar } from "@/ui/icons/glyphs/calendar";
+import { IconChecklist } from "@/ui/icons/glyphs/checklist";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconForward } from "@/ui/icons/glyphs/forward";
@@ -25,6 +27,7 @@ import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLease } from "@/ui/icons/glyphs/lease";
 import { IconParcel } from "@/ui/icons/glyphs/parcel";
 import { IconPayment } from "@/ui/icons/glyphs/payment";
+import { IconPhone } from "@/ui/icons/glyphs/phone";
 import { IconRoom } from "@/ui/icons/glyphs/room";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
@@ -36,6 +39,12 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "lease", href: "/lease", icon: IconLease, needs: "lease" },
   { key: "announcements", href: "/announcements", icon: IconAnnounce, needs: "announcements" },
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
+  // No `facilities` / `access` entitlement in the contract yet (CONTRACT-REQUEST #27): the community module stands
+  // for facilities; door codes, house rules and contacts follow the lease (D-071, D-073).
+  { key: "facilities", href: "/facilities", icon: IconCalendar, needs: "announcements" },
+  { key: "access", href: "/access", icon: IconKey, needs: "lease" },
+  { key: "rules", href: "/rules", icon: IconChecklist, needs: "lease" },
+  { key: "contacts", href: "/contacts", icon: IconPhone, needs: "lease" },
 ];
 
 /** The selected unit's invoices: by `unitId`; an invoice without one (a final bill of an ended lease) by unit no. + landlord. */
@@ -197,7 +206,7 @@ export async function ResidentHome({
                 <li key={tile.key}>
                   <Link
                     href={tile.href}
-                    className="rounded-card border-border bg-surface shadow-card flex min-h-24 flex-col items-center justify-center gap-2 border p-2 text-center text-sm font-medium"
+                    className="rounded-card border-border bg-surface shadow-card flex min-h-24 min-w-0 flex-col items-center justify-center gap-2 border p-2 text-center text-sm font-medium [overflow-wrap:anywhere]"
                   >
                     <span className="text-primary text-2xl">
                       <Icon icon={tile.icon} />

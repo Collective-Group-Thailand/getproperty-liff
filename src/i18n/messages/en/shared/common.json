@@ -24,5 +24,10 @@
     "chooseFile": "Choose a photo",
     "starting": "Starting the camera…",
     "unavailable": "The camera cannot start. Allow the camera in the browser, or choose a photo instead."
+  },
+  "photo": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoom": "Zoom {percent}%"
   }
 }

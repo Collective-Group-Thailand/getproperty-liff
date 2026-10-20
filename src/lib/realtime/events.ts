@@ -17,6 +17,26 @@ export function queriesFor(type: string): readonly (readonly string[])[] {
   return [];
 }
 
+/**
+ * Server-rendered screens a realtime event makes stale (L4: requests, parcels, bookings, door codes are rendered
+ * on the server, not cached in TanStack Query): when the resident is on one of these paths, the page is refreshed
+ * (`router.refresh()`), keeping client state such as a half-written message. Prefixes; `/` is the home page only.
+ */
+export function routesFor(type: string): readonly string[] {
+  if (type.startsWith("service_request.")) return ["/requests", "/"];
+  if (type.startsWith("parcel.")) return ["/parcels", "/"];
+  if (type === "facility_booking.changed") return ["/facilities"];
+  if (type.startsWith("access.credential_")) return ["/access"];
+  return [];
+}
+
+/** True when the current path is one of `routes` (`/` matches home only; others match the path and below). */
+export function pathMatches(pathname: string, routes: readonly string[]): boolean {
+  return routes.some((route) =>
+    route === "/" ? pathname === "/" : pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 /** Reconnect delay after the n-th consecutive failure: 1 s, 2 s, 4 s … capped at 60 s, with jitter. */
 export function backoff(attempt: number, random: () => number = Math.random): number {
   const base = Math.min(60_000, 1000 * 2 ** Math.max(0, attempt));

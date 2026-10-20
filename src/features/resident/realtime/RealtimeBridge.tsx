@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import { browserApi } from "@/lib/api/browser";
 import { peekQueryClient } from "@/lib/api/query-runtime";
-import { backoff, queriesFor } from "@/lib/realtime/events";
+import { backoff, pathMatches, queriesFor, routesFor } from "@/lib/realtime/events";
 
 /** Named SSE events this app reacts to (contract §6; the API's event types, `src/core/events/event-types.ts`). */
 const REALTIME_EVENTS = [
@@ -24,6 +25,16 @@ const REALTIME_EVENTS = [
   "slip.reviewed",
   "notification.created",
   "consent.changed",
+  // L4 (B5): the resident's requests, parcels, bookings and door codes.
+  "service_request.created",
+  "service_request.changed",
+  "service_request.rated",
+  "parcel.received",
+  "parcel.picked_up",
+  "parcel.returned",
+  "facility_booking.changed",
+  "access.credential_issued",
+  "access.credential_revoked",
 ] as const;
 
 /**
@@ -34,6 +45,13 @@ const REALTIME_EVENTS = [
  * re-authorised with backoff; a hidden LIFF view closes it and reopens it when the resident comes back.
  */
 export function RealtimeBridge() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const path = useRef(pathname);
+  useEffect(() => {
+    path.current = pathname;
+  }, [pathname]);
+
   useEffect(() => {
     if (typeof EventSource === "undefined") return;
     let source: EventSource | null = null;
@@ -51,6 +69,7 @@ export function RealtimeBridge() {
       }
       // TanStack Query loads on demand (D-179): no client yet means nothing cached to invalidate.
       const queryClient = peekQueryClient();
+      if (pathMatches(path.current, routesFor(type))) router.refresh();
       if (!queryClient) return;
       for (const queryKey of queriesFor(type)) void queryClient.invalidateQueries({ queryKey });
     };
@@ -100,7 +119,7 @@ export function RealtimeBridge() {
       source?.close();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [router]);
 
   return null;
 }

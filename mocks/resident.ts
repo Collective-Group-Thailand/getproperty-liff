@@ -73,6 +73,8 @@ function leaseOf(residence: MockResidence, id: string | readonly string[] | unde
   return residence.leases.find((l) => l.dto.id === id);
 }
 
+/** getproperty-api `RULES_ACK_STATES` (lease-rules.ts): acknowledgement is offered from signing to the end. */
+const RULES_ACK_STATES: readonly string[] = ["pending_signature", "active", "notice_given", "ending"];
 const RULE_CLAUSES = new Set(["house_rules", "pets", "smoking", "guests", "quiet_hours", "parking_rules", "waste"]);
 
 /**
@@ -81,7 +83,7 @@ const RULE_CLAUSES = new Set(["house_rules", "pets", "smoking", "guests", "quiet
  */
 export function leaseView(lease: MockLease): Schemas["ResidentLeaseDto"] {
   const hasRules = lease.dto.addendum.some((clause) => RULE_CLAUSES.has(clause.type));
-  const live = !["ended", "terminated", "cancelled"].includes(lease.dto.status);
+  const live = RULES_ACK_STATES.includes(lease.dto.status);
   const nextActions = lease.dto.nextActions.filter((a) => a !== "acknowledge-rules");
   if (hasRules && live && !lease.rulesAcknowledgedAt) nextActions.push("acknowledge-rules");
   return {
@@ -422,7 +424,7 @@ export const residentHandlers: HttpHandler[] = [
     if (auth instanceof Response) return auth;
     const lease = residenceOf(auth.account).leases.find((l) => l.dto.id === params.leaseId);
     if (!lease) return problem(op, "http.not_found");
-    const live = !["ended", "terminated", "cancelled"].includes(lease.dto.status);
+    const live = RULES_ACK_STATES.includes(lease.dto.status);
     const hasRules = lease.dto.addendum.some((clause) => RULE_CLAUSES.has(clause.type));
     if (!live || !hasRules) return problem(op, "lease.invalid_state");
     lease.rulesAcknowledgedAt ??= bangkokIso(Date.now());

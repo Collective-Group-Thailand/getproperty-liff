@@ -88,5 +88,23 @@
     "approved": "ผู้ดูแลยืนยันแล้ว",
     "rejected": "ไม่ผ่านการตรวจ",
     "duplicate": "สลิปนี้เคยส่งแล้ว"
+  },
+  "booking": {
+    "requested": "รออนุมัติ",
+    "confirmed": "จองแล้ว",
+    "cancelled": "ยกเลิกแล้ว",
+    "no_show": "ไม่มาใช้"
+  },
+  "credential": {
+    "pending": "กำลังตั้งค่า",
+    "active": "ใช้งานได้",
+    "revoked": "ถูกยกเลิก",
+    "expired": "หมดอายุ",
+    "failed": "ยังตั้งค่าไม่สำเร็จ"
+  },
+  "accessResult": {
+    "success": "เปิดสำเร็จ",
+    "denied": "ไม่อนุญาต",
+    "error": "กุญแจขัดข้อง"
   }
 }

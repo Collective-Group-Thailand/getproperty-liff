@@ -88,5 +88,23 @@
     "approved": "Confirmed by the office",
     "rejected": "Not accepted",
     "duplicate": "Already sent before"
+  },
+  "booking": {
+    "requested": "Waiting for approval",
+    "confirmed": "Booked",
+    "cancelled": "Cancelled",
+    "no_show": "Missed"
+  },
+  "credential": {
+    "pending": "Being set up",
+    "active": "Active",
+    "revoked": "Revoked",
+    "expired": "Expired",
+    "failed": "Not set up yet"
+  },
+  "accessResult": {
+    "success": "Opened",
+    "denied": "Refused",
+    "error": "Lock error"
   }
 }

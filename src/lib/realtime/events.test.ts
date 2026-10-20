@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { backoff, queriesFor } from "./events";
+import { backoff, pathMatches, queriesFor, routesFor } from "./events";
 
 describe("realtime → query invalidation", () => {
   it("maps payment status events to payments, invoices and receipts", () => {
@@ -22,6 +22,18 @@ describe("realtime → query invalidation", () => {
       ["resident", "invoices"],
       ["resident", "payments"],
     ]);
+  });
+
+  it("refreshes the server-rendered R2 screens an event touches (L4)", () => {
+    expect(routesFor("service_request.changed")).toEqual(["/requests", "/"]);
+    expect(routesFor("parcel.received")).toContain("/parcels");
+    expect(routesFor("facility_booking.changed")).toEqual(["/facilities"]);
+    expect(routesFor("access.credential_revoked")).toEqual(["/access"]);
+    expect(routesFor("invoice.paid")).toEqual([]);
+    expect(pathMatches("/requests/3b24", ["/requests"])).toBe(true);
+    expect(pathMatches("/requestsx", ["/requests"])).toBe(false);
+    expect(pathMatches("/", ["/"])).toBe(true);
+    expect(pathMatches("/parcels", ["/"])).toBe(false);
   });
 
   it("backs off exponentially up to a minute", () => {

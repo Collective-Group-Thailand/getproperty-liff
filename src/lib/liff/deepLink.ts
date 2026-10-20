@@ -22,6 +22,11 @@ export const DEEP_LINK_ROOTS = [
   "deposits",
   "announcements",
   "parcels",
+  // L4: community and access screens.
+  "facilities",
+  "rules",
+  "contacts",
+  "access",
   "profile",
   "technician",
   // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
