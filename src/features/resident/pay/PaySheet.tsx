@@ -7,7 +7,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import { QueryProvider } from "@/lib/api/QueryProvider";
 import { qk } from "@/lib/api/query-keys";
 import { isApiError } from "@/lib/api/problem";
@@ -39,10 +39,10 @@ export interface PaySheetProps {
 
 /**
  * While the sheet is open and the invoice is unpaid, it is re-read this often. Realtime events
- * (`payment.confirmed`, `invoice.paid` — `RealtimeBridge`) refresh it at once where the resident's stream carries
- * them (CONTRACT-REQUEST #16); this is the fallback.
+ * (`payment.confirmed`, `invoice.paid` on the resident's `user:` channel — `RealtimeBridge`) refresh it at once;
+ * the poll only covers a stream that dropped (LINE's in-app browser suspends background tabs).
  */
-export const STATUS_POLL_MS = 10_000;
+export const STATUS_POLL_MS = 30_000;
 
 type Mode = "qr" | "slip";
 

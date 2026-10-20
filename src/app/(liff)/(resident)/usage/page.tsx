@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { parseRange, usageWindow } from "@/features/resident/usage/range";
-import { ManualReadings, UsageView, type UsageWithSummary } from "@/features/resident/usage/UsageView";
+import { ManualReadings, UsageView } from "@/features/resident/usage/UsageView";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
@@ -57,7 +57,7 @@ export default async function UsagePage({
         <UsageView
           range={range}
           window={window}
-          current={current.data as UsageWithSummary}
+          current={current.data}
           previous={previous.data ?? null}
           locale={locale}
         />

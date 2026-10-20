@@ -9,4 +9,4 @@
   consent missing → `/consent?next=…`; every target through `safeInternalPath`.
 - `client.ts` — browser: `exchangeLineIdToken()` (the id token goes into one request body, nowhere else),
   `signOut()`; `afterSignIn.ts` — language from `/me` wins, consent before the target.
-- `entitlements.ts` — menus from `/me.entitlements` (CONTRACT-REQUEST #2; default: bills only).
+- `entitlements.ts` — menus from `/me.entitlements` (`ResidentMeDto.entitlements`, D-181).

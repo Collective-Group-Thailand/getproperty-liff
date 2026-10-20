@@ -30,8 +30,7 @@ export default async function NoticePage({ params }: { params: Promise<{ leaseId
     <ResidentShell active={null}>
       <BackLink href={`/lease/${l.id}`}>{t("back.lease")}</BackLink>
       {l.nextActions.includes("give-notice") ? (
-        // CONTRACT-REQUEST #7: the earliest date only when the API sends it.
-        <NoticeForm lease={l} earliest={l.noticeEarliestDate ?? null} locale={locale} />
+        <NoticeForm lease={l} earliest={l.noticeEarliestDate} locale={locale} />
       ) : (
         <div className="flex flex-col gap-4 py-6" data-testid="notice-unavailable">
           <Callout tone="info" title={t("noticeForm.unavailableTitle")}>

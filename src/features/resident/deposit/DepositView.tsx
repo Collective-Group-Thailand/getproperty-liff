@@ -4,7 +4,7 @@ import { DEPOSIT_STATUS } from "@/domain/status/deposit";
 import { SETTLEMENT_STATUS } from "@/domain/status/settlement";
 import { formatDate, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { DepositView as Deposit } from "@/lib/api/contract-requests";
+import type { DepositView as Deposit } from "@/lib/api/types";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { StatusBadge } from "@/ui/components/Badge";
@@ -21,8 +21,8 @@ function Amount({ label, value, strong }: { label: React.ReactNode; value: strin
 }
 
 /**
- * The deposit and its settlement (D-023, B2.4): what is held, each deduction with the move-out photos and — when the
- * API sends them (CONTRACT-REQUEST #9) — the move-in photos of the same item, the proposed refund, the deadline, and
+ * The deposit and its settlement (D-023, B2.4): what is held, each deduction with the move-out photos and the
+ * move-in photos of the same item (`beforeEvidenceUrls`), the proposed refund, the deadline, and
  * the resident's answer (accept or dispute with photos) while the API offers it (`nextActions`). Every amount is the
  * API's decimal string; nothing is added up here.
  */
@@ -114,11 +114,11 @@ export async function DepositView({ deposit, locale }: { deposit: Deposit; local
                         </div>
                         <p className="font-semibold tabular-nums">{money(deduction.amount)}</p>
                       </div>
-                      {deduction.evidenceUrls.length || deduction.beforeEvidenceUrls?.length ? (
+                      {deduction.evidenceUrls.length || deduction.beforeEvidenceUrls.length ? (
                         <div className="mt-3 grid grid-cols-2 gap-2">
                           <figure className="flex flex-col gap-1">
                             <figcaption className="text-muted text-xs">{t("deductions.before")}</figcaption>
-                            {deduction.beforeEvidenceUrls?.length ? (
+                            {deduction.beforeEvidenceUrls.length ? (
                               deduction.beforeEvidenceUrls.map((url, i) => (
                                 // eslint-disable-next-line @next/next/no-img-element -- 5-minute signed URLs, not optimisable
                                 <img

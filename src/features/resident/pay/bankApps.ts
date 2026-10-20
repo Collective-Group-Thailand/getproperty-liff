@@ -11,14 +11,22 @@ export interface BankApp {
   /** Key under `resident.pay.banks` (the bank's own name in Thai/English). */
   id: "kbank" | "scb" | "ktb" | "bbl" | "bay" | "ttb" | "gsb";
   url: string;
+  /** The Bank of Thailand's 3-digit bank code (`ResidentAccountDto.bankCode`). */
+  code: string;
 }
 
 export const BANK_APPS: readonly BankApp[] = [
-  { id: "kbank", url: "kplus://" }, // UNVERIFIED against live provider
-  { id: "scb", url: "scbeasy://" }, // UNVERIFIED against live provider
-  { id: "ktb", url: "ktbnext://" }, // UNVERIFIED against live provider
-  { id: "bbl", url: "bualuang://" }, // UNVERIFIED against live provider
-  { id: "bay", url: "kma://" }, // UNVERIFIED against live provider
-  { id: "ttb", url: "ttbtouch://" }, // UNVERIFIED against live provider
-  { id: "gsb", url: "mymo://" }, // UNVERIFIED against live provider
+  { id: "kbank", code: "004", url: "kplus://" }, // UNVERIFIED against live provider
+  { id: "scb", code: "014", url: "scbeasy://" }, // UNVERIFIED against live provider
+  { id: "ktb", code: "006", url: "ktbnext://" }, // UNVERIFIED against live provider
+  { id: "bbl", code: "002", url: "bualuang://" }, // UNVERIFIED against live provider
+  { id: "bay", code: "025", url: "kma://" }, // UNVERIFIED against live provider
+  { id: "ttb", code: "011", url: "ttbtouch://" }, // UNVERIFIED against live provider
+  { id: "gsb", code: "030", url: "mymo://" }, // UNVERIFIED against live provider
 ];
+
+/** The landlord's own bank first (`bankCode`, D-209) — the transfer is cheapest and fastest there — then the rest. */
+export function bankAppsFor(bankCode: string | null | undefined): readonly BankApp[] {
+  const own = BANK_APPS.find((bank) => bank.code === bankCode);
+  return own ? [own, ...BANK_APPS.filter((bank) => bank !== own)] : BANK_APPS;
+}

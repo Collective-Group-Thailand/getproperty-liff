@@ -3,15 +3,14 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { bffJson } from "@/lib/api/browser";
-import type { DocumentDownload } from "@/lib/api/contract-requests";
+import { browserApi, unwrap } from "@/lib/api/browser";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { openExternal } from "@/lib/liff/client";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { IconExternal } from "@/ui/icons/glyphs/external";
 
-/** Opens one document on file (view only). CONTRACT-REQUEST #11: `GET /v1/resident/documents/{id}/download`. */
+/** Opens one document on file (view only): `GET /v1/resident/documents/{id}/download` → a 5-minute link. */
 export function DocumentButton({ documentId, title }: { documentId: string; title: string }) {
   const t = useTranslations("resident.profile.documents");
   const [busy, setBusy] = useState(false);
@@ -28,9 +27,10 @@ export function DocumentButton({ documentId, title }: { documentId: string; titl
           setBusy(true);
           setError(null);
           try {
-            // CONTRACT-REQUEST #11 (docs/contract-requests.md).
-            const download = await bffJson<DocumentDownload>(
-              `/v1/resident/documents/${encodeURIComponent(documentId)}/download`,
+            const download = unwrap(
+              await browserApi.GET("/v1/resident/documents/{documentId}/download", {
+                params: { path: { documentId } },
+              }),
             );
             await openExternal(download.url);
           } catch (caught) {

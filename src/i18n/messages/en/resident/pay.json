@@ -111,5 +111,7 @@
       "rejectedTitle": "The slip was not accepted",
       "rejectedBody": "The office did not accept this slip. Contact the building office or pay with the QR."
     }
-  }
+  },
+  "copyAccount": "Copy account number",
+  "accountCopied": "Account number copied"
 }

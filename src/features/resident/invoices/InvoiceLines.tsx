@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { READING_SOURCE, type ReadingSource } from "@/domain/status/reading";
 import { formatDate, formatDateTime, formatTHB, formatUnits } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { InvoiceLineView } from "@/lib/api/contract-requests";
+import type { InvoiceLineView } from "@/lib/api/types";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { IconHelp } from "@/ui/icons/glyphs/help";
 

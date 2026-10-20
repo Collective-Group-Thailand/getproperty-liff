@@ -5,7 +5,6 @@ import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
-import type { DepositView as Deposit } from "@/lib/api/contract-requests";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
 
@@ -25,8 +24,7 @@ export default async function DepositPage({ params }: { params: Promise<{ deposi
     <ResidentShell active={null}>
       {data ? <BackLink href={`/lease/${data.leaseId}`}>{t("back.lease")}</BackLink> : null}
       {data ? (
-        // CONTRACT-REQUEST #9: `beforeEvidenceUrls` per deduction when the API sends them.
-        <DepositView deposit={data as Deposit} locale={locale} />
+        <DepositView deposit={data} locale={locale} />
       ) : (
         <ProblemPage error={problemFromParsed(response, error)} />
       )}

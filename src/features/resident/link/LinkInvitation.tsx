@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { acceptLanguage, bffJson, browserApi, unwrap } from "@/lib/api/browser";
+import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import type { ResidentLinked } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
@@ -21,8 +21,8 @@ import { IconRoom } from "@/ui/icons/glyphs/room";
 /**
  * Accepting an operator's invitation (D-061): the code comes from the invite QR/SMS deep link
  * (`liff.state=/link?code=…`) or is typed in. The resident confirms with one tap — a link never accepts by
- * itself — and sees which unit(s) they now occupy; expired and used codes say so and point to the office.
- * CONTRACT-REQUEST #1: `POST /v1/resident/link` is not in the contract yet.
+ * itself — and sees which unit(s) they now occupy; expired and used codes say so and point to the office
+ * (`POST /v1/resident/link`).
  */
 export function LinkInvitation({ initialCode }: { initialCode: string }) {
   const t = useTranslations("resident.link");
@@ -39,7 +39,6 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
     try {
       const result = unwrap(
         await browserApi.POST("/v1/resident/link", {
-          params: { header: { "accept-language": acceptLanguage() } },
           body: { code: code.trim() },
         }),
       );

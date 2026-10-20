@@ -1,7 +1,6 @@
 /**
  * The resident's lease, deposit, usage, documents and privacy state in the mock API (L3). Shapes are the contract's
- * (`mocks/generated`, examples deep-copied and adjusted); fields and endpoints the contract does not publish yet are
- * added in `mocks/contract-requests.ts` and marked `// CONTRACT-REQUEST`.
+ * (`mocks/generated`, examples deep-copied and adjusted).
  *
  * Scenario words in the fake LINE subject (`mocks/state.ts`) pick the starting state:
  *
@@ -26,7 +25,7 @@ export type Dsr = Schemas["DsrDto"];
 export const MOCK_CONTRACT_SHA = "9c1185a5c5e9fc54612808977ee8f548b2258d31fd0b7a29b1b6c3e6a4f8e0a1";
 export const SIGNATURE_OTP = "123456";
 
-/** CONTRACT-REQUEST #8 / #10 / #11 state kept beside the contract shapes (docs/contract-requests.md). */
+/** A lease with the state its acknowledgement of the building rules keeps (`rulesAcknowledgedAt`). */
 export interface MockLease {
   dto: Lease;
   rulesAcknowledgedAt: string | null;
@@ -40,13 +39,7 @@ export interface MockDocument {
   leaseId: string | null;
 }
 
-export interface NotificationPreference {
-  topic: "billing" | "lease" | "service_requests" | "announcements" | "parcels";
-  line: boolean;
-  sms: boolean;
-  /** Legally required notices (invoices, lease notices) cannot be switched off. */
-  locked: boolean;
-}
+export type NotificationPreference = Schemas["NotificationTopicPreferenceDto"];
 
 export interface MockResidence {
   leases: MockLease[];
@@ -57,8 +50,6 @@ export interface MockResidence {
   usage: "iot" | "manual";
   /** Signature OTP challenges: id → lease. */
   challenges: Map<string, { leaseId: string; attempts: number }>;
-  /** Uploaded photos (CONTRACT-REQUEST #9): id → size. */
-  uploads: Map<string, { contentType: string; bytes: number; done: boolean }>;
   /** Idempotent replays: `METHOD path key` → status + body. */
   replays: Map<string, { status: number; body: unknown }>;
 }
@@ -197,7 +188,7 @@ function proposedDeposit(lease: Lease): Deposit {
   };
 }
 
-/** Before photos of the move-in inspection per deduction (CONTRACT-REQUEST #9: `beforeEvidenceUrls`). */
+/** Before photos of the move-in inspection per deduction (`beforeEvidenceUrls`). */
 export const BEFORE_PHOTOS = new Map<string, string[]>();
 
 function noticeOn(lease: Lease, effectiveDate: string): Lease {
@@ -237,7 +228,6 @@ export function residenceOf(account: MockAccount): MockResidence {
     ],
     usage: has("manual") ? "manual" : "iot",
     challenges: new Map(),
-    uploads: new Map(),
     replays: new Map(),
   };
   // Registered first: building the leases below reads it (their ids count the leases already there).

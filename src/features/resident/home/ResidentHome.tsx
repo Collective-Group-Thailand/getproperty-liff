@@ -7,7 +7,7 @@ import { dueState, needsAttention, openFirst } from "@/features/resident/invoice
 import { LEASE_STATUS } from "@/domain/status/lease";
 import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import type { InboxItem, ResidentEntitlement, ResidentMe, ResidentUnit } from "@/lib/api/types";
 import type { ResidentNavEntitlements } from "@/lib/auth/entitlements";
 import { Button } from "@/ui/components/Button";
@@ -38,7 +38,7 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
 ];
 
-/** The selected unit's invoices: by `unitId` when the API sends it (CONTRACT-REQUEST #15), else unit no. + landlord. */
+/** The selected unit's invoices: by `unitId`; an invoice without one (a final bill of an ended lease) by unit no. + landlord. */
 function ofUnit(invoices: InvoiceView[], unit: ResidentUnit): InvoiceView[] {
   return invoices.filter((invoice) =>
     invoice.unitId

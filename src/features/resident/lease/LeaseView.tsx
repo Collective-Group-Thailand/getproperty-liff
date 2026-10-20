@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LEASE_STATUS } from "@/domain/status/lease";
 import { formatDate, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { LeaseView as Lease } from "@/lib/api/contract-requests";
+import type { LeaseView as Lease } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
@@ -32,7 +32,7 @@ function Row({ label, children }: { label: React.ReactNode; children: React.Reac
 /**
  * The lease as the API returns it (B2.3): status, the unit and building, who is on it (lessee, co-residents —
  * names the API withholds stay hidden, D-152), term, rent, deposit and recurring charges, the building rules of its
- * addendum (with their acknowledgement, CONTRACT-REQUEST #8), the notice when one was given, and the actions the
+ * addendum (with their acknowledgement, `acknowledge-rules`), the notice when one was given, and the actions the
  * API offers (`nextActions`: view the lease document, sign, give notice). Nothing is computed here.
  */
 export async function LeaseView({ lease, locale, depositId }: { lease: Lease; locale: Locale; depositId?: string }) {
@@ -162,8 +162,8 @@ export async function LeaseView({ lease, locale, depositId }: { lease: Lease; lo
               </li>
             ))}
           </ul>
-          {/* CONTRACT-REQUEST #8: only when the API reports the acknowledgement state. */}
-          {lease.rulesAcknowledgedAt !== undefined && lease.status !== "pending_signature" ? (
+          {/* The API offers `acknowledge-rules` while it is due; once done it reports when. */}
+          {actions.has("acknowledge-rules") || lease.rulesAcknowledgedAt ? (
             <RulesAcknowledge
               leaseId={lease.id}
               acknowledgedOn={lease.rulesAcknowledgedAt ? date(lease.rulesAcknowledgedAt) : null}

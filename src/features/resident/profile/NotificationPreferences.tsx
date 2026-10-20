@@ -3,8 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { bffJson } from "@/lib/api/browser";
-import type { NotificationPreference, NotificationPreferences as Preferences } from "@/lib/api/contract-requests";
+import { browserApi, unwrap } from "@/lib/api/browser";
+import type { NotificationPreference } from "@/lib/api/types";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -13,8 +13,8 @@ import { toast } from "@/ui/components/Toast";
 
 /**
  * Notification preferences per topic and channel (LINE, SMS). Topics the API locks (bills, lease notices — the
- * resident must receive them) are shown ticked and disabled with the reason. CONTRACT-REQUEST #10:
- * `GET/PUT /v1/resident/me/notification-preferences` is not in the contract yet.
+ * resident must receive them) are shown ticked and disabled with the reason;
+ * `PUT /v1/resident/me/notification-preferences` saves them (a locked topic switched off → 422).
  */
 export function NotificationPreferences({ initial }: { initial: NotificationPreference[] }) {
   const t = useTranslations("resident.profile.notifications");
@@ -35,11 +35,11 @@ export function NotificationPreferences({ initial }: { initial: NotificationPref
         setBusy(true);
         setError(null);
         try {
-          // CONTRACT-REQUEST #10 (docs/contract-requests.md).
-          const saved = await bffJson<Preferences>("/v1/resident/me/notification-preferences", {
-            method: "PUT",
-            body: { items: items.map(({ topic, line, sms }) => ({ topic, line, sms })) },
-          });
+          const saved = unwrap(
+            await browserApi.PUT("/v1/resident/me/notification-preferences", {
+              body: { items: items.map(({ topic, line, sms }) => ({ topic, line, sms })) },
+            }),
+          );
           setItems(saved.items);
           toast.success(t("saved"));
         } catch (caught) {

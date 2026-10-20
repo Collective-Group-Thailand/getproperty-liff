@@ -7,8 +7,8 @@ import { IconParcel } from "@/ui/icons/glyphs/parcel";
 import { defineStatuses } from "./index";
 
 /**
- * `ParcelStatus` from the contract once B5 parcels (R2) publish it; until then the values of parcel_status (schema-design v2 `ops.parcel.status`). When the
- * generated type appears it replaces the fallback, and a value without a label, tone and icon fails the build.
+ * `ParcelStatus` — a contract enum since B5 (D-210, D-212); the fallback only types it when no contract is generated.
+ * A value the contract adds fails the build until it has a label, a tone and an icon.
  * A parcel waiting at the desk is the resident's call to action.
  */
 export type ParcelStatus = ContractEnum<"ParcelStatus", "received" | "notified" | "picked_up" | "returned">;

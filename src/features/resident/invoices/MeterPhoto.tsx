@@ -8,7 +8,7 @@ import { Icon } from "@/ui/icons";
 import { IconImage } from "@/ui/icons/glyphs/image";
 
 /**
- * The photo of a meter register behind an invoice line (D-022 evidence; CONTRACT-REQUEST #15 `readingPhotoUrl`):
+ * The photo of a meter register behind an invoice line (D-022 evidence, `readingPhotoUrl`):
  * a thumbnail that is a real button (48 px, keyboard), opening the picture in a near-full-screen dialog — Escape,
  * the close button and the scrim close it and focus returns to the thumbnail (Radix). The link is the API's
  * short-lived signed URL; nothing is cached here.

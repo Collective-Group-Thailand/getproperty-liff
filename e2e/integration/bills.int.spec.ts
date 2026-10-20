@@ -178,8 +178,8 @@ test("issued invoice → resident opens it → Thai QR → provider callback →
   expect(delivered.status(), await delivered.text()).toBe(200);
   expect(await delivered.json()).toEqual({ received: true, duplicate: false });
 
-  // Paid in the open sheet (the resident's stream does not carry billing events yet — CONTRACT-REQUEST #16 — so
-  // the sheet's status poll sees it).
+  // Paid in the open sheet: `payment.confirmed` / `invoice.paid` reach the resident's `user:` channel (D-208); the
+  // sheet's slow poll covers a stream that has not connected yet.
   await expect(sheet.getByTestId("pay-paid")).toBeVisible({ timeout: 60_000 });
   await expect(sheet.getByRole("heading", { name: "ได้รับเงินแล้ว" })).toBeVisible();
 

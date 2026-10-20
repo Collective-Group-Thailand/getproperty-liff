@@ -3,8 +3,8 @@ import { qk } from "@/lib/api/query-keys";
 /**
  * Realtime events carry ids and a type only (contract §6); the client refetches through the API. This maps an
  * event type to the queries it makes stale — payment status first (L2's pay screen waits on `payment.*`; slip
- * decisions on `slip.*`). The resident's stream carries them once the API publishes billing events to `unit:`
- * channels (CONTRACT-REQUEST #16); until then the pay sheet also polls.
+ * decisions on `slip.*`). The API publishes billing events to the payer's `user:` and the invoice's `unit:`
+ * channels (D-208); the open pay sheet keeps a slow poll only for a dropped stream.
  */
 export function queriesFor(type: string): readonly (readonly string[])[] {
   if (type.startsWith("payment.")) return [qk.resident.payments(), qk.resident.invoices(), qk.resident.receipts()];

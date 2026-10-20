@@ -10,8 +10,8 @@ import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 import { defineStatuses } from "./index";
 
 /**
- * `WorkOrderStatus` from the contract once B5 work orders (R2) publish it; until then the values of work_order_status (schema-design v2 `ops.work_order.status`). When the
- * generated type appears it replaces the fallback, and a value without a label, tone and icon fails the build.
+ * `WorkOrderStatus` — a contract enum since B5 (D-210, D-212); the fallback only types it when no contract is generated.
+ * A value the contract adds fails the build until it has a label, a tone and an icon.
  * The technician's own list (L4).
  */
 export type WorkOrderStatus = ContractEnum<

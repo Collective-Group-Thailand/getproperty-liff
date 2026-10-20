@@ -1,8 +1,7 @@
 /**
  * The resident's invoices, payments, slips and receipts in the mock API (L2). Shapes are the contract's
- * (`ResidentInvoiceDto`, `ResidentPaymentDto`, `ResidentSlipResultDto`, `ResidentReceiptDto`); fields and
- * endpoints the contract does not publish yet are added here and marked `// CONTRACT-REQUEST #n`
- * (docs/contract-requests.md). Every amount is a fixed decimal string, as the API would compute it — the mock is
+ * (`ResidentInvoiceDto`, `ResidentPaymentDto`, `ResidentSlipOutcomeDto`, `ResidentReceiptDetailDto`, adopted at
+ * getproperty-api `57eef37`). Every amount is a fixed decimal string, as the API would compute it — the mock is
  * a fake engine, the app never adds anything up.
  *
  * Scenario words in the fake LINE subject (`mocks/state.ts`) pick the starting state:
@@ -20,8 +19,8 @@
  *
  * Mock-only control (never in the contract, never in a real build): `POST /v1/resident/__mock/invoices/{id}/pay`
  * plays the payment provider's callback — the invoice is paid, a receipt issued and `payment.confirmed`,
- * `invoice.paid`, `receipt.issued` go down the resident's realtime stream (CONTRACT-REQUEST #16: the API
- * publishes those to building channels only today).
+ * `invoice.paid`, `receipt.issued` go down the resident's realtime stream — the API publishes them to the payer's
+ * `user:` and the invoice's `unit:` channels (contract request #16, closed in F2).
  */
 import { createHash } from "node:crypto";
 
@@ -38,12 +37,15 @@ import { bangkokIso } from "./tokens";
 type Schemas = components["schemas"];
 type Invoice = Schemas["ResidentInvoiceDto"];
 type Line = Schemas["ResidentInvoiceLineDto"];
+/** A line as the mock engine builds it; `LineExtra` adds its disclosure (D-012, D-022). */
+type BaseLine = Omit<Line, "sourceType" | "readAt" | "readingPhotoUrl">;
+type BaseInvoice = Omit<Invoice, "lines" | "unitId" | "receipts"> & { lines: BaseLine[] };
 type Receipt = Schemas["ResidentReceiptDto"];
 type SlipStatus = Schemas["SlipStatus"];
 
 const DAY = 86_400_000;
 
-/** CONTRACT-REQUEST #15 — what a line discloses beyond the contract (D-012, D-022). */
+/** What a line discloses (D-012, D-022): its source, when the closing reading was taken and its photo. */
 export interface LineExtra {
   sourceType: Schemas["InvoiceLineSourceType"];
   readAt: string | null;
@@ -51,18 +53,18 @@ export interface LineExtra {
 }
 
 export interface MockInvoice {
-  dto: Invoice;
+  dto: BaseInvoice;
   extras: LineExtra[];
   unitId: string;
   receiptIds: string[];
 }
 
-/** CONTRACT-REQUEST #17 — a slip as the resident sees it after verification. */
+/** A slip as the resident sees it after verification (`ResidentSlipOutcomeDto`). */
 export interface MockSlip {
   id: string;
   invoiceId: string;
   status: SlipStatus;
-  reasons: string[];
+  reasons: Schemas["SlipReason"][];
   uploadedAt: string;
   decidedAt: string | null;
   transRef: string | null;
@@ -88,6 +90,7 @@ export const MOCK_ACCOUNT = {
   bankNameTh: "ธนาคารตัวอย่าง",
   accountName: "บริษัท หอพักตัวอย่าง จำกัด",
   accountNoMasked: "xxx-x-x1234-x",
+  accountNo: "1234561234",
   last4: "1234",
   bankCode: "004",
 };
@@ -113,8 +116,8 @@ function monthEnd(start: string): string {
 function line(
   no: number,
   kind: Line["lineKind"],
-  fields: Partial<Line> & { amount: string; description: string },
-): Line {
+  fields: Partial<BaseLine> & { amount: string; description: string },
+): BaseLine {
   return {
     lineNo: no,
     lineKind: kind,
@@ -127,6 +130,8 @@ function line(
     registerTo: null,
     readingSource: null,
     isEstimated: false,
+    aboveCap: false,
+    units: fields.registerFrom !== undefined ? (fields.quantity ?? null) : null,
     ...fields,
   };
 }
@@ -159,7 +164,7 @@ function monthInvoice(
   const end = monthEnd(start);
   const b = unit.unitId === UNIT_B.unitId;
   const rent = b ? "3800.00" : "4500.00";
-  const lines: Line[] = [
+  const lines: BaseLine[] = [
     line(1, "rent", {
       description: `ค่าเช่าห้อง ${unit.unitNo}`,
       amount: rent,
@@ -254,7 +259,7 @@ const holder = globalThis as typeof globalThis & { __gpMockBilling?: Map<string,
 holder.__gpMockBilling ??= new Map();
 const billings = holder.__gpMockBilling;
 
-/** CONTRACT-REQUEST #16 — billing events on the resident's own stream (the API sends them to building channels). */
+/** Billing events on the resident's own `user:` channel, as the API publishes them (D-208). */
 function emitTo(account: MockAccount, type: string, ids: Record<string, string>): void {
   emit(account.userId, type, ids);
 }
@@ -337,14 +342,12 @@ function notify(billing: MockBilling, eventType: string, title: string, body: st
 const OPEN = new Set(["issued", "partially_paid", "overdue"]);
 const isOpen = (invoice: MockInvoice) => OPEN.has(invoice.dto.status);
 
-/** The invoice as the contract publishes it, plus the CONTRACT-REQUEST #15 / #19 fields. */
-export function invoiceView(invoice: MockInvoice, billing: MockBilling) {
+/** The invoice as the contract publishes it: its unit, lines with their disclosure and its receipts. */
+export function invoiceView(invoice: MockInvoice, billing: MockBilling): Invoice {
   return {
     ...invoice.dto,
-    // CONTRACT-REQUEST #15 — the unit (so a resident with several units sees the right one first).
     unitId: invoice.unitId,
-    lines: invoice.dto.lines.map((l, index) => ({ ...l, ...invoice.extras[index] })),
-    // CONTRACT-REQUEST #19 — the receipts of the payments of this invoice.
+    lines: invoice.dto.lines.map((l, index) => ({ ...l, ...invoice.extras[index]! })),
     receipts: invoice.receiptIds
       .map((id) => billing.receipts.find((r) => r.id === id))
       .filter((r) => r !== undefined)
@@ -396,6 +399,9 @@ function paymentView(invoice: MockInvoice, billing: MockBilling): Schemas["Resid
     bankNameTh: MOCK_ACCOUNT.bankNameTh,
     accountName: MOCK_ACCOUNT.accountName,
     accountNoMasked: MOCK_ACCOUNT.accountNoMasked,
+    // The full number only while something is due (D-209), and the bank's code to offer its app first.
+    accountNo: due !== "0.00" ? MOCK_ACCOUNT.accountNo : null,
+    bankCode: MOCK_ACCOUNT.bankCode,
   };
   return {
     invoiceId: invoice.dto.id,
@@ -429,7 +435,7 @@ function verifySlip(account: MockAccount, billing: MockBilling, slip: MockSlip, 
   if (!invoice) return;
   const text = bytes.toString("latin1");
   const start = text.indexOf('{"transRef"');
-  const reasons: string[] = [];
+  const reasons: Schemas["SlipReason"][] = [];
   let duplicate = false;
   let parsed: Record<string, string> | null = null;
   if (start >= 0) {
@@ -553,7 +559,7 @@ export const billingHandlers: HttpHandler[] = [
     const billing = billingOf(auth.account);
     const invoice = billing.invoices.find((i) => i.dto.id === params.invoiceId);
     if (!invoice) return problem(op, "http.not_found");
-    // CONTRACT-REQUEST #18 — an `Idempotency-Key` makes a retried upload answer the first slip.
+    // An optional `Idempotency-Key` makes a retried upload answer the first slip (D-208).
     const key = request.headers.get("idempotency-key");
     const replayKey = key ? `${invoice.dto.id} ${key}` : null;
     const seen = replayKey ? billing.replays.get(replayKey) : undefined;
@@ -593,9 +599,9 @@ export const billingHandlers: HttpHandler[] = [
     return HttpResponse.json(result, { status: 201 });
   }),
 
-  // CONTRACT-REQUEST #17 — my slips of an invoice with the verification outcome and its reasons.
+  // My slips of an invoice with the verification outcome and its reasons.
   http.get(mswPath("/v1/resident/invoices/:invoiceId/slips"), ({ request, params }) => {
-    const op = "resident.invoices.get";
+    const op = "resident.invoices.slips";
     const auth = authenticate(request, "resident", op);
     if (auth instanceof Response) return auth;
     const billing = billingOf(auth.account);
@@ -618,9 +624,9 @@ export const billingHandlers: HttpHandler[] = [
     });
   }),
 
-  // CONTRACT-REQUEST #19 — one receipt with the invoices it paid (the API's LINE messages link `/receipts/{id}`).
+  // One receipt with the invoices it paid (the API's LINE messages link `/receipts/{id}`).
   http.get(mswPath("/v1/resident/receipts/:receiptId"), ({ request, params }) => {
-    const op = "resident.receipts.document";
+    const op = "resident.receipts.get";
     const auth = authenticate(request, "resident", op);
     if (auth instanceof Response) return auth;
     const billing = billingOf(auth.account);
@@ -629,6 +635,7 @@ export const billingHandlers: HttpHandler[] = [
     const { invoiceIds, ...dto } = receipt;
     return HttpResponse.json({
       ...dto,
+      hasDocument: true,
       invoices: invoiceIds
         .map((id) => billing.invoices.find((i) => i.dto.id === id))
         .filter((i) => i !== undefined)

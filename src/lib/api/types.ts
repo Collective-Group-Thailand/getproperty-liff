@@ -84,3 +84,22 @@ export type ReceiptKind = Schemas["ReceiptKind"];
 export type DocumentLink = Schemas["DocumentDownloadDto"];
 export type PageMeta = Schemas["PageMeta"];
 export type InboxItem = Schemas["InboxItemDto"];
+
+// Closed contract requests #7–#21 (getproperty-api A6 `D-203`, F2 `D-208`/`D-209`; adopted at 57eef37).
+export type LeaseView = ResidentLease;
+export type DeductionView = ResidentDeduction;
+export type DepositView = ResidentDeposit;
+export type UploadPresign = Schemas["ResidentUploadedDto"];
+export type UploadRequest = Schemas["ResidentUploadDto"];
+export type UploadContentType = Schemas["ResidentUploadContentType"];
+export type NotificationTopic = Schemas["NotificationTopic"];
+export type NotificationPreference = Schemas["NotificationTopicPreferenceDto"];
+export type NotificationPreferences = Schemas["NotificationPreferencesDto"];
+export type ResidentDocument = Schemas["ResidentDocumentDto"];
+export type DocumentDownload = Schemas["ResidentDocumentDownloadDto"];
+export type InvoiceLineView = ResidentInvoiceLine;
+export type ReceiptRef = Schemas["DocumentRefDto"];
+export type InvoiceView = ResidentInvoice;
+export type SlipReason = Schemas["SlipReason"];
+export type SlipView = Schemas["ResidentSlipOutcomeDto"];
+export type ReceiptView = Schemas["ResidentReceiptDetailDto"];

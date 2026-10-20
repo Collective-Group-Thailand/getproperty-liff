@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { formatDate, formatDateTime, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { ReceiptView } from "@/lib/api/contract-requests";
+import type { ReceiptView } from "@/lib/api/types";
 import type { PageMeta, ResidentReceipt } from "@/lib/api/types";
 import { PdfButton } from "@/features/shared/PdfButton";
 import { Badge } from "@/ui/components/Badge";
@@ -98,7 +98,7 @@ export async function ReceiptList({
   );
 }
 
-/** One receipt: amount, number, issuer, unit, date; PDF; share to LINE; the invoices it paid (CONTRACT-REQUEST #19). */
+/** One receipt: amount, number, issuer, unit, date; PDF; share to LINE; the invoices it paid. */
 export async function ReceiptDetail({ receipt, locale }: { receipt: ReceiptView; locale: Locale }) {
   const t = await getTranslations("resident.receipts");
   return (

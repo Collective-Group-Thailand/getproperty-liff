@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useRef, useState } from "react";
 
-import { acceptLanguage, browserApi, unwrap } from "@/lib/api/browser";
+import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import type { ContractDownload, ResidentLease, SignatureOtp } from "@/lib/api/types";
@@ -116,7 +116,7 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
     try {
       const sent = unwrap(
         await browserApi.POST("/v1/resident/leases/{leaseId}/signature/otp", {
-          params: { path: { leaseId: lease.id }, header: { "accept-language": acceptLanguage() } },
+          params: { path: { leaseId: lease.id } },
           body: {},
         }),
       );

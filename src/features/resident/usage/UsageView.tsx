@@ -13,15 +13,8 @@ import { IconWater } from "@/ui/icons/glyphs/water";
 import { alignByPosition, USAGE_RANGES, type UsageRange, type UsageWindow } from "./range";
 import { UsageFigure } from "./UsageFigure";
 
-/** CONTRACT-REQUEST #12 — period totals and the "so far this billing cycle" estimate, only when the API sends them. */
-export interface UsageSummary {
-  utility: "electric" | "water";
-  unit: "kwh" | "m3";
-  total: string;
-  previousTotal: string | null;
-  cycleToDate?: { from: string; usage: string; estimated: boolean } | null;
-}
-export type UsageWithSummary = ResidentUsage & { summary?: UsageSummary[] };
+/** The API's period totals and the "so far this billing cycle" estimate per utility (`ResidentUsageDto.summary`). */
+export type UsageSummary = ResidentUsage["summary"][number];
 
 const unitOf = (unit: "kwh" | "m3"): MeterUnit => (unit === "kwh" ? "kWh" : "m3");
 
@@ -38,7 +31,7 @@ function bucketLabel(iso: string, bucket: "1h" | "1d", locale: Locale): string {
 /**
  * Electricity and water use of the resident's unit (L3 3.3, D-063, D-162): one chart per utility for the chosen
  * period with the previous period beside it, a data table for each chart, the API's period totals and the cycle
- * estimate when it sends them (CONTRACT-REQUEST #12), and tips. Quantities stay the API's decimal strings.
+ * estimate (only utilities with telemetry have one), and tips. Quantities stay the API's decimal strings.
  */
 export async function UsageView({
   range,
@@ -49,7 +42,7 @@ export async function UsageView({
 }: {
   range: UsageRange;
   window: UsageWindow;
-  current: UsageWithSummary;
+  current: ResidentUsage;
   previous: ResidentUsage | null;
   locale: Locale;
 }) {
@@ -83,7 +76,7 @@ export async function UsageView({
           key={series.utility}
           series={series}
           previous={previous?.series.find((s) => s.utility === series.utility) ?? null}
-          summary={current.summary?.find((s) => s.utility === series.utility) ?? null}
+          summary={current.summary.find((s) => s.utility === series.utility) ?? null}
           window={window}
           range={range}
           locale={locale}

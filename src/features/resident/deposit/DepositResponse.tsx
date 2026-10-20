@@ -10,6 +10,7 @@ import { isApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { useCameraLabels } from "@/features/shared/useCameraLabels";
+import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { Button } from "@/ui/components/Button";
 import { CameraCapture } from "@/ui/components/CameraCapture";
 import { Card } from "@/ui/components/Card";
@@ -21,15 +22,13 @@ import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconClose } from "@/ui/icons/glyphs/close";
 import { IconFlag } from "@/ui/icons/glyphs/flag";
 
-import { uploadPhoto } from "./upload";
-
 const MAX_PHOTOS = 6;
 
 type Mode = "choose" | "accept" | "dispute";
 
 /**
  * The resident's answer to the proposed settlement (D-023): accept the refund the API proposes, or dispute it with
- * a reason and photos (`CameraCapture`; uploaded by presigned URL first, CONTRACT-REQUEST #9). Both POSTs carry an
+ * a reason and photos (`CameraCapture`; uploaded by presigned URL first, `POST /v1/resident/uploads`). Both POSTs carry an
  * `Idempotency-Key` kept for the attempt, so a retried tap never answers twice.
  */
 export function DepositResponse({
@@ -119,9 +118,11 @@ export function DepositResponse({
           setReasonMissing(false);
           void run(async () => {
             const photoDocumentIds: string[] = [];
-            for (const photo of photos) photoDocumentIds.push(await uploadPhoto(photo.file));
-            // CONTRACT-REQUEST #9: `photoDocumentIds` on ResidentDisputeDto.
-            const body = { reason: reason.trim(), photoDocumentIds } as Schemas["ResidentDisputeDto"];
+            for (const photo of photos) {
+              const target = { purpose: "deposit_dispute", depositId } as const;
+              photoDocumentIds.push(await withRetry(() => uploadResidentPhoto(photo.file, target)));
+            }
+            const body: Schemas["ResidentDisputeDto"] = { reason: reason.trim(), photoDocumentIds };
             unwrap(
               await browserApi.POST("/v1/resident/deposits/{depositId}/actions/dispute", {
                 params: { path: { depositId }, header: { "Idempotency-Key": key } },

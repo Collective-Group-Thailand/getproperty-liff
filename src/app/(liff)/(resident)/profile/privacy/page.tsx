@@ -20,9 +20,7 @@ export async function generateMetadata() {
  */
 export default async function PrivacyPage() {
   const [t, locale, api] = await Promise.all([getTranslations("resident.profile"), pageLocale(), serverApi()]);
-  const { data, error, response } = await api.GET("/v1/resident/me/privacy", {
-    params: { header: { "accept-language": locale } },
-  });
+  const { data, error, response } = await api.GET("/v1/resident/me/privacy");
   return (
     <ResidentShell active="me">
       <BackLink href="/profile">{t("title")}</BackLink>

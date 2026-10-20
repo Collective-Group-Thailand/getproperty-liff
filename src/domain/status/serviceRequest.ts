@@ -9,8 +9,8 @@ import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 import { defineStatuses } from "./index";
 
 /**
- * `ServiceRequestStatus` from the contract once B5 service requests (R2) publish it; until then the values of service_request_status (schema-design v2 `ops.service_request.status`). When the
- * generated type appears it replaces the fallback, and a value without a label, tone and icon fails the build.
+ * `ServiceRequestStatus` — a contract enum since B5 (D-210, D-212); the fallback only types it when no contract is generated.
+ * A value the contract adds fails the build until it has a label, a tone and an icon.
  * Waiting for parts is the only state that needs the resident's patience flagged.
  */
 export type ServiceRequestStatus = ContractEnum<

@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import { ExternalLinkButton } from "@/features/shared/ExternalLinkButton";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";

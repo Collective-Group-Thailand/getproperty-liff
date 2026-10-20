@@ -6,7 +6,7 @@ import { bangkokToday, openFirst } from "@/features/resident/invoices/model";
 import { pageLocale, type Loaded } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
 import { clientEnv } from "@/lib/env";
 

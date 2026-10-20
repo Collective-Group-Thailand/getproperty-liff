@@ -60,7 +60,6 @@ export function ConsentForm({
     try {
       unwrap(
         await browserApi.POST("/v1/resident/consents", {
-          params: { header: { "accept-language": language } },
           body: {
             language: language === "en" ? "en" : "th",
             items: purposes.map((p) => ({ purposeKey: p.key, version: p.version, granted: answers[p.key] === true })),

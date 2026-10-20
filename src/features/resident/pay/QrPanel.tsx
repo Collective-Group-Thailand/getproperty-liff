@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { formatDateTime, formatTHB } from "@/i18n/format";
 import { isLocale, type Locale } from "@/i18n/routing";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import type { ResidentPayment } from "@/lib/api/types";
 import { inLineClient, openExternal } from "@/lib/liff/client";
 import { Button } from "@/ui/components/Button";
@@ -19,7 +19,8 @@ import { IconExternal } from "@/ui/icons/glyphs/external";
 import { IconRefresh } from "@/ui/icons/glyphs/refresh";
 import { IconUpload } from "@/ui/icons/glyphs/upload";
 
-import { BANK_APPS } from "./bankApps";
+import { bankAppsFor } from "./bankApps";
+import { CopyAccount } from "./CopyAccount";
 import { canvasBlob, qrCanvas, qrModules } from "./qr";
 import { QrImage } from "./QrImage";
 import { COUNTDOWN_BAR_SECONDS, formatCountdown, qrValidity } from "./validity";
@@ -209,7 +210,7 @@ export function QrPanel({
                 <div id="pay-banks" className="flex flex-col gap-2" data-testid="pay-banks">
                   <p className="text-muted text-sm">{t("openBankHint")}</p>
                   <ul className="grid grid-cols-2 gap-2">
-                    {BANK_APPS.map((bank) => (
+                    {bankAppsFor(account?.bankCode).map((bank) => (
                       <li key={bank.id}>
                         <Button
                           variant="ghost"
@@ -246,8 +247,9 @@ export function QrPanel({
               {t("noQrTransfer", {
                 bank: account.bankNameTh,
                 name: account.accountName,
-                account: account.accountNoMasked,
+                account: account.accountNo ?? account.accountNoMasked,
               })}
+              {account.accountNo ? <CopyAccount accountNo={account.accountNo} /> : null}
             </span>
           ) : (
             t("noQrContact")

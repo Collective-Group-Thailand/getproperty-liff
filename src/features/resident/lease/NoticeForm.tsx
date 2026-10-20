@@ -23,7 +23,7 @@ import { IconForward } from "@/ui/icons/glyphs/forward";
 
 /**
  * The 30-day move-out notice (D-020, ข้อ 4 (11)): a move-out date, a confirmation that restates the unit and the
- * date, then `POST …/notice`. The earliest date comes from the API when it sends one (CONTRACT-REQUEST #7) and is
+ * date, then `POST …/notice`. The earliest date is the API's (`noticeEarliestDate`, null when it offers no notice) and is
  * never computed here; a date the API refuses comes back as `compliance.notice_period` and is shown with its legal
  * reference. The recorded notice is the document the API keeps (`notice.evidenceDocumentIds`).
  */

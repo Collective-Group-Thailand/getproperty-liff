@@ -31,9 +31,7 @@ export default async function ConsentPage({
 
   const language = await getLocale();
   const api = await serverApi();
-  const { data, error, response } = await api.GET("/v1/resident/consents", {
-    params: { header: { "accept-language": language } },
-  });
+  const { data, error, response } = await api.GET("/v1/resident/consents");
   const failure = actor.status === "error" ? actor.error : !data ? problemFromParsed(response, error) : null;
 
   return (

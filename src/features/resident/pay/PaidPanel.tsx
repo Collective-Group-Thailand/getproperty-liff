@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 
 import { formatTHB } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Icon } from "@/ui/icons";
 import { IconBill } from "@/ui/icons/glyphs/bill";
@@ -16,7 +16,7 @@ import { PushOffer } from "./PushOffer";
 
 /**
  * Paid (L2 2.2 §1: "a paid state that feels final"): one large tick, the words, the amount the invoice asked for,
- * and the receipt — the one the API linked to this invoice when it says so (CONTRACT-REQUEST #19), else the
+ * and the receipt the API linked to this invoice (`receipts`; the receipt can lag the payment by a moment, then the
  * receipts list, where the new receipt is on top. Focus moves to the heading so a screen reader hears it. After the
  * first payment in this browser, the push offer (a meaningful moment, never on first open).
  */
@@ -36,7 +36,7 @@ export function PaidPanel({
   const locale = isLocale(current) ? current : "th";
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
-  const receipt = invoice.receipts?.[0];
+  const receipt = invoice.receipts[0];
 
   return (
     <div className="flex flex-col items-center gap-4 py-2 text-center" data-testid="pay-paid">

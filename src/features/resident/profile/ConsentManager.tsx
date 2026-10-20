@@ -40,7 +40,6 @@ export function ConsentManager({
       const language = acceptLanguage();
       unwrap(
         await browserApi.POST("/v1/resident/consents", {
-          params: { header: { "accept-language": language } },
           body: {
             language: language === "en" ? "en" : "th",
             items: [{ purposeKey: purpose.key, version: purpose.version, granted }],

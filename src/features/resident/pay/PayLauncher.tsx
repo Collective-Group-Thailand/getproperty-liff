@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { IconQr } from "@/ui/icons/glyphs/qr";
 import { lazyOverlay } from "@/ui/lib/lazy";

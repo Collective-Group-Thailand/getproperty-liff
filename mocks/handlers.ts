@@ -91,6 +91,8 @@ export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
     buildingName: dto.buildingName,
     tenantId: dto.tenantId,
     tenantName: dto.tenantName,
+    startDate: dto.startDate,
+    endDate: dto.endDate,
   }));
   return {
     ...base,

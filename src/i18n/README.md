@@ -3,7 +3,7 @@
 - `routing.ts` — the six resident locales (D-064): `th` (default) and `en` complete; `my`, `km`, `lo`, `zh`
   scaffolded (empty files) with English fallback until L4. Locale from the `gp_locale` cookie (no URL segment);
   first written from `liff.getLanguage()`, then from `/v1/resident/me.language` at sign-in, then by the switcher
-  (which also tells the API, CONTRACT-REQUEST #3).
+  (which also tells the API, `PATCH /v1/resident/me`).
 - `request.ts` — next-intl request config: cookie → locale → messages, `Asia/Bangkok`.
 - `messages/<locale>/<namespace>/<feature>.json` — per feature: `shared/*` at the root (`shell`, `common`,
   `errors`, `status`, `brand`), `resident/*` under `resident.<feature>`, `technician/*` under

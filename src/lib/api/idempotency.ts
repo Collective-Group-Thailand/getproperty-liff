@@ -3,14 +3,9 @@ import { IDEMPOTENT_OPERATIONS } from "./operations.generated";
 /**
  * Which calls need an `Idempotency-Key` (contract §3: irreversible POSTs — payments, signatures, notices, PDPA
  * requests). The list is generated from the contract (`IdempotencyKey` parameter), so a new flagged operation
- * gets a key without anyone remembering to add it. Contract-request endpoints add theirs here by hand.
+ * gets a key without anyone remembering to add it (optional keys included, e.g. slips and uploads).
  */
-const EXTRA: readonly string[] = [
-  // CONTRACT-REQUEST #18: a slip upload carries a key so a retry on a flaky connection does not send it twice.
-  "POST /v1/resident/invoices/{invoiceId}/slips",
-];
-
-const matchers = [...IDEMPOTENT_OPERATIONS, ...EXTRA].map((entry) => {
+const matchers = IDEMPOTENT_OPERATIONS.map((entry) => {
   const [method, template] = entry.split(" ") as [string, string];
   const pattern = template
     .split("/")

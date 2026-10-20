@@ -19,11 +19,7 @@ function documentLanguage(): string | undefined {
   return typeof document === "undefined" ? undefined : document.documentElement.lang || undefined;
 }
 
-/**
- * The page's language for operations whose contract declares a required `accept-language` header parameter
- * (consents, link, privacy, signature OTP — reported in docs/contract-requests.md #13); the middleware sends the
- * same value on every other call.
- */
+/** The page's language (the middleware below sends it as `Accept-Language` on every call). */
 export function acceptLanguage(): string {
   return documentLanguage() ?? "th";
 }
@@ -52,8 +48,8 @@ export function unwrap<T>(result: { data?: T; error?: unknown; response: Respons
 }
 
 /**
- * A BFF call outside the typed client — only for endpoints the contract does not publish yet, each marked
- * `CONTRACT-REQUEST` at the call site (docs/contract-requests.md).
+ * A BFF call outside the typed client — for this app's own BFF routes (`/bff/auth/refresh`) and, should one be
+ * needed again, an endpoint the contract does not publish yet (marked `CONTRACT-REQUEST`, docs/contract-requests.md).
  */
 export async function bffJson<T>(
   path: string,

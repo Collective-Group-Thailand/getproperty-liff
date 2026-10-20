@@ -3,7 +3,7 @@ import "server-only";
 import { getLocale } from "next-intl/server";
 
 import { isLocale, type Locale } from "@/i18n/routing";
-import type { LeaseView } from "@/lib/api/contract-requests";
+import type { LeaseView } from "@/lib/api/types";
 import { problemFromParsed, type ApiError } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
 
@@ -22,8 +22,8 @@ export async function loadLeases(): Promise<Loaded<LeaseView[]>> {
 }
 
 /**
- * `GET /v1/resident/leases/{leaseId}` — 404 outside my `lease:` scopes (contract §8). The CONTRACT-REQUEST #7/#8
- * fields (`noticeEarliestDate`, `rulesAcknowledgedAt`) are read when the API sends them.
+ * `GET /v1/resident/leases/{leaseId}` — 404 outside my `lease:` scopes (contract §8), with the earliest notice date
+ * and the rules acknowledgement the API computes (`noticeEarliestDate`, `rulesAcknowledgedAt`).
  */
 export async function loadLease(leaseId: string): Promise<Loaded<LeaseView>> {
   const api = await serverApi();

@@ -1,5 +1,5 @@
-import type { InvoiceLineView, InvoiceView } from "@/lib/api/contract-requests";
-import type { InvoiceLineKind, InvoiceLineSourceType } from "@/lib/api/types";
+import type { InvoiceLineView, InvoiceView } from "@/lib/api/types";
+import type { InvoiceLineSourceType } from "@/lib/api/types";
 import type { MeterUnit } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 
@@ -89,39 +89,18 @@ export const LINE_GROUPS = [
   "deposit",
   "adjustment",
 ] as const satisfies readonly InvoiceLineSourceType[];
-export type LineGroup = (typeof LINE_GROUPS)[number];
+export type LineGroup = InvoiceLineSourceType;
+/** Fails the build when the contract adds a source type that has no place in the reading order. */
+const _everyGroupPlaced: Record<Exclude<InvoiceLineSourceType, (typeof LINE_GROUPS)[number]>, never> = {};
+void _everyGroupPlaced;
 
-/**
- * `lineKind` → the `InvoiceLineSourceType` it comes from — the fallback while the resident DTO does not carry
- * `sourceType` (CONTRACT-REQUEST #15). Typed by the contract enum: a new kind fails the build until it is placed.
- */
-const GROUP_OF_KIND: Record<InvoiceLineKind, LineGroup> = {
-  rent: "rent",
-  electricity: "meter",
-  water: "meter",
-  water_minimum: "meter",
-  estimate_settlement: "meter",
-  internet: "service",
-  parking: "service",
-  cleaning: "service",
-  furniture: "service",
-  other_fixed: "service",
-  one_off: "service",
-  service_charge_work: "service",
-  common_fee: "common_fee",
-  fund: "fund",
-  late_fee: "penalty",
-  deposit_offset: "deposit",
-  prior_balance: "adjustment",
-  discount: "adjustment",
-};
-
-export function lineGroup(line: Pick<InvoiceLineView, "lineKind" | "sourceType">): LineGroup {
-  return line.sourceType ?? GROUP_OF_KIND[line.lineKind];
+/** The group a line is shown in: the API's `sourceType` (contract request #15, closed in getproperty-api F2). */
+export function lineGroup(line: Pick<InvoiceLineView, "sourceType">): LineGroup {
+  return line.sourceType;
 }
 
 /** The invoice's lines in reading order, grouped; empty groups are left out. */
-export function groupLines<T extends Pick<InvoiceLineView, "lineKind" | "sourceType" | "lineNo">>(
+export function groupLines<T extends Pick<InvoiceLineView, "sourceType" | "lineNo">>(
   lines: readonly T[],
 ): { group: LineGroup; lines: T[] }[] {
   return LINE_GROUPS.map((group) => ({

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { INVOICE_STATUS } from "@/domain/status/invoice";
 import { formatDate, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceView } from "@/lib/api/types";
 import type { PageMeta } from "@/lib/api/types";
 import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { StatusBadge } from "@/ui/components/Badge";

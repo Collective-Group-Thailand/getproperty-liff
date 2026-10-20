@@ -9,12 +9,11 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { SLIP_STATUS } from "@/domain/status/slip";
 import { formatDateTime, formatTHB } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
-import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
-import type { SlipView } from "@/lib/api/contract-requests";
+import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { qk } from "@/lib/api/query-keys";
-import type { ResidentPayment, SlipMimeType } from "@/lib/api/types";
+import type { ResidentPayment, SlipMimeType, SlipView } from "@/lib/api/types";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { CameraCapture } from "@/ui/components/CameraCapture";
@@ -25,9 +24,10 @@ import { IconCamera } from "@/ui/icons/glyphs/camera";
 import { IconImage } from "@/ui/icons/glyphs/image";
 import { IconUpload } from "@/ui/icons/glyphs/upload";
 
+import { CopyAccount } from "./CopyAccount";
 import { prepareSlip, SLIP_ACCEPT, toBase64 } from "./slipFile";
 
-/** While a slip waits for the check, its outcome is re-read this often (CONTRACT-REQUEST #17). */
+/** While a slip waits for the check, its outcome is re-read this often (`slip.*` events refresh it sooner). */
 export const SLIP_POLL_MS = 3_000;
 
 type Chosen = { blob: Blob; mimeType: SlipMimeType; url: string | null; name: string };
@@ -37,10 +37,9 @@ const DECIDED = new Set(["auto_confirmed", "approved", "rejected", "duplicate"])
 /**
  * The slip fallback (L2 2.2 §2, D-043): paid by a plain transfer → choose the slip from the gallery (a bank app's
  * screenshot, sent as it is) or photograph a paper one (`CameraCapture`) → check it → send it inline to
- * `POST …/slips` with one `Idempotency-Key` per chosen file (CONTRACT-REQUEST #18) → follow the verification:
+ * `POST …/slips` with one `Idempotency-Key` per chosen file → follow the verification:
  * confirmed automatically, waiting for the office with the reasons (amount or account mismatch), a duplicate of a
- * slip sent before, or rejected — read from `GET …/slips` (CONTRACT-REQUEST #17) and announced as it changes.
- * Where that endpoint does not exist yet the invoice itself tells: paid means the slip was accepted.
+ * slip sent before, or rejected — read from `GET …/slips` and announced as it changes.
  */
 export function SlipPanel({
   invoiceId,
@@ -93,7 +92,7 @@ export function SlipPanel({
         await browserApi.POST("/v1/resident/invoices/{invoiceId}/slips", {
           params: { path: { invoiceId } },
           body: { image: await toBase64(slip.blob), mimeType: slip.mimeType },
-          // CONTRACT-REQUEST #18: the API does not declare a key on this POST yet; a retried tap must not send twice.
+          // One key per chosen file: a retried tap on a flaky connection answers the first slip.
           headers: { "Idempotency-Key": key },
         }),
       ),
@@ -102,8 +101,8 @@ export function SlipPanel({
 
   const slips = useQuery({
     queryKey: qk.resident.slips(invoiceId),
-    // CONTRACT-REQUEST #17 (docs/contract-requests.md).
-    queryFn: () => bffJson<{ data: SlipView[] }>(`/v1/resident/invoices/${encodeURIComponent(invoiceId)}/slips`),
+    queryFn: async () =>
+      unwrap(await browserApi.GET("/v1/resident/invoices/{invoiceId}/slips", { params: { path: { invoiceId } } })),
     enabled: Boolean(sent),
     retry: false,
     refetchInterval: (query) => {
@@ -148,8 +147,9 @@ export function SlipPanel({
               {t("account", {
                 bank: payment.account.bankNameTh,
                 name: payment.account.accountName,
-                account: payment.account.accountNoMasked,
+                account: payment.account.accountNo ?? payment.account.accountNoMasked,
               })}
+              {payment.account.accountNo ? <CopyAccount accountNo={payment.account.accountNo} /> : null}
             </p>
           ) : null}
           {camera ? (

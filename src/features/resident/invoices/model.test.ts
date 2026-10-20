@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { GENERATED_OPERATIONS } from "../../../../mocks/generated/operations";
-import type { InvoiceLineView, InvoiceView } from "@/lib/api/contract-requests";
+import type { InvoiceLineView, InvoiceView } from "@/lib/api/types";
 
 import {
   bangkokToday,
@@ -40,12 +40,16 @@ const meterExample = Object.fromEntries(
 
 describe("invoice model on the contract examples (L2 2.1)", () => {
   it("places every line in a group, in reading order: rent first, the meter line under meters", () => {
-    const lines = [{ ...meterExample, lineNo: 2, lineKind: "electricity" as const }, ...example.lines];
+    const lines = [
+      { ...meterExample, lineNo: 9, lineKind: "electricity" as const, sourceType: "meter" as const },
+      ...example.lines,
+    ];
     const groups = groupLines(lines);
     expect(groups.flatMap((g) => g.lines)).toHaveLength(lines.length);
     for (const { group, lines: inGroup } of groups) for (const line of inGroup) expect(lineGroup(line)).toBe(group);
-    expect(groups.map((g) => g.group)).toEqual(["rent", "meter"]);
-    expect(example.lines.filter(isMeterLine)).toHaveLength(0);
+    expect(groups[0]!.group).toBe("rent");
+    expect(groups.map((g) => g.group)).toContain("meter");
+    expect(lines.filter(isMeterLine).every((line) => line.sourceType === "meter")).toBe(true);
     expect(isMeterLine(meterExample)).toBe(true);
     expect(meterUnit(meterExample.unit)).toBe("kWh");
     expect(formatRate(meterExample.unitPrice!, "th")).toBe("7.00");
@@ -58,11 +62,9 @@ describe("invoice model on the contract examples (L2 2.1)", () => {
     expect(isZero(example.balance)).toBe(false);
   });
 
-  it("prefers the API's sourceType over the lineKind fallback (CONTRACT-REQUEST #15)", () => {
-    expect(lineGroup({ lineKind: "internet", sourceType: "common_fee" })).toBe("common_fee");
-    expect(lineGroup({ lineKind: "late_fee" })).toBe("penalty");
-    expect(lineGroup({ lineKind: "deposit_offset" })).toBe("deposit");
-    expect(lineGroup({ lineKind: "prior_balance" })).toBe("adjustment");
+  it("groups by the API's sourceType, whatever the line kind", () => {
+    expect(lineGroup({ sourceType: "common_fee" })).toBe("common_fee");
+    expect(lineGroup({ sourceType: "penalty" })).toBe("penalty");
   });
 });
 

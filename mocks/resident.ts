@@ -26,6 +26,7 @@ import {
 } from "./residence";
 import { UNIT_A, UNIT_B } from "./state";
 import { bangkokIso } from "./tokens";
+import { uploadedBy } from "./uploads";
 
 type Schemas = components["schemas"];
 
@@ -72,13 +73,21 @@ function leaseOf(residence: MockResidence, id: string | readonly string[] | unde
   return residence.leases.find((l) => l.dto.id === id);
 }
 
-/** The lease as the contract publishes it, plus the CONTRACT-REQUEST #7/#8 fields (mocks/contract-requests.ts). */
-export function leaseView(lease: MockLease): Schemas["ResidentLeaseDto"] & Record<string, unknown> {
+const RULE_CLAUSES = new Set(["house_rules", "pets", "smoking", "guests", "quiet_hours", "parking_rules", "waste"]);
+
+/**
+ * The lease as the API returns it: the earliest move-out date it accepts (today + 30 days, ข้อ 4 (11) — computed by
+ * the API, never by the app) and the rules acknowledgement, offered as `acknowledge-rules` while it is due.
+ */
+export function leaseView(lease: MockLease): Schemas["ResidentLeaseDto"] {
+  const hasRules = lease.dto.addendum.some((clause) => RULE_CLAUSES.has(clause.type));
+  const live = !["ended", "terminated", "cancelled"].includes(lease.dto.status);
+  const nextActions = lease.dto.nextActions.filter((a) => a !== "acknowledge-rules");
+  if (hasRules && live && !lease.rulesAcknowledgedAt) nextActions.push("acknowledge-rules");
   return {
     ...lease.dto,
-    // CONTRACT-REQUEST #7 — the earliest move-out date the API accepts (computed by the API, never here).
-    noticeEarliestDate: lease.dto.status === "active" ? earliestNoticeDate() : null,
-    // CONTRACT-REQUEST #8 — building rules acknowledgement.
+    nextActions,
+    noticeEarliestDate: lease.dto.nextActions.includes("give-notice") ? earliestNoticeDate() : null,
     rulesAcknowledgedAt: lease.rulesAcknowledgedAt,
   };
 }
@@ -269,7 +278,6 @@ export const residentHandlers: HttpHandler[] = [
       from: bangkokIso(from),
       to: bangkokIso(to),
       series: usageSeries(residence, from, to, bucket),
-      // CONTRACT-REQUEST #12 — the API's period totals and the billing-cycle estimate.
       summary: usageSummary(residence, from, to, bucket),
     });
   }),
@@ -321,9 +329,11 @@ export const residentHandlers: HttpHandler[] = [
     const body = await json<{ reason?: unknown; photoDocumentIds?: unknown }>(request);
     const reason = typeof body?.reason === "string" ? body.reason.trim() : "";
     if (reason.length < 3) return problem(op, "validation.failed");
-    // CONTRACT-REQUEST #9 — photos uploaded with POST /v1/resident/uploads.
+    // Photos uploaded with POST /v1/resident/uploads for this deposit, by me.
     const photos = Array.isArray(body?.photoDocumentIds) ? body.photoDocumentIds.map(String) : [];
-    if (photos.some((id) => !residence.uploads.get(id)?.done)) return problem(op, "validation.failed");
+    if (photos.length > 6 || !uploadedBy(auth.account.userId, photos, "deposit_dispute", deposit.id)) {
+      return problem(op, "validation.failed");
+    }
     if (!deposit.settlement || deposit.settlement.status !== "proposed") return problem(op, "deposit.invalid_state");
     deposit.status = "disputed";
     deposit.settlement = {
@@ -404,15 +414,76 @@ export const residentHandlers: HttpHandler[] = [
       { status: 201 },
     );
   }),
+
+  // ── lease rules acknowledgement, notification preferences, documents on file (A6, D-203) ──────────
+  http.post(mswPath("/v1/resident/leases/:leaseId/rules/acknowledge"), ({ request, params }) => {
+    const op = "resident.leases.acknowledgeRules";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const lease = residenceOf(auth.account).leases.find((l) => l.dto.id === params.leaseId);
+    if (!lease) return problem(op, "http.not_found");
+    const live = !["ended", "terminated", "cancelled"].includes(lease.dto.status);
+    const hasRules = lease.dto.addendum.some((clause) => RULE_CLAUSES.has(clause.type));
+    if (!live || !hasRules) return problem(op, "lease.invalid_state");
+    lease.rulesAcknowledgedAt ??= bangkokIso(Date.now());
+    return HttpResponse.json(leaseView(lease));
+  }),
+
+  http.get(mswPath("/v1/resident/me/notification-preferences"), ({ request }) => {
+    const auth = authenticate(request, "resident", "resident.notificationPreferences.get");
+    if (auth instanceof Response) return auth;
+    return HttpResponse.json({ items: residenceOf(auth.account).preferences });
+  }),
+
+  http.put(mswPath("/v1/resident/me/notification-preferences"), async ({ request }) => {
+    const op = "resident.notificationPreferences.update";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const residence = residenceOf(auth.account);
+    const body = await json<{ items?: { topic?: unknown; line?: unknown; sms?: unknown }[] }>(request);
+    if (!body || !Array.isArray(body.items)) return problem(op, "validation.failed");
+    for (const item of body.items) {
+      const current = residence.preferences.find((p) => p.topic === item.topic);
+      if (!current || typeof item.line !== "boolean" || typeof item.sms !== "boolean") {
+        return problem(op, "validation.failed");
+      }
+      if (current.locked && (!item.line || !item.sms)) return problem(op, "validation.failed");
+    }
+    for (const item of body.items) {
+      const current = residence.preferences.find((p) => p.topic === item.topic)!;
+      current.line = item.line as boolean;
+      current.sms = item.sms as boolean;
+    }
+    return HttpResponse.json({ items: residence.preferences });
+  }),
+
+  http.get(mswPath("/v1/resident/documents"), ({ request }) => {
+    const auth = authenticate(request, "resident", "resident.documents.list");
+    if (auth instanceof Response) return auth;
+    return HttpResponse.json(residenceOf(auth.account).documents);
+  }),
+
+  http.get(mswPath("/v1/resident/documents/:documentId/download"), ({ request, params }) => {
+    const op = "resident.documents.download";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const document = residenceOf(auth.account).documents.find((d) => d.id === params.documentId);
+    if (!document) return problem(op, "http.not_found");
+    return HttpResponse.json({
+      id: document.id,
+      title: document.title,
+      url: `https://storage.example.com/documents/${document.id}.pdf?X-Goog-Signature=mock`,
+      expiresAt: bangkokIso(Date.now() + 5 * 60_000),
+    });
+  }),
 ];
 
-/** The deposit as the contract publishes it, plus CONTRACT-REQUEST #9's move-in photos per deduction. */
+/** The deposit as the contract publishes it, with the move-in photos of each deducted item. */
 export function depositView(deposit: Schemas["ResidentDepositDto"]) {
   return {
     ...deposit,
     deductions: deposit.deductions.map((d) => ({
       ...d,
-      // CONTRACT-REQUEST #9 — photos of the same item at the move-in inspection.
       beforeEvidenceUrls: BEFORE_PHOTOS.get(d.id) ?? [],
     })),
   };

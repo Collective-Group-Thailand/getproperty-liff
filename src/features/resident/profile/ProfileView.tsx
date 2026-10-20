@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { formatDate, formatPhone } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { NotificationPreference, ResidentDocument } from "@/lib/api/contract-requests";
+import type { NotificationPreference, ResidentDocument } from "@/lib/api/types";
 import type { ResidentMe } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -18,8 +18,8 @@ import { SignOutButton } from "./SignOutButton";
 
 /**
  * The resident's profile (L3 3.3): name and phone as the office recorded them, the linked LINE account, language,
- * notification preferences (CONTRACT-REQUEST #10), documents on file (view only, CONTRACT-REQUEST #11), the way to
- * privacy (consents, PDPA requests) and sign-out. Sections whose endpoint the API does not offer yet say so.
+ * notification preferences, documents on file (view only), the way to privacy (consents, PDPA requests) and
+ * sign-out. A section whose data could not be loaded says so instead of failing the page.
  */
 export async function ProfileView({
   me,

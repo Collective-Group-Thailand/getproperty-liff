@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { bffJson } from "@/lib/api/browser";
+import { browserApi, unwrap } from "@/lib/api/browser";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -12,8 +12,8 @@ import { Callout } from "@/ui/components/Callout";
 import { Checkbox } from "@/ui/components/Checkbox";
 
 /**
- * Building rules acknowledgement (L3 3.1 §3): the resident ticks that they read the rules above and confirms.
- * CONTRACT-REQUEST #8: `POST /v1/resident/leases/{leaseId}/rules/acknowledge` is not in the contract yet.
+ * Building rules acknowledgement (L3 3.1 §3): the resident ticks that they read the rules above and confirms —
+ * `POST /v1/resident/leases/{leaseId}/rules/acknowledge` (audited by the API; repeating it changes nothing).
  */
 export function RulesAcknowledge({ leaseId, acknowledgedOn }: { leaseId: string; acknowledgedOn: string | null }) {
   const t = useTranslations("resident.lease.rules");
@@ -39,8 +39,11 @@ export function RulesAcknowledge({ leaseId, acknowledgedOn }: { leaseId: string;
         setBusy(true);
         setError(null);
         try {
-          // CONTRACT-REQUEST #8 (docs/contract-requests.md).
-          await bffJson(`/v1/resident/leases/${encodeURIComponent(leaseId)}/rules/acknowledge`, { method: "POST" });
+          unwrap(
+            await browserApi.POST("/v1/resident/leases/{leaseId}/rules/acknowledge", {
+              params: { path: { leaseId } },
+            }),
+          );
           router.refresh();
         } catch (caught) {
           if (!isApiError(caught)) throw caught;
