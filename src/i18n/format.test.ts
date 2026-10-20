@@ -1,3 +1,4 @@
+// copied from getproperty-web@7f6030b until collective-shared exists (D-155)
 import { describe, expect, it } from "vitest";
 
 import {
