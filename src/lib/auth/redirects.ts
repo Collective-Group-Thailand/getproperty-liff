@@ -15,6 +15,14 @@ export function signInPath(next: string, userAgent: string | null | undefined): 
   return target === "/" ? "/auth" : `/auth?next=${encodeURIComponent(target)}`;
 }
 
+/** Where a signed-out technician goes: LINE sign-in as a technician inside LINE, the technician sign-in page elsewhere. */
+export function technicianSignInPath(next: string, userAgent: string | null | undefined): string {
+  const safe = safeInternalPath(next);
+  const target = safe.startsWith("/technician") ? safe : "/technician";
+  if (isLineInAppBrowser(userAgent)) return `/liff?${LIFF_STATE_PARAM}=${encodeURIComponent(target)}`;
+  return `/technician/sign-in?next=${encodeURIComponent(target)}`;
+}
+
 export function consentPath(next: string): string {
   const target = safeInternalPath(next);
   return target === "/" ? "/consent" : `/consent?next=${encodeURIComponent(target)}`;

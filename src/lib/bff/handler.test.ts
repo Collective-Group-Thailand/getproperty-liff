@@ -120,7 +120,12 @@ describe("allow-list", () => {
       auth: false,
     });
     expect(routeFor("/auth/technician/line", true)).toMatchObject({ type: "exchange", kind: "technician" });
+    expect(routeFor("/auth/technician/refresh", true)).toMatchObject({ type: "refresh", kind: "technician" });
+    expect(routeFor("/v1/auth/technician/otp/verify", true)).toMatchObject({ type: "proxy", auth: false });
     expect(routeFor("/v1/owner/me", true)).toBeNull();
+    for (const path of ["/auth/technician/refresh", "/v1/technician/work-orders", "/v1/auth/technician/otp/verify"]) {
+      expect(routeFor(path, false), path).toBeNull();
+    }
   });
 
   it("answers a refused path with a 404 problem and never calls the API", async () => {

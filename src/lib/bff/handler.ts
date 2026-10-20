@@ -20,6 +20,8 @@ import { refreshRejected, refreshTokens } from "@/lib/auth/refresh";
  *   /bff/auth/logout                `/v1/auth/logout` for every session of this browser, cookies cleared
  *   /bff/auth/refresh               rotate the resident session now (POST) — after `/v1/resident/link` answers
  *                                   `refreshRequired`, so the new `lease:`/`unit:` scopes arrive (D-061)
+ *   /bff/auth/technician/refresh    rotate the technician session now (POST) — a work order assigned after sign-in
+ *                                   arrives with the next token's `work_order:` scopes (D-210)
  *
  * Rules: allow-list (`/v1/resident`, `/v1/auth/resident`; `/v1/technician`, `/v1/auth/technician` with the
  * technician flag) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
@@ -116,6 +118,7 @@ export function routeFor(pathname: string, technicianEnabled: boolean): Route | 
   }
   if (path === "/auth/logout") return { type: "logout" };
   if (path === "/auth/refresh") return { type: "refresh", kind: "resident" };
+  if (path === "/auth/technician/refresh") return technicianEnabled ? { type: "refresh", kind: "technician" } : null;
   if (RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: true };
   if (AUTH_RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: false };
   if (technicianEnabled && TECHNICIAN.test(path)) return { type: "proxy", path, kind: "technician", auth: true };

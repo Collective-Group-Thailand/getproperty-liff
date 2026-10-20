@@ -3,8 +3,8 @@ import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getActor } from "./actor";
-import { consentPath, PATHNAME_HEADER, signInPath } from "./redirects";
+import { getActor, getTechnician } from "./actor";
+import { consentPath, PATHNAME_HEADER, signInPath, technicianSignInPath } from "./redirects";
 
 /** The path of this request, as the proxy recorded it (layouts cannot read the URL). */
 export async function currentPath(): Promise<string> {
@@ -22,5 +22,16 @@ export async function requireResident(options: { consent?: boolean; path?: strin
   if (actor.status === "anonymous") redirect(signInPath(path, (await headers()).get("user-agent")));
   if (actor.status === "signed-in" && options.consent !== false && !actor.me.consentComplete)
     redirect(consentPath(path));
+  return actor;
+}
+
+/**
+ * Guard of the technician screens (L4 4.4 §3): a technician session of their own; a resident's session does not count
+ * (separate cookies and audience). Signed out → LINE sign-in inside LINE, `/technician/sign-in` elsewhere.
+ */
+export async function requireTechnician(options: { path?: string } = {}) {
+  const actor = await getTechnician();
+  const path = options.path ?? (await currentPath());
+  if (actor.status === "anonymous") redirect(technicianSignInPath(path, (await headers()).get("user-agent")));
   return actor;
 }
