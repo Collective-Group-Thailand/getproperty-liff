@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2493107 until collective-shared exists (D-155)
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +6,7 @@ import {
   formatDateTime,
   formatIsoDate,
   formatPercent,
+  formatPeriodKey,
   formatPhone,
   formatRelativeTime,
   formatTHB,
@@ -91,5 +92,13 @@ describe("formatPhone", () => {
     expect(formatPhone("+66812345678")).toBe("081-234-5678");
     expect(formatPhone("021234567")).toBe("02-123-4567");
     expect(formatPhone("12")).toBe("12");
+  });
+});
+
+describe("formatPeriodKey", () => {
+  it("renders a cut-off month in the reader's calendar", () => {
+    expect(formatPeriodKey("2026-10", "th")).toBe("ต.ค. 2569");
+    expect(formatPeriodKey("2026-10", "en")).toBe("Oct 2026");
+    expect(formatPeriodKey("not-a-key", "th")).toBe("not-a-key");
   });
 });

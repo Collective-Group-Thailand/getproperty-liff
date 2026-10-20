@@ -1,4 +1,4 @@
-// copied from getproperty-web@6a8ffcf until collective-shared exists (D-155) — adapted: only the components a resident app needs
+// copied from getproperty-web@2493107 until collective-shared exists (D-155) — adapted: only the components a resident app needs
 export { AlertDialog, type AlertDialogProps } from "./AlertDialog";
 export { AppShell, BottomNav, SidebarNav, TopBar, type AppShellProps, type NavItem } from "./AppShell";
 export { Badge, badgeVariants, StatusBadge, type BadgeProps, type StatusBadgeProps } from "./Badge";
@@ -9,6 +9,7 @@ export { CameraCapture, type CameraCaptureLabels, type CameraCaptureProps } from
 export { Card, CardHeader, type CardProps } from "./Card";
 export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { CountBadge } from "./CountBadge";
+export { DescriptionList, type DescriptionItem, type DescriptionListProps } from "./DescriptionList";
 export { Dialog, DialogClose, type DialogProps } from "./Dialog";
 export { DropdownMenu, type DropdownMenuProps, type MenuItem } from "./DropdownMenu";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
@@ -16,6 +17,7 @@ export { EnvBadge } from "./EnvBadge";
 export { ErrorState, type ErrorStateProps } from "./ErrorState";
 export { Field, FormSection, useFieldGroupProps, useFieldProps, type FieldProps } from "./Field";
 export { IconButton, type IconButtonProps } from "./IconButton";
+export { ImageViewer, type ImageViewerProps } from "./ImageViewer";
 export {
   controlVariants,
   Input,
@@ -26,6 +28,7 @@ export {
   type TextareaProps,
 } from "./Input";
 export { MoneyDisplay, type MoneyDisplayProps } from "./MoneyDisplay";
+export { NativeSelect, type NativeSelectOption, type NativeSelectProps } from "./NativeSelect";
 export { OTPInput, type OTPInputProps } from "./OTPInput";
 export { LazyAlertDialog, LazyDialog, LazyDropdownMenu, LazySheet } from "./overlays";
 export { PhoneInput, toE164, type PhoneInputProps } from "./PhoneInput";
@@ -35,7 +38,9 @@ export { Sheet, type SheetProps } from "./Sheet";
 export { SignaturePad, blobToBase64, type SignaturePadProps } from "./SignaturePad";
 export { Skeleton, SkeletonText } from "./Skeleton";
 export { Spinner, type SpinnerProps } from "./Spinner";
+export { SimpleTable, type SimpleColumn, type SimpleRow } from "./SimpleTable";
 export { Stat, type StatProps } from "./Stat";
+export { Switch, type SwitchProps } from "./Switch";
 export { Stepper, type StepperProps, type StepperStep } from "./Stepper";
 export { TabPanel, Tabs, type TabItem, type TabsProps } from "./Tabs";
 export { Timeline, type TimelineEvent } from "./Timeline";

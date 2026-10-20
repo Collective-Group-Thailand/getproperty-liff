@@ -1,4 +1,4 @@
-// copied from getproperty-web@4d107cc until collective-shared exists (D-155)
+// copied from getproperty-web@2493107 until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Checkbox } from "./Checkbox";

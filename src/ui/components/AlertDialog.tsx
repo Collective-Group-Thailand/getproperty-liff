@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2493107 until collective-shared exists (D-155)
 "use client";
 
 import { useId, useState } from "react";
@@ -34,6 +34,8 @@ export interface AlertDialogProps {
   confirmationPhrase?: string;
   /** Label for the typed-confirmation input, from `src/i18n` (it names the phrase to type). */
   confirmationLabel?: string;
+  /** Keeps the confirm button disabled while inputs inside the dialog (a reason, an amount) are incomplete. */
+  confirmDisabled?: boolean;
   children?: React.ReactNode;
 }
 
@@ -53,6 +55,7 @@ export function AlertDialog({
   loading = false,
   confirmationPhrase,
   confirmationLabel,
+  confirmDisabled = false,
   children,
 }: AlertDialogProps) {
   const returnFocus = useReturnFocus();
@@ -88,6 +91,7 @@ export function AlertDialog({
             onConfirm={onConfirm}
             tone={tone}
             loading={loading}
+            confirmDisabled={confirmDisabled}
           />
         </AlertDialogPrimitive.Content>
       </AlertDialogPrimitive.Portal>
@@ -103,9 +107,17 @@ function Confirmation({
   onConfirm,
   tone,
   loading,
+  confirmDisabled,
 }: Pick<
   AlertDialogProps,
-  "confirmationPhrase" | "confirmationLabel" | "confirmLabel" | "cancelLabel" | "onConfirm" | "tone" | "loading"
+  | "confirmationPhrase"
+  | "confirmationLabel"
+  | "confirmLabel"
+  | "cancelLabel"
+  | "onConfirm"
+  | "tone"
+  | "loading"
+  | "confirmDisabled"
 >) {
   const inputId = useId();
   const [typed, setTyped] = useState("");
@@ -147,7 +159,7 @@ function Confirmation({
         <Button
           variant={tone === "destructive" ? "destructive-solid" : "primary"}
           onClick={onConfirm}
-          disabled={locked}
+          disabled={locked || confirmDisabled}
           loading={loading}
         >
           {confirmLabel}

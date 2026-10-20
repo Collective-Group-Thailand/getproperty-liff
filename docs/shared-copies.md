@@ -50,6 +50,19 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 `Popover`, `RadioCards`, `Select`, `Switch`, `Tooltip`. The deposit dispute moved to the new `CameraCapture` API
 (`useCameraLabels`, `common.camera` copy as in getproperty-web's `staff.capture.camera`).
 
+**L4 (2026-10-20) — re-sync from getproperty-web's committed `2493107`** (`git archive 2493107` → `SHARED_SOURCE=…
+pnpm shared:check --strict`: 252 copies, 238 same, 14 adapted, 0 drift; the other session's uncommitted working-tree edits
+in getproperty-web never reach this repo): `AlertDialog` (`confirmDisabled`), `Checkbox` and `Switch` with `data-testid` on
+the control, `format.ts` (`formatDecimal`, `formatPeriodKey`) + test, and the new primitives the R2 screens use —
+**`SimpleTable`** (technician cost lines, own unlock log), **`NativeSelect`** (service category, facility, cost kind),
+**`ImageViewer`** (zoomable photo of a request / work order), **`DescriptionList`** (request, parcel and work-order facts),
+**`Switch`** — with their stories; the barrel exports them. Still not copied: `Chart` (usage keeps its own lazy SVG chart),
+`FileDropzone` (no drag-and-drop on a phone; `CameraCapture` + file input), `LinkTabs`, `Pagination` (lists load more),
+`BigActionButton`, `NumericKeypad`, `Combobox`, `DataTable`, `DatePicker`, `Popover`, `RadioCards`, `Select`, `Tooltip`.
+The Noto Sans Myanmar / Khmer / Lao / SC subsets (L4 4.3) are **owned here for now** (`src/fonts/scripts`, not in this
+manifest): getproperty-web's `src/ui/fonts` has no such subsets yet and this session may not edit getproperty-web —
+move them there (and back into this manifest as `binary` rows) when getproperty-web's console gains those locales.
+
 
 ## Design system — `src/ui`
 
@@ -62,7 +75,7 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/brand/config.ts` | verbatim | `08ff63b` |
 | `src/ui/brand/index.ts` | verbatim | `08ff63b` |
 | `src/ui/components/AlertDialog.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/AlertDialog.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/AlertDialog.tsx` | verbatim | `2493107` |
 | `src/ui/components/AppShell.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/AppShell.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Badge.stories.tsx` | verbatim | `f57d4dc` |
@@ -77,10 +90,12 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/components/CameraCapture.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/Checkbox.stories.tsx` | verbatim | `4d107cc` |
-| `src/ui/components/Checkbox.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Checkbox.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/Checkbox.tsx` | verbatim | `2493107` |
 | `src/ui/components/CountBadge.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/CountBadge.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/DescriptionList.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/DescriptionList.tsx` | verbatim | `2493107` |
 | `src/ui/components/Dialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Dialog.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/DropdownMenu.stories.tsx` | verbatim | `f57d4dc` |
@@ -95,9 +110,13 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/components/Field.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/IconButton.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/IconButton.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/ImageViewer.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/ImageViewer.tsx` | verbatim | `2493107` |
 | `src/ui/components/Input.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/MoneyDisplay.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/MoneyDisplay.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/NativeSelect.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/NativeSelect.tsx` | verbatim | `2493107` |
 | `src/ui/components/OTPInput.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/OTPInput.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.stories.tsx` | verbatim | `08ff63b` |
@@ -110,6 +129,8 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/SimpleTable.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/SimpleTable.tsx` | verbatim | `2493107` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
@@ -120,6 +141,8 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/components/Stat.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stepper.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Stepper.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/Switch.stories.tsx` | verbatim | `2493107` |
+| `src/ui/components/Switch.tsx` | verbatim | `2493107` |
 | `src/ui/components/Tabs.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Tabs.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Timeline.stories.tsx` | verbatim | `f57d4dc` |
@@ -128,7 +151,7 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 | `src/ui/components/Toast.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Toast.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ToastViewport.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/index.ts` | adapted | `6a8ffcf` |
+| `src/ui/components/index.ts` | adapted | `2493107` |
 | `src/ui/components/overlays.tsx` | adapted | `f57d4dc` |
 | `src/ui/docs/Principles.mdx` | adapted | `08ff63b` |
 | `src/ui/docs/Tokens.mdx` | verbatim | `08ff63b` |
@@ -186,8 +209,8 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 |---|---|---|
 | `src/domain/status/index.ts` | adapted | `f57d4dc` |
 | `src/domain/status/status.test.ts` | adapted | `f57d4dc` |
-| `src/i18n/format.test.ts` | verbatim | `08ff63b` |
-| `src/i18n/format.ts` | verbatim | `08ff63b` |
+| `src/i18n/format.test.ts` | verbatim | `2493107` |
+| `src/i18n/format.ts` | verbatim | `2493107` |
 
 ## App, scripts, lint rules, Storybook
 

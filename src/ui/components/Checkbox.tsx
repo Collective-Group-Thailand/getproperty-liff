@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@2493107 until collective-shared exists (D-155)
 "use client";
 
 import { useId } from "react";
@@ -20,6 +20,8 @@ export interface CheckboxProps {
   name?: string;
   value?: string;
   className?: string;
+  /** Test hook on the checkbox control itself (the button with `role="checkbox"`). */
+  "data-testid"?: string;
 }
 
 /** A checkbox with its label as one 44-px-tall target; `indeterminate` for a "select all" header. */
