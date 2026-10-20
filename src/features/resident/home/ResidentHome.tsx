@@ -40,10 +40,10 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "lease", href: "/lease", icon: IconLease, needs: "lease" },
   { key: "announcements", href: "/announcements", icon: IconAnnounce, needs: "announcements" },
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
-  // No `facilities` / `access` entitlement in the contract yet (CONTRACT-REQUEST #27): the community module stands
-  // for facilities; door codes, house rules and contacts follow the lease (D-071, D-073).
-  { key: "facilities", href: "/facilities", icon: IconCalendarCheck, needs: "announcements" },
-  { key: "access", href: "/access", icon: IconDoor, needs: "lease" },
+  // `facilities`: the community module with a bookable facility; `access`: smart access with a lock on my unit
+  // (D-218). House rules and contacts follow the lease (D-071, D-073).
+  { key: "facilities", href: "/facilities", icon: IconCalendarCheck, needs: "facilities" },
+  { key: "access", href: "/access", icon: IconDoor, needs: "access" },
   { key: "rules", href: "/rules", icon: IconRules, needs: "lease" },
   { key: "contacts", href: "/contacts", icon: IconContact, needs: "lease" },
 ];

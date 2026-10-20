@@ -1,4 +1,3 @@
-import type { RequestStatusEvent, ServiceRequestView } from "@/lib/api/contract-requests";
 import type { Schemas } from "@/lib/api/types";
 import type { Locale } from "@/i18n/routing";
 
@@ -71,15 +70,15 @@ export interface TimelineStep {
 }
 
 /**
- * The status history the page shows, oldest first. The API's workflow events when it sends them (CONTRACT-REQUEST
- * #22, D-159); otherwise the steps the request's own timestamps prove — reported (`createdAt`), done (`doneAt`),
- * closed or cancelled (`closedAt`) — plus the current status, so every `ServiceRequestStatus` renders. Nothing is
- * inferred beyond what the API returned.
+ * The status history the page shows, oldest first: the API's `events` (one per status change of the workflow,
+ * D-159, D-218). A request without a workflow instance has none — then the steps the request's own timestamps prove
+ * — reported (`createdAt`), done (`doneAt`), closed or cancelled (`closedAt`) — plus the current status, so every
+ * `ServiceRequestStatus` renders. Nothing is inferred beyond what the API returned.
  */
 export function timelineOf(
-  request: Pick<ServiceRequest, "status" | "createdAt" | "doneAt" | "closedAt"> & { events?: RequestStatusEvent[] },
+  request: Pick<ServiceRequest, "status" | "createdAt" | "doneAt" | "closedAt" | "events">,
 ): TimelineStep[] {
-  if (request.events?.length) return request.events.map((e) => ({ status: e.status, at: e.at }));
+  if (request.events.length) return request.events.map((e) => ({ status: e.status, at: e.at }));
   const steps: TimelineStep[] = [{ status: "new", at: request.createdAt }];
   if (request.doneAt) steps.push({ status: "done", at: request.doneAt });
   if (request.status === "closed" || request.status === "cancelled") {
@@ -90,13 +89,26 @@ export function timelineOf(
   return steps;
 }
 
-/** The photo links the API sent (CONTRACT-REQUEST #22), split into what the resident sent and the after photos. */
-export function photosOf(request: ServiceRequestView) {
-  const photos = request.photos ?? [];
+/**
+ * The request's photos as the API lists them (D-072, D-218): what the resident sent, then the technician's before
+ * and after photos of the work orders not cancelled. `url` is a 5-minute link, `null` while the file is not scanned
+ * clean.
+ */
+export function photosOf(request: Pick<ServiceRequest, "photos">) {
   return {
-    report: photos.filter((p) => p.role === "report"),
-    after: photos.filter((p) => p.role === "after"),
+    report: request.photos.filter((p) => p.role === "report"),
+    before: request.photos.filter((p) => p.role === "before"),
+    after: request.photos.filter((p) => p.role === "after"),
   };
+}
+
+/** The planned visit as the resident sees it: confirmable (`confirm-visit` offered), confirmed, or neither. */
+export function visitState(
+  request: Pick<ServiceRequest, "visitAt" | "visitConfirmedAt" | "nextActions">,
+): "none" | "confirm" | "confirmed" | "planned" {
+  if (!request.visitAt) return "none";
+  if (request.nextActions.includes("confirm-visit")) return "confirm";
+  return request.visitConfirmedAt ? "confirmed" : "planned";
 }
 
 export const MAX_REQUEST_PHOTOS = 10;

@@ -1,8 +1,8 @@
 /**
  * MSW handlers for the contract operations this app uses (resident, technician and their auth). Stateful where
  * a flow needs it (sign-in, refresh rotation, consents); every other operation answers with the contract's
- * example. Bodies come from `mocks/generated` (`pnpm gen:api`); endpoints the contract lacks live in
- * `mocks/contract-requests.ts`, marked `// CONTRACT-REQUEST`.
+ * example. Bodies come from `mocks/generated` (`pnpm gen:api`). An endpoint the contract lacks would be mocked by
+ * hand in a `mocks/contract-requests.ts` (each handler marked as a contract request) — none since api `18b160e`.
  */
 import { http, HttpResponse, type HttpHandler } from "msw";
 
@@ -34,11 +34,21 @@ export const OTP_EXPIRED_CODE = "000000";
 const OTP_MAX_ATTEMPTS = 5;
 
 /**
- * Resident menu entitlements of the mock (`ResidentMeDto.entitlements`); `…manual…` accounts have no IoT usage and
- * `…nocommunity…` ones a tenant without the R2 modules (service requests, announcements, parcels).
+ * Resident menu entitlements of the mock (`ResidentMeDto.entitlements`); `…manual…` accounts have no IoT usage,
+ * `…nocommunity…` ones a tenant without the R2 modules (service requests, announcements, parcels, facilities) and
+ * `…nolocks…` ones no smart lock on their unit (no `access`, D-218).
  */
-export const MOCK_ENTITLEMENTS = ["bills", "usage", "lease", "service_requests", "announcements", "parcels"] as const;
-const R2_MODULES = new Set<string>(["service_requests", "announcements", "parcels"]);
+export const MOCK_ENTITLEMENTS = [
+  "bills",
+  "usage",
+  "lease",
+  "service_requests",
+  "announcements",
+  "parcels",
+  "facilities",
+  "access",
+] as const;
+const R2_MODULES = new Set<string>(["service_requests", "announcements", "parcels", "facilities", "access"]);
 
 function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
   const base = example<Schemas["TokenPairDto"]>("auth.residentLine.exchange");
@@ -120,9 +130,9 @@ export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
       language: account.language,
       lineLinked: account.lineLinked,
     },
-    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot").filter(
-      (e) => !R2_MODULES.has(e) || !account.subject.toLowerCase().includes("nocommunity"),
-    ),
+    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot")
+      .filter((e) => !R2_MODULES.has(e) || !account.subject.toLowerCase().includes("nocommunity"))
+      .filter((e) => e !== "access" || !account.subject.toLowerCase().includes("nolocks")),
   };
 }
 

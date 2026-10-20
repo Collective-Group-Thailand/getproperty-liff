@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
-import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
+import { browserApi, unwrap } from "@/lib/api/browser";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -100,7 +100,10 @@ export function CancelRequest({ serviceRequestId }: { serviceRequestId: string }
   );
 }
 
-/** CONTRACT-REQUEST #24 — the resident confirms the planned visit (`confirm-visit` in `nextActions`). */
+/**
+ * The resident confirms the planned visit (`confirm-visit` in `nextActions`, D-218) — the technician is told on
+ * LINE. A visit the office moves later is offered again.
+ */
 export function ConfirmVisit({ serviceRequestId }: { serviceRequestId: string }) {
   const t = useTranslations("resident.requests.detail");
   const { busy, error, run } = useRun();
@@ -115,11 +118,12 @@ export function ConfirmVisit({ serviceRequestId }: { serviceRequestId: string })
         data-testid="request-confirm-visit"
         onClick={() =>
           void run(
-            () =>
-              // CONTRACT-REQUEST #24 (docs/contract-requests.md).
-              bffJson(`/v1/resident/service-requests/${encodeURIComponent(serviceRequestId)}/actions/confirm-visit`, {
-                method: "POST",
-              }),
+            async () =>
+              unwrap(
+                await browserApi.POST("/v1/resident/service-requests/{serviceRequestId}/actions/confirm-visit", {
+                  params: { path: { serviceRequestId } },
+                }),
+              ),
             t("visitConfirmedToast"),
           )
         }

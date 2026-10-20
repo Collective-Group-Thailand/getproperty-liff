@@ -23,11 +23,38 @@ export function queriesFor(type: string): readonly (readonly string[])[] {
  * (`router.refresh()`), keeping client state such as a half-written message. Prefixes; `/` is the home page only.
  */
 export function routesFor(type: string): readonly string[] {
+  // A new message re-reads only the open thread (`onRealtime`), not the whole page.
+  if (type === MESSAGE_EVENT) return [];
   if (type.startsWith("service_request.")) return ["/requests", "/"];
   if (type.startsWith("parcel.")) return ["/parcels", "/"];
   if (type === "facility_booking.changed") return ["/facilities"];
   if (type.startsWith("access.credential_")) return ["/access"];
   return [];
+}
+
+/** A message on a request's thread (D-218): the resident, the office or the technician wrote. */
+export const MESSAGE_EVENT = "service_request.message";
+
+/**
+ * Realtime events reach client components that keep their own state (the request thread) as a window event, so
+ * the stream stays in one place (`RealtimeBridge`) and nothing else opens a connection.
+ */
+export const REALTIME_DOM_EVENT = "gp:realtime";
+export interface RealtimeSignal {
+  type: string;
+}
+
+export function signalRealtime(type: string, target: EventTarget = window): void {
+  target.dispatchEvent(new CustomEvent<RealtimeSignal>(REALTIME_DOM_EVENT, { detail: { type } }));
+}
+
+/** Subscribes to realtime events of one type; returns the unsubscribe function. */
+export function onRealtime(type: string, listener: () => void, target: EventTarget = window): () => void {
+  const handler = (event: Event) => {
+    if ((event as CustomEvent<RealtimeSignal>).detail?.type === type) listener();
+  };
+  target.addEventListener(REALTIME_DOM_EVENT, handler);
+  return () => target.removeEventListener(REALTIME_DOM_EVENT, handler);
 }
 
 /** True when the current path is one of `routes` (`/` matches home only; others match the path and below). */

@@ -2,8 +2,8 @@ import type { components, paths } from "./schema";
 
 /**
  * Names for the generated contract types (`schema.d.ts`, `pnpm gen:api`). Nothing here describes a shape the
- * contract does not publish — fields this app needs and the contract lacks are listed in
- * `docs/contract-requests.md` and marked `CONTRACT-REQUEST` where they are read.
+ * contract does not publish — a field this app needs and the contract lacks goes to `docs/contract-requests.md`
+ * (with a mock marked `CONTRACT-REQUEST` where it is read) until the API ships it.
  */
 export type Schemas = components["schemas"];
 export type ApiPaths = paths;
@@ -39,6 +39,8 @@ export const RESIDENT_ENTITLEMENTS = [
   "lease",
   "announcements",
   "parcels",
+  "facilities",
+  "access",
 ] as const satisfies readonly ResidentEntitlement[];
 
 /** `/v1/resident/me` as this app reads it. */
@@ -103,3 +105,22 @@ export type InvoiceView = ResidentInvoice;
 export type SlipReason = Schemas["SlipReason"];
 export type SlipView = Schemas["ResidentSlipOutcomeDto"];
 export type ReceiptView = Schemas["ResidentReceiptDetailDto"];
+
+// Closed contract requests #22–#28 (getproperty-api F6, D-218; adopted at 18b160e).
+export type ServicePhoto = Schemas["ServicePhotoDto"];
+export type ServiceStatusEvent = Schemas["ServiceStatusEventDto"];
+export type ServiceSla = Schemas["ServiceSlaDto"];
+export type ServiceMessage = Schemas["ServiceMessageDto"];
+export type ServiceMessages = Schemas["ServiceMessagesDto"];
+export type VisitPreference = Schemas["VisitPreference"];
+/** Every `VisitPreference`, in the order the form offers them (`anytime` first, the default). */
+export const VISIT_PREFERENCES = [
+  "anytime",
+  "morning",
+  "afternoon",
+  "evening",
+] as const satisfies readonly VisitPreference[];
+export type VisitorPolicy = Schemas["VisitorPolicyDto"];
+export type VisitorCodeCreate = Schemas["ResidentVisitorCodeCreateDto"];
+export type IssuedCredential = Schemas["IssuedCredentialDto"];
+export type RevealedCredentials = Schemas["RevealedCredentialsDto"];

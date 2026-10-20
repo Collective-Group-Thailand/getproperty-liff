@@ -28,6 +28,7 @@
   "photo": {
     "zoomIn": "放大",
     "zoomOut": "缩小",
-    "zoom": "缩放 {percent}%"
+    "zoom": "缩放 {percent}%",
+    "scanning": "照片检查中"
   }
 }

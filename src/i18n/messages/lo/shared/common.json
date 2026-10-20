@@ -28,6 +28,7 @@
   "photo": {
     "zoomIn": "ຂະຫຍາຍ",
     "zoomOut": "ຫຍໍ້",
-    "zoom": "ຂະຫຍາຍ {percent}%"
+    "zoom": "ຂະຫຍາຍ {percent}%",
+    "scanning": "ກຳລັງກວດຮູບ"
   }
 }

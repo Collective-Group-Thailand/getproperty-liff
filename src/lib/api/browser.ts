@@ -48,8 +48,8 @@ export function unwrap<T>(result: { data?: T; error?: unknown; response: Respons
 }
 
 /**
- * A BFF call outside the typed client — for this app's own BFF routes (`/bff/auth/refresh`) and, should one be
- * needed again, an endpoint the contract does not publish yet (marked `CONTRACT-REQUEST`, docs/contract-requests.md).
+ * A BFF call outside the typed client — for this app's own BFF routes (`/bff/auth/refresh`,
+ * `/bff/auth/technician/refresh`). API operations always go through the typed `browserApi`.
  */
 export async function bffJson<T>(
   path: string,

@@ -11,7 +11,6 @@ import { getResponse } from "msw";
 import { findOperation, problem, problemResponse } from "./contract";
 import { billingHandlers } from "./billing";
 import { communityHandlers } from "./community";
-import { contractRequestHandlers } from "./contract-requests";
 import { contractHandlers, exampleHandlers } from "./handlers";
 import { residentHandlers } from "./resident";
 import { serviceHandlers } from "./service";
@@ -22,7 +21,6 @@ const handlers = [
   ...uploadHandlers,
   ...serviceHandlers,
   ...communityHandlers,
-  ...contractRequestHandlers,
   ...residentHandlers,
   ...contractHandlers,
   ...exampleHandlers,
@@ -54,6 +52,6 @@ export async function handleMockRequest(request: Request): Promise<Response> {
     title: "Not Found",
     status: 404,
     code: "http.not_found",
-    detail: `No mock for ${request.method} ${url.pathname} (not in the contract or contract-requests)`,
+    detail: `No mock for ${request.method} ${url.pathname} (not in the contract)`,
   });
 }

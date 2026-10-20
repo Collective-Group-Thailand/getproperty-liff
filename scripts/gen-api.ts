@@ -235,7 +235,7 @@ async function renderMocks(rows: OperationRow[], lock: ContractLock): Promise<st
 /**
  * Every operation this app uses with the contract's own success example and every documented problem (code,
  * status, example body) — the raw material of the MSW handlers in \`mocks/handlers.ts\`. Nothing here is
- * invented: endpoints the contract lacks are mocked by hand in \`mocks/contract-requests.ts\`.
+ * invented: an endpoint the contract lacks is requested in \`docs/contract-requests.md\` and mocked by hand.
  */
 export interface GeneratedProblem {
   status: number;

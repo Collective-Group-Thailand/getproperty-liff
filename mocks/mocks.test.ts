@@ -408,3 +408,172 @@ describe("L2 billing mocks follow the contract", () => {
     ).toMatchObject({ code: "invoice.nothing_due" });
   });
 });
+
+describe("contract requests #22–#28 as the API ships them (D-218)", () => {
+  type Dto = Record<string, unknown> & { id: string; nextActions: string[] };
+  const KEY = () => crypto.randomUUID();
+
+  async function openRequest(b: ReturnType<typeof browser>): Promise<Dto> {
+    const list = await b.call("GET", "/v1/resident/service-requests");
+    const items = (list.body as { data: Dto[] }).data;
+    return items.find((r) => r.status === "assigned")!;
+  }
+
+  it("#22/#24: every request answer carries photos, history, SLA, preferred visit and the visit confirmation", async () => {
+    const b = browser();
+    await b.signIn("Umock-d218-request-1");
+    const open = await openRequest(b);
+    expect(open).toMatchObject({ preferredVisit: "afternoon", visitConfirmedAt: null, sla: { state: "on_track" } });
+    expect((open.events as { status: string }[]).map((e) => e.status)).toEqual(["new", "triaged", "assigned"]);
+    expect(open.nextActions).toContain("confirm-visit");
+
+    const confirmed = await b.call("POST", `/v1/resident/service-requests/${open.id}/actions/confirm-visit`);
+    expect(confirmed.status).toBe(200);
+    expect(confirmed.body).toMatchObject({ visitConfirmedAt: expect.any(String) });
+    expect((confirmed.body as Dto).nextActions).not.toContain("confirm-visit");
+    expect((await b.call("POST", `/v1/resident/service-requests/${open.id}/actions/confirm-visit`)).body).toMatchObject(
+      { code: "service_request.invalid_state" },
+    );
+
+    // The office moves the visit: the confirmation no longer counts and is asked again.
+    const moved = await b.call("POST", `/v1/resident/__mock/service-requests/${open.id}/reschedule`, { hours: 24 });
+    expect(moved.body).toMatchObject({ visitConfirmedAt: null });
+    expect((moved.body as Dto).visitAt).not.toBe(open.visitAt);
+    expect((moved.body as Dto).nextActions).toContain("confirm-visit");
+  });
+
+  it("#24: takes preferredVisit on create (and refuses a value outside VisitPreference)", async () => {
+    const b = browser();
+    await b.signIn("Umock-d218-create-2");
+    const me = (await b.call("GET", "/v1/resident/me")).body as { units: { unitId: string }[] };
+    const unitId = me.units[0]!.unitId;
+    const categories = (await b.call("GET", `/v1/resident/service-categories?unitId=${unitId}`)).body as {
+      data: { id: string }[];
+    };
+    const body = {
+      unitId,
+      categoryId: categories.data[0]!.id,
+      description: "ไฟห้องน้ำไม่ติด",
+      preferredVisit: "evening",
+    };
+    const created = await b.call("POST", "/v1/resident/service-requests", body, { "idempotency-key": KEY() });
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({ preferredVisit: "evening", description: "ไฟห้องน้ำไม่ติด", sla: {} });
+    const refused = await b.call("POST", "/v1/resident/service-requests", { ...body, preferredVisit: "night" });
+    expect(refused.body).toMatchObject({ code: "validation.failed" });
+  });
+
+  it("#23: one thread shared by the resident and the technician, replayed per Idempotency-Key", async () => {
+    const resident = browser();
+    await resident.signIn("Umock-d218-thread-3");
+    const open = await openRequest(resident);
+    const path = `/v1/resident/service-requests/${open.id}/messages`;
+    const key = KEY();
+    const posted = await resident.call("POST", path, { body: "สะดวกช่วงบ่ายค่ะ" }, { "idempotency-key": key });
+    expect(posted.status).toBe(201);
+    expect(posted.body).toMatchObject({ author: "resident", body: "สะดวกช่วงบ่ายค่ะ", mine: true });
+    const again = await resident.call("POST", path, { body: "สะดวกช่วงบ่ายค่ะ" }, { "idempotency-key": key });
+    expect((again.body as Dto).id).toBe((posted.body as Dto).id);
+    expect((await resident.call("POST", path, { body: "x".repeat(2001) })).body).toMatchObject({
+      code: "validation.failed",
+    });
+    const thread = (await resident.call("GET", path)).body as { data: { author: string; mine: boolean }[] };
+    expect(thread.data.map((m) => [m.author, m.mine])).toEqual([
+      ["office", false],
+      ["resident", true],
+    ]);
+
+    // The office assigns a technician (mock control), who writes on the same thread.
+    const assigned = await resident.call("POST", `/v1/resident/__mock/service-requests/${open.id}/assign`, {
+      technician: "Umock-d218-tech-3",
+    });
+    const workOrderId = (assigned.body as { workOrderId: string }).workOrderId;
+    const tech = browser(true);
+    await tech.call("POST", "/auth/technician/line", {
+      idToken: fakeLineIdToken({ sub: "Umock-d218-tech-3", name: "ช่าง" }),
+    });
+    const reply = await tech.call("POST", `/v1/technician/work-orders/${workOrderId}/messages`, {
+      body: "พรุ่งนี้ 10 โมง",
+    });
+    expect(reply.status).toBe(201);
+    expect(reply.body).toMatchObject({ author: "technician", mine: true });
+    const seen = (await resident.call("GET", path)).body as { data: { author: string }[] };
+    expect(seen.data.at(-1)).toMatchObject({ author: "technician", mine: false, body: "พรุ่งนี้ 10 โมง" });
+  });
+
+  it("#25: the technician's work order carries photo links, the preferred visit and the rating", async () => {
+    const tech = browser(true);
+    await tech.call("POST", "/auth/technician/line", { idToken: fakeLineIdToken({ sub: "Umock-tech-d218-4" }) });
+    const list = (await tech.call("GET", "/v1/technician/work-orders")).body as { data: Dto[] };
+    const leak = list.data[0]!;
+    const detail = (await tech.call("GET", `/v1/technician/work-orders/${leak.id}`)).body as Dto & {
+      photos: { role: string; url: string | null }[];
+    };
+    expect(detail.photos).toEqual([{ id: expect.any(String), role: "report", url: expect.any(String) }]);
+    expect(detail).toMatchObject({ rating: null, ratingComment: null, preferredVisit: null });
+  });
+
+  it("#26: visitor codes within the operator's policy, Idempotency-Key required", async () => {
+    const b = browser();
+    await b.signIn("Umock-d218-visitor-5");
+    const creds = (await b.call("GET", "/v1/resident/access/credentials")).body as { visitorPolicy: object };
+    expect(creds.visitorPolicy).toEqual({ allowed: true, maxHours: 12 });
+    const me = (await b.call("GET", "/v1/resident/me")).body as { units: { unitId: string }[] };
+    const now = Date.now();
+    const body = {
+      unitId: me.units[0]!.unitId,
+      visitorName: "คุณแม่",
+      validFrom: new Date(now).toISOString(),
+      validTo: new Date(now + 4 * 3_600_000).toISOString(),
+    };
+    expect((await b.call("POST", "/v1/resident/access/visitor-codes", body)).body).toMatchObject({
+      code: "idempotency.key_required",
+    });
+    const key = KEY();
+    const created = await b.call("POST", "/v1/resident/access/visitor-codes", body, { "idempotency-key": key });
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({
+      holderKind: "visitor",
+      holderName: "คุณแม่",
+      pin: expect.stringMatching(/^\d{6}$/),
+    });
+    const replay = await b.call("POST", "/v1/resident/access/visitor-codes", body, { "idempotency-key": key });
+    expect((replay.body as Dto).pin).toBe((created.body as Dto).pin);
+    const tooLong = { ...body, validTo: new Date(now + 13 * 3_600_000).toISOString() };
+    expect(
+      (await b.call("POST", "/v1/resident/access/visitor-codes", tooLong, { "idempotency-key": KEY() })).body,
+    ).toMatchObject({ code: "validation.failed" });
+
+    const off = browser();
+    await off.signIn("Umock-d218-novisitor-6");
+    expect(
+      ((await off.call("GET", "/v1/resident/access/credentials")).body as { visitorPolicy: object }).visitorPolicy,
+    ).toEqual({ allowed: false, maxHours: 0 });
+    const offMe = (await off.call("GET", "/v1/resident/me")).body as { units: { unitId: string }[] };
+    const refused = await off.call(
+      "POST",
+      "/v1/resident/access/visitor-codes",
+      { ...body, unitId: offMe.units[0]!.unitId },
+      { "idempotency-key": KEY() },
+    );
+    expect(refused.status).toBe(403);
+    expect(refused.body).toMatchObject({ code: "access.visitor_codes_disabled" });
+  });
+
+  it("#27: facilities and access entitlements (access only with a lock on my unit)", async () => {
+    const b = browser();
+    await b.signIn("Umock-d218-entitled-7");
+    expect((await b.call("GET", "/v1/resident/me")).body).toMatchObject({
+      entitlements: expect.arrayContaining(["facilities", "access"]),
+    });
+    const noLocks = browser();
+    await noLocks.signIn("Umock-d218-nolocks-8");
+    const me = (await noLocks.call("GET", "/v1/resident/me")).body as { entitlements: string[] };
+    expect(me.entitlements).toContain("facilities");
+    expect(me.entitlements).not.toContain("access");
+    const noCommunity = browser();
+    await noCommunity.signIn("Umock-d218-nocommunity-9");
+    const bare = (await noCommunity.call("GET", "/v1/resident/me")).body as { entitlements: string[] };
+    expect(bare.entitlements).not.toContain("facilities");
+  });
+});

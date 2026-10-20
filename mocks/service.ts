@@ -13,8 +13,15 @@
  *   …warranty…            a new request lands `inWarranty` (referred to the developer, D-153)
  *   (technician) …tech…   two work orders assigned to me (today and tomorrow) on another resident's requests
  *
- * Mock-only control (never in the contract, never in a real build): `POST /v1/resident/__mock/service-requests/{id}/assign
- * { technician: "<LINE sub>" }` plays the owner — triage + a work order assigned to that technician (L4 e2e).
+ * Requests carry their photo links (`url: null` for a file not yet uploaded — the API's "not scanned clean"), status
+ * history, SLA (`paused` while referred to the warranty, `breached` kept, `none` once done), preferred visit and
+ * visit confirmation (D-218, getproperty-api `slaView` / `visitConfirmation`); one thread per request shared by the
+ * resident, the office and the technician (`service_request.message` down the realtime stream).
+ *
+ * Mock-only controls (never in the contract, never in a real build): `POST /v1/resident/__mock/service-requests/{id}/assign
+ * { technician: "<LINE sub>" }` plays the owner — triage + a work order assigned to that technician (L4 e2e);
+ * `…/reschedule { hours }` moves the planned visit (the confirmation is asked again); `…/office-message { body }`
+ * is the office writing on the thread.
  */
 import { createHash } from "node:crypto";
 
@@ -32,6 +39,16 @@ type Schemas = components["schemas"];
 type Request_ = Schemas["ResidentServiceRequestDto"];
 type WorkOrder = Schemas["TechnicianWorkOrderDto"];
 type Status = Schemas["ServiceRequestStatus"];
+type Author = Schemas["ServiceMessageAuthor"];
+
+interface MockMessage {
+  id: string;
+  authorUserId: string | null;
+  author: Author;
+  authorName: string;
+  body: string;
+  at: string;
+}
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -79,14 +96,18 @@ export interface MockRequest {
   buildingName: string;
   events: { status: Status; at: string }[];
   slaHours: number;
-  visitConfirmedAt: string | null;
-  messages: { id: string; authorUserId: string | null; author: string; authorName: string; body: string; at: string }[];
+  /** When the resident confirmed, and the visit start they confirmed (a moved visit asks again). */
+  visitConfirmed: { at: string; for: string } | null;
+  slaBreached: boolean;
+  messages: MockMessage[];
 }
 
 export interface MockWorkOrder {
   dto: WorkOrder;
   assigneeUserId: string;
   waitingParts: boolean;
+  /** The office ↔ technician thread of a work order without a request. */
+  messages: MockMessage[];
 }
 
 interface ServiceStore {
@@ -128,7 +149,13 @@ export function mockSeedId(subject: string, kind: "request" | "work-order", slot
 function newRequest(
   account: MockAccount,
   unit: typeof UNIT_A,
-  fields: { categoryKey: string; description: string; priority: Schemas["ServicePriority"]; photoIds: string[] },
+  fields: {
+    categoryKey: string;
+    description: string;
+    priority: Schemas["ServicePriority"];
+    photoIds: string[];
+    preferredVisit?: Schemas["VisitPreference"] | null;
+  },
   at: number,
   id: string = crypto.randomUUID(),
 ): MockRequest {
@@ -141,7 +168,8 @@ function newRequest(
     buildingName: unit.buildingName,
     events: [{ status: "new", at: bangkokIso(at) }],
     slaHours: cat.slaHours,
-    visitConfirmedAt: null,
+    visitConfirmed: null,
+    slaBreached: false,
     messages: [],
     dto: {
       ...example<Request_>("resident.serviceRequests.get"),
@@ -151,6 +179,11 @@ function newRequest(
       description: fields.description,
       priority: fields.priority,
       photoIds: fields.photoIds,
+      photos: [],
+      events: [],
+      sla: null,
+      preferredVisit: fields.preferredVisit ?? null,
+      visitConfirmedAt: null,
       status: "new",
       createdAt: bangkokIso(at),
       doneAt: null,
@@ -185,6 +218,7 @@ export function assignToTechnician(
   const workOrder: MockWorkOrder = {
     assigneeUserId: technician.userId,
     waitingParts: false,
+    messages: [],
     dto: {
       ...base,
       id,
@@ -196,6 +230,10 @@ export function assignToTechnician(
       afterPhotoIds: [],
       categoryKey: request.dto.category.key,
       priority: request.dto.priority,
+      preferredVisit: request.dto.preferredVisit,
+      photos: [],
+      rating: null,
+      ratingComment: null,
       status: "assigned",
       assignedAt: bangkokIso(now),
       acceptedAt: null,
@@ -222,7 +260,7 @@ export function assignToTechnician(
   };
   workOrder.dto.nextActions = technicianActions(workOrder);
   service.workOrders.set(workOrder.dto.id, workOrder);
-  request.dto.visitAt = workOrder.dto.scheduledAt;
+  request.dto.visitAt = plannedVisitOf(request);
   setStatus(request, "assigned", now);
   return workOrder;
 }
@@ -292,18 +330,24 @@ function seedResident(account: MockAccount): void {
   const open = newRequest(
     account,
     unit,
-    { categoryKey: "plumbing", description: "ก๊อกน้ำอ่างล้างหน้ารั่ว", priority: "normal", photoIds: [] },
-    now - DAY,
+    {
+      categoryKey: "plumbing",
+      description: "ก๊อกน้ำอ่างล้างหน้ารั่ว",
+      priority: "normal",
+      photoIds: [],
+      preferredVisit: "afternoon",
+    },
+    now - 8 * HOUR,
     mockSeedId(account.subject, "request", "open"),
   );
-  assignToTechnician(open, crew, now + 6 * HOUR, now - 20 * HOUR);
+  assignToTechnician(open, crew, now + 6 * HOUR, now - 7 * HOUR);
   open.messages.push({
     id: crypto.randomUUID(),
     authorUserId: null,
     author: "office",
     authorName: UNIT_A.tenantName,
     body: "รับเรื่องแล้วค่ะ ช่างจะเข้าไปตามเวลานัด",
-    at: bangkokIso(now - 20 * HOUR),
+    at: bangkokIso(now - 7 * HOUR),
   });
 }
 
@@ -357,71 +401,167 @@ function seedTechnician(account: MockAccount): void {
   second.dto.nextActions = technicianActions(second);
 }
 
-/** CONTRACT-REQUEST #22 / #24 — the request with its photo links, status history, SLA and visit confirmation. */
-export function requestView(request: MockRequest) {
-  const photos = [
-    ...request.dto.photoIds.map((id, index) => ({
-      id,
-      role: "report" as const,
-      url: mockPhoto(`แจ้งซ่อม ${index + 1}`),
-    })),
-    ...[...service.workOrders.values()]
-      .filter((wo) => wo.dto.serviceRequestId === request.dto.id)
-      .flatMap((wo) =>
-        wo.dto.afterPhotoIds.map((id, index) => ({
-          id,
-          role: "after" as const,
-          url: mockPhoto(`หลังซ่อม ${index + 1}`, 140),
-        })),
-      ),
-  ];
-  const open = ["new", "triaged", "assigned", "in_progress"].includes(request.dto.status);
+function workOrdersOf(request: MockRequest): MockWorkOrder[] {
+  return [...service.workOrders.values()].filter((wo) => wo.dto.serviceRequestId === request.dto.id);
+}
+
+/** The planned visit: the earliest scheduled work order that is not cancelled (getproperty-api `plannedVisit`). */
+function plannedVisitOf(request: MockRequest): string | null {
+  const visits = workOrdersOf(request)
+    .filter((wo) => wo.dto.scheduledAt && wo.dto.status !== "cancelled")
+    .map((wo) => wo.dto.scheduledAt!)
+    .sort((x, y) => Date.parse(x) - Date.parse(y));
+  return visits[0] ?? null;
+}
+
+/** A photo link the way the API answers it: a link once the file is uploaded, `null` before (not scanned clean). */
+function photoLink(role: Schemas["ServicePhotoRole"], label: string, hue: number) {
+  return (id: string, index: number): Schemas["ServicePhotoDto"] => ({
+    id,
+    role,
+    url: uploads.get(id)?.done === false ? null : mockPhoto(`${label} ${index + 1}`, hue),
+  });
+}
+
+/** Whether the planned visit waits for the resident's confirmation (getproperty-api `visitConfirmation`). */
+function visitOf(request: MockRequest): { confirmedAt: string | null; due: boolean } {
+  const visitAt = plannedVisitOf(request);
+  const visit = workOrdersOf(request).find((wo) => wo.dto.scheduledAt === visitAt && wo.dto.status !== "cancelled");
+  const confirmedAt =
+    visitAt && request.visitConfirmed && Date.parse(request.visitConfirmed.for) === Date.parse(visitAt)
+      ? request.visitConfirmed.at
+      : null;
+  return { confirmedAt, due: !!visit && !confirmedAt && ["assigned", "accepted"].includes(visit.dto.status) };
+}
+
+/** The SLA as the resident sees it (getproperty-api `slaView`). */
+function slaOf(request: MockRequest, now = Date.now()): Schemas["ServiceSlaDto"] {
   const dueAt = Date.parse(request.dto.createdAt) + request.slaHours * HOUR;
-  const nextActions = [...request.dto.nextActions];
-  if (request.dto.visitAt && !request.visitConfirmedAt && ["assigned"].includes(request.dto.status)) {
-    nextActions.push("confirm-visit");
+  if (request.slaBreached) return { dueAt: bangkokIso(dueAt), state: "breached" };
+  if (request.dto.inWarranty && isOpen(request.dto.status)) return { dueAt: null, state: "paused" };
+  if (!isOpen(request.dto.status)) return { dueAt: null, state: "none" };
+  if (dueAt <= now) {
+    request.slaBreached = true;
+    return { dueAt: bangkokIso(dueAt), state: "breached" };
   }
+  return { dueAt: bangkokIso(dueAt), state: dueAt - now <= 2 * HOUR ? "at_risk" : "on_track" };
+}
+
+function isOpen(status: Status): boolean {
+  return ["new", "triaged", "assigned", "in_progress", "waiting_parts"].includes(status);
+}
+
+/** `ResidentServiceRequestDto` as every resident answer carries it (list, get, create, cancel, rate, confirm-visit). */
+export function requestDto(request: MockRequest): Request_ {
+  const workOrders = workOrdersOf(request).filter((wo) => wo.dto.status !== "cancelled");
+  const visit = visitOf(request);
   return {
     ...request.dto,
-    nextActions,
-    photos,
-    events: request.events,
-    sla:
-      request.dto.inWarranty || !open
-        ? request.dto.status === "waiting_parts"
-          ? { dueAt: bangkokIso(dueAt), state: "paused" as const }
-          : { dueAt: null, state: "none" as const }
-        : {
-            dueAt: bangkokIso(dueAt),
-            state:
-              Date.now() > dueAt
-                ? ("breached" as const)
-                : Date.now() > dueAt - 2 * HOUR
-                  ? ("at_risk" as const)
-                  : ("on_track" as const),
-          },
-    visitConfirmedAt: request.visitConfirmedAt,
+    nextActions: visit.due ? [...request.dto.nextActions, "confirm-visit"] : [...request.dto.nextActions],
+    photos: [
+      ...request.dto.photoIds.map(photoLink("report", "แจ้งซ่อม", 200)),
+      ...workOrders.flatMap((wo) => wo.dto.beforePhotoIds.map(photoLink("before", "ก่อนซ่อม", 30))),
+      ...workOrders.flatMap((wo) => wo.dto.afterPhotoIds.map(photoLink("after", "หลังซ่อม", 140))),
+    ],
+    events: [...request.events],
+    sla: slaOf(request),
+    visitAt: plannedVisitOf(request),
+    visitConfirmedAt: visit.confirmedAt,
   };
 }
 
-/** CONTRACT-REQUEST #25 — the work order with photo links and the resident's rating once closed. */
-export function workOrderView(workOrder: MockWorkOrder) {
-  const request = workOrder.dto.serviceRequestId ? service.requests.get(workOrder.dto.serviceRequestId) : undefined;
-  const link = (role: "report" | "before" | "after", label: string, hue: number) => (id: string, index: number) => ({
-    id,
-    role,
-    url: mockPhoto(`${label} ${index + 1}`, hue),
-  });
+/** `TechnicianWorkOrderDto` with the request's report photos, its own before / after, the rating once given. */
+export function workOrderDto(workOrder: MockWorkOrder): WorkOrder {
+  const request = requestOf(workOrder);
   return {
     ...workOrder.dto,
     photos: [
-      ...workOrder.dto.requestPhotoIds.map(link("report", "แจ้งซ่อม", 200)),
-      ...workOrder.dto.beforePhotoIds.map(link("before", "ก่อนซ่อม", 30)),
-      ...workOrder.dto.afterPhotoIds.map(link("after", "หลังซ่อม", 140)),
+      ...workOrder.dto.requestPhotoIds.map(photoLink("report", "แจ้งซ่อม", 200)),
+      ...workOrder.dto.beforePhotoIds.map(photoLink("before", "ก่อนซ่อม", 30)),
+      ...workOrder.dto.afterPhotoIds.map(photoLink("after", "หลังซ่อม", 140)),
     ],
+    preferredVisit: request?.dto.preferredVisit ?? null,
     rating: request?.dto.rating ?? null,
     ratingComment: request?.dto.ratingComment ?? null,
   };
+}
+
+/** The thread of a work order: its request's (shared by the three parties), or its own with the office. */
+function threadOf(workOrder: MockWorkOrder): MockMessage[] {
+  return requestOf(workOrder)?.messages ?? workOrder.messages;
+}
+
+function messageDto(m: MockMessage, userId: string): Schemas["ServiceMessageDto"] {
+  return {
+    id: m.id,
+    author: m.author,
+    authorName: m.authorName,
+    body: m.body,
+    createdAt: m.at,
+    mine: m.authorUserId === userId,
+  };
+}
+
+/** Appends a message and tells everyone on the thread in realtime (`service_request.message`, D-218). */
+function postMessage(
+  thread: MockMessage[],
+  author: { userId: string | null; kind: Author; name: string },
+  body: string,
+  notify: {
+    residentUserId?: string;
+    technicianUserIds: string[];
+    serviceRequestId: string | null;
+    workOrderId?: string;
+  },
+): MockMessage {
+  const message: MockMessage = {
+    id: crypto.randomUUID(),
+    authorUserId: author.userId,
+    author: author.kind,
+    authorName: author.name,
+    body,
+    at: bangkokIso(Date.now()),
+  };
+  thread.push(message);
+  const payload: Record<string, string> = { messageId: message.id };
+  if (notify.serviceRequestId) payload.serviceRequestId = notify.serviceRequestId;
+  if (notify.workOrderId) payload.workOrderId = notify.workOrderId;
+  if (notify.residentUserId) emit(notify.residentUserId, "service_request.message", payload);
+  for (const userId of notify.technicianUserIds) emit(userId, "service_request.message", payload);
+  return message;
+}
+
+function notifyOf(request: MockRequest) {
+  return {
+    residentUserId: request.residentUserId,
+    technicianUserIds: workOrdersOf(request).map((wo) => wo.assigneeUserId),
+    serviceRequestId: request.dto.id,
+  };
+}
+
+/** A message body as the API takes it: 1–2000 characters after trimming. */
+function messageBody(body: { body?: unknown } | null): string | null {
+  const text = typeof body?.body === "string" ? body.body.trim() : "";
+  return text && text.length <= 2000 ? text : null;
+}
+
+/** The optional `Idempotency-Key` of a message post: a retry answers the first message. */
+function messageReplay(request: Request, op: string, userId: string): { response?: Response; key: string | null } {
+  const key = request.headers.get("idempotency-key");
+  if (!key) return { key: null };
+  if (!/^[0-9a-f-]{36}$/i.test(key)) return { response: problem(op, "idempotency.key_invalid"), key: null };
+  const id = `${userId} ${new URL(request.url).pathname} ${key}`;
+  const seen = service.replays.get(id);
+  if (seen) {
+    return {
+      response: HttpResponse.json(seen.body as Record<string, unknown>, {
+        status: seen.status,
+        headers: { "idempotent-replayed": "true" },
+      }),
+      key: null,
+    };
+  }
+  return { key: id };
 }
 
 function myRequests(account: MockAccount): MockRequest[] {
@@ -471,7 +611,7 @@ function workOrderRoute(
     const refused = run(workOrder, body);
     if (refused) return refused;
     touch(workOrder);
-    return HttpResponse.json(workOrderView(workOrder), { status: action === "cost-lines" ? 201 : 200 });
+    return HttpResponse.json(workOrderDto(workOrder), { status: action === "cost-lines" ? 201 : 200 });
   });
 }
 
@@ -518,7 +658,7 @@ export const serviceHandlers: HttpHandler[] = [
     if (openOnly === "true")
       all = all.filter((r) => ["new", "triaged", "assigned", "in_progress", "waiting_parts"].includes(r.dto.status));
     return HttpResponse.json({
-      data: all.slice((page - 1) * perPage, page * perPage).map((r) => r.dto),
+      data: all.slice((page - 1) * perPage, page * perPage).map(requestDto),
       meta: { page, perPage, total: all.length },
     });
   }),
@@ -543,6 +683,7 @@ export const serviceHandlers: HttpHandler[] = [
       description?: unknown;
       priority?: unknown;
       photoDocumentIds?: unknown;
+      preferredVisit?: unknown;
     }>(request);
     const unit = auth.account.units.find((u) => u.unitId === body?.unitId);
     if (!unit) return problem(op, "http.not_found");
@@ -552,6 +693,11 @@ export const serviceHandlers: HttpHandler[] = [
     const priorities = ["low", "normal", "high", "urgent"];
     const priority =
       typeof body?.priority === "string" && priorities.includes(body.priority) ? body.priority : "normal";
+    const visits = ["anytime", "morning", "afternoon", "evening"];
+    const preferredVisit = body?.preferredVisit ?? null;
+    if (preferredVisit !== null && (typeof preferredVisit !== "string" || !visits.includes(preferredVisit))) {
+      return problem(op, "validation.failed");
+    }
     if (!category || description.length < 3 || description.length > 2000 || photos.length > 10) {
       return problem(op, "validation.failed");
     }
@@ -561,15 +707,22 @@ export const serviceHandlers: HttpHandler[] = [
     const created = newRequest(
       auth.account,
       unit,
-      { categoryKey: category.key, description, priority: priority as Schemas["ServicePriority"], photoIds: photos },
+      {
+        categoryKey: category.key,
+        description,
+        priority: priority as Schemas["ServicePriority"],
+        photoIds: photos,
+        preferredVisit: preferredVisit as Schemas["VisitPreference"] | null,
+      },
       Date.now(),
     );
     if (auth.account.subject.toLowerCase().includes("warranty")) {
       created.dto.inWarranty = true;
       setStatus(created, "triaged");
     }
-    if (replayKey) service.replays.set(replayKey, { status: 201, body: created.dto });
-    return HttpResponse.json(created.dto, { status: 201 });
+    const answer = requestDto(created);
+    if (replayKey) service.replays.set(replayKey, { status: 201, body: answer });
+    return HttpResponse.json(answer, { status: 201 });
   }),
 
   http.get(mswPath("/v1/resident/service-requests/:serviceRequestId"), ({ request, params }) => {
@@ -578,8 +731,7 @@ export const serviceHandlers: HttpHandler[] = [
     if (auth instanceof Response) return auth;
     const found = myRequest(auth.account, params.serviceRequestId);
     if (!found) return problem(op, "http.not_found");
-    // CONTRACT-REQUEST #22 / #24 — photo links, history, SLA, visit confirmation (mocks/contract-requests.ts).
-    return HttpResponse.json(requestView(found));
+    return HttpResponse.json(requestDto(found));
   }),
 
   http.post(mswPath("/v1/resident/service-requests/:serviceRequestId/actions/cancel"), async ({ request, params }) => {
@@ -593,7 +745,7 @@ export const serviceHandlers: HttpHandler[] = [
     if (reason.length < 1) return problem(op, "validation.failed");
     if (!["new", "triaged"].includes(found.dto.status)) return problem(op, "service_request.invalid_state");
     setStatus(found, "cancelled");
-    return HttpResponse.json(found.dto);
+    return HttpResponse.json(requestDto(found));
   }),
 
   http.post(mswPath("/v1/resident/service-requests/:serviceRequestId/actions/rate"), async ({ request, params }) => {
@@ -609,7 +761,59 @@ export const serviceHandlers: HttpHandler[] = [
     found.dto.rating = rating;
     found.dto.ratingComment = typeof body?.comment === "string" && body.comment.trim() ? body.comment.trim() : null;
     setStatus(found, "closed");
-    return HttpResponse.json(found.dto);
+    return HttpResponse.json(requestDto(found));
+  }),
+
+  http.post(mswPath("/v1/resident/service-requests/:serviceRequestId/actions/confirm-visit"), ({ request, params }) => {
+    const op = "resident.serviceRequests.confirmVisit";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = myRequest(auth.account, params.serviceRequestId);
+    if (!found) return problem(op, "http.not_found");
+    const visitAt = plannedVisitOf(found);
+    if (!visitAt || !visitOf(found).due) return problem(op, "service_request.invalid_state");
+    found.visitConfirmed = { at: bangkokIso(Date.now()), for: visitAt };
+    for (const wo of workOrdersOf(found)) {
+      emit(wo.assigneeUserId, "service_request.visit_confirmed", {
+        serviceRequestId: found.dto.id,
+        workOrderId: wo.dto.id,
+      });
+    }
+    emit(found.residentUserId, "service_request.visit_confirmed", { serviceRequestId: found.dto.id });
+    return HttpResponse.json(requestDto(found));
+  }),
+
+  http.get(mswPath("/v1/resident/service-requests/:serviceRequestId/messages"), ({ request, params }) => {
+    const op = "resident.serviceRequests.messages";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = myRequest(auth.account, params.serviceRequestId);
+    if (!found) return problem(op, "http.not_found");
+    return HttpResponse.json({ data: found.messages.map((m) => messageDto(m, auth.account.userId)) });
+  }),
+
+  http.post(mswPath("/v1/resident/service-requests/:serviceRequestId/messages"), async ({ request, params }) => {
+    const op = "resident.serviceRequests.postMessage";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = myRequest(auth.account, params.serviceRequestId);
+    if (!found) return problem(op, "http.not_found");
+    const replay = messageReplay(request, op, auth.account.userId);
+    if (replay.response) return replay.response;
+    const text = messageBody(await json<{ body?: unknown }>(request));
+    if (!text) return problem(op, "validation.failed");
+    if (found.dto.status === "closed" || found.dto.status === "cancelled") {
+      return problem(op, "service_request.invalid_state");
+    }
+    const message = postMessage(
+      found.messages,
+      { userId: auth.account.userId, kind: "resident", name: auth.account.displayName },
+      text,
+      notifyOf(found),
+    );
+    const answer = messageDto(message, auth.account.userId);
+    if (replay.key) service.replays.set(replay.key, { status: 201, body: answer });
+    return HttpResponse.json(answer, { status: 201 });
   }),
 
   // ── technician: my work orders ──────────────────────────────────────────────────────────────────
@@ -636,7 +840,7 @@ export const serviceHandlers: HttpHandler[] = [
   http.get(mswPath("/v1/technician/work-orders"), ({ request }) => {
     const auth = authenticate(request, "technician", "technician.workOrders.list");
     if (auth instanceof Response) return auth;
-    return HttpResponse.json({ data: myWorkOrders(auth.account).map((wo) => wo.dto) });
+    return HttpResponse.json({ data: myWorkOrders(auth.account).map(workOrderDto) });
   }),
 
   http.get(mswPath("/v1/technician/work-orders/:workOrderId"), ({ request, params }) => {
@@ -645,8 +849,44 @@ export const serviceHandlers: HttpHandler[] = [
     if (auth instanceof Response) return auth;
     const workOrder = myWorkOrder(auth.account, params.workOrderId);
     if (!workOrder) return problem(op, "http.not_found");
-    // CONTRACT-REQUEST #25 — photo links and the resident's rating (mocks/contract-requests.ts).
-    return HttpResponse.json(workOrderView(workOrder));
+    return HttpResponse.json(workOrderDto(workOrder));
+  }),
+
+  http.get(mswPath("/v1/technician/work-orders/:workOrderId/messages"), ({ request, params }) => {
+    const op = "technician.workOrders.messages";
+    const auth = authenticate(request, "technician", op);
+    if (auth instanceof Response) return auth;
+    const workOrder = myWorkOrder(auth.account, params.workOrderId);
+    if (!workOrder) return problem(op, "http.not_found");
+    return HttpResponse.json({ data: threadOf(workOrder).map((m) => messageDto(m, auth.account.userId)) });
+  }),
+
+  http.post(mswPath("/v1/technician/work-orders/:workOrderId/messages"), async ({ request, params }) => {
+    const op = "technician.workOrders.postMessage";
+    const auth = authenticate(request, "technician", op);
+    if (auth instanceof Response) return auth;
+    const workOrder = myWorkOrder(auth.account, params.workOrderId);
+    if (!workOrder) return problem(op, "http.not_found");
+    const replay = messageReplay(request, op, auth.account.userId);
+    if (replay.response) return replay.response;
+    const text = messageBody(await json<{ body?: unknown }>(request));
+    if (!text) return problem(op, "validation.failed");
+    const found = requestOf(workOrder);
+    if (found && (found.dto.status === "closed" || found.dto.status === "cancelled")) {
+      return problem(op, "service_request.invalid_state");
+    }
+    if (!found && workOrder.dto.status === "cancelled") return problem(op, "work_order.invalid_state");
+    const author = { userId: auth.account.userId, kind: "technician" as const, name: auth.account.displayName };
+    const message = found
+      ? postMessage(found.messages, author, text, notifyOf(found))
+      : postMessage(workOrder.messages, author, text, {
+          technicianUserIds: [workOrder.assigneeUserId],
+          serviceRequestId: null,
+          workOrderId: workOrder.dto.id,
+        });
+    const answer = messageDto(message, auth.account.userId);
+    if (replay.key) service.replays.set(replay.key, { status: 201, body: answer });
+    return HttpResponse.json(answer, { status: 201 });
   }),
 
   http.get(mswPath("/v1/technician/work-orders/:workOrderId/access"), ({ request, params }) => {
@@ -792,6 +1032,47 @@ export const serviceHandlers: HttpHandler[] = [
     const technician = accountFor(`line:${sub}`, { displayName: "ช่างวิชัย", phone: null, lineLinked: true });
     service.seeded.add(technician.userId);
     const workOrder = assignToTechnician(found, technician, Date.now() + HOUR);
-    return HttpResponse.json({ workOrderId: workOrder.dto.id, request: found.dto });
+    return HttpResponse.json({ workOrderId: workOrder.dto.id, request: requestDto(found) });
   }),
+
+  // The office moves the planned visit: the resident's confirmation no longer counts and is asked again (D-218).
+  http.post(
+    mswPath("/v1/resident/__mock/service-requests/:serviceRequestId/reschedule"),
+    async ({ request, params }) => {
+      const auth = authenticate(request, "resident", "resident.serviceRequests.get");
+      if (auth instanceof Response) return auth;
+      const found = myRequest(auth.account, params.serviceRequestId);
+      const workOrder = found
+        ? workOrdersOf(found).find((wo) => wo.dto.scheduledAt === plannedVisitOf(found))
+        : undefined;
+      if (!found || !workOrder) return problem("resident.serviceRequests.get", "http.not_found");
+      const body = await json<{ hours?: unknown }>(request);
+      const hours = typeof body?.hours === "number" ? body.hours : 24;
+      const start = Date.parse(workOrder.dto.scheduledAt!) + hours * HOUR;
+      workOrder.dto.scheduledAt = bangkokIso(start);
+      workOrder.dto.scheduledUntil = bangkokIso(start + 4 * HOUR);
+      found.dto.visitAt = plannedVisitOf(found);
+      touch(workOrder);
+      return HttpResponse.json(requestDto(found));
+    },
+  ),
+
+  // The office writes on the request's thread (getproperty-web's side, played by the mock).
+  http.post(
+    mswPath("/v1/resident/__mock/service-requests/:serviceRequestId/office-message"),
+    async ({ request, params }) => {
+      const auth = authenticate(request, "resident", "resident.serviceRequests.get");
+      if (auth instanceof Response) return auth;
+      const found = myRequest(auth.account, params.serviceRequestId);
+      if (!found) return problem("resident.serviceRequests.get", "http.not_found");
+      const text = messageBody(await json<{ body?: unknown }>(request)) ?? "รับทราบค่ะ";
+      const message = postMessage(
+        found.messages,
+        { userId: null, kind: "office", name: found.buildingName },
+        text,
+        notifyOf(found),
+      );
+      return HttpResponse.json(messageDto(message, auth.account.userId), { status: 201 });
+    },
+  ),
 ];

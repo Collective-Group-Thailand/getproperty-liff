@@ -15,14 +15,13 @@ export async function generateMetadata() {
 }
 
 /**
- * Door codes and my unit's unlock log (L4 4.2 §3, C1; D-070, D-071). Codes follow the lease (`lease` entitlement;
- * no `access` entitlement in the contract yet — CONTRACT-REQUEST #27); they are fetched only on request (each reveal
- * is audited). The log is read on the server for the selected unit only.
+ * Door codes and my unit's unlock log (L4 4.2 §3, C1; D-070, D-071) — the `access` entitlement (smart access and a
+ * lock on one of my units, D-218). Codes are fetched only on request (each reveal is audited). The log is read on the server for the selected unit only.
  */
 export default async function AccessPage() {
   const [actor, locale, t] = await Promise.all([getActor(), pageLocale(), getTranslations("resident.access")]);
   if (actor.status !== "signed-in") return null;
-  if (!actor.entitlements.has("lease") || !actor.unit) notFound();
+  if (!actor.entitlements.has("access") || !actor.unit) notFound();
   const log = await loadUnlockLog(actor.unit.unitId);
   return (
     <ResidentShell active={null}>

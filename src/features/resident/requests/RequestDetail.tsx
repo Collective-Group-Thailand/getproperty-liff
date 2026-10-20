@@ -2,10 +2,9 @@ import { getTranslations } from "next-intl/server";
 
 import { SERVICE_REQUEST_STATUS } from "@/domain/status/serviceRequest";
 import { PhotoGallery } from "@/features/shared/PhotoGallery";
-import { RequestThread } from "@/features/shared/RequestThread";
+import { LazyRequestThread } from "@/features/shared/LazyRequestThread";
 import { formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { ServiceRequestView } from "@/lib/api/contract-requests";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
@@ -15,16 +14,18 @@ import { Icon } from "@/ui/icons";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
 import { IconClock } from "@/ui/icons/glyphs/clock";
 
-import { categoryName, isOpenRequest, photosOf, timelineOf } from "./model";
+import { categoryName, isOpenRequest, photosOf, timelineOf, visitState, type ServiceRequest } from "./model";
 import { CancelRequest, ConfirmVisit, RateRequest } from "./RequestActions";
 
 /**
  * One repair request (L4 4.1 §2): status, what was reported, the warranty referral when the API made one (D-153 —
  * shown, never decided here), the SLA as the API reports it, the planned visit (with its confirmation), photos, the
  * status timeline (`Timeline`, every `ServiceRequestStatus`), the thread, and the actions the API offers
- * (`nextActions`: `cancel`, `rate`; CONTRACT-REQUEST #24 `confirm-visit`). The rating, once given, is shown.
+ * (`nextActions`: `cancel`, `rate`, `confirm-visit`). The rating, once given, is shown. Photos, history, SLA, the
+ * preferred visit and the visit confirmation are the API's (D-218): a visit the office moves clears the confirmation
+ * and the API offers `confirm-visit` again, so the page asks again.
  */
-export async function RequestDetail({ request, locale }: { request: ServiceRequestView; locale: Locale }) {
+export async function RequestDetail({ request, locale }: { request: ServiceRequest; locale: Locale }) {
   const [t, root, cat] = await Promise.all([
     getTranslations("resident.requests"),
     getTranslations(),
@@ -33,6 +34,15 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
   const status = SERVICE_REQUEST_STATUS[request.status];
   const actions = new Set(request.nextActions);
   const photos = photosOf(request);
+  const visit = visitState(request);
+  const gallery = (list: typeof photos.report, testId: string, alt: (index: number) => string) =>
+    list.length ? (
+      <PhotoGallery
+        label={t("detail.photos")}
+        testId={testId}
+        photos={list.map((p, i) => ({ id: p.id, url: p.url, alt: alt(i + 1) }))}
+      />
+    ) : null;
   const steps = timelineOf(request);
   const events: TimelineEvent[] = steps.map((step, index) => {
     const meta = SERVICE_REQUEST_STATUS[step.status];
@@ -77,6 +87,15 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
               description:
                 request.priority === "low" ? t("new.priority.normal") : t(`new.priority.${request.priority}`),
             },
+            ...(request.preferredVisit
+              ? [
+                  {
+                    id: "preferredVisit",
+                    term: t("detail.preferredVisit"),
+                    description: t(`new.visit.${request.preferredVisit}`),
+                  },
+                ]
+              : []),
             {
               id: "description",
               term: t("detail.description"),
@@ -86,8 +105,8 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
         />
       </Card>
 
-      {/* CONTRACT-REQUEST #22: the SLA state only when the API reports it. */}
-      {request.sla && request.sla.state !== "none" ? (
+      {/* The SLA as the API keeps it (D-210, D-218) while the request is open; `paused` while referred to the warranty. */}
+      {request.sla && request.sla.state !== "none" && isOpenRequest(request) ? (
         <div data-testid="request-sla" data-state={request.sla.state}>
           <Callout
             tone={request.sla.state === "breached" || request.sla.state === "at_risk" ? "warning" : "neutral"}
@@ -107,14 +126,20 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
             <Icon icon={IconCalendar} />
             {t("detail.visitTitle")}
           </h2>
-          <p className="mt-1">{t("detail.visitAt", { date: formatDateTime(request.visitAt, locale) })}</p>
-          {request.visitConfirmedAt ? (
+          <p className="mt-1" data-testid="request-visit-at">
+            {t("detail.visitAt", { date: formatDateTime(request.visitAt, locale) })}
+          </p>
+          {visit === "confirmed" && request.visitConfirmedAt ? (
             <p className="text-success-subtle-fg mt-1 text-sm font-medium" data-testid="request-visit-confirmed">
-              {t("detail.visitConfirmed")}
+              {t("detail.visitConfirmedOn", { date: formatDateTime(request.visitConfirmedAt, locale) })}
             </p>
           ) : null}
-          {/* CONTRACT-REQUEST #24: offered by the API as `confirm-visit`. */}
-          {actions.has("confirm-visit") ? <ConfirmVisit serviceRequestId={request.id} /> : null}
+          {visit === "confirm" ? (
+            <>
+              <p className="text-muted mt-1 text-sm">{t("detail.confirmVisitLead")}</p>
+              <ConfirmVisit serviceRequestId={request.id} />
+            </>
+          ) : null}
         </Card>
       ) : null}
 
@@ -137,30 +162,11 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
         <h2 id="photos-title" className="mb-2 font-semibold">
           {t("detail.photos")}
         </h2>
-        {photos.report.length || photos.after.length ? (
+        {request.photos.length ? (
           <div className="flex flex-col gap-3">
-            {photos.report.length ? (
-              <PhotoGallery
-                label={t("detail.photos")}
-                testId="request-photos"
-                photos={photos.report.map((p, i) => ({
-                  id: p.id,
-                  url: p.url,
-                  alt: t("detail.photoReport", { index: i + 1 }),
-                }))}
-              />
-            ) : null}
-            {photos.after.length ? (
-              <PhotoGallery
-                label={t("detail.photos")}
-                testId="request-after-photos"
-                photos={photos.after.map((p, i) => ({
-                  id: p.id,
-                  url: p.url,
-                  alt: t("detail.photoAfter", { index: i + 1 }),
-                }))}
-              />
-            ) : null}
+            {gallery(photos.report, "request-photos", (index) => t("detail.photoReport", { index }))}
+            {gallery(photos.before, "request-before-photos", (index) => t("detail.photoBefore", { index }))}
+            {gallery(photos.after, "request-after-photos", (index) => t("detail.photoAfter", { index }))}
           </div>
         ) : (
           <p className="text-muted text-sm" data-testid="request-photo-count">
@@ -176,8 +182,8 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
         <Timeline events={events} />
       </Card>
 
-      <RequestThread
-        path={`/v1/resident/service-requests/${request.id}/messages`}
+      <LazyRequestThread
+        of={{ kind: "resident", serviceRequestId: request.id }}
         canWrite={request.status !== "closed" && request.status !== "cancelled"}
         namespace="resident.requests.thread"
       />

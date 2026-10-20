@@ -8,8 +8,8 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import type { CredentialsView } from "@/lib/api/contract-requests";
 import { isApiError, type ApiError } from "@/lib/api/problem";
+import type { RevealedCredentials } from "@/lib/api/types";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
@@ -23,15 +23,15 @@ import { VisitorCode } from "./VisitorCode";
 /**
  * My own door codes (D-070, D-071, D-211). Every reveal is audited by the API, so the codes are fetched only when
  * the resident asks ("show my codes") and dropped again with "hide". Resident codes last until the lease ends —
- * never cut for arrears (D-024, D-071); the app shows what the API returns. CONTRACT-REQUEST #26: the visitor-code
- * form when the API says the operator allows it.
+ * never cut for arrears (D-024, D-071); the app shows what the API returns. Below them a code for a visitor, within
+ * the operator's policy (`visitorPolicy`, D-218 — off unless the operator opts in, then a friendly "not offered").
  */
 export function MyCodes({ unitId }: { unitId: string }) {
   const t = useTranslations("resident.access");
   const root = useTranslations();
   const current = useLocale();
   const locale = isLocale(current) ? current : "th";
-  const [codes, setCodes] = useState<CredentialsView | null>(null);
+  const [codes, setCodes] = useState<RevealedCredentials | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -48,7 +48,7 @@ export function MyCodes({ unitId }: { unitId: string }) {
             setBusy(true);
             setError(null);
             try {
-              setCodes(unwrap(await browserApi.GET("/v1/resident/access/credentials")) as CredentialsView);
+              setCodes(unwrap(await browserApi.GET("/v1/resident/access/credentials")));
             } catch (caught) {
               if (!isApiError(caught)) throw caught;
               setError(caught);
@@ -101,8 +101,10 @@ export function MyCodes({ unitId }: { unitId: string }) {
       <Button variant="ghost" size="lg" iconStart={IconHide} onClick={() => setCodes(null)} data-testid="access-hide">
         {t("hide")}
       </Button>
-      {/* CONTRACT-REQUEST #26: only when the API says the operator allows visitor codes. */}
-      {codes.visitorPolicy?.allowed ? <VisitorCode unitId={unitId} maxHours={codes.visitorPolicy.maxHours} /> : null}
+      {/* "Not offered" only where a lock exists — without one the empty state above already says so. */}
+      {codes.visitorPolicy && (codes.visitorPolicy.allowed || mine.length > 0) ? (
+        <VisitorCode unitId={unitId} policy={codes.visitorPolicy} />
+      ) : null}
     </div>
   );
 }

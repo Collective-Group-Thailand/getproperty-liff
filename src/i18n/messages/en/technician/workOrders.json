@@ -29,6 +29,13 @@
     "place": "Where",
     "visit": "Visit window",
     "noVisit": "Not scheduled yet — the office will set a time",
+    "preferredVisit": "Resident prefers",
+    "visitPreference": {
+      "anytime": "Any time",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
     "kind": {
       "repair": "Repair",
       "preventive": "Maintenance",
@@ -109,6 +116,8 @@
   "thread": {
     "title": "Messages with the resident",
     "lead": "Write to the resident and the office here. Phone numbers are never shown.",
+    "titleOffice": "Messages with the office",
+    "leadOffice": "Write to the office here. Phone numbers are never shown.",
     "empty": "No messages yet",
     "you": "You",
     "office": "Office",

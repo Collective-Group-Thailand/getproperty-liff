@@ -14,13 +14,13 @@ export async function generateMetadata() {
 }
 
 /**
- * Facilities of the selected unit's building and my bookings (L4, D-073). The contract has no `facilities`
- * entitlement (CONTRACT-REQUEST #27): the community module (`announcements`) stands for it.
+ * Facilities of the selected unit's building and my bookings (L4, D-073) — the `facilities` entitlement (the
+ * community module and an active facility in a building of my units, D-218).
  */
 export default async function FacilitiesPage() {
   const [actor, locale] = await Promise.all([getActor(), pageLocale()]);
   if (actor.status !== "signed-in") return null;
-  if (!actor.entitlements.has("announcements") || !actor.unit) notFound();
+  if (!actor.entitlements.has("facilities") || !actor.unit) notFound();
   const [facilities, bookings] = await Promise.all([loadFacilities(actor.unit.unitId), loadBookings()]);
   const error = facilities.error ?? bookings.error;
   return (

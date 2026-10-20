@@ -27,6 +27,12 @@ export const OPERATIONS = [
   },
   { operationId: "resident.access.events", method: "GET", path: "/v1/resident/access/events", idempotent: false },
   {
+    operationId: "resident.access.visitorCode",
+    method: "POST",
+    path: "/v1/resident/access/visitor-codes",
+    idempotent: true,
+  },
+  {
     operationId: "resident.community.announcements",
     method: "GET",
     path: "/v1/resident/announcements",
@@ -251,11 +257,31 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "resident.serviceRequests.confirmVisit",
+    method: "POST",
+    path: "/v1/resident/service-requests/{serviceRequestId}/actions/confirm-visit",
+    idempotent: false,
+  },
+  {
     operationId: "resident.serviceRequests.rate",
     method: "POST",
     path: "/v1/resident/service-requests/{serviceRequestId}/actions/rate",
     idempotent: false,
   },
+  {
+    operationId: "resident.serviceRequests.messages",
+    method: "GET",
+    path: "/v1/resident/service-requests/{serviceRequestId}/messages",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.serviceRequests.postMessage",
+    method: "POST",
+    path: "/v1/resident/service-requests/{serviceRequestId}/messages",
+    idempotent: true,
+  },
+  { operationId: "resident.surveys.csat", method: "GET", path: "/v1/resident/surveys/csat", idempotent: false },
+  { operationId: "resident.surveys.csatAnswer", method: "POST", path: "/v1/resident/surveys/csat", idempotent: true },
   { operationId: "resident.uploads.presign", method: "POST", path: "/v1/resident/uploads", idempotent: false },
   { operationId: "technician.me.get", method: "GET", path: "/v1/technician/me", idempotent: false },
   {
@@ -321,6 +347,18 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "technician.workOrders.messages",
+    method: "GET",
+    path: "/v1/technician/work-orders/{workOrderId}/messages",
+    idempotent: false,
+  },
+  {
+    operationId: "technician.workOrders.postMessage",
+    method: "POST",
+    path: "/v1/technician/work-orders/{workOrderId}/messages",
+    idempotent: true,
+  },
+  {
     operationId: "technician.workOrders.uploadPhoto",
     method: "POST",
     path: "/v1/technician/work-orders/{workOrderId}/photos",
@@ -332,6 +370,7 @@ export type OperationId = (typeof OPERATIONS)[number]["operationId"];
 
 /** `METHOD /path/{template}` of every operation whose contract requires an `Idempotency-Key` (contract §3). */
 export const IDEMPOTENT_OPERATIONS: readonly string[] = [
+  "POST /v1/resident/access/visitor-codes",
   "POST /v1/resident/data-subject-requests",
   "POST /v1/resident/deposits/{depositId}/actions/accept",
   "POST /v1/resident/deposits/{depositId}/actions/dispute",
@@ -342,4 +381,7 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/link",
   "POST /v1/resident/push-subscriptions",
   "POST /v1/resident/service-requests",
+  "POST /v1/resident/service-requests/{serviceRequestId}/messages",
+  "POST /v1/resident/surveys/csat",
+  "POST /v1/technician/work-orders/{workOrderId}/messages",
 ];

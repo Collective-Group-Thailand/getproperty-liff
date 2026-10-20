@@ -9,7 +9,8 @@
  *                 room and a fitness room (60-minute slots, 08:00–22:00, 2 per unit per week), house rules v3 not yet
  *                 acknowledged, four contacts, a door code for A-201 and the building door, five unlocks
  *   …nolocks…     no smart locks (no codes, no log)
- *   …novisitor…   the operator does not let residents create visitor codes (CONTRACT-REQUEST #26)
+ *   …novisitor…   the operator does not let residents create visitor codes (`access.resident_visitor_codes` off,
+ *                 D-218); otherwise visitor codes of up to 12 hours (`access.resident_visitor_max_hours`)
  */
 import { createHash } from "node:crypto";
 
@@ -54,6 +55,9 @@ interface MockCommunity {
   credentials: Schemas["RevealedCredentialDto"][];
   events: Schemas["AccessEventDto"][];
   visitorAllowed: boolean;
+  visitorMaxHours: number;
+  /** `Idempotency-Key` → the visitor code it created (contract §3: a retry answers the first code). */
+  visitorReplays: Map<string, Schemas["IssuedCredentialDto"]>;
 }
 
 const holder = globalThis as typeof globalThis & { __gpMockCommunity?: Map<string, MockCommunity> };
@@ -193,6 +197,8 @@ export function communityOf(account: MockAccount): MockCommunity {
         ],
     events: [],
     visitorAllowed: !has("novisitor"),
+    visitorMaxHours: has("novisitor") ? 0 : 12,
+    visitorReplays: new Map(),
   };
   if (!has("nolocks")) {
     const lockId = uuidFrom(`lock#${unit.unitId}`);
@@ -334,37 +340,61 @@ function live(booking: Schemas["BookingDto"]) {
   return booking.status === "requested" || booking.status === "confirmed";
 }
 
-/** CONTRACT-REQUEST #26 — a visitor code (≤ the operator's hours, a unit I occupy). */
-export function visitorCodes(
-  account: MockAccount,
-  body: { unitId?: unknown; visitorName?: unknown; validFrom?: unknown; validTo?: unknown } | null,
-): Schemas["RevealedCredentialDto"] | Response {
-  const op = "resident.access.credentials";
+/** The visitor policy of my locked units (`RevealedCredentialsDto.visitorPolicy`, D-218). */
+function visitorPolicy(community: MockCommunity): Schemas["VisitorPolicyDto"] {
+  const allowed = community.visitorAllowed && community.credentials.some((c) => c.unitId !== null);
+  return { allowed, maxHours: allowed ? community.visitorMaxHours : 0 };
+}
+
+/**
+ * `POST /v1/resident/access/visitor-codes` as the API answers it (D-218): `Idempotency-Key` required; 403
+ * `access.visitor_codes_disabled` where the operator has not opted in, 404 for a unit I do not occupy, 409
+ * `access.invalid_state` without a lock on it, 422 beyond the operator's hours → 201 `IssuedCredentialDto`.
+ */
+function createVisitorCode(account: MockAccount, request: Request, body: Record<string, unknown> | null): Response {
+  const op = "resident.access.visitorCode";
   const community = communityOf(account);
-  if (!community.visitorAllowed || community.credentials.length === 0) return problem(op, "auth.forbidden");
+  const key = request.headers.get("idempotency-key");
+  if (!key) return problem(op, "idempotency.key_required");
+  if (!/^[0-9a-f-]{36}$/i.test(key)) return problem(op, "idempotency.key_invalid");
+  const replay = community.visitorReplays.get(key);
+  if (replay) return HttpResponse.json(replay, { status: 201, headers: { "idempotent-replayed": "true" } });
+  if (!community.visitorAllowed) return problem(op, "access.visitor_codes_disabled");
   const unit = account.units.find((u) => u.unitId === body?.unitId);
+  if (!unit) return problem(op, "http.not_found");
+  const lock = community.credentials.find((c) => c.unitId === unit.unitId && c.holderKind === "resident");
+  if (!lock) return problem(op, "access.invalid_state");
   const name = typeof body?.visitorName === "string" ? body.visitorName.trim() : "";
   const from = typeof body?.validFrom === "string" ? Date.parse(body.validFrom) : NaN;
   const to = typeof body?.validTo === "string" ? Date.parse(body.validTo) : NaN;
-  if (!unit || !name || !Number.isFinite(from) || !Number.isFinite(to) || to <= from || to - from > 24 * HOUR) {
-    return problem(op, "validation.failed");
-  }
-  const code: Schemas["RevealedCredentialDto"] = {
-    ...community.credentials[0]!,
+  if (!name || !Number.isFinite(from) || !Number.isFinite(to) || to <= from) return problem(op, "validation.failed");
+  // A minute of slack for the time the request took to arrive.
+  if (to - from > community.visitorMaxHours * HOUR + 60_000) return problem(op, "validation.failed");
+  const base = example<Schemas["IssuedCredentialDto"]>(op);
+  const code: Schemas["IssuedCredentialDto"] = {
+    ...base,
     id: crypto.randomUUID(),
     holderKind: "visitor",
     holderName: name,
     holderPartyId: null,
     holderUserId: null,
     leaseId: null,
+    lockId: lock.lockId,
+    lockName: lock.lockName,
+    unitId: unit.unitId,
+    unitNo: unit.unitNo,
     pin: String(100000 + Math.floor(Math.random() * 900000)),
     validFrom: bangkokIso(from),
     validTo: bangkokIso(to),
     createdAt: bangkokIso(Date.now()),
     status: "active",
+    revokedAt: null,
+    revokeReason: null,
+    vendorError: null,
   };
-  community.credentials.push(code);
-  return code;
+  community.visitorReplays.set(key, code);
+  community.credentials.push({ ...lock, ...code, holderKind: "visitor" });
+  return HttpResponse.json(code, { status: 201 });
 }
 
 async function json<T>(request: Request): Promise<T | null> {
@@ -560,9 +590,14 @@ export const communityHandlers: HttpHandler[] = [
     const community = communityOf(auth.account);
     return HttpResponse.json({
       data: community.credentials,
-      // CONTRACT-REQUEST #26 — whether I may create visitor codes, and for how long.
-      visitorPolicy: { allowed: community.visitorAllowed && community.credentials.length > 0, maxHours: 24 },
+      visitorPolicy: visitorPolicy(community),
     });
+  }),
+
+  http.post(mswPath("/v1/resident/access/visitor-codes"), async ({ request }) => {
+    const auth = authenticate(request, "resident", "resident.access.visitorCode");
+    if (auth instanceof Response) return auth;
+    return createVisitorCode(auth.account, request, await json<Record<string, unknown>>(request));
   }),
 
   http.get(mswPath("/v1/resident/access/events"), ({ request }) => {

@@ -39,7 +39,7 @@ export default async function FacilityPage({
     getTranslations("resident.community.facilities"),
   ]);
   if (actor.status !== "signed-in") return null;
-  if (!actor.entitlements.has("announcements") || !actor.unit) notFound();
+  if (!actor.entitlements.has("facilities") || !actor.unit) notFound();
   const now = currentTime();
   const today = bookingDays({ maxAdvanceDays: 1 }, now)[0]!;
   const wanted = typeof query.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(query.date) ? query.date : today;

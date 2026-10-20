@@ -11,7 +11,7 @@ const byId = new Map(GENERATED_OPERATIONS.map((op) => [op.operationId, op]));
 
 export function operation(operationId: string): GeneratedOperation {
   const op = byId.get(operationId);
-  if (!op) throw new Error(`${operationId} is not in the contract — mock it in mocks/contract-requests.ts`);
+  if (!op) throw new Error(`${operationId} is not in the contract — list it in docs/contract-requests.md first`);
   return op;
 }
 

@@ -2,11 +2,10 @@ import { getTranslations } from "next-intl/server";
 
 import { WORK_ORDER_STATUS } from "@/domain/status/workOrder";
 import { PhotoGallery } from "@/features/shared/PhotoGallery";
-import { RequestThread } from "@/features/shared/RequestThread";
+import { LazyRequestThread } from "@/features/shared/LazyRequestThread";
 import { formatClock } from "@/features/shared/time";
 import { formatDate, formatDateTime, formatDecimal, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { WorkOrderView } from "@/lib/api/contract-requests";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
 import { DescriptionList } from "@/ui/components/DescriptionList";
@@ -15,7 +14,7 @@ import { SimpleTable } from "@/ui/components/SimpleTable";
 
 import { CostLineForm } from "./CostLineForm";
 import { DoorCodes } from "./DoorCodes";
-import { canAddPhotos, fieldActions } from "./model";
+import { canAddPhotos, fieldActions, type WorkOrder } from "./model";
 import { WorkOrderActions } from "./WorkOrderActions";
 import { WorkOrderPhotos } from "./WorkOrderPhotos";
 
@@ -23,12 +22,13 @@ import { WorkOrderPhotos } from "./WorkOrderPhotos";
  * One work order for its technician (L4 4.4 §2, A4.3): the place (unit, building), the visit window, the problem
  * with the resident's photos, the door codes of the visit, the next field step, before / after photos, parts and
  * costs (amounts and the total are the API's), the thread with the resident through the platform (never a phone
- * number), and — once done — the resident's rating. CONTRACT-REQUEST #25: photo links and the rating.
+ * number), and — once done — the resident's rating. Photo links (5 minutes; a file not scanned clean yet is a
+ * placeholder), the resident's preferred visit and the rating are the API's (D-218).
  */
-export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOrderView; locale: Locale }) {
+export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOrder; locale: Locale }) {
   const [t, root] = await Promise.all([getTranslations("technician.workOrders"), getTranslations()]);
   const status = WORK_ORDER_STATUS[workOrder.status];
-  const photos = workOrder.photos ?? [];
+  const photos = workOrder.photos;
   const requestPhotos = photos.filter((p) => p.role === "report");
   const open = canAddPhotos(workOrder);
   const finished = workOrder.status === "done" || workOrder.status === "verified";
@@ -83,6 +83,15 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
                   : formatDateTime(workOrder.scheduledAt, locale)
                 : t("detail.noVisit"),
             },
+            ...(workOrder.preferredVisit
+              ? [
+                  {
+                    id: "preferredVisit",
+                    term: t("detail.preferredVisit"),
+                    description: t(`detail.visitPreference.${workOrder.preferredVisit}`),
+                  },
+                ]
+              : []),
             { id: "kind", term: t("detail.problem"), description: t(`detail.kind.${workOrder.kind}`) },
             {
               id: "problem",
@@ -99,7 +108,6 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
         <h2 id="wo-request-photos" className="mb-2 font-semibold">
           {t("detail.requestPhotos")}
         </h2>
-        {/* CONTRACT-REQUEST #25: thumbnails only when the API sends the links. */}
         {requestPhotos.length ? (
           <PhotoGallery
             label={t("detail.requestPhotos")}
@@ -202,7 +210,6 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
           {workOrder.completionNote ? (
             <p className="mt-1 text-sm">{t("detail.note", { note: workOrder.completionNote })}</p>
           ) : null}
-          {/* CONTRACT-REQUEST #25: the resident's rating once the request is closed. */}
           {workOrder.rating ? (
             <p className="mt-2 font-medium">
               <span aria-hidden="true" className="text-primary me-2">
@@ -221,13 +228,12 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
         </Card>
       ) : null}
 
-      {workOrder.serviceRequestId ? (
-        <RequestThread
-          path={`/v1/technician/work-orders/${workOrder.id}/messages`}
-          canWrite={!finished && workOrder.status !== "cancelled"}
-          namespace="technician.workOrders.thread"
-        />
-      ) : null}
+      <LazyRequestThread
+        of={{ kind: "technician", workOrderId: workOrder.id }}
+        canWrite={!finished && workOrder.status !== "cancelled"}
+        namespace="technician.workOrders.thread"
+        withOffice={!workOrder.serviceRequestId}
+      />
     </div>
   );
 }

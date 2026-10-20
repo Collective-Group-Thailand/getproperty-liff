@@ -28,6 +28,7 @@
   "photo": {
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "zoom": "Zoom {percent}%"
+    "zoom": "Zoom {percent}%",
+    "scanning": "Photo being checked"
   }
 }

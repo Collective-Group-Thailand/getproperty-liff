@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { browserApi } from "@/lib/api/browser";
 import { peekQueryClient } from "@/lib/api/query-runtime";
-import { backoff, pathMatches, queriesFor, routesFor } from "@/lib/realtime/events";
+import { backoff, pathMatches, queriesFor, routesFor, signalRealtime } from "@/lib/realtime/events";
 
 /** Named SSE events this app reacts to (contract §6; the API's event types, `src/core/events/event-types.ts`). */
 const REALTIME_EVENTS = [
@@ -29,6 +29,7 @@ const REALTIME_EVENTS = [
   "service_request.created",
   "service_request.changed",
   "service_request.rated",
+  "service_request.message",
   "parcel.received",
   "parcel.picked_up",
   "parcel.returned",
@@ -67,6 +68,7 @@ export function RealtimeBridge() {
       } catch {
         // `ready`/`heartbeat` may carry no JSON type; the SSE event name is enough.
       }
+      signalRealtime(type);
       // TanStack Query loads on demand (D-179): no client yet means nothing cached to invalidate.
       const queryClient = peekQueryClient();
       if (pathMatches(path.current, routesFor(type))) router.refresh();

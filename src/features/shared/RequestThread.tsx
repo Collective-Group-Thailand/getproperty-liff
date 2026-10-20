@@ -5,9 +5,11 @@ import { useEffect, useId, useState } from "react";
 
 import { formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
-import { bffJson } from "@/lib/api/browser";
-import type { ThreadMessages } from "@/lib/api/contract-requests";
+import { browserApi, unwrap } from "@/lib/api/browser";
+import { newIdempotencyKey } from "@/lib/api/idempotency";
 import { isApiError, type ApiError } from "@/lib/api/problem";
+import type { ServiceMessage } from "@/lib/api/types";
+import { MESSAGE_EVENT, onRealtime } from "@/lib/realtime/events";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
@@ -16,72 +18,125 @@ import { cn } from "@/ui/lib/cn";
 
 import { ProblemCallout } from "./ProblemNotice";
 
+/** The API's limit on one message (`ServiceMessageCreateDto.body`, D-218). */
+export const MAX_MESSAGE_LENGTH = 2000;
+
+/** Whose thread: the resident's request, or the technician's work order (the same thread when it has a request). */
+export type ThreadOf = { kind: "resident"; serviceRequestId: string } | { kind: "technician"; workOrderId: string };
+
+async function readThread(of: ThreadOf): Promise<ServiceMessage[]> {
+  const result =
+    of.kind === "resident"
+      ? await browserApi.GET("/v1/resident/service-requests/{serviceRequestId}/messages", {
+          params: { path: { serviceRequestId: of.serviceRequestId } },
+        })
+      : await browserApi.GET("/v1/technician/work-orders/{workOrderId}/messages", {
+          params: { path: { workOrderId: of.workOrderId } },
+        });
+  return unwrap(result).data;
+}
+
+async function postMessage(of: ThreadOf, body: string, key: string): Promise<ServiceMessage> {
+  const header = { "Idempotency-Key": key };
+  const result =
+    of.kind === "resident"
+      ? await browserApi.POST("/v1/resident/service-requests/{serviceRequestId}/messages", {
+          params: { path: { serviceRequestId: of.serviceRequestId }, header },
+          body: { body },
+        })
+      : await browserApi.POST("/v1/technician/work-orders/{workOrderId}/messages", {
+          params: { path: { workOrderId: of.workOrderId }, header },
+          body: { body },
+        });
+  return unwrap(result);
+}
+
 /**
  * The request's thread — resident ↔ office ↔ technician, through the platform, never a phone number (L4 4.1 §2,
- * 4.4 §2). CONTRACT-REQUEST #23: `GET/POST /v1/resident/service-requests/{id}/messages` and the technician's
- * `/v1/technician/work-orders/{id}/messages`. Where the API does not offer the thread yet the section is not shown.
- * Re-read when the view comes back into focus (a LINE message about a reply brings the resident back here).
+ * 4.4 §2; D-218): `GET/POST /v1/resident/service-requests/{id}/messages` or the technician's
+ * `/v1/technician/work-orders/{id}/messages` (a work order without a request has its own thread with the office).
+ * Re-read on the realtime `service_request.message` event and when the view comes back into focus (a LINE message
+ * about a reply brings the reader back here). One `Idempotency-Key` per message, kept for a retry of the same text.
  */
 export function RequestThread({
-  path,
+  of,
   canWrite,
   namespace,
+  withOffice = false,
 }: {
-  /** `/v1/resident/service-requests/{id}/messages` or `/v1/technician/work-orders/{id}/messages`. */
-  path: string;
+  of: ThreadOf;
   canWrite: boolean;
   namespace: "resident.requests.thread" | "technician.workOrders.thread";
+  /** A technician's work order without a request: the thread is with the office only. */
+  withOffice?: boolean;
 }) {
   const t = useTranslations(namespace);
   const current = useLocale();
   const locale = isLocale(current) ? current : "th";
   const id = useId();
-  const [messages, setMessages] = useState<ThreadMessages["data"] | null>(null);
-  const [available, setAvailable] = useState(true);
+  const [messages, setMessages] = useState<ServiceMessage[] | null>(null);
+  const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-
+  const [key, setKey] = useState(newIdempotencyKey);
   const [version, setVersion] = useState(0);
+  const target = of.kind === "resident" ? of.serviceRequestId : of.workOrderId;
 
   useEffect(() => {
     let cancelled = false;
-    // CONTRACT-REQUEST #23 (docs/contract-requests.md).
-    bffJson<ThreadMessages>(path).then(
-      (thread) => !cancelled && setMessages(thread.data),
+    readThread(of).then(
+      (data) => {
+        if (cancelled) return;
+        setMessages(data);
+        setLoadError(null);
+      },
       (caught: unknown) => {
         if (!isApiError(caught)) throw caught;
-        if (!cancelled && (caught.status === 404 || caught.status === 405)) setAvailable(false);
+        if (!cancelled) setLoadError(caught);
       },
     );
     return () => {
       cancelled = true;
     };
-  }, [path, version]);
+    // `of` is identified by its kind and id; a new object for the same thread must not re-read it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [of.kind, target, version]);
 
   useEffect(() => {
-    const onVisible = () => document.visibilityState === "visible" && setVersion((v) => v + 1);
+    const reread = () => setVersion((v) => v + 1);
+    const onVisible = () => document.visibilityState === "visible" && reread();
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    const off = onRealtime(MESSAGE_EVENT, reread);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      off();
+    };
   }, []);
 
-  if (!available) return null;
-  const who = (author: string, mine: boolean, name: string) =>
-    mine ? t("you") : `${t(author as "office" | "technician" | "resident" | "system")}${name ? ` · ${name}` : ""}`;
+  const who = (author: ServiceMessage["author"], mine: boolean, name: string) =>
+    mine ? t("you") : `${t(author)}${name ? ` · ${name}` : ""}`;
 
   return (
     <Card as="section" padding="md" aria-labelledby={`${id}-title`} data-testid="request-thread">
       <h2 id={`${id}-title`} className="font-semibold">
-        {t("title")}
+        {withOffice && namespace === "technician.workOrders.thread" ? t("titleOffice") : t("title")}
       </h2>
-      <p className="text-muted mt-1 text-sm">{t("lead")}</p>
-      {messages === null ? null : messages.length === 0 ? (
+      <p className="text-muted mt-1 text-sm">
+        {withOffice && namespace === "technician.workOrders.thread" ? t("leadOffice") : t("lead")}
+      </p>
+      {loadError && messages === null ? (
+        <div className="mt-3">
+          <ProblemCallout error={loadError} />
+        </div>
+      ) : messages === null ? null : messages.length === 0 ? (
         <p className="text-muted mt-3 text-sm">{t("empty")}</p>
       ) : (
         <ol className="mt-3 flex flex-col gap-2" aria-live="polite" data-testid="thread-messages">
           {messages.map((m) => (
             <li
               key={m.id}
+              data-author={m.author}
               className={cn(
                 "rounded-card max-w-[85%] px-3 py-2",
                 m.mine ? "bg-primary-subtle text-primary-subtle-fg self-end" : "bg-surface-subtle self-start",
@@ -104,10 +159,10 @@ export function RequestThread({
             setBusy(true);
             setError(null);
             try {
-              // CONTRACT-REQUEST #23 (docs/contract-requests.md).
-              const thread = await bffJson<ThreadMessages>(path, { method: "POST", body: { body } });
-              setMessages(thread.data);
+              const sent = await postMessage(of, body, key);
+              setMessages((list) => (list?.some((m) => m.id === sent.id) ? list : [...(list ?? []), sent]));
               setText("");
+              setKey(newIdempotencyKey());
             } catch (caught) {
               if (!isApiError(caught)) throw caught;
               setError(caught);
@@ -119,10 +174,13 @@ export function RequestThread({
           <Field label={t("label")}>
             <Textarea
               rows={2}
-              maxLength={1000}
+              maxLength={MAX_MESSAGE_LENGTH}
               placeholder={t("placeholder")}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                setKey(newIdempotencyKey());
+              }}
               data-testid="thread-input"
             />
           </Field>
@@ -132,7 +190,9 @@ export function RequestThread({
           </Button>
         </form>
       ) : (
-        <p className="text-muted mt-3 text-sm">{t("closed")}</p>
+        <p className="text-muted mt-3 text-sm" data-testid="thread-closed">
+          {t("closed")}
+        </p>
       )}
     </Card>
   );

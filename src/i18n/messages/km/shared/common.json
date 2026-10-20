@@ -28,6 +28,7 @@
   "photo": {
     "zoomIn": "ពង្រីក",
     "zoomOut": "បង្រួម",
-    "zoom": "ពង្រីក {percent}%"
+    "zoom": "ពង្រីក {percent}%",
+    "scanning": "កំពុងពិនិត្យរូបថត"
   }
 }

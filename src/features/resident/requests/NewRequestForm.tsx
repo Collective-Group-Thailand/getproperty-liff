@@ -8,9 +8,9 @@ import { PhotoPicker, type PickedPhoto } from "@/features/shared/PhotoPicker";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { PREFERRED_VISITS, type PreferredVisit } from "@/lib/api/contract-requests";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
 import { isApiError, type ApiError } from "@/lib/api/problem";
+import { VISIT_PREFERENCES, type VisitPreference } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Field } from "@/ui/components/Field";
 import { Textarea } from "@/ui/components/Input";
@@ -44,7 +44,7 @@ export function NewRequestForm({
   const [categoryId, setCategoryId] = useState("");
   const [priority, setPriority] = useState<Priority>("normal");
   const [description, setDescription] = useState("");
-  const [visit, setVisit] = useState<PreferredVisit>("anytime");
+  const [visit, setVisit] = useState<VisitPreference>("anytime");
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [invalid, setInvalid] = useState<{ category?: boolean; description?: boolean }>({});
   const [busy, setBusy] = useState(false);
@@ -74,16 +74,17 @@ export function NewRequestForm({
         photoDocumentIds.push(fileId);
       }
       setProgress(null);
-      // CONTRACT-REQUEST #24: until the API takes a structured preferred time, the choice is written into the text the
-      // office reads (the contract's DTO refuses unknown fields).
-      const text =
-        visit === "anytime"
-          ? description.trim()
-          : `${description.trim()}\n${t("preferredVisit")} ${t(`visit.${visit}`)}`;
       const created = unwrap(
         await browserApi.POST("/v1/resident/service-requests", {
           params: { header: { "Idempotency-Key": key } },
-          body: { unitId, categoryId, priority, description: text, photoDocumentIds },
+          body: {
+            unitId,
+            categoryId,
+            priority,
+            description: description.trim(),
+            photoDocumentIds,
+            preferredVisit: visit,
+          },
         }),
       );
       router.push(`/requests/${created.id}?sent=1`);
@@ -183,9 +184,9 @@ export function NewRequestForm({
           name="visit"
           value={visit}
           disabled={busy}
-          options={PREFERRED_VISITS.map((v) => ({ value: v, label: t(`visit.${v}`) }))}
+          options={VISIT_PREFERENCES.map((v) => ({ value: v, label: t(`visit.${v}`) }))}
           onChange={(e) => {
-            setVisit(e.target.value as PreferredVisit);
+            setVisit(e.target.value as VisitPreference);
             changed();
           }}
           data-testid="request-visit"

@@ -1,6 +1,5 @@
 import "server-only";
 
-import type { ServiceRequestView } from "@/lib/api/contract-requests";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
 import type { PageMeta } from "@/lib/api/types";
@@ -20,16 +19,15 @@ export async function loadRequests(page: number): Promise<Loaded<{ items: Servic
 }
 
 /**
- * `GET /v1/resident/service-requests/{id}` — 404 when it is neither of my unit nor reported by me. CONTRACT-REQUEST
- * #22 / #24: photo links, the status history, the SLA state and the visit confirmation are read when the API sends
- * them (`ServiceRequestView`); the page works on the contract's fields alone.
+ * `GET /v1/resident/service-requests/{id}` — 404 when it is neither of my unit nor reported by me. Carries the photo
+ * links (5 minutes), the status history, the SLA and the visit confirmation (D-218).
  */
-export async function loadRequest(serviceRequestId: string): Promise<Loaded<ServiceRequestView>> {
+export async function loadRequest(serviceRequestId: string): Promise<Loaded<ServiceRequest>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/service-requests/{serviceRequestId}", {
     params: { path: { serviceRequestId } },
   });
-  return data ? { data: data as ServiceRequestView } : { error: problemFromParsed(response, error) };
+  return data ? { data } : { error: problemFromParsed(response, error) };
 }
 
 /** `GET /v1/resident/service-categories?unitId=` — the landlord's categories of that unit, active ones in order. */

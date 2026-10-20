@@ -12,6 +12,7 @@ import {
   photosOf,
   splitRequests,
   timelineOf,
+  visitState,
   type ServiceRequest,
   type ServiceRequestStatus,
 } from "./model";
@@ -25,6 +26,11 @@ const request = (status: ServiceRequestStatus, extra: Partial<ServiceRequest> = 
     createdAt: "2026-11-01T09:00:00+07:00",
     doneAt: null,
     closedAt: null,
+    events: [],
+    photos: [],
+    nextActions: [],
+    visitAt: null,
+    visitConfirmedAt: null,
     ...extra,
   }) as ServiceRequest;
 
@@ -45,7 +51,7 @@ describe("service request timeline (L4 4.1, D-159)", () => {
     if (["triaged", "assigned", "in_progress", "waiting_parts"].includes(status)) expect(steps.at(-1)!.at).toBeNull();
   });
 
-  it("uses the API's workflow events when it sends them (CONTRACT-REQUEST #22)", () => {
+  it("uses the API's status history when the request has one (D-218)", () => {
     const events = [
       { status: "new" as const, at: "2026-11-01T09:00:00+07:00" },
       { status: "triaged" as const, at: "2026-11-01T09:30:00+07:00" },
@@ -82,18 +88,33 @@ describe("service request lists and names", () => {
     expect(categoryName({ ...category, key: "landlord_custom" }, "zh", translate)).toBe("Plumbing (A)");
   });
 
-  it("splits the photo links by role", () => {
-    const view = {
-      ...request("done"),
+  it("splits the photos by role, keeping a photo still being scanned (url null)", () => {
+    const view = request("done", {
       photos: [
-        { id: "a", role: "report" as const, url: "https://x/a" },
-        { id: "b", role: "before" as const, url: "https://x/b" },
-        { id: "c", role: "after" as const, url: "https://x/c" },
+        { id: "a", role: "report", url: "https://x/a" },
+        { id: "s", role: "report", url: null },
+        { id: "b", role: "before", url: "https://x/b" },
+        { id: "c", role: "after", url: "https://x/c" },
       ],
-    };
+    });
     const photos = photosOf(view);
-    expect(photos.report.map((p) => p.id)).toEqual(["a"]);
+    expect(photos.report.map((p) => p.id)).toEqual(["a", "s"]);
+    expect(photos.before.map((p) => p.id)).toEqual(["b"]);
     expect(photos.after.map((p) => p.id)).toEqual(["c"]);
-    expect(photosOf(request("new"))).toEqual({ report: [], after: [] });
+    expect(photosOf(request("new"))).toEqual({ report: [], before: [], after: [] });
+  });
+
+  it("reads the planned visit from what the API offers (D-218: a moved visit asks again)", () => {
+    const at = "2026-11-02T10:00:00+07:00";
+    expect(visitState(request("triaged"))).toBe("none");
+    expect(visitState(request("assigned", { visitAt: at, nextActions: ["confirm-visit"] }))).toBe("confirm");
+    expect(visitState(request("assigned", { visitAt: at, visitConfirmedAt: "2026-11-01T12:00:00+07:00" }))).toBe(
+      "confirmed",
+    );
+    // Moved by the office: the confirmation is cleared and `confirm-visit` offered again.
+    expect(
+      visitState(request("assigned", { visitAt: "2026-11-03T10:00:00+07:00", nextActions: ["confirm-visit"] })),
+    ).toBe("confirm");
+    expect(visitState(request("in_progress", { visitAt: at }))).toBe("planned");
   });
 });

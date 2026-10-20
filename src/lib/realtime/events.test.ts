@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { backoff, pathMatches, queriesFor, routesFor } from "./events";
+import { backoff, MESSAGE_EVENT, onRealtime, pathMatches, queriesFor, routesFor, signalRealtime } from "./events";
 
 describe("realtime → query invalidation", () => {
   it("maps payment status events to payments, invoices and receipts", () => {
@@ -30,6 +30,8 @@ describe("realtime → query invalidation", () => {
     expect(routesFor("facility_booking.changed")).toEqual(["/facilities"]);
     expect(routesFor("access.credential_revoked")).toEqual(["/access"]);
     expect(routesFor("invoice.paid")).toEqual([]);
+    // A thread message re-reads the thread only (D-218), never the whole request page.
+    expect(routesFor(MESSAGE_EVENT)).toEqual([]);
     expect(pathMatches("/requests/3b24", ["/requests"])).toBe(true);
     expect(pathMatches("/requestsx", ["/requests"])).toBe(false);
     expect(pathMatches("/", ["/"])).toBe(true);
@@ -40,5 +42,18 @@ describe("realtime → query invalidation", () => {
     expect(backoff(0, () => 0)).toBe(500);
     expect(backoff(3, () => 1)).toBe(8000);
     expect(backoff(20, () => 1)).toBe(60_000);
+  });
+});
+
+describe("realtime signals to client components", () => {
+  it("delivers only the subscribed event type, until unsubscribed", () => {
+    const target = new EventTarget();
+    const seen: string[] = [];
+    const off = onRealtime(MESSAGE_EVENT, () => seen.push("message"), target);
+    signalRealtime("service_request.changed", target);
+    signalRealtime(MESSAGE_EVENT, target);
+    off();
+    signalRealtime(MESSAGE_EVENT, target);
+    expect(seen).toEqual(["message"]);
   });
 });
