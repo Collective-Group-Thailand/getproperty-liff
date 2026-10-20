@@ -51,6 +51,7 @@ test.describe("usage (D-063)", () => {
     await expect(page.getByRole("navigation", { name: "เมนูด่วน" }).getByRole("link")).toHaveText([
       "หน้าแรก",
       "บิล",
+      "แจ้งซ่อม",
       "ฉัน",
     ]);
     await expectAxeClean(page);
@@ -68,7 +69,7 @@ test.describe("profile and privacy (D-025, D-064)", () => {
     await expectNoHorizontalScroll(page);
     await expectAxeClean(page);
 
-    await page.getByRole("radio", { name: "English" }).click();
+    await page.getByTestId("profile-language").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("My profile");
     const me = await page.request.get("/bff/v1/resident/me");

@@ -24,13 +24,25 @@ test.describe("resident shell", () => {
     await expect(home.getByRole("heading", { level: 1 })).toHaveText("สวัสดี สมชาย ใจดี");
     await expect(page.getByTestId("unit-card")).toContainText("ห้อง A-201");
     await expect(page.getByTestId("unit-card")).toContainText("ดูแลโดย หอพักตัวอย่าง");
-    // Mock entitlements: bills (bills + receipts tiles), usage, lease.
-    for (const tile of ["บิล", "ใบเสร็จ", "การใช้น้ำไฟ", "สัญญาเช่า"])
+    // Mock entitlements: bills (bills + receipts tiles), usage, lease and the R2 modules (repairs, announcements,
+    // parcels; facilities with the community module; door codes, house rules and contacts with the lease).
+    for (const tile of [
+      "บิล",
+      "ใบเสร็จ",
+      "การใช้น้ำไฟ",
+      "แจ้งซ่อม",
+      "สัญญาเช่า",
+      "ประกาศ",
+      "พัสดุ",
+      "จองห้องส่วนกลาง",
+      "รหัสประตู",
+      "ระเบียบอาคาร",
+      "เบอร์ติดต่อ",
+    ])
       await expect(home.getByRole("link", { name: tile, exact: true })).toBeVisible();
-    await expect(home.getByRole("link", { name: "แจ้งซ่อม" })).toHaveCount(0);
 
     const nav = page.getByRole("navigation", { name: "เมนูด่วน" });
-    await expect(nav.getByRole("link")).toHaveText(["หน้าแรก", "บิล", "การใช้", "ฉัน"]);
+    await expect(nav.getByRole("link")).toHaveText(["หน้าแรก", "บิล", "การใช้", "แจ้งซ่อม", "ฉัน"]);
     await expect(nav.getByRole("link", { name: "หน้าแรก" })).toHaveAttribute("aria-current", "page");
     // A single unit is plain text, not a switcher.
     await expect(page.getByTestId("unit-switcher")).toHaveCount(0);
@@ -65,12 +77,15 @@ test.describe("resident shell", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 
-  test("falls back to English copy for a scaffolded locale (D-064)", async ({ page, context, baseURL }) => {
-    await seedSession(context, baseURL!, subject("khmer"));
+  test("a namespace not yet translated falls back to English (D-064): technician screens in Khmer", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
     await context.addCookies([{ name: "gp_locale", value: "km", url: baseURL! }]);
-    await page.goto("/");
+    await page.goto("/technician/sign-in");
     await expect(page.locator("html")).toHaveAttribute("lang", "km");
-    await expect(page.getByRole("link", { name: "Receipts", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sign in for technicians");
   });
 
   test("an API failure shows the error with its request id, not a blank page", async ({ page, context, baseURL }) => {

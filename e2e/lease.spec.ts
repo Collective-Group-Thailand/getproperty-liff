@@ -39,8 +39,8 @@ test.describe("lease and e-signature (D-062)", () => {
     await expect(view.getByText("รอลงนาม", { exact: true })).toBeVisible();
     await expect(page.getByTestId("lease-parties")).toContainText("ผู้เช่าร่วม");
     await expect(page.getByTestId("lease-rules")).toContainText("ระเบียบอาคาร");
-    // Rules are acknowledged after signing, not before.
-    await expect(page.getByTestId("rules-form")).toHaveCount(0);
+    // The API offers the rules acknowledgement from signing on (`acknowledge-rules`, RULES_ACK_STATES).
+    await expect(page.getByTestId("rules-form")).toBeVisible();
     await expectNoHorizontalScroll(page);
     await expectAxeClean(page);
 

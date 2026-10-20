@@ -147,9 +147,4 @@ test.describe("LIFF entry", () => {
     await expectAxeClean(page);
     await expectNoHorizontalScroll(page);
   });
-
-  test("the technician screen is hidden while FEATURE_TECHNICIAN is off (R2)", async ({ page }) => {
-    const response = await page.goto("/technician");
-    expect(response?.status()).toBe(404);
-  });
 });

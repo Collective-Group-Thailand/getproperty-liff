@@ -258,7 +258,9 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
     const sheet = page.getByRole("dialog");
     await sheet.getByTestId("pay-slip").click();
     await expect(sheet.getByTestId("stepper-progress")).toContainText("ขั้นที่ 1 จาก 3");
-    await expect(sheet.getByTestId("slip-account")).toContainText("xxx-x-x1234-x");
+    // The full account number while something is due (D-209), with a copy button.
+    await expect(sheet.getByTestId("slip-account")).toContainText("1234561234");
+    await expect(sheet.getByTestId("pay-copy-account")).toBeVisible();
     await checkPage(page);
     await sheet.getByTestId("slip-file").setInputFiles({
       name: "slip.png",

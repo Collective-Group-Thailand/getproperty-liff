@@ -9,6 +9,8 @@ import { expect, type BrowserContext, type Page } from "@playwright/test";
 export const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 export async function expectAxeClean(page: Page) {
+  // A refresh in flight (router.refresh after a mutation) may stream the head again: wait for the title.
+  await expect.poll(() => page.title()).not.toBe("");
   const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
   expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
 }

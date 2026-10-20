@@ -6,7 +6,7 @@ import { defineConfig, devices, type ReporterDescription } from "@playwright/tes
  * Same shape as getproperty-web's config. Deliberately not 3300 (`pnpm dev`): the suite gets its own
  * port so a dev server can never make the run pass or fail by accident. The app is built with the fake
  * LIFF (`NEXT_PUBLIC_LIFF_MOCK=1`, inlined at build time), answers the API from the contract mocks
- * (`API_MOCKS=1`, `mocks/`) and runs with the technician flag off. The run against the real API is its own
+ * (`API_MOCKS=1`, `mocks/`) and runs with the technician flag on (L4). The run against the real API is its own
  * config (`playwright.integration.config.ts`, project `integration`).
  */
 const PORT = Number(process.env.E2E_PORT ?? 3500);
@@ -55,7 +55,9 @@ export default defineConfig({
       NEXT_PUBLIC_LIFF_MOCK: "1",
       API_MOCKS: "1",
       API_INTERNAL_URL: "",
-      FEATURE_TECHNICIAN: "",
+      // L4: the technician screens are on in this suite (their guard and the BFF prefixes are unit-tested with the
+      // flag off).
+      FEATURE_TECHNICIAN: "1",
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },
