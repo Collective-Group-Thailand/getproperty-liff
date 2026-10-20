@@ -2,8 +2,8 @@
 /**
  * Runs Lighthouse CI once per URL set (`docs/performance-budgets.md`).
  *
- * `lhci autorun` takes one config; each set is its own config in `lighthouse/` (today: `resident`, `public`;
- * L4 adds `technician`), they share `lighthouse/shared.json`, and this runs them in turn against one
+ * `lhci autorun` takes one config; each set is its own config in `lighthouse/` (`resident`, `resident-r2`, `resident-sign`,
+ * `resident-moveout`, `public`, `technician`), they share `lighthouse/shared.json`, and this runs them in turn against one
  * production server with LIFF mocked.
  *
  *   pnpm lhci                 every set
@@ -28,6 +28,8 @@ const env = {
   API_MOCKS: "1",
   NEXT_PUBLIC_LIFF_MOCK: "1",
   NEXT_TELEMETRY_DISABLED: "1",
+  // L4: the `technician` set measures the technician app.
+  FEATURE_TECHNICIAN: "1",
 };
 
 async function portTaken(): Promise<boolean> {

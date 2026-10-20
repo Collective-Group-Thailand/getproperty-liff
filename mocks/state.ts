@@ -168,9 +168,16 @@ export function sessionById(sid: string): MockSession | undefined {
  * script. Mock builds only, like everything in `mocks/`.
  */
 export const SEED_REFRESH_PREFIX = "mock-rt.seed.";
+/** The same for a technician (`lighthouse/technician.json`): `mock-rt.seed-technician.<LINE sub>`. */
+export const SEED_TECHNICIAN_REFRESH_PREFIX = "mock-rt.seed-technician.";
 
 /** Single-use rotation like the API (D-163): a rotated token revokes the whole session. */
 export function rotate(refreshToken: string): { session: MockSession } | { error: "invalid" | "reused" } {
+  if (refreshToken.startsWith(SEED_TECHNICIAN_REFRESH_PREFIX)) {
+    const sub = refreshToken.slice(SEED_TECHNICIAN_REFRESH_PREFIX.length);
+    const account = accountFor(`line:${sub}`, { displayName: "ช่างสมชาย", phone: null, lineLinked: true });
+    return rotate(openSession("technician", account.userId).refreshToken);
+  }
   if (refreshToken.startsWith(SEED_REFRESH_PREFIX)) {
     const sub = refreshToken.slice(SEED_REFRESH_PREFIX.length);
     const account = accountFor(`line:${sub}`, { displayName: "สมชาย ใจดี", phone: null, lineLinked: true });

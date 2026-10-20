@@ -3,7 +3,7 @@
 **getproperty — บิลทำเอง เก็บเงินเอง ถูกกฎหมาย** · operated by Collective Group (Thailand) · the resident-facing **LINE Mini App (LIFF)** of Collective Group's Building Operations platform (D-150, D-154)
 This repository is a **single-zone Next.js 16 app** for the people who live in units — **residents** (parties with an `occupancy`; never called "tenants": a *tenant* is the SaaS customer organisation, D-151) — and, in R2, for external **technicians** ("my work orders"):
 - **resident** (audience `resident`, `/v1/resident/*`): home, invoices & pay (Thai QR), receipts, usage, lease & e-sign, move-out notice, service requests, announcements, parcels, profile & consent
-- **technician** (R2, audience `technician`, `/v1/technician/*`): my work orders — behind `FEATURE_TECHNICIAN=1` until L4
+- **technician** (R2, audience `technician`, `/v1/technician/*`): my work orders (L4; still behind `FEATURE_TECHNICIAN=1` — off: `/technician` is a 404 and the BFF refuses technician prefixes)
 
 The operator console, staff PWA and platform admin are `getproperty-web`; the backend is `getproperty-api` (NestJS). This app never talks to a database and never computes money, tariffs, billing dates or compliance — it renders what the API returns.
 
@@ -23,7 +23,7 @@ The operator console, staff PWA and platform admin are `getproperty-web`; the ba
 - **Compliance problems** from the API (`compliance.*` with `legalRef`) are shown with their legal reference (`<Callout legalRef>`) and never worked around in the UI.
 - Values that decisions mark as configurable come from the API, never hard-coded.
 - **Design system by copy** (D-155): `src/ui`, `src/i18n/format.ts`, `src/domain/status` come from `getproperty-web` — change them there first, re-copy, update `docs/shared-copies.md`, run `pnpm shared:check`. Adapted files say so in their header. UI primitives only from `src/ui`; zones never restyle primitives locally.
-- All copy through `src/i18n` (th default, en complete; my/km/lo/zh fall back to en until L4, D-064). Status labels/tones/icons only from `src/domain/status`.
+- All copy through `src/i18n` (th default; en, my, km, lo, zh complete for resident screens since L4 — the technician namespace falls back to en there, D-064; script fonts in `src/fonts`, `pnpm fonts:scripts`). Status labels/tones/icons only from `src/domain/status`.
 - Domain words follow D-151 in code, routes and English copy: resident, party, occupancy, unit, building, lease, invoice / invoice_line, payment, receipt, service_request, work_order, announcement, parcel. Thai copy uses the everyday words (ห้อง, บิล, แจ้งซ่อม).
 - Never copy third-party designs, templates, text or assets (LINE's own UI and competitor apps included). Brand = getproperty tokens.
 - Plan Mode first for each deliverable; wait for approval. Small vertical slices, Conventional Commits, green CI per slice. When ambiguous: record the assumption in `docs/PROGRESS.md` and take the most conservative option.

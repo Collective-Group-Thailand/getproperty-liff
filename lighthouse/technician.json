@@ -1,0 +1,54 @@
+{
+  "extends": "./shared.json",
+  "$comment": "L4 technician app (D-072, D-210; FEATURE_TECHNICIAN=1): my work orders and one work order (photos and CameraCapture load on tap). Budgets of docs/performance-budgets.md: LCP ≤ 2.5 s, CLS ≤ 0.1, initial JS ≤ 180 KB gz (hard). The session comes from the mock's technician seed refresh token (mocks/state.ts); the work-order id from mockSeedId.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/technician",
+        "http://localhost:3400/technician/work-orders/bec8fd22-290a-4071-8298-9aa662adfaf1"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_trt=mock-rt.seed-technician.Ulighthouse-tech"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2500
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.1
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

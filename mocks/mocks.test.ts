@@ -296,6 +296,25 @@ describe("Lighthouse URLs of mock leases", () => {
     const { currentInvoiceId } = await import("./billing");
     expect(urls).toContain(`http://localhost:3400/invoices/${currentInvoiceId("line:Ulighthouse-resident")}`);
   });
+
+  it("match the seeded request, facility and work-order ids (lighthouse/resident-r2.json, technician.json)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const read = (set: string) =>
+      (
+        JSON.parse(readFileSync(new URL(`../lighthouse/${set}.json`, import.meta.url), "utf8")) as {
+          ci: { collect: { url: string[] } };
+        }
+      ).ci.collect.url;
+    const { mockSeedId } = await import("./service");
+    const { FACILITIES } = await import("./community");
+    expect(read("resident-r2")).toContain(
+      `http://localhost:3400/requests/${mockSeedId("line:Ulighthouse-resident", "request", "open")}`,
+    );
+    expect(read("resident-r2")).toContain(`http://localhost:3400/facilities/${FACILITIES[0]!.id}`);
+    expect(read("technician")).toContain(
+      `http://localhost:3400/technician/work-orders/${mockSeedId("line:Ulighthouse-tech", "work-order", "leak")}`,
+    );
+  });
 });
 
 describe("L2 billing mocks follow the contract", () => {

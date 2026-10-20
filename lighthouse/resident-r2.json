@@ -1,0 +1,62 @@
+{
+  "extends": "./shared.json",
+  "$comment": "L4 R2 resident screens (D-072, D-073, D-070): service requests (list, the new-request form with the photo picker — CameraCapture is loaded on tap —, one request with its timeline), announcements, parcels, facilities and one facility's availability, house rules, contacts, my door codes and unlock log. Same device, network and budgets as resident.json (initial JS ≤ 180 KB gz, D-179, a hard limit). Ids are derived from the mock subject (mocks/service.ts mockSeedId; the facility from mocks/community.ts; mocks.test.ts checks them).",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/requests",
+        "http://localhost:3400/requests/new",
+        "http://localhost:3400/requests/81e34392-1ec3-47ba-80c4-c5ea95e4b2e8",
+        "http://localhost:3400/announcements",
+        "http://localhost:3400/parcels",
+        "http://localhost:3400/facilities",
+        "http://localhost:3400/facilities/490ef687-a194-4c4b-8e0b-badf033ff3df",
+        "http://localhost:3400/rules",
+        "http://localhost:3400/contacts",
+        "http://localhost:3400/access"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-resident"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

@@ -34,6 +34,25 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### L4 screens (2026-10-21, same method; `pnpm lhci resident-r2 technician resident`, all sets pass)
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident-r2` | `/requests` | 169.8 KB | 180 KB |
+| `resident-r2` | `/requests/new` (photo picker; `CameraCapture` on tap) | 176.7 KB | 180 KB |
+| `resident-r2` | `/requests/<id>` (timeline, thread, rating) | 176.2 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/contacts` | 170.8, 169.8, 171.3 KB | 180 KB |
+| `resident-r2` | `/facilities`, `/facilities/<id>` (availability, booking form) | 172.3, 174.3 KB | 180 KB |
+| `resident-r2` | `/rules`, `/access` | 176.9, 176.1 KB | 180 KB |
+| `technician` | `/technician` (my work orders) | 169.2 KB | 180 KB |
+| `technician` | `/technician/work-orders/<id>` (actions, photos, cost lines) | 179.2 KB | 180 KB |
+| `resident` | `/` (home with the R2 tiles) | 171.1 KB | 180 KB |
+| `resident` | `/profile` (six-language select) | 179.8 KB | 180 KB |
+
+CLS 0 on every URL; LCP 1.6–3.4 s lab (warning; the machine was shared with other builds). The other `resident`
+URLs moved by < 1.5 KB. The script fonts cost no JS (CSS `@font-face` only, never in a th/en stack). **Least headroom:
+`/profile` (≈ 0.2 KB) and the technician work order (≈ 0.8 KB)** — the next client widget on either must be lazy.
+
 ### L3 screens (2026-10-17, same method)
 
 | Set | URL | Initial JS | Budget |

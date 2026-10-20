@@ -116,14 +116,23 @@ function setStatus(request: MockRequest, status: Status, at = Date.now()): void 
   emit(request.residentUserId, "service_request.changed", { serviceRequestId: request.dto.id });
 }
 
+/**
+ * Seeded requests and work orders have ids derived from the account's subject and a slot (`open`, `leak` …), so a
+ * measured URL is stable (lighthouse/resident.json, technician.json; mocks.test.ts checks them).
+ */
+export function mockSeedId(subject: string, kind: "request" | "work-order", slot: string): string {
+  const hex = createHash("sha256").update(`${subject}#${kind}#${slot}`).digest("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
 function newRequest(
   account: MockAccount,
   unit: typeof UNIT_A,
   fields: { categoryKey: string; description: string; priority: Schemas["ServicePriority"]; photoIds: string[] },
   at: number,
+  id: string = crypto.randomUUID(),
 ): MockRequest {
   const cat = CATEGORIES.find((c) => c.key === fields.categoryKey) ?? CATEGORIES[7];
-  const id = crypto.randomUUID();
   refSeq += 1;
   const request: MockRequest = {
     residentUserId: account.userId,
@@ -169,6 +178,7 @@ export function assignToTechnician(
   technician: MockAccount,
   scheduledAt: number,
   now = Date.now(),
+  id: string = crypto.randomUUID(),
 ): MockWorkOrder {
   if (request.dto.status === "new") setStatus(request, "triaged", now);
   const base = example<WorkOrder>("technician.workOrders.get");
@@ -177,7 +187,7 @@ export function assignToTechnician(
     waitingParts: false,
     dto: {
       ...base,
-      id: crypto.randomUUID(),
+      id,
       title: `${request.dto.category.nameTh} — ${request.dto.unitNo ?? ""}`.trim(),
       description: request.dto.description,
       requestDescription: request.dto.description,
@@ -250,6 +260,7 @@ function seedResident(account: MockAccount): void {
     unit,
     { categoryKey: "electrical", description: "ปลั๊กไฟข้างเตียงไม่มีไฟ", priority: "normal", photoIds: [] },
     now - 20 * DAY,
+    mockSeedId(account.subject, "request", "closed"),
   );
   assignToTechnician(closed, crew, now - 19 * DAY, now - 19 * DAY - 2 * HOUR);
   setStatus(closed, "in_progress", now - 19 * DAY + 2 * HOUR);
@@ -265,6 +276,7 @@ function seedResident(account: MockAccount): void {
     unit,
     { categoryKey: "aircon", description: "แอร์มีน้ำหยด", priority: "normal", photoIds: [] },
     now - 4 * DAY,
+    mockSeedId(account.subject, "request", "done"),
   );
   assignToTechnician(done, crew, now - 3 * DAY, now - 3 * DAY - 2 * HOUR);
   setStatus(done, "in_progress", now - 3 * DAY + HOUR);
@@ -282,6 +294,7 @@ function seedResident(account: MockAccount): void {
     unit,
     { categoryKey: "plumbing", description: "ก๊อกน้ำอ่างล้างหน้ารั่ว", priority: "normal", photoIds: [] },
     now - DAY,
+    mockSeedId(account.subject, "request", "open"),
   );
   assignToTechnician(open, crew, now + 6 * HOUR, now - 20 * HOUR);
   open.messages.push({
@@ -325,14 +338,20 @@ function seedTechnician(account: MockAccount): void {
     { categoryKey: "plumbing", description: "ก๊อกน้ำอ่างล้างหน้ารั่ว น้ำหยดตลอด", priority: "high", photoIds: [photo] },
     now - DAY,
   );
-  assignToTechnician(leak, account, now + 2 * HOUR);
+  assignToTechnician(leak, account, now + 2 * HOUR, Date.now(), mockSeedId(account.subject, "work-order", "leak"));
   const light = newRequest(
     resident,
     UNIT_B,
     { categoryKey: "electrical", description: "หลอดไฟห้องน้ำขาด", priority: "normal", photoIds: [] },
     now - 2 * DAY,
   );
-  const second = assignToTechnician(light, account, now + DAY + 3 * HOUR);
+  const second = assignToTechnician(
+    light,
+    account,
+    now + DAY + 3 * HOUR,
+    Date.now(),
+    mockSeedId(account.subject, "work-order", "light"),
+  );
   second.dto.status = "accepted";
   second.dto.acceptedAt = bangkokIso(now - HOUR);
   second.dto.nextActions = technicianActions(second);
