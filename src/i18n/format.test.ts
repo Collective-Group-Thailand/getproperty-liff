@@ -1,4 +1,3 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
 import { describe, expect, it } from "vitest";
 
 import {
@@ -10,6 +9,7 @@ import {
   formatPhone,
   formatRelativeTime,
   formatTHB,
+  formatTime,
   formatUnits,
 } from "./format";
 
@@ -100,5 +100,12 @@ describe("formatPeriodKey", () => {
     expect(formatPeriodKey("2026-10", "th")).toBe("ต.ค. 2569");
     expect(formatPeriodKey("2026-10", "en")).toBe("Oct 2026");
     expect(formatPeriodKey("not-a-key", "th")).toBe("not-a-key");
+  });
+});
+
+describe("formatTime", () => {
+  it("shows the Bangkok time of day", () => {
+    expect(formatTime("2026-10-21T11:00:00Z", "en")).toBe("18:00");
+    expect(formatTime("not a date")).toBe("—");
   });
 });

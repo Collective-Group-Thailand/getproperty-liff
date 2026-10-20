@@ -50,6 +50,14 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 `Popover`, `RadioCards`, `Select`, `Switch`, `Tooltip`. The deposit dispute moved to the new `CameraCapture` API
 (`useCameraLabels`, `common.camera` copy as in getproperty-web's `staff.capture.camera`).
 
+**L4, second pass (2026-10-21) — getproperty-web's committed `7f6030b`** (its F2 2.7 / F4 4.4 commits landed while L4 was
+under way; `SHARED_SOURCE=<git archive 7f6030b> pnpm shared:check --strict`: 262 copies, 0 drift): the R2 glyphs
+`archive`, `calendar-check`, `contact`, `door`, `package-check`, `receipt`, `rules`, `timer`, `unlock`, `wrench`
+(`curated.ts`, `registry.ts`; the home's facilities / door codes / house rules / contacts tiles use them) and
+`format.ts` `formatTime` + test. getproperty-web now also has status maps for `booking`, `credential`,
+`accessResult`, `parcel`, `priority`; this repo's own maps of those domains (L4, liff-owned — only `index.ts` and
+`status.test.ts` are copies) stay as they are, with their labels in this repo's `shared/status.json`.
+
 **L4 (2026-10-20) — re-sync from getproperty-web's committed `2493107`** (`git archive 2493107` → `SHARED_SOURCE=…
 pnpm shared:check --strict`: 252 copies, 238 same, 14 adapted, 0 drift; the other session's uncommitted working-tree edits
 in getproperty-web never reach this repo): `AlertDialog` (`confirmDisabled`), `Checkbox` and `Switch` with `data-testid` on
@@ -59,8 +67,8 @@ the control, `format.ts` (`formatDecimal`, `formatPeriodKey`) + test, and the ne
 **`Switch`** — with their stories; the barrel exports them. Still not copied: `Chart` (usage keeps its own lazy SVG chart),
 `FileDropzone` (no drag-and-drop on a phone; `CameraCapture` + file input), `LinkTabs`, `Pagination` (lists load more),
 `BigActionButton`, `NumericKeypad`, `Combobox`, `DataTable`, `DatePicker`, `Popover`, `RadioCards`, `Select`, `Tooltip`.
-The Noto Sans Myanmar / Khmer / Lao / SC subsets (L4 4.3) are **owned here for now** (`src/fonts/scripts`, not in this
-manifest): getproperty-web's `src/ui/fonts` has no such subsets yet and this session may not edit getproperty-web —
+The Noto Sans Myanmar / Khmer / Lao / SC subsets (L4 4.3) are **owned here for now** (`src/fonts/` — `files/*.woff2` and the
+generated `scripts.css`, from `scripts/script-fonts.ts`; not in this manifest): getproperty-web's `src/ui/fonts` has no such subsets yet and this session may not edit getproperty-web —
 move them there (and back into this manifest as `binary` rows) when getproperty-web's console gains those locales.
 
 
@@ -168,11 +176,11 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | verbatim | `6a8ffcf` |
+| `src/ui/icons/curated.ts` | verbatim | `7f6030b` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/glyphs/*.ts` | generated | `6a8ffcf` |
+| `src/ui/icons/glyphs/*.ts` | generated | `7f6030b` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/registry.ts` | generated | `6a8ffcf` |
+| `src/ui/icons/registry.ts` | generated | `7f6030b` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
 | `src/ui/lib/cn.ts` | verbatim | `08ff63b` |
@@ -209,8 +217,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 |---|---|---|
 | `src/domain/status/index.ts` | adapted | `f57d4dc` |
 | `src/domain/status/status.test.ts` | adapted | `f57d4dc` |
-| `src/i18n/format.test.ts` | verbatim | `2493107` |
-| `src/i18n/format.ts` | verbatim | `2493107` |
+| `src/i18n/format.test.ts` | verbatim | `7f6030b` |
+| `src/i18n/format.ts` | verbatim | `7f6030b` |
 
 ## App, scripts, lint rules, Storybook
 

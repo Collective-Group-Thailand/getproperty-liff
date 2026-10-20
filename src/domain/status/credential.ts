@@ -1,31 +1,33 @@
 import type { Schemas } from "@/lib/api/types";
-import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconAlert } from "@/ui/icons/glyphs/alert";
 import { IconClock } from "@/ui/icons/glyphs/clock";
-import { IconHistory } from "@/ui/icons/glyphs/history";
-import { IconWarning } from "@/ui/icons/glyphs/warning";
+import { IconKey } from "@/ui/icons/glyphs/key";
+import { IconLock } from "@/ui/icons/glyphs/lock";
+import { IconTimer } from "@/ui/icons/glyphs/timer";
+import { IconUnlock } from "@/ui/icons/glyphs/unlock";
 import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
 
 import { defineStatuses } from "./index";
 
 /**
- * `CredentialStatus` of a door code (D-070, D-071, D-211) — liff-owned (L4). A code still being sent to the lock is
- * information; one the vendor refused is a warning (the API retries), revoked and expired are neutral facts.
+ * `CredentialStatus` of a door code (B5.2, D-070, D-071, D-211) — liff-owned (L4), with the tones and icons of
+ * getproperty-web `7f6030b` `src/domain/status/credential.ts`.
  */
 export type CredentialStatus = Schemas["CredentialStatus"];
 
 export const CREDENTIAL_STATUS = defineStatuses<CredentialStatus>("credential", {
-  pending: { tone: "info", icon: IconClock },
-  active: { tone: "success", icon: IconCheckCircle },
+  pending: { tone: "neutral", icon: IconClock },
+  active: { tone: "success", icon: IconKey },
   revoked: { tone: "neutral", icon: IconXCircle },
-  expired: { tone: "neutral", icon: IconHistory },
-  failed: { tone: "warning", icon: IconWarning },
+  expired: { tone: "neutral", icon: IconTimer },
+  failed: { tone: "danger", icon: IconAlert },
 });
 
-/** `AccessResult` of an unlock in my unit's log (D-070). */
+/** `AccessResult` of an unlock in my unit's log (B5.2) — as getproperty-web `accessResult.ts`. */
 export type AccessResult = Schemas["AccessResult"];
 
 export const ACCESS_RESULT = defineStatuses<AccessResult>("accessResult", {
-  success: { tone: "success", icon: IconCheckCircle },
-  denied: { tone: "warning", icon: IconXCircle },
-  error: { tone: "warning", icon: IconWarning },
+  success: { tone: "success", icon: IconUnlock },
+  denied: { tone: "warning", icon: IconLock },
+  error: { tone: "danger", icon: IconAlert },
 });

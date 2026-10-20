@@ -18,16 +18,17 @@ import { Icon, type IconGlyph } from "@/ui/icons";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
 import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconBill } from "@/ui/icons/glyphs/bill";
-import { IconCalendar } from "@/ui/icons/glyphs/calendar";
-import { IconChecklist } from "@/ui/icons/glyphs/checklist";
+import { IconCalendarCheck } from "@/ui/icons/glyphs/calendar-check";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconContact } from "@/ui/icons/glyphs/contact";
+import { IconDoor } from "@/ui/icons/glyphs/door";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLease } from "@/ui/icons/glyphs/lease";
 import { IconParcel } from "@/ui/icons/glyphs/parcel";
 import { IconPayment } from "@/ui/icons/glyphs/payment";
-import { IconPhone } from "@/ui/icons/glyphs/phone";
+import { IconRules } from "@/ui/icons/glyphs/rules";
 import { IconRoom } from "@/ui/icons/glyphs/room";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
@@ -41,10 +42,10 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
   // No `facilities` / `access` entitlement in the contract yet (CONTRACT-REQUEST #27): the community module stands
   // for facilities; door codes, house rules and contacts follow the lease (D-071, D-073).
-  { key: "facilities", href: "/facilities", icon: IconCalendar, needs: "announcements" },
-  { key: "access", href: "/access", icon: IconKey, needs: "lease" },
-  { key: "rules", href: "/rules", icon: IconChecklist, needs: "lease" },
-  { key: "contacts", href: "/contacts", icon: IconPhone, needs: "lease" },
+  { key: "facilities", href: "/facilities", icon: IconCalendarCheck, needs: "announcements" },
+  { key: "access", href: "/access", icon: IconDoor, needs: "lease" },
+  { key: "rules", href: "/rules", icon: IconRules, needs: "lease" },
+  { key: "contacts", href: "/contacts", icon: IconContact, needs: "lease" },
 ];
 
 /** The selected unit's invoices: by `unitId`; an invoice without one (a final bill of an ended lease) by unit no. + landlord. */
