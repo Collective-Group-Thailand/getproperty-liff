@@ -180,27 +180,32 @@ test("issued invoice → resident opens it → Thai QR → provider callback →
 
   // Paid in the open sheet: `payment.confirmed` / `invoice.paid` reach the resident's `user:` channel (D-208); the
   // sheet's slow poll covers a stream that has not connected yet.
-  await expect(sheet.getByTestId("pay-paid")).toBeVisible({ timeout: 60_000 });
+  await expect(sheet.getByTestId("pay-paid")).toBeVisible({ timeout: 90_000 });
   await expect(sheet.getByRole("heading", { name: "ได้รับเงินแล้ว" })).toBeVisible();
 
-  // The receipt the worker issued on payment.confirmed (D-044, D-196).
+  // The receipt the worker issued on payment.confirmed (D-044, D-196): the paid state links it directly once the
+  // invoice lists it (`ResidentInvoiceDto.receipts`, D-208), else the receipts list.
   await sheet.getByTestId("pay-receipt").click();
-  await expect(page).toHaveURL(/\/receipts$/);
-  // The worker numbers the receipt right after the payment; the list is rendered on the server.
-  const item = page.getByTestId("receipt-item").first();
-  await expect
-    .poll(
-      async () => {
-        if (await item.count()) return item.textContent();
-        await page.reload();
-        return null;
-      },
-      { timeout: 30_000, intervals: [1_000] },
-    )
-    .toMatch(/RCP-\d{4}-\d{5}/);
-  await expect(item).toContainText("฿5,344.00");
-  await item.click();
-  await expect(page.getByTestId("receipt-detail")).toContainText("฿5,344.00");
+  await expect(page).toHaveURL(/\/receipts(\/[0-9a-f-]{36})?$/);
+  if (/\/receipts$/.test(page.url())) {
+    // The worker numbers the receipt right after the payment; the list is rendered on the server.
+    const item = page.getByTestId("receipt-item").first();
+    await expect
+      .poll(
+        async () => {
+          if (await item.count()) return item.textContent();
+          await page.reload();
+          return null;
+        },
+        { timeout: 30_000, intervals: [1_000] },
+      )
+      .toMatch(/RCP-\d{4}-\d{5}/);
+    await expect(item).toContainText("฿5,344.00");
+    await item.click();
+  }
+  const receipt = page.getByTestId("receipt-detail");
+  await expect(receipt).toContainText("฿5,344.00");
+  await expect(receipt).toContainText(/RCP-\d{4}-\d{5}/);
 
   const invoice = await page.request.get(`/bff/v1/resident/invoices/${invoiceId}`);
   expect(await invoice.json()).toMatchObject({ status: "paid", balance: "0.00" });

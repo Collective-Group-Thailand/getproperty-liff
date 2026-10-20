@@ -5,7 +5,8 @@
  * resident party carrying the fake LINE user id with an occupancy of a dev unit, and the API itself
  * (`DATA_STORES_MODE=real` on PostgreSQL; Redis and MQTT in memory; `INTEGRATIONS_MODE=fake`, so LINE is the fake
  * verifier that accepts the fake LIFF's `fake-line.` id tokens, payments are the fake provider whose callbacks the
- * tests sign, and PDFs/storage are fakes) and its worker process (L2: QR at issue, callbacks → payment → receipt).
+ * tests sign, and PDFs are fakes) and its worker process (L2: QR at issue, callbacks → payment → receipt). Object
+ * storage is real S3 against a minimal in-memory store of the harness (L4: browser photo uploads the API verifies).
  *
  * Needs a sibling checkout `../getproperty-api` with `pnpm install` done and `pnpm build:fast` run (the harness
  * runs it when `dist/` is missing). State lives in a temp dir and is removed afterwards.
@@ -17,6 +18,7 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { createHash, createHmac, randomUUID } from "node:crypto";
 import {
+  appendFileSync,
   chownSync,
   existsSync,
   mkdirSync,
@@ -28,6 +30,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { createRequire } from "node:module";
+import { createServer as createHttpServer, type IncomingMessage, type Server } from "node:http";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -38,6 +41,13 @@ export const INT_DATABASE_ENV = "GP_INT_DATABASE_URL";
 /** The development HMAC key of the API (`LOOKUP_HASH` of OTP codes) — the harness never sets FIELD_HASH_KEY. */
 export const DEV_FIELD_HASH_KEY = "getproperty-dev-field-hash-key";
 export const API_PORT = Number(process.env.INTEGRATION_API_PORT ?? 4610);
+/**
+ * A minimal S3-compatible object store for the API (`OBJECT_STORAGE_MODE=real`, path style): the fake storage's
+ * presigned URLs are unreachable by design, but the L4 flows PUT photos from the browser and the API then HEADs them
+ * (`document.not_uploaded` otherwise). Signatures are not checked; objects live in memory for the run.
+ */
+export const S3_PORT = Number(process.env.INTEGRATION_S3_PORT ?? 4611);
+export const S3_ORIGIN = `http://127.0.0.1:${S3_PORT}`;
 /** The LINE user id the fake LIFF signs in with; the harness gives this party an occupancy. */
 export const RESIDENT_LINE_SUB = "U0000000000000000000000integration";
 const DEV_TENANT = "0199f2a0-0000-7000-8000-000000000001";
@@ -138,6 +148,77 @@ function stopGroup(child: ChildProcess | undefined): Promise<void> {
   });
 }
 
+/** `aws-chunked` bodies (SDK streaming uploads): `<hex size>[;chunk-signature=…]\r\n<bytes>\r\n` … `0\r\n`. */
+function decodeAwsChunked(body: Buffer): Buffer {
+  const parts: Buffer[] = [];
+  let at = 0;
+  for (;;) {
+    const lineEnd = body.indexOf("\r\n", at);
+    if (lineEnd < 0) break;
+    const size = parseInt(body.subarray(at, lineEnd).toString().split(";")[0]!, 16);
+    if (!size) break;
+    parts.push(body.subarray(lineEnd + 2, lineEnd + 2 + size));
+    at = lineEnd + 2 + size + 2;
+  }
+  return Buffer.concat(parts);
+}
+
+function readBody(req: IncomingMessage): Promise<Buffer> {
+  return new Promise((done, fail) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (c: Buffer) => chunks.push(c));
+    req.on("end", () => done(Buffer.concat(chunks)));
+    req.on("error", fail);
+  });
+}
+
+export function startObjectStore(): Promise<Server> {
+  const objects = new Map<string, { body: Buffer; contentType: string }>();
+  const server = createHttpServer((req, res) => {
+    void (async () => {
+      const cors = {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, PUT, HEAD, DELETE",
+        "access-control-allow-headers": "*",
+        "access-control-expose-headers": "etag",
+      };
+      const path = decodeURIComponent(new URL(req.url ?? "/", S3_ORIGIN).pathname);
+      const isBucket = path.split("/").filter(Boolean).length <= 1;
+      if (req.method === "OPTIONS") return res.writeHead(204, cors).end();
+      if (req.method === "PUT") {
+        const raw = await readBody(req);
+        const chunked =
+          /aws-chunked/.test(String(req.headers["content-encoding"] ?? "")) ||
+          String(req.headers["x-amz-content-sha256"] ?? "").startsWith("STREAMING-");
+        const body = chunked ? decodeAwsChunked(raw) : raw;
+        objects.set(path, { body, contentType: String(req.headers["content-type"] ?? "application/octet-stream") });
+        return res.writeHead(200, { ...cors, etag: `"${createHash("md5").update(body).digest("hex")}"` }).end();
+      }
+      if (req.method === "DELETE") {
+        objects.delete(path);
+        return res.writeHead(204, cors).end();
+      }
+      if (isBucket) return res.writeHead(200, cors).end();
+      const found = objects.get(path);
+      if (!found)
+        return res
+          .writeHead(404, { ...cors, "content-type": "application/xml" })
+          .end(req.method === "HEAD" ? undefined : "<Error><Code>NoSuchKey</Code></Error>");
+      res.writeHead(200, {
+        ...cors,
+        "content-type": found.contentType,
+        "content-length": String(found.body.length),
+        etag: `"${createHash("md5").update(found.body).digest("hex")}"`,
+      });
+      return res.end(req.method === "HEAD" ? undefined : found.body);
+    })().catch((error: unknown) => res.writeHead(500).end(String(error)));
+  });
+  return new Promise((done, fail) => {
+    server.once("error", fail);
+    server.listen(S3_PORT, "127.0.0.1", () => done(server));
+  });
+}
+
 /** Same algorithm and bookkeeping as getproperty-api's `test/support/prisma-migrations.ts`. */
 async function applyPrismaMigrations(
   db: { query: (sql: string, params?: unknown[]) => Promise<unknown> },
@@ -218,6 +299,14 @@ export async function startHarness(): Promise<Harness> {
          FROM core.unit u WHERE u.tenant_id = $1 ORDER BY u.unit_no LIMIT 1`,
       [DEV_TENANT, party.rows[0]!.id],
     );
+    // L4: the service-request module is on for the dev tenant (`module.service_requests` is off by default, B5.1).
+    await db.query(
+      `INSERT INTO platform.feature_flag_override (feature_flag_id, tenant_id, enabled, reason)
+       SELECT f.id, $1, true, 'getproperty-liff integration (L4)' FROM platform.feature_flag f
+        WHERE f.key = 'module.service_requests'
+       ON CONFLICT (feature_flag_id, tenant_id) DO UPDATE SET enabled = true`,
+      [DEV_TENANT],
+    );
   } finally {
     await db.end();
   }
@@ -234,20 +323,41 @@ export async function startHarness(): Promise<Harness> {
     REDIS_MODE: "fake",
     MQTT_MODE: "fake",
     INTEGRATIONS_MODE: "fake",
+    OBJECT_STORAGE_MODE: "real",
+    OBJECT_STORAGE_DRIVER: "s3",
+    AWS_ENDPOINT_URL: S3_ORIGIN,
+    AWS_REGION: "ap-southeast-1",
+    AWS_ACCESS_KEY_ID: "integration",
+    AWS_SECRET_ACCESS_KEY: "integration",
+    AWS_REQUEST_CHECKSUM_CALCULATION: "WHEN_REQUIRED",
+    AWS_RESPONSE_CHECKSUM_VALIDATION: "WHEN_REQUIRED",
+    S3_BUCKET: "getproperty-int",
+    S3_FORCE_PATH_STYLE: "true",
     DATABASE_URL: databaseUrl,
     DATABASE_APP_ROLE: "gp_app",
     DATABASE_PLATFORM_ROLE: "gp_platform",
     PUBLIC_API_BASE_URL: `http://127.0.0.1:${API_PORT}`,
     PUBLIC_RESIDENT_APP_URL: "http://localhost:3600",
   };
+  const objectStore = await startObjectStore();
   const api = spawn(process.execPath, ["dist/src/main.js"], { cwd: apiDir, detached: true, env: apiEnv });
   let apiLog = "";
+  // `INTEGRATION_LOG_DIR=<dir>` keeps the API's and the worker's logs of the run (api.log, worker.log).
+  const logDir = process.env.INTEGRATION_LOG_DIR;
+  const keep = (name: string) => (chunk: Buffer) => {
+    if (logDir) appendFileSync(join(logDir, name), chunk);
+  };
+  if (logDir) mkdirSync(logDir, { recursive: true });
   api.stdout?.on("data", (c: Buffer) => (apiLog += c.toString()));
   api.stderr?.on("data", (c: Buffer) => (apiLog += c.toString()));
+  api.stdout?.on("data", keep("api.log"));
+  api.stderr?.on("data", keep("api.log"));
   const worker = spawn(process.execPath, ["dist/src/worker.js"], { cwd: apiDir, detached: true, env: apiEnv });
   let workerLog = "";
   worker.stdout?.on("data", (c: Buffer) => (workerLog += c.toString()));
   worker.stderr?.on("data", (c: Buffer) => (workerLog += c.toString()));
+  worker.stdout?.on("data", keep("worker.log"));
+  worker.stderr?.on("data", keep("worker.log"));
   try {
     await waitForHttp(`http://127.0.0.1:${API_PORT}/v1/auth/ping`, 90_000);
     if (worker.exitCode !== null)
@@ -256,6 +366,7 @@ export async function startHarness(): Promise<Harness> {
     await stopGroup(worker);
     await stopGroup(api);
     await stopGroup(pg);
+    objectStore.close();
     throw new Error(`${(error as Error).message}\n--- api log ---\n${apiLog.slice(-4000)}`);
   }
 
@@ -265,6 +376,7 @@ export async function startHarness(): Promise<Harness> {
       await stopGroup(worker);
       await stopGroup(api);
       await stopGroup(pg);
+      objectStore.close();
       rmSync(parent, { recursive: true, force: true });
     },
   };

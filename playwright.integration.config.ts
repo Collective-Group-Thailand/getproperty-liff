@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 
 import { defineConfig, devices } from "@playwright/test";
 
-import { API_PORT } from "./e2e/integration/harness";
+import { API_PORT, S3_ORIGIN } from "./e2e/integration/harness";
 
 /**
  * The `integration` project (L1): this app against the **real** getproperty-api — PostgreSQL started with the
@@ -48,7 +48,10 @@ export default defineConfig({
       NEXT_PUBLIC_LIFF_MOCK: "1",
       API_MOCKS: "",
       API_INTERNAL_URL: `http://127.0.0.1:${API_PORT}`,
-      FEATURE_TECHNICIAN: "",
+      // L4: the technician app against the real /v1/auth/technician/* and /v1/technician/*.
+      FEATURE_TECHNICIAN: "1",
+      // Presigned photo uploads go to the harness's object store (CSP connect-src / img-src).
+      NEXT_PUBLIC_ASSET_BASE_URL: S3_ORIGIN,
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },
