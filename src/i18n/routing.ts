@@ -1,7 +1,6 @@
 /**
- * Resident locales (D-064). Thai is the default and English is complete in R1; Myanmar, Khmer, Lao and
- * Chinese are scaffolded now (empty message files that fall back to English, `messages.ts`) and filled
- * in L4 (R2) together with their font subsets.
+ * Resident locales (D-064). Thai is the default; English, Myanmar, Khmer, Lao and Chinese (simplified) are complete
+ * for residents since L4 (R2), with their font subsets (`src/fonts`); a missing key falls back to English.
  *
  * There is no locale segment in the URL: a LIFF endpoint URL is fixed in the LINE Developers console
  * and deep links carry `liff.state`, so the locale lives in the `gp_locale` cookie — written by the
@@ -11,8 +10,11 @@
 export const LOCALES = ["th", "en", "my", "km", "lo", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];
 
-/** Locales whose copy is complete today; the others render English until L4. */
-export const ACTIVE_LOCALES = ["th", "en"] as const satisfies readonly Locale[];
+/**
+ * Locales whose resident copy is complete. L4 (R2) filled my/km/lo/zh for every resident and shared message (machine-
+ * translated base, reviewed); the technician screens stay Thai/English with the English fallback.
+ */
+export const ACTIVE_LOCALES = ["th", "en", "my", "km", "lo", "zh"] as const satisfies readonly Locale[];
 export const DEFAULT_LOCALE: Locale = "th";
 export const FALLBACK_LOCALE: Locale = "en";
 

@@ -35,6 +35,8 @@ jobs:
         run: pnpm tokens:check
       - name: Font files match the installed packages
         run: pnpm fonts --check
+      - name: Script fonts (my/km/lo/zh) match the packages and the zh copy (L4, D-064)
+        run: pnpm fonts:scripts:check
       - name: Icon glyphs match the curated set (D-179)
         run: pnpm icons:check
       - name: Typecheck

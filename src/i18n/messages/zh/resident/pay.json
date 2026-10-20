@@ -1,1 +1,117 @@
-{}
+{
+  "title": "支付账单",
+  "subtitle": "账单 {number}",
+  "loading": "正在准备二维码…",
+  "loadFailed": "无法加载付款信息，请重试。",
+  "amountLabel": "应付金额",
+  "includesEarlier": "含以往账单未付金额（本账单：{balance}）；付款优先抵扣最早的账单。",
+  "qrAlt": "支付 {amount} 的 Thai QR，参考号 {reference}",
+  "renew": "获取新二维码",
+  "reference": "参考号",
+  "referenceShort": "参考号 {reference}",
+  "payee": "收款方",
+  "validUntil": "二维码有效期至 {date}",
+  "validityLabel": "二维码有效期",
+  "validFor": "二维码还剩 {time} 有效",
+  "expiredTitle": "此二维码已过期",
+  "expiredBody": "获取一个新的——金额不变。",
+  "save": "保存二维码图片",
+  "saveHintLine": "在 LINE 中也可以长按二维码保存。",
+  "saveFailed": "无法保存图片——请截屏。",
+  "openBank": "打开我的银行应用",
+  "openBankHint": "选择您的银行，然后从相册扫描保存的二维码。如果没有打开，请自行打开银行应用。",
+  "banks": {
+    "kbank": "Kasikorn (K PLUS)",
+    "scb": "SCB (SCB EASY)",
+    "ktb": "Krungthai (NEXT)",
+    "bbl": "Bangkok Bank",
+    "bay": "Krungsri (KMA)",
+    "ttb": "ttb (ttb touch)",
+    "gsb": "GSB (MyMo)"
+  },
+  "steps": {
+    "save": "保存二维码图片或截屏。",
+    "scan": "打开银行应用，选择扫码，从相册中选取二维码。",
+    "back": "回到这里——我们会自动确认付款。"
+  },
+  "waitingShort": "等待付款",
+  "waiting": "正在等待您的付款——到账后此页面会自动更新。",
+  "noQrTitle": "银行转账付款",
+  "noQrTransfer": "转账至 {bank}，账号 {account}（{name}），然后把转账凭证发给我们。",
+  "noQrContact": "请向楼宇管理处询问如何支付此账单。",
+  "slipCta": "已转账？发送凭证",
+  "paid": {
+    "title": "已收到付款",
+    "alreadyTitle": "此账单已付清",
+    "body": "账单 {number} 已付 {amount}。谢谢！",
+    "receipt": "查看收据 {number}",
+    "receipts": "查看我的收据",
+    "done": "完成"
+  },
+  "push": {
+    "title": "想知道下一张账单吗？",
+    "body": "在此浏览器开启通知，新账单出来或款项到账时会通知您。",
+    "accept": "开启通知",
+    "decline": "暂不",
+    "on": "通知已开启。",
+    "denied": "浏览器已阻止通知，可在浏览器设置中更改。",
+    "failed": "无法开启通知，请稍后再试。"
+  },
+  "slip": {
+    "stepsLabel": "发送凭证",
+    "stepOf": "第 {step} 步，共 {total} 步",
+    "steps": {
+      "choose": "选择凭证",
+      "check": "核对",
+      "send": "发送并等待"
+    },
+    "lead": "向房东账户转账 {amount}，然后发送转账凭证。",
+    "account": "收款账户：{bank} {account}（{name}）",
+    "gallery": "从相册选择凭证",
+    "camera": "拍摄纸质凭证",
+    "shoot": "拍照",
+    "shootHint": "让凭证位于框内，数字清晰可读。",
+    "cancelCamera": "关闭相机",
+    "backToQr": "返回二维码",
+    "problem": {
+      "too_large": {
+        "title": "文件太大",
+        "body": "请选择小于 3.5 MB 的凭证图片或 PDF。"
+      },
+      "unsupported": {
+        "title": "无法打开此文件",
+        "body": "请以图片（JPEG、PNG、WebP）或 PDF 发送凭证。"
+      }
+    },
+    "checkTitle": "是这张凭证吗？",
+    "checkBody": "请确认这是本次转账的凭证，金额为 {amount}，且清晰可读。",
+    "previewAlt": "您选择的凭证",
+    "pdf": "PDF：{name}",
+    "send": "发送凭证",
+    "another": "选择其他凭证",
+    "outcomeTitle": "您的凭证",
+    "sentAt": "发送于 {date}",
+    "outcome": {
+      "pending": "正在核对凭证——需要一点时间，此页面会自动更新。",
+      "pendingNoStatus": "我们已收到您的凭证。确认后账单会变为已付，收据会通过 LINE 发送。",
+      "confirmedTitle": "付款已确认",
+      "confirmedBody": "凭证核对通过，收据随后发送。",
+      "reviewTitle": "等待管理处",
+      "reviewBody": "无法自动确认。楼宇管理处会核查并通过 LINE 告知您。",
+      "reasons": {
+        "not_recognised": "无法读取凭证，或不是转账凭证。",
+        "duplicate_reference": "此转账参考号之前已使用过。",
+        "receiver_mismatch": "凭证上的收款账户不是房东的。",
+        "amount_above_due": "凭证金额高于应付金额。",
+        "amount_below_due": "凭证金额低于应付金额。",
+        "amount_unreadable": "无法读取凭证上的金额。"
+      },
+      "duplicateTitle": "此凭证之前已提交",
+      "duplicateBody": "一笔转账只能付款一次。如果您进行了新的转账，请发送那张凭证。",
+      "rejectedTitle": "凭证未通过",
+      "rejectedBody": "管理处未接受此凭证。请联系楼宇管理处或使用二维码付款。"
+    }
+  },
+  "copyAccount": "复制账号",
+  "accountCopied": "账号已复制"
+}

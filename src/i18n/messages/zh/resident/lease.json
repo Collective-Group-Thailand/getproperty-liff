@@ -1,1 +1,159 @@
-{}
+{
+  "list": {
+    "title": "租约",
+    "emptyTitle": "还没有租约",
+    "emptyBody": "楼宇管理处发送租约后会显示在这里"
+  },
+  "back": {
+    "home": "首页",
+    "lease": "租约"
+  },
+  "view": {
+    "title": "租约 · 房间 {unit}",
+    "subtitle": "{building} · 由 {operator} 管理",
+    "number": "编号 {number}",
+    "signTitle": "需要您签署",
+    "signBody": "阅读租约并在此签署；管理处在您之后签署",
+    "signCta": "阅读并签署",
+    "waitingTitle": "等待管理处签署",
+    "waitingBody": "您已签署。管理处也签署后租约生效——您会收到 LINE 消息",
+    "noticeCta": "通知退租",
+    "depositCta": "押金与退款"
+  },
+  "notice": {
+    "givenTitle": "已通知退租",
+    "givenBody": "{date} 退租（于 {given} 通知）",
+    "givenNoDate": "于 {given} 通知"
+  },
+  "terms": {
+    "title": "条款",
+    "unit": "房间",
+    "term": "租期",
+    "termValue": "{start} – {end}（{months, plural, other {# 个月}}）",
+    "rent": "租金",
+    "perMonth": "{amount} / 月",
+    "once": "{amount}（一次性）",
+    "deposit": "押金",
+    "advance": "预付租金",
+    "utilities": "水电",
+    "utilityMode": {
+      "metered": "按表计费",
+      "included": "含在租金内"
+    },
+    "charges": "其他费用"
+  },
+  "parties": {
+    "title": "本租约相关人员",
+    "hidden": "（不显示姓名）",
+    "role": {
+      "lessee": "承租人",
+      "co_tenant": "同住人",
+      "guarantor": "担保人",
+      "occupant": "居住人"
+    },
+    "signed": "签署于 {date}",
+    "notSigned": "尚未签署"
+  },
+  "document": {
+    "open": "打开租约 (PDF)",
+    "openSigned": "打开已签署的租约 (PDF)"
+  },
+  "rules": {
+    "title": "楼宇规定",
+    "lead": "这些规定是您租约的一部分。请确认您已阅读",
+    "checkbox": "我已阅读楼宇规定",
+    "submit": "确认",
+    "acknowledged": "您已于 {date} 确认楼宇规定"
+  },
+  "addendum": {
+    "title": "其他条款"
+  },
+  "sign": {
+    "pageTitle": "签署租约",
+    "progress": "第 {step} 步，共 {total} 步",
+    "back": "返回",
+    "unavailableTitle": "没有需要签署的内容",
+    "unavailableBody": "此租约目前无法签署。请联系楼宇管理处",
+    "alreadySigned": "您已签署此租约",
+    "read": {
+      "title": "阅读租约",
+      "lead": "签署前请滑到底部。完整租约 (PDF) 为具有约束力的文本",
+      "region": "待阅读的租约",
+      "unit": "房间",
+      "unitValue": "{unit} · {building} · 由 {operator} 管理",
+      "term": "租期",
+      "rent": "租金",
+      "deposit": "押金",
+      "advance": "预付租金",
+      "charges": "其他费用",
+      "clauses": "管理处补充的条款",
+      "binding": "适用泰国消费者保护委员会办公室的标准住宅租约；PDF 包含全部条款",
+      "end": "租约摘要结束",
+      "openPdf": "阅读完整租约 (PDF)",
+      "scrollHint": "请将上方租约滑到底部以继续",
+      "confirm": "我已阅读全部租约并同意",
+      "next": "继续签名"
+    },
+    "draw": {
+      "title": "您的签名",
+      "lead": "用手指在框内签名",
+      "label": "您的签名",
+      "placeholder": "在此签名",
+      "clear": "清除",
+      "undo": "撤销",
+      "upload": "使用我的签名照片",
+      "tooLarge": "图片太大。请手写签名或选择更小的照片",
+      "uploadHint": "无法手写？改用签名的照片或扫描件",
+      "next": "继续"
+    },
+    "otp": {
+      "title": "用短信验证码确认",
+      "lead": "我们已向 {phone} 发送 6 位验证码",
+      "sending": "正在向您的手机发送验证码…",
+      "digit": "第 {index} 位",
+      "wrong": "{count, plural, =0 {验证码错误，已无剩余次数——请重新获取验证码} other {验证码错误，还剩 # 次}}",
+      "submit": "签署租约",
+      "resend": "重新发送验证码",
+      "resendIn": "{seconds} 秒后可重新发送"
+    },
+    "done": {
+      "title": "租约已签署",
+      "activeTitle": "您的租约已生效",
+      "activeBody": "管理处也已签署。签署后的副本在您的文件中",
+      "waitingTitle": "已签署——等待管理处",
+      "waitingBody": "管理处签署后租约生效，您会收到 LINE 消息",
+      "hashTitle": "文件指纹",
+      "hashBody": "您所签署文件的 SHA-256，作为证据保存",
+      "back": "返回租约"
+    }
+  },
+  "noticeForm": {
+    "title": "通知退租",
+    "lead": "请至少在离开前 30 天以书面形式通知管理处",
+    "date": "退租日期",
+    "dateHint": "最早可选日期为 {date}",
+    "dateHintNone": "至少为今天起 30 天后；管理处系统会核对日期",
+    "reason": "原因（选填）",
+    "reasonHint": "仅管理处可见",
+    "review": "核对通知",
+    "unavailableTitle": "无法通知退租",
+    "unavailableBody": "只有生效租约的承租人可以在此通知。请联系楼宇管理处",
+    "alreadyGiven": "您已就此租约通知退租",
+    "confirm": {
+      "title": "核对您的通知",
+      "body": "您将于 {date} 搬离 {building} 的房间 {unit}",
+      "reason": "原因：{reason}",
+      "final": "发送后通知会被记录并告知管理处。如需更改，请与管理处沟通",
+      "submit": "发送通知",
+      "change": "修改"
+    },
+    "done": {
+      "title": "通知已发送",
+      "calloutTitle": "您的通知已记录",
+      "body": "您将于 {date} 搬离房间 {unit}",
+      "document": "通知已与您的文件一起保存。管理处会就退房检查和押金与您联系",
+      "back": "返回租约",
+      "documents": "我的文件"
+    }
+  }
+}

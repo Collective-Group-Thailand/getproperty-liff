@@ -1,1 +1,37 @@
-{}
+{
+  "skipToContent": "ຂ້າມໄປຫາເນື້ອຫາ",
+  "bottomNav": "ເມນູດ່ວນ",
+  "theme": "ຮູບແບບ",
+  "themeChoice": {
+    "system": "ຕາມອຸປະກອນ",
+    "light": "ແຈ້ງ",
+    "dark": "ມືດ",
+    "hc": "ຄວາມຄົມຊັດສູງ"
+  },
+  "language": "ພາສາ",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English",
+    "my": "မြန်မာ",
+    "km": "ខ្មែរ",
+    "lo": "ລາວ",
+    "zh": "中文"
+  },
+  "languagePreview": "ພາສານີ້ຍັງແປບໍ່ຄົບ, ບາງຂໍ້ຄວາມສະແດງເປັນພາສາອັງກິດ",
+  "appTitle": "getproperty ສຳລັບຜູ້ພັກອາໄສ",
+  "menu": {
+    "open": "ການຕັ້ງຄ່າ ແລະ ບັນຊີ",
+    "title": "ການຕັ້ງຄ່າ",
+    "signOut": "ອອກຈາກລະບົບ",
+    "signingOut": "ກຳລັງອອກຈາກລະບົບ…"
+  },
+  "unitSwitcher": {
+    "title": "ເລືອກຫ້ອງ",
+    "description": "{count, plural, other {ບັນຊີນີ້ມີ # ຫ້ອງ}}",
+    "current": "ຫ້ອງທີ່ເລືອກ",
+    "unit": "ຫ້ອງ {unit}",
+    "place": "{building} · {operator}",
+    "switch": " — ປ່ຽນຫ້ອງ"
+  },
+  "envBadge": "ສະພາບແວດລ້ອມ {name}"
+}

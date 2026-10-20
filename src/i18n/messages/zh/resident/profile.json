@@ -1,1 +1,122 @@
-{}
+{
+  "title": "我的资料",
+  "privacyCta": "隐私与同意",
+  "signOut": "退出登录",
+  "account": {
+    "title": "账户",
+    "name": "姓名",
+    "phone": "电话",
+    "email": "邮箱",
+    "line": "LINE",
+    "lineLinked": "已绑定此账户",
+    "lineNotLinked": "未绑定——用 LINE 登录即可绑定",
+    "none": "未登记",
+    "changeHint": "如需修改姓名或电话，请联系楼宇管理处"
+  },
+  "language": {
+    "title": "语言",
+    "label": "语言",
+    "hint": "LINE 消息和文件将使用此语言"
+  },
+  "notifications": {
+    "title": "通知",
+    "unavailable": "通知设置即将推出",
+    "topic": {
+      "billing": "账单与付款",
+      "lease": "租约与通知",
+      "service_requests": "报修",
+      "announcements": "公告",
+      "parcels": "包裹"
+    },
+    "locked": "必选——您总会收到",
+    "line": "LINE",
+    "sms": "短信",
+    "save": "保存",
+    "saved": "通知设置已保存"
+  },
+  "documents": {
+    "title": "我的文件",
+    "unavailable": "您的文件即将在此列出",
+    "empty": "还没有文件",
+    "kind": {
+      "lease_contract": "租约",
+      "lease_notice": "退租通知",
+      "deposit_statement": "押金结算单",
+      "receipt": "收据"
+    },
+    "view": "查看",
+    "open": "查看 {title}"
+  },
+  "privacy": {
+    "title": "隐私",
+    "lead": "依据《个人信息保护法》(PDPA) 的您的个人信息",
+    "incomplete": "缺少一项必需的同意。使用前应用会再次请求"
+  },
+  "consents": {
+    "title": "我的同意",
+    "granted": "于 {date} 同意（版本 {version}）",
+    "withdrawn": "于 {date} 撤回",
+    "unanswered": "未回复（版本 {version}）",
+    "withdraw": "撤回同意",
+    "withdrawRequired": "此同意是使用本应用所必需的。撤回后应用会再次请求，在您同意前无法使用",
+    "withdrawOptional": "您将不再收到此同意涵盖的内容，可随时再次同意",
+    "withdrawConfirm": "撤回",
+    "grant": "给予同意"
+  },
+  "controllers": {
+    "title": "谁持有我的数据",
+    "lead": "每个楼宇运营方都是其所持有的您的数据的控制者",
+    "fields": "持有：{fields}",
+    "field": {
+      "name": "姓名",
+      "phone": "电话",
+      "email": "邮箱",
+      "line_id": "LINE 账户",
+      "id_number": "证件号码",
+      "id_document_image": "证件照片",
+      "date_of_birth": "出生日期",
+      "address": "地址",
+      "emergency_contact": "紧急联系人",
+      "tm30": "TM.30 报告"
+    }
+  },
+  "dsr": {
+    "title": "我的 PDPA 请求",
+    "lead": "申请获取副本、更正或删除您的数据。运营方必须在期限内答复",
+    "dates": "提交于 {received} · 期限 {due}",
+    "kind": "您想申请什么？",
+    "kindMissing": "请选择一项",
+    "kinds": {
+      "access": {
+        "title": "获取我的数据副本",
+        "body": "楼宇持有的您的个人数据副本"
+      },
+      "rectification": {
+        "title": "更正我的数据",
+        "body": "关于您的某些信息有误或已过时"
+      },
+      "erasure": {
+        "title": "删除我的数据",
+        "body": "不再需要的数据——部分数据须依法保留，例如税务记录"
+      },
+      "portability": {
+        "title": "迁移我的数据",
+        "body": "以文件形式提供您的数据，便于交给他人"
+      },
+      "objection": {
+        "title": "反对某项使用",
+        "body": "停止您未同意的数据使用"
+      },
+      "restriction": {
+        "title": "暂停某项使用",
+        "body": "在核查问题期间暂停使用您的数据"
+      }
+    },
+    "details": "详情（选填）",
+    "detailsHint": "帮助运营方找到您指的内容",
+    "submit": "提交请求",
+    "sentTitle": "请求已提交",
+    "sentBody": "已通知楼宇运营方，须在列表中显示的期限内答复",
+    "another": "再提交一个请求"
+  }
+}

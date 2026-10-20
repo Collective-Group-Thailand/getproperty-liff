@@ -1,1 +1,110 @@
-{}
+{
+  "readingSource": {
+    "iot": "ມິເຕີອັດສະລິຍະ",
+    "ocr": "ອ່ານຈາກຮູບ",
+    "manual": "ພະນັກງານອ່ານ",
+    "estimated": "ປະເມີນ"
+  },
+  "invoice": {
+    "draft": "ຮ່າງ",
+    "issued": "ຕ້ອງຈ່າຍ",
+    "partially_paid": "ຈ່າຍບາງສ່ວນ",
+    "paid": "ຈ່າຍແລ້ວ",
+    "overdue": "ກາຍກຳນົດ",
+    "void": "ຍົກເລີກແລ້ວ"
+  },
+  "payment": {
+    "pending": "ລໍຖ້າການຢືນຢັນ",
+    "confirmed": "ໄດ້ຮັບແລ້ວ",
+    "failed": "ບໍ່ສຳເລັດ",
+    "refunded": "ຄືນເງິນແລ້ວ",
+    "reversed": "ຖອນຄືນແລ້ວ"
+  },
+  "lease": {
+    "draft": "ຮ່າງ",
+    "pending_signature": "ລໍຖ້າລົງນາມ",
+    "active": "ມີຜົນບັງຄັບ",
+    "notice_given": "ແຈ້ງອອກແລ້ວ",
+    "ending": "ໃກ້ສິ້ນສຸດ",
+    "ended": "ສິ້ນສຸດແລ້ວ",
+    "terminated": "ຍົກເລີກສັນຍາແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ"
+  },
+  "deposit": {
+    "pending": "ຕ້ອງຈ່າຍ",
+    "held": "ຖືໄວ້",
+    "settling": "ກຳລັງສະສາງ",
+    "refunded": "ຄືນແລ້ວ",
+    "forfeited_partially": "ຫັກບາງສ່ວນ",
+    "forfeited": "ບໍ່ຄືນ",
+    "disputed": "ໂຕ້ແຍ້ງ"
+  },
+  "serviceRequest": {
+    "new": "ແຈ້ງແລ້ວ",
+    "triaged": "ຮັບເລື່ອງແລ້ວ",
+    "assigned": "ມອບໝາຍຊ່າງແລ້ວ",
+    "in_progress": "ກຳລັງສ້ອມ",
+    "waiting_parts": "ລໍຖ້າອາໄຫຼ່",
+    "done": "ສ້ອມແລ້ວ",
+    "closed": "ປິດແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ"
+  },
+  "workOrder": {
+    "open": "ເປີດ",
+    "assigned": "ມອບໝາຍແລ້ວ",
+    "accepted": "ຮັບແລ້ວ",
+    "in_progress": "ກຳລັງເຮັດ",
+    "done": "ສຳເລັດ",
+    "verified": "ກວດສອບແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ"
+  },
+  "parcel": {
+    "received": "ຮັບໄວ້ແລ້ວ",
+    "notified": "ແຈ້ງແລ້ວ",
+    "picked_up": "ມາຮັບແລ້ວ",
+    "returned": "ສົ່ງຄືນແລ້ວ"
+  },
+  "settlement": {
+    "opened": "ເປີດແລ້ວ",
+    "inspected": "ກວດແລ້ວ",
+    "proposed": "ສະເໜີໃຫ້ທ່ານ",
+    "agreed": "ຕົກລົງແລ້ວ",
+    "disputed": "ໂຕ້ແຍ້ງ",
+    "refunded": "ຄືນແລ້ວ",
+    "closed": "ປິດແລ້ວ"
+  },
+  "dsr": {
+    "received": "ໄດ້ຮັບແລ້ວ",
+    "verifying": "ກຳລັງຢືນຢັນຕົວຕົນ",
+    "in_progress": "ກຳລັງດຳເນີນການ",
+    "fulfilled": "ສຳເລັດ",
+    "rejected": "ປະຕິເສດ",
+    "withdrawn": "ຖອນແລ້ວ"
+  },
+  "slip": {
+    "pending_verification": "ກຳລັງກວດສະລິບ",
+    "auto_confirmed": "ຢືນຢັນແລ້ວ",
+    "pending_review": "ລໍຖ້າຫ້ອງການ",
+    "approved": "ຫ້ອງການຢືນຢັນແລ້ວ",
+    "rejected": "ບໍ່ຮັບ",
+    "duplicate": "ເຄີຍສົ່ງແລ້ວ"
+  },
+  "booking": {
+    "requested": "ລໍຖ້າອະນຸມັດ",
+    "confirmed": "ຈອງແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ",
+    "no_show": "ບໍ່ໄດ້ມາ"
+  },
+  "credential": {
+    "pending": "ກຳລັງຕັ້ງຄ່າ",
+    "active": "ໃຊ້ໄດ້",
+    "revoked": "ຖອນແລ້ວ",
+    "expired": "ໝົດອາຍຸ",
+    "failed": "ຍັງຕັ້ງຄ່າບໍ່ສຳເລັດ"
+  },
+  "accessResult": {
+    "success": "ເປີດແລ້ວ",
+    "denied": "ບໍ່ອະນຸຍາດ",
+    "error": "ກະແຈຂັດຂ້ອງ"
+  }
+}

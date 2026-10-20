@@ -1,1 +1,110 @@
-{}
+{
+  "readingSource": {
+    "iot": "智能电表",
+    "ocr": "照片读取",
+    "manual": "人工抄表",
+    "estimated": "估算"
+  },
+  "invoice": {
+    "draft": "草稿",
+    "issued": "待付款",
+    "partially_paid": "部分已付",
+    "paid": "已付",
+    "overdue": "已逾期",
+    "void": "已作废"
+  },
+  "payment": {
+    "pending": "等待确认",
+    "confirmed": "已收到",
+    "failed": "失败",
+    "refunded": "已退款",
+    "reversed": "已撤销"
+  },
+  "lease": {
+    "draft": "草稿",
+    "pending_signature": "等待签署",
+    "active": "生效中",
+    "notice_given": "已通知退租",
+    "ending": "即将结束",
+    "ended": "已结束",
+    "terminated": "已解除",
+    "cancelled": "已取消"
+  },
+  "deposit": {
+    "pending": "待支付",
+    "held": "保管中",
+    "settling": "结算中",
+    "refunded": "已退还",
+    "forfeited_partially": "部分扣除",
+    "forfeited": "不予退还",
+    "disputed": "有异议"
+  },
+  "serviceRequest": {
+    "new": "已报修",
+    "triaged": "已受理",
+    "assigned": "已派师傅",
+    "in_progress": "维修中",
+    "waiting_parts": "等待配件",
+    "done": "已修好",
+    "closed": "已关闭",
+    "cancelled": "已取消"
+  },
+  "workOrder": {
+    "open": "待处理",
+    "assigned": "已指派",
+    "accepted": "已接单",
+    "in_progress": "进行中",
+    "done": "已完成",
+    "verified": "已核验",
+    "cancelled": "已取消"
+  },
+  "parcel": {
+    "received": "已收件",
+    "notified": "已通知",
+    "picked_up": "已领取",
+    "returned": "已退回"
+  },
+  "settlement": {
+    "opened": "已开始",
+    "inspected": "已检查",
+    "proposed": "待您确认",
+    "agreed": "已同意",
+    "disputed": "有异议",
+    "refunded": "已退还",
+    "closed": "已关闭"
+  },
+  "dsr": {
+    "received": "已收到",
+    "verifying": "正在核实身份",
+    "in_progress": "处理中",
+    "fulfilled": "已完成",
+    "rejected": "已拒绝",
+    "withdrawn": "已撤回"
+  },
+  "slip": {
+    "pending_verification": "正在核对凭证",
+    "auto_confirmed": "已确认",
+    "pending_review": "等待管理处",
+    "approved": "管理处已确认",
+    "rejected": "未通过",
+    "duplicate": "之前已提交"
+  },
+  "booking": {
+    "requested": "等待批准",
+    "confirmed": "已预约",
+    "cancelled": "已取消",
+    "no_show": "未到场"
+  },
+  "credential": {
+    "pending": "设置中",
+    "active": "可用",
+    "revoked": "已撤销",
+    "expired": "已过期",
+    "failed": "尚未设置成功"
+  },
+  "accessResult": {
+    "success": "已开门",
+    "denied": "被拒绝",
+    "error": "门锁故障"
+  }
+}

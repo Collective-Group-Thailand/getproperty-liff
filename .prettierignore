@@ -19,3 +19,4 @@ src/ui/fonts/files
 public/sw.js
 contract.lock.json
 .lighthouseci
+src/fonts/scripts.css

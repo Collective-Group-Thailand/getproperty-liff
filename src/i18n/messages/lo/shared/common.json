@@ -1,1 +1,33 @@
-{}
+{
+  "cancel": "ຍົກເລີກ",
+  "confirm": "ຢືນຢັນ",
+  "close": "ປິດ",
+  "save": "ບັນທຶກ",
+  "back": "ກັບຄືນ",
+  "next": "ຕໍ່ໄປ",
+  "continue": "ສືບຕໍ່",
+  "retry": "ລອງໃໝ່",
+  "loading": "ກຳລັງໂຫຼດ…",
+  "requestId": "ເລກຄຳຮ້ອງ",
+  "notFoundTitle": "ບໍ່ພົບໜ້ານີ້",
+  "notFoundBody": "ລິ້ງອາດໝົດອາຍຸ ຫຼື ຍັງບໍ່ເປີດ",
+  "goHome": "ກັບໄປໜ້າຫຼັກ",
+  "required": "ຈຳເປັນ",
+  "optional": "ບໍ່ບັງຄັບ",
+  "camera": {
+    "viewfinder": "ກ້ອງ",
+    "torchOn": "ເປີດໄຟສາຍ",
+    "torchOff": "ປິດໄຟສາຍ",
+    "done": "{count, plural, other {ໃຊ້ຮູບ # ຮູບນີ້}}",
+    "remove": "ລຶບຮູບທີ {index}",
+    "taken": "{count, plural, other {ຖ່າຍແລ້ວ # ຮູບ}}",
+    "chooseFile": "ເລືອກຮູບ",
+    "starting": "ກຳລັງເປີດກ້ອງ…",
+    "unavailable": "ເປີດກ້ອງບໍ່ໄດ້. ອະນຸຍາດກ້ອງໃນບຣາວເຊີ ຫຼື ເລືອກຮູບແທນ."
+  },
+  "photo": {
+    "zoomIn": "ຂະຫຍາຍ",
+    "zoomOut": "ຫຍໍ້",
+    "zoom": "ຂະຫຍາຍ {percent}%"
+  }
+}

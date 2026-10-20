@@ -1,1 +1,63 @@
-{}
+{
+  "listTitle": "押金",
+  "emptyTitle": "没有押金",
+  "emptyBody": "您租约的押金会显示在这里",
+  "title": "押金 · 房间 {unit}",
+  "noSettlement": "您的押金由管理处保管。退租时，退款和扣款会显示在这里",
+  "held": {
+    "title": "保管中",
+    "security": "押金",
+    "advance": "预付租金",
+    "receipt": "收据 {number}"
+  },
+  "settlement": {
+    "title": "结算",
+    "moveOut": "于 {date} 退租",
+    "held": "保管的押金",
+    "deductions": "扣款",
+    "utilities": "最后一期水电",
+    "proposed": "拟退金额",
+    "agreed": "同意退还金额",
+    "refunded": "已退还",
+    "deadline": "管理处将于 {date} 前退款",
+    "late": "退款已超过期限，已提醒管理处",
+    "disputedTitle": "您的异议"
+  },
+  "deductions": {
+    "title": "扣款",
+    "kind": {
+      "damage": "损坏",
+      "missing_item": "物品缺失",
+      "cleaning": "清洁",
+      "unpaid_invoice": "未付账单",
+      "other": "其他"
+    },
+    "before": "入住时",
+    "after": "退租时",
+    "beforeAlt": "入住时的{item}",
+    "afterAlt": "退租时的{item}",
+    "noBefore": "无照片"
+  },
+  "respond": {
+    "title": "您的回复",
+    "lead": "核对扣款和照片后，接受退款或提出异议",
+    "accept": "接受退款 {amount}",
+    "acceptNoAmount": "接受结算",
+    "dispute": "提出异议",
+    "acceptTitle": "接受退款？",
+    "acceptBody": "您同意退款 {amount}，管理处将在期限内支付",
+    "acceptBodyNoAmount": "您同意此结算，管理处将在期限内退款",
+    "acceptSubmit": "接受",
+    "back": "返回",
+    "disputeTitle": "对结算提出异议",
+    "disputeLead": "说明您不同意的地方。照片有助于管理处核查",
+    "reason": "您不同意什么？",
+    "reasonMissing": "请写几个字",
+    "addPhoto": "添加照片",
+    "photoHint": "最多 {max} 张",
+    "photos": "待发送的照片",
+    "photoAlt": "第 {index} 张照片",
+    "removePhoto": "删除第 {index} 张照片",
+    "disputeSubmit": "提交异议"
+  }
+}

@@ -1,1 +1,23 @@
-{}
+{
+  "title": "正在 LINE 中打开 getproperty",
+  "steps": {
+    "init": "连接 LINE",
+    "login": "用 LINE 登录",
+    "session": "登录 getproperty",
+    "link": "前往请求的页面"
+  },
+  "state": {
+    "pending": "等待中",
+    "running": "进行中",
+    "done": "完成",
+    "failed": "失败"
+  },
+  "mock": "测试模式：模拟 LINE",
+  "continue": "继续",
+  "error": "无法在 LINE 中打开",
+  "errorBody": "请关闭此页面，再从 LINE 重新打开链接",
+  "accountDisabled": "此账户已被停用，请联系楼宇管理处",
+  "tokenInvalid": "LINE 无法确认您的身份，请从 LINE 重新打开链接",
+  "useSms": "改用短信登录",
+  "outsideLine": "已在 LINE 应用外打开——将先用 LINE 确认您的身份"
+}

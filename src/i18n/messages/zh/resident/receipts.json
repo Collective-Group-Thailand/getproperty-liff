@@ -1,1 +1,33 @@
-{}
+{
+  "title": "收据",
+  "empty": "还没有收据",
+  "emptyBody": "账单付清后会自动开具收据。",
+  "itemMeta": "{date} · {issuer} · 房间 {unit}",
+  "voided": "已作废",
+  "voidedBody": "因付款被撤销，此收据已作废。",
+  "pages": "收据页",
+  "newer": "较新",
+  "older": "较早",
+  "detailTitle": "收据 {number}",
+  "kind": {
+    "payment": "已收款",
+    "deposit": "已收押金",
+    "advance": "预付"
+  },
+  "issuedAt": "日期",
+  "issuer": "开具方",
+  "unit": "房间",
+  "paidInvoices": "已付账单",
+  "pdf": "打开收据 (PDF)",
+  "share": {
+    "button": "分享到 LINE",
+    "title": "收据 {number}",
+    "text": "收据 {number}——已向 {issuer} 支付 {amount}。{link}",
+    "outcome": {
+      "sent": "已发送。",
+      "shared": "已分享。",
+      "copied": "已复制——粘贴到聊天中。",
+      "failed": "此浏览器无法分享。"
+    }
+  }
+}

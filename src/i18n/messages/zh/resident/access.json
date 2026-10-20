@@ -1,0 +1,48 @@
+{
+  "title": "门禁密码",
+  "lead": "您房间和楼宇大门的个人密码，在租约期间有效。",
+  "show": "显示我的密码",
+  "showHint": "为了您的安全，每次显示密码都会被记录。",
+  "hide": "隐藏密码",
+  "none": "您的房间没有智能门锁",
+  "noneBody": "您的房间使用钥匙开门。如需备用钥匙请询问管理处。",
+  "lock": "门锁",
+  "code": "密码",
+  "codeLabel": "{lock} 的密码",
+  "noCode": "用应用或门卡开门",
+  "since": "自 {date} 起有效",
+  "until": "有效期至 {date}",
+  "untilLease": "有效至租约结束",
+  "log": {
+    "title": "我房间的开门记录",
+    "lead": "最近 30 天谁开过您房间的门。只显示您的房间——不会显示他人的房间。",
+    "empty": "最近 30 天没有开门记录",
+    "time": "时间",
+    "result": "结果",
+    "how": "方式",
+    "caption": "房间 {unit} 的开门记录",
+    "source": {
+      "app": "应用",
+      "pin": "密码",
+      "card": "门卡",
+      "remote": "远程",
+      "vendor_sync": "门锁同步",
+      "face": "人脸",
+      "qr": "二维码",
+      "fingerprint": "指纹"
+    }
+  },
+  "visitor": {
+    "title": "访客密码",
+    "lead": "为您等候的访客生成密码，最长有效 {hours, plural, other {# 小时}}。",
+    "name": "访客姓名",
+    "nameMissing": "请填写访客姓名",
+    "from": "开始",
+    "hours": "有效时长",
+    "hoursOption": "{count, plural, other {# 小时}}",
+    "submit": "生成密码",
+    "created": "{name} 的密码",
+    "valid": "{from} – {to}",
+    "notAllowed": "您的楼宇不允许住户生成访客密码，请询问管理处。"
+  }
+}

@@ -1,1 +1,49 @@
-{}
+{
+  "title": "水电用量",
+  "rangeLabel": "时段",
+  "range": {
+    "24h": "24 小时",
+    "7d": "7 天",
+    "30d": "30 天"
+  },
+  "utility": {
+    "electric": "电",
+    "water": "水"
+  },
+  "summary": {
+    "current": "本期",
+    "previous": "上期",
+    "cycle": "本账单周期至今（自 {date} 起）：{usage}",
+    "cycleEstimated": "本账单周期至今估算（自 {date} 起）：{usage}——账单以电表读数为准"
+  },
+  "chartLabel": "{utility}用量，{period}，与上一时段对比。数值见下表",
+  "series": {
+    "current": {
+      "24h": "最近 24 小时",
+      "7d": "最近 7 天",
+      "30d": "最近 30 天"
+    },
+    "previous": {
+      "24h": "之前 24 小时",
+      "7d": "之前 7 天",
+      "30d": "之前 30 天"
+    }
+  },
+  "showTable": "以表格显示",
+  "hideTable": "隐藏表格",
+  "hour": "小时",
+  "day": "日",
+  "tableCaption": "{unit} 的{utility}用量",
+  "tips": {
+    "title": "节约小贴士",
+    "fridge": "冰箱保持 3–5 °C，并保持门封条清洁",
+    "aircon": "空调设为 26 °C，每月清洗滤网",
+    "standby": "出门时从插座关掉充电器和电视",
+    "shower": "缩短淋浴时间，可节约用水和热水器的电"
+  },
+  "manual": {
+    "title": "水电用量",
+    "body": "您房间的水电表由楼宇员工每月抄一次，因此没有每日图表",
+    "bills": "每月读数和电表照片都在您的账单上"
+  }
+}

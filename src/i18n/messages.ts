@@ -31,9 +31,12 @@ export const MESSAGE_FILES = {
     "pay",
     "profile",
     "receipts",
+    "requests",
+    "community",
+    "access",
     "usage",
   ],
-  technician: ["workOrders"],
+  technician: ["auth", "workOrders"],
 } as const satisfies Record<Namespace, readonly string[]>;
 
 async function loadFile(locale: Locale, namespace: Namespace, feature: string): Promise<Messages> {

@@ -1,1 +1,84 @@
-{}
+{
+  "due": {
+    "overdue": "已逾期 {days, plural, other {# 天}}（到期日 {date}）",
+    "today": "今天到期（{date}）",
+    "inDays": "{days, plural, other {# 天}}后到期（{date}）",
+    "paid": "已付",
+    "void": "已取消"
+  },
+  "list": {
+    "title": "账单",
+    "receipts": "收据",
+    "openTitle": "待付款",
+    "period": "{period} 账单",
+    "issuerUnit": "{issuer} · 房间 {unit}",
+    "pay": "扫码付款",
+    "nothingDue": "无需付款",
+    "nothingDueBody": "楼宇出新账单时会通过 LINE 通知您。",
+    "historyTitle": "以往账单",
+    "noHistory": "还没有以往账单。",
+    "pages": "账单页",
+    "newer": "较新",
+    "older": "较早"
+  },
+  "detail": {
+    "metaTitle": "账单",
+    "back": "全部账单",
+    "title": "{period} 账单",
+    "meta": "{number} · {issuer} · 房间 {unit}",
+    "periodIssued": "账单周期 {from} – {to} · 开具于 {issued}",
+    "toPay": "待付",
+    "stillDue": "尚欠",
+    "total": "账单金额",
+    "pay": "扫码付款",
+    "linesTitle": "本账单包含",
+    "totals": {
+      "total": "本账单",
+      "prior": "以往账单未付",
+      "amountDue": "应付金额",
+      "balance": "尚欠"
+    },
+    "receipts": "本账单的收据",
+    "pdf": "打开账单 (PDF)"
+  },
+  "lines": {
+    "groups": {
+      "rent": "租金",
+      "meter": "电费和水费",
+      "service": "服务",
+      "common_fee": "公共费用",
+      "fund": "基金",
+      "penalty": "罚款",
+      "deposit": "押金",
+      "adjustment": "调整"
+    },
+    "period": "{from} – {to}",
+    "readAt": "抄表于 {date}",
+    "previous": "上次读数",
+    "current": "本次读数",
+    "used": "用量",
+    "pricePerUnit": "单价",
+    "rate": "每单位 ฿{rate}",
+    "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
+    "quantityTimesPrice": "{quantity} × ฿{rate}",
+    "estimated": "此为估算，抄表后将在下一张账单中更正。",
+    "photoOpen": "查看电表照片",
+    "photoAlt": "电表照片：{title}",
+    "photoCaption": "抄表时拍摄的照片",
+    "estimatedBadge": "估算"
+  },
+  "explained": {
+    "title": "为什么是这个金额",
+    "rent": "租金是租约中的月租金。",
+    "meters": "电费和水费 = 您的用量（本次读数减上次读数）× 单价。上方每条电表明细都列出读数、用量和单价。",
+    "sources": "明细旁的标签说明读数来源：智能电表、照片、人工抄表或估算。",
+    "estimate": "本账单有估算明细，因为没有实际读数；抄表后差额会在下一张账单中结算。",
+    "prior": "本账单包含以往账单未付的 {amount}。付款优先抵扣最早的账单。",
+    "late": "本账单已逾期。只有租约有约定时才能收取滞纳金，而且只会出现在之后的账单上——不会加到本账单。",
+    "questions": "对某条明细有疑问？请直接联系 {issuer}。",
+    "lawTitle": "法律保护您",
+    "lawBody": "房东收取的电费和水费不得高于电力和自来水部门向楼宇收取的费用，账单必须列出用量和单价。",
+    "legalRef": "Contract Committee announcement on residential rental as a contract-controlled business, B.E. 2568, clause 5 (6)",
+    "lawLink": "阅读 OCPB 公告"
+  }
+}

@@ -1,1 +1,37 @@
-{}
+{
+  "skipToContent": "跳到正文",
+  "bottomNav": "快捷菜单",
+  "theme": "主题",
+  "themeChoice": {
+    "system": "跟随设备",
+    "light": "浅色",
+    "dark": "深色",
+    "hc": "高对比度"
+  },
+  "language": "语言",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English",
+    "my": "မြန်မာ",
+    "km": "ខ្មែរ",
+    "lo": "ລາວ",
+    "zh": "中文"
+  },
+  "languagePreview": "此语言尚未完全翻译，部分文字以英文显示",
+  "appTitle": "getproperty 住户版",
+  "menu": {
+    "open": "设置与账户",
+    "title": "设置",
+    "signOut": "退出登录",
+    "signingOut": "正在退出…"
+  },
+  "unitSwitcher": {
+    "title": "选择房间",
+    "description": "{count, plural, other {此账户有 # 个房间}}",
+    "current": "已选房间",
+    "unit": "房间 {unit}",
+    "place": "{building} · {operator}",
+    "switch": " — 切换房间"
+  },
+  "envBadge": "{name} 环境"
+}

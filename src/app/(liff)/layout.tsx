@@ -14,6 +14,7 @@ import { SharedShellModules } from "@/features/resident/shell/SharedShellModules
 import { Providers } from "./providers";
 
 import "../globals.css";
+import "@/fonts/scripts.css";
 
 /**
  * The one root layout (ADR-0004: a single zone, no host routing). It stamps what must be there before

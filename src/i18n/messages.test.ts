@@ -35,12 +35,20 @@ describe("messages", () => {
     expect(keys(read("en", file)).sort()).toEqual(keys(read("th", file)).sort());
   });
 
-  it.each(LOCALES.filter((l) => !(ACTIVE_LOCALES as readonly string[]).includes(l)))(
-    "%s only uses keys English has (it falls back to English for the rest)",
+  const R2 = LOCALES.filter((l) => l !== "th" && l !== "en");
+
+  it.each(R2)("%s only uses keys English has (it falls back to English for the rest)", (locale) => {
+    for (const file of files) {
+      const en = new Set(keys(read("en", file)));
+      for (const key of keys(read(locale, file))) expect(en).toContain(key);
+    }
+  });
+
+  it.each(R2)(
+    "%s covers every resident and shared message (L4, D-064; technician screens fall back to English)",
     (locale) => {
-      for (const file of files) {
-        const en = new Set(keys(read("en", file)));
-        for (const key of keys(read(locale, file))) expect(en).toContain(key);
+      for (const file of files.filter((f) => !f.startsWith("technician/"))) {
+        expect(keys(read(locale, file)).sort(), `${locale} ${file}`).toEqual(keys(read("en", file)).sort());
       }
     },
   );
@@ -66,10 +74,12 @@ describe("messages", () => {
 });
 
 describe("loadMessages", () => {
-  it("falls back to English for an empty locale", async () => {
-    const km = await loadMessages("km");
-    const en = await loadMessages("en");
-    expect(km).toEqual(en);
+  it("falls back to English where a locale has no copy (the technician screens in km)", async () => {
+    const km = (await loadMessages("km", ["technician"])) as { technician: unknown };
+    const en = (await loadMessages("en", ["technician"])) as { technician: unknown };
+    expect(km.technician).toEqual(en.technician);
+    const kmResident = (await loadMessages("km")) as { resident: { nav: { home: string } } };
+    expect(kmResident.resident.nav.home).toBe("ទំព័រដើម");
   });
   it("keeps Thai as Thai and mounts features under their namespace", async () => {
     const th = (await loadMessages("th")) as { resident: { nav: { home: string } }; common: { retry: string } };

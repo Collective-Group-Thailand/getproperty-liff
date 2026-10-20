@@ -1,1 +1,22 @@
-{}
+{
+  "title": "绑定您的房间",
+  "lead": "输入楼宇管理处提供的邀请码（在您收到的二维码或短信中）",
+  "codeLabel": "邀请码",
+  "submit": "绑定房间",
+  "success": {
+    "title": "房间已绑定",
+    "body": "{count, plural, other {此账户新增 # 个房间}}",
+    "continue": "继续",
+    "lease": "您的租约已绑定到此账户。请阅读并签署后入住",
+    "openLease": "打开我的租约"
+  },
+  "notFound": {
+    "title": "找不到邀请码",
+    "body": "请检查邀请码，或向楼宇管理处索取新的邀请码"
+  },
+  "notPending": {
+    "title": "此邀请码已无法使用",
+    "body": "已被使用或已过期。请向楼宇管理处索取新的邀请码"
+  },
+  "unit": "房间 {unit} · {building}"
+}

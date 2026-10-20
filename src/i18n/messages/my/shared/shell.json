@@ -1,1 +1,37 @@
-{}
+{
+  "skipToContent": "အကြောင်းအရာသို့ ကျော်ရန်",
+  "bottomNav": "အမြန်မီနူး",
+  "theme": "အပြင်အဆင်",
+  "themeChoice": {
+    "system": "ဖုန်းအတိုင်း",
+    "light": "အလင်း",
+    "dark": "အမှောင်",
+    "hc": "အရောင်ကွဲပြားမှု မြင့်"
+  },
+  "language": "ဘာသာစကား",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English",
+    "my": "မြန်မာ",
+    "km": "ខ្មែរ",
+    "lo": "ລາວ",
+    "zh": "中文"
+  },
+  "languagePreview": "ဤဘာသာစကားကို အပြည့်အစုံ ဘာသာမပြန်ရသေးပါ၊ အချို့စာများကို အင်္ဂလိပ်ဖြင့် ပြထားသည်",
+  "appTitle": "getproperty နေထိုင်သူများအတွက်",
+  "menu": {
+    "open": "ဆက်တင်နှင့် အကောင့်",
+    "title": "ဆက်တင်",
+    "signOut": "ထွက်ရန်",
+    "signingOut": "ထွက်နေသည်…"
+  },
+  "unitSwitcher": {
+    "title": "အခန်း ရွေးရန်",
+    "description": "{count, plural, other {ဤအကောင့်တွင် အခန်း # ခန်း ရှိသည်}}",
+    "current": "ရွေးထားသော အခန်း",
+    "unit": "အခန်း {unit}",
+    "place": "{building} · {operator}",
+    "switch": " — အခန်း ပြောင်းရန်"
+  },
+  "envBadge": "{name} ပတ်ဝန်းကျင်"
+}

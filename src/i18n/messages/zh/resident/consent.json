@@ -1,1 +1,11 @@
-{}
+{
+  "title": "个人信息的使用",
+  "lead": "开始前，请根据泰国《个人信息保护法》(PDPA) 阅读并给予同意",
+  "changed": "内容已更新，请阅读后再次确认",
+  "version": "版本 {version}",
+  "agreeRequired": "我同意（使用本应用所必需）",
+  "agreeOptional": "我同意",
+  "submit": "确认并继续",
+  "requiredMissing": "需要同意必选项才能使用本应用",
+  "later": "可选同意项随时可在 我的 › 隐私 中更改"
+}

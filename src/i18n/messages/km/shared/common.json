@@ -1,1 +1,33 @@
-{}
+{
+  "cancel": "បោះបង់",
+  "confirm": "បញ្ជាក់",
+  "close": "បិទ",
+  "save": "រក្សាទុក",
+  "back": "ថយក្រោយ",
+  "next": "បន្ទាប់",
+  "continue": "បន្ត",
+  "retry": "ព្យាយាមម្តងទៀត",
+  "loading": "កំពុងផ្ទុក…",
+  "requestId": "លេខសំណើ",
+  "notFoundTitle": "រកមិនឃើញទំព័រ",
+  "notFoundBody": "តំណអាចផុតកំណត់ ឬមិនទាន់បើក",
+  "goHome": "ត្រឡប់ទៅទំព័រដើម",
+  "required": "ចាំបាច់",
+  "optional": "ស្រេចចិត្ត",
+  "camera": {
+    "viewfinder": "កាមេរ៉ា",
+    "torchOn": "បើកពិល",
+    "torchOff": "បិទពិល",
+    "done": "{count, plural, other {ប្រើរូបថត # សន្លឹកនេះ}}",
+    "remove": "លុបរូបថតទី {index}",
+    "taken": "{count, plural, other {បានថត # សន្លឹក}}",
+    "chooseFile": "ជ្រើសរូបថត",
+    "starting": "កំពុងបើកកាមេរ៉ា…",
+    "unavailable": "មិនអាចបើកកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតកាមេរ៉ានៅក្នុងកម្មវិធីរុករក ឬជ្រើសរូបថតជំនួសវិញ។"
+  },
+  "photo": {
+    "zoomIn": "ពង្រីក",
+    "zoomOut": "បង្រួម",
+    "zoom": "ពង្រីក {percent}%"
+  }
+}

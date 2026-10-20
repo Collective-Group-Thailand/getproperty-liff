@@ -1,1 +1,52 @@
-{}
+{
+  "greeting": "您好，{name}",
+  "unit": {
+    "title": "您的房间",
+    "unitCode": "房间 {code}",
+    "building": "{name}",
+    "operator": "由 {name} 管理",
+    "since": "自 {date} 起入住",
+    "lease": "租约 {number} · {status}"
+  },
+  "bills": {
+    "title": "本房间的账单",
+    "body": "楼宇出账单时，您会收到 LINE 消息，并可在这里看到账单和付款二维码",
+    "cta": "查看全部账单"
+  },
+  "tiles": {
+    "title": "菜单",
+    "bills": "账单",
+    "usage": "水电",
+    "serviceRequest": "报修",
+    "lease": "租约",
+    "announcements": "公告",
+    "parcels": "包裹",
+    "receipts": "收据",
+    "facilities": "预约公共设施",
+    "access": "门禁密码",
+    "rules": "楼宇规定",
+    "contacts": "联系方式"
+  },
+  "noUnit": {
+    "title": "此账户还没有房间",
+    "body": "请向楼宇管理处索取邀请码，然后输入以绑定您的房间",
+    "cta": "输入邀请码"
+  },
+  "lease": {
+    "signTitle": "租约等待签署",
+    "signBody": "房间 {unit} · {building}",
+    "signCta": "打开租约"
+  },
+  "invoice": {
+    "title": "{period} 账单",
+    "pay": "扫码付款",
+    "details": "查看账单",
+    "more": "{count, plural, other {还有 # 张账单待付}}",
+    "nothingDue": "无需付款",
+    "nothingDueBody": "您已全部付清。新账单出来时会通过 LINE 通知您。"
+  },
+  "inbox": {
+    "title": "最新通知",
+    "unread": "新："
+  }
+}

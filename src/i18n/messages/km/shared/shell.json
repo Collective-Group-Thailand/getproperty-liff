@@ -1,1 +1,37 @@
-{}
+{
+  "skipToContent": "រំលងទៅមាតិកា",
+  "bottomNav": "ម៉ឺនុយរហ័ស",
+  "theme": "រចនាប័ទ្ម",
+  "themeChoice": {
+    "system": "តាមឧបករណ៍",
+    "light": "ភ្លឺ",
+    "dark": "ងងឹត",
+    "hc": "កម្រិតពណ៌ខ្ពស់"
+  },
+  "language": "ភាសា",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English",
+    "my": "မြန်မာ",
+    "km": "ខ្មែរ",
+    "lo": "ລາວ",
+    "zh": "中文"
+  },
+  "languagePreview": "ភាសានេះមិនទាន់បកប្រែពេញលេញនៅឡើយ អត្ថបទខ្លះបង្ហាញជាភាសាអង់គ្លេស",
+  "appTitle": "getproperty សម្រាប់អ្នករស់នៅ",
+  "menu": {
+    "open": "ការកំណត់ និងគណនី",
+    "title": "ការកំណត់",
+    "signOut": "ចាកចេញ",
+    "signingOut": "កំពុងចាកចេញ…"
+  },
+  "unitSwitcher": {
+    "title": "ជ្រើសបន្ទប់",
+    "description": "{count, plural, other {គណនីនេះមានបន្ទប់ # បន្ទប់}}",
+    "current": "បន្ទប់ដែលបានជ្រើស",
+    "unit": "បន្ទប់ {unit}",
+    "place": "{building} · {operator}",
+    "switch": " — ប្តូរបន្ទប់"
+  },
+  "envBadge": "បរិស្ថាន {name}"
+}

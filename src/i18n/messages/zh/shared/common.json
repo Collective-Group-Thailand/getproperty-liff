@@ -1,1 +1,33 @@
-{}
+{
+  "cancel": "取消",
+  "confirm": "确认",
+  "close": "关闭",
+  "save": "保存",
+  "back": "返回",
+  "next": "下一步",
+  "continue": "继续",
+  "retry": "重试",
+  "loading": "加载中…",
+  "requestId": "请求编号",
+  "notFoundTitle": "找不到页面",
+  "notFoundBody": "链接可能已过期或尚未开放",
+  "goHome": "返回首页",
+  "required": "必填",
+  "optional": "选填",
+  "camera": {
+    "viewfinder": "相机",
+    "torchOn": "打开手电筒",
+    "torchOff": "关闭手电筒",
+    "done": "{count, plural, other {使用这 # 张照片}}",
+    "remove": "删除第 {index} 张照片",
+    "taken": "{count, plural, other {已拍 # 张}}",
+    "chooseFile": "选择照片",
+    "starting": "正在启动相机…",
+    "unavailable": "无法启动相机。请在浏览器中允许使用相机，或改为选择照片。"
+  },
+  "photo": {
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "zoom": "缩放 {percent}%"
+  }
+}

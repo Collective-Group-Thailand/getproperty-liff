@@ -1,1 +1,110 @@
-{}
+{
+  "readingSource": {
+    "iot": "កុងទ័រឆ្លាតវៃ",
+    "ocr": "អានពីរូបថត",
+    "manual": "បុគ្គលិកអាន",
+    "estimated": "ប៉ាន់ស្មាន"
+  },
+  "invoice": {
+    "draft": "សេចក្តីព្រាង",
+    "issued": "ត្រូវបង់",
+    "partially_paid": "បង់ខ្លះ",
+    "paid": "បានបង់",
+    "overdue": "ហួសកំណត់",
+    "void": "បានលុបចោល"
+  },
+  "payment": {
+    "pending": "រង់ចាំការបញ្ជាក់",
+    "confirmed": "បានទទួល",
+    "failed": "បរាជ័យ",
+    "refunded": "បានសងវិញ",
+    "reversed": "បានដកវិញ"
+  },
+  "lease": {
+    "draft": "សេចក្តីព្រាង",
+    "pending_signature": "រង់ចាំហត្ថលេខា",
+    "active": "កំពុងអនុវត្ត",
+    "notice_given": "បានជូនដំណឹងចាកចេញ",
+    "ending": "ជិតបញ្ចប់",
+    "ended": "បានបញ្ចប់",
+    "terminated": "បានបញ្ចប់មុនកំណត់",
+    "cancelled": "បានលុបចោល"
+  },
+  "deposit": {
+    "pending": "ត្រូវបង់",
+    "held": "កំពុងរក្សាទុក",
+    "settling": "កំពុងទូទាត់",
+    "refunded": "បានសងវិញ",
+    "forfeited_partially": "កាត់ខ្លះ",
+    "forfeited": "មិនសងវិញ",
+    "disputed": "កំពុងតវ៉ា"
+  },
+  "serviceRequest": {
+    "new": "បានរាយការណ៍",
+    "triaged": "បានទទួល",
+    "assigned": "បានចាត់ជាង",
+    "in_progress": "កំពុងជួសជុល",
+    "waiting_parts": "រង់ចាំគ្រឿងបន្លាស់",
+    "done": "ជួសជុលរួច",
+    "closed": "បានបិទ",
+    "cancelled": "បានលុបចោល"
+  },
+  "workOrder": {
+    "open": "បើក",
+    "assigned": "បានចាត់តាំង",
+    "accepted": "បានទទួល",
+    "in_progress": "កំពុងធ្វើ",
+    "done": "រួចរាល់",
+    "verified": "បានផ្ទៀងផ្ទាត់",
+    "cancelled": "បានលុបចោល"
+  },
+  "parcel": {
+    "received": "បានទទួល",
+    "notified": "បានជូនដំណឹង",
+    "picked_up": "បានយក",
+    "returned": "បានបញ្ជូនត្រឡប់"
+  },
+  "settlement": {
+    "opened": "បានបើក",
+    "inspected": "បានត្រួតពិនិត្យ",
+    "proposed": "បានស្នើជូនអ្នក",
+    "agreed": "បានយល់ព្រម",
+    "disputed": "កំពុងតវ៉ា",
+    "refunded": "បានសងវិញ",
+    "closed": "បានបិទ"
+  },
+  "dsr": {
+    "received": "បានទទួល",
+    "verifying": "កំពុងផ្ទៀងផ្ទាត់អត្តសញ្ញាណ",
+    "in_progress": "កំពុងដំណើរការ",
+    "fulfilled": "រួចរាល់",
+    "rejected": "បានបដិសេធ",
+    "withdrawn": "បានដកវិញ"
+  },
+  "slip": {
+    "pending_verification": "កំពុងពិនិត្យបង្កាន់ដៃ",
+    "auto_confirmed": "បានបញ្ជាក់",
+    "pending_review": "រង់ចាំការិយាល័យ",
+    "approved": "ការិយាល័យបានបញ្ជាក់",
+    "rejected": "មិនទទួលយក",
+    "duplicate": "បានផ្ញើរួចហើយ"
+  },
+  "booking": {
+    "requested": "រង់ចាំការអនុម័ត",
+    "confirmed": "បានកក់",
+    "cancelled": "បានលុបចោល",
+    "no_show": "មិនបានមក"
+  },
+  "credential": {
+    "pending": "កំពុងរៀបចំ",
+    "active": "ប្រើបាន",
+    "revoked": "បានដកហូត",
+    "expired": "ផុតកំណត់",
+    "failed": "មិនទាន់រៀបចំបាន"
+  },
+  "accessResult": {
+    "success": "បានបើក",
+    "denied": "ត្រូវបានបដិសេធ",
+    "error": "សោមានបញ្ហា"
+  }
+}
