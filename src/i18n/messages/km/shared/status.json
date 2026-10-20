@@ -82,7 +82,7 @@
     "withdrawn": "បានដកវិញ"
   },
   "slip": {
-    "pending_verification": "កំពុងពិនិត្យបង្កាន់ដៃ",
+    "pending_verification": "កំពុងពិនិត្យស្លីប",
     "auto_confirmed": "បានបញ្ជាក់",
     "pending_review": "រង់ចាំការិយាល័យ",
     "approved": "ការិយាល័យបានបញ្ជាក់",
