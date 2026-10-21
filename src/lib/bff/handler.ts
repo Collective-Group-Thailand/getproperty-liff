@@ -10,6 +10,7 @@ import {
   type TokenPairLike,
 } from "@/lib/auth/cookies";
 import { refreshRejected, refreshTokens } from "@/lib/auth/refresh";
+import { clientIpFrom, requestIdFrom } from "@/lib/http/edge";
 
 /**
  * The resident BFF (master plan §4, ADR-0006): the browser's only way to the API.
@@ -17,7 +18,8 @@ import { refreshRejected, refreshTokens } from "@/lib/auth/refresh";
  *   /bff/v1/<allow-listed path>     passthrough with the session's bearer
  *   /bff/auth/line                  LIFF id token → `/v1/auth/resident/line` → cookies
  *   /bff/auth/technician/line       same for technicians (FEATURE_TECHNICIAN=1)
- *   /bff/auth/logout                `/v1/auth/logout` for every session of this browser, cookies cleared
+ *   /bff/auth/logout                `/v1/auth/logout` for every session of this browser, cookies cleared (POST +
+ *                                   CSRF only: a cross-site link must not sign residents out — review L1)
  *   /bff/auth/refresh               rotate the resident session now (POST) — after `/v1/resident/link` answers
  *                                   `refreshRequired`, so the new `lease:`/`unit:` scopes arrive (D-061)
  *   /bff/auth/technician/refresh    rotate the technician session now (POST) — a work order assigned after sign-in
@@ -27,8 +29,12 @@ import { refreshRejected, refreshTokens } from "@/lib/auth/refresh";
  * technician flag) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
  * httpOnly cookie, refreshed before it expires and **once** on a 401, rotated cookies always written back; tokens
  * in auth responses become cookies and never reach the browser; same-origin + `x-getproperty-csrf: 1` on every
- * non-GET; request bodies capped (photos and slips go to object storage by presigned URL); responses streamed
- * (PDF, SSE) and never cached.
+ * non-GET; request bodies capped per route, matching the API's own limits (`BODY_LIMITS`: inline slip images and
+ * signature PNGs are larger than everything else; photos go to object storage by presigned URL — review H1);
+ * responses streamed (PDF, SSE) and never cached. The client address sent to the API is the one our edge appended
+ * (`trustedHops` from the right of `X-Forwarded-For`, review H2); a request id is accepted only as a UUID (L4). The
+ * realtime stream token travels in an httpOnly cookie between the browser and this BFF, never in a browser URL
+ * (review L5; the API itself still takes it in the query string — EventSource cannot send headers).
  */
 export interface BffConfig {
   apiBaseUrl: string;
@@ -36,7 +42,10 @@ export interface BffConfig {
   technicianEnabled: boolean;
   /** Public origin of this app; derived from the request when unset. */
   appOrigin?: string;
+  /** Default body cap for routes without their own (`BODY_LIMITS`). */
   maxBodyBytes?: number;
+  /** Proxies in front of this app that append to `X-Forwarded-For` (Cloud Run: 1); 0 = forward no client address. */
+  trustedHops?: number;
   now?: () => number;
   /** Extra headers for every upstream call (the mock scenario in mock builds). */
   upstreamHeaders?: (request: Request) => Record<string, string>;
@@ -44,6 +53,60 @@ export interface BffConfig {
 
 export const CSRF_HEADER = "x-getproperty-csrf";
 export const DEFAULT_MAX_BODY_BYTES = 256 * 1024;
+
+const MIB = 1024 * 1024;
+/**
+ * Routes whose JSON bodies are larger than the default, with the API's limit for the same route (getproperty-api
+ * `src/common/http/json-body-parser.ts`, review H1): a transfer slip is sent inline (base64 of an image ≤ 5 MB,
+ * `POST …/slips`, API 7 MiB) and a lease signature carries its PNG (`POST …/sign`, the API's default 1 MiB).
+ */
+export const BODY_LIMITS: readonly { method: string; pattern: RegExp; bytes: number }[] = [
+  { method: "POST", pattern: /^\/v1\/resident\/invoices\/[^/]+\/slips$/, bytes: 7 * MIB },
+  { method: "POST", pattern: /^\/v1\/resident\/leases\/[^/]+\/sign$/, bytes: 1 * MIB },
+];
+
+export function bodyLimitFor(method: string, path: string, fallback: number = DEFAULT_MAX_BODY_BYTES): number {
+  return BODY_LIMITS.find((limit) => limit.method === method && limit.pattern.test(path))?.bytes ?? fallback;
+}
+
+/** httpOnly cookie that carries the 60-second realtime stream token from `realtime/auth` to `realtime/stream`. */
+export const STREAM_TOKEN_COOKIES: Record<SessionKind, string> = {
+  resident: "__Host-gp_sst",
+  technician: "__Host-gp_tsst",
+};
+const REALTIME_AUTH = /^\/v1\/(resident|technician)\/realtime\/auth$/;
+
+/**
+ * The realtime stream with its `event:` field lines removed: every event reaches the browser as a default `message`
+ * whose JSON data carries its `type` (contract §6), so the client needs one listener instead of a list of every event
+ * name (and hears new types without a release — D-179 budget). Line-based and streaming: a line split across chunks is
+ * held until it is complete.
+ */
+export function asDefaultEvents(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let rest = "";
+  const keep = (line: string) => !/^event:/.test(line);
+  return body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        rest += decoder.decode(chunk, { stream: true });
+        const lines = rest.split("\n");
+        rest = lines.pop() ?? "";
+        const out = lines
+          .filter(keep)
+          .map((line) => `${line}\n`)
+          .join("");
+        if (out) controller.enqueue(encoder.encode(out));
+      },
+      flush(controller) {
+        rest += decoder.decode();
+        if (rest && keep(rest)) controller.enqueue(encoder.encode(rest));
+      },
+    }),
+  );
+}
+const REALTIME_STREAM = /^\/v1\/(resident|technician)\/realtime\/stream$/;
 
 const FORWARDED_REQUEST_HEADERS = [
   "accept",
@@ -146,12 +209,6 @@ export function csrfViolation(request: Request, configuredOrigin?: string): stri
   return null;
 }
 
-function clientIp(request: Request): string | undefined {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  return request.headers.get("x-real-ip") ?? undefined;
-}
-
 class BodyTooLarge extends Error {}
 
 async function readBody(request: Request, limit: number): Promise<ArrayBuffer | undefined> {
@@ -181,7 +238,12 @@ async function readBody(request: Request, limit: number): Promise<ArrayBuffer | 
   return out.buffer;
 }
 
-function upstreamHeaders(request: Request, requestId: string, extra: Record<string, string>): Headers {
+function upstreamHeaders(
+  request: Request,
+  requestId: string,
+  clientIp: string | undefined,
+  extra: Record<string, string>,
+): Headers {
   const headers = new Headers();
   for (const name of FORWARDED_REQUEST_HEADERS) {
     const value = request.headers.get(name);
@@ -192,8 +254,8 @@ function upstreamHeaders(request: Request, requestId: string, extra: Record<stri
     if (locale) headers.set("accept-language", locale);
   }
   headers.set("x-request-id", requestId);
-  const ip = clientIp(request);
-  if (ip) headers.set("x-forwarded-for", ip);
+  // One address, the one our edge saw — never the inbound header as is (its left-most entries are the client's).
+  if (clientIp) headers.set("x-forwarded-for", clientIp);
   for (const [name, value] of Object.entries(extra)) headers.set(name, value);
   return headers;
 }
@@ -243,19 +305,29 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
   return async function handle(request: Request): Promise<Response> {
     const cfg = resolve();
     const now = cfg.now ?? Date.now;
-    const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+    const requestId = requestIdFrom(request.headers);
+    const clientIp = clientIpFrom(request.headers, cfg.trustedHops ?? 0);
     const url = new URL(request.url);
     const rawPath = url.pathname.replace(/^\/bff/, "") || "/";
 
     const route = routeFor(rawPath, cfg.technicianEnabled);
     if (!route) return problem(404, "bff.not_allowed", "This path is not available to the resident app", requestId);
 
+    // Logout ends sessions: a state change, so POST with the CSRF checks below — never a GET a link can trigger.
+    if (route.type === "logout" && request.method !== "POST") {
+      return problem(405, "http.method_not_allowed", "Use POST", requestId, new Headers({ allow: "POST" }));
+    }
+
     const csrf = csrfViolation(request, cfg.appOrigin);
     if (csrf) return problem(403, "bff.csrf", "Cross-site request refused", requestId);
 
     let body: ArrayBuffer | undefined;
     try {
-      body = await readBody(request, cfg.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES);
+      const limitPath = route.type === "proxy" ? route.path : rawPath;
+      body = await readBody(
+        request,
+        bodyLimitFor(request.method, limitPath, cfg.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES),
+      );
     } catch (error) {
       if (error instanceof BodyTooLarge) {
         return problem(413, "bff.payload_too_large", "Upload files with a presigned URL", requestId);
@@ -265,7 +337,13 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
 
     const jar = parseCookieHeader(request.headers.get("cookie"));
     const extra = cfg.upstreamHeaders?.(request) ?? {};
-    const headers = upstreamHeaders(request, requestId, extra);
+    const headers = upstreamHeaders(request, requestId, clientIp, extra);
+    // The refresh calls carry the same request id, client address and mock scenario as the request they serve.
+    const refreshHeaders: Record<string, string> = {
+      "x-request-id": requestId,
+      ...(clientIp ? { "x-forwarded-for": clientIp } : {}),
+      ...extra,
+    };
     const call = async (path: string, init: { method: string; headers: Headers; body?: ArrayBuffer | string }) => {
       try {
         return await cfg.upstream(
@@ -291,7 +369,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
             body: JSON.stringify({ refreshToken }),
           });
         }
-        cookies.push(...clearedCookies(kind));
+        cookies.push(...clearedCookies(kind), { name: STREAM_TOKEN_COOKIES[kind], value: "", maxAge: 0 });
       }
       return new Response(null, { status: 204, headers: downstreamHeaders(new Response(), requestId, cookies) });
     }
@@ -301,13 +379,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
       if (request.method !== "POST") return problem(405, "http.method_not_allowed", "Use POST", requestId);
       const refreshToken = jar.get(SESSION_COOKIES[route.kind].refresh);
       if (!refreshToken) return problem(401, "auth.unauthenticated", "Sign in again", requestId);
-      const outcome = await refreshTokens(
-        cfg.apiBaseUrl,
-        refreshToken,
-        cfg.upstream,
-        { "x-request-id": requestId, ...extra },
-        now,
-      );
+      const outcome = await refreshTokens(cfg.apiBaseUrl, refreshToken, cfg.upstream, refreshHeaders, now);
       if (outcome.ok) {
         const out = downstreamHeaders(new Response(), requestId, sessionCookies(route.kind, outcome.pair, now()));
         out.set("content-type", "application/json");
@@ -353,13 +425,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
     const refreshOnce = async (): Promise<"ok" | "rejected" | "unavailable" | "none"> => {
       if (refreshed || !refresh) return "none";
       refreshed = true;
-      const outcome = await refreshTokens(
-        cfg.apiBaseUrl,
-        refresh,
-        cfg.upstream,
-        { "x-request-id": requestId, ...extra },
-        now,
-      );
+      const outcome = await refreshTokens(cfg.apiBaseUrl, refresh, cfg.upstream, refreshHeaders, now);
       if (outcome.ok) {
         cookies.push(...sessionCookies(route.kind, outcome.pair, now()));
         access = outcome.pair.accessToken;
@@ -377,10 +443,22 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
 
     if (refresh && accessTokenStale(access, now())) await refreshOnce();
 
+    // Realtime (review L5): the stream token rides in an httpOnly cookie between the browser and this BFF and is put
+    // back into the API's query string here, so it never appears in a browser-visible URL or this app's access log.
+    let search = url.search;
+    if (request.method === "GET" && REALTIME_STREAM.test(route.path) && !url.searchParams.has("token")) {
+      const token = jar.get(STREAM_TOKEN_COOKIES[route.kind]);
+      if (token) {
+        const params = new URLSearchParams(url.searchParams);
+        params.set("token", token);
+        search = `?${params.toString()}`;
+      }
+    }
+
     const send = () => {
       const h = new Headers(headers);
       if (access) h.set("authorization", `Bearer ${access}`);
-      return call(route.path + url.search, { method: request.method, headers: h, body });
+      return call(route.path + search, { method: request.method, headers: h, body });
     };
 
     let response = await send();
@@ -403,7 +481,29 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
       // The API no longer accepts this access token and there is no refresh token left to renew it with.
       cookies.push(...clearedCookies(route.kind));
     }
-    return new Response(response.body, {
+    if (
+      request.method === "POST" &&
+      REALTIME_AUTH.test(route.path) &&
+      response.ok &&
+      (response.headers.get("content-type") ?? "").includes("json")
+    ) {
+      const grant = (await response.json()) as Record<string, unknown>;
+      const token = typeof grant.streamToken === "string" ? grant.streamToken : "";
+      const expires = typeof grant.expiresAt === "string" ? Date.parse(grant.expiresAt) : Number.NaN;
+      const maxAge = Number.isFinite(expires) ? Math.max(1, Math.min(120, Math.ceil((expires - now()) / 1000))) : 60;
+      if (token) cookies.push({ name: STREAM_TOKEN_COOKIES[route.kind], value: token, maxAge });
+      const streamUrl = new URL(String(grant.streamUrl ?? ""), "http://api.invalid");
+      streamUrl.searchParams.delete("token");
+      const out = downstreamHeaders(response, requestId, cookies);
+      out.set("content-type", "application/json");
+      return new Response(
+        JSON.stringify({ ...grant, streamToken: "", streamUrl: `${streamUrl.pathname}${streamUrl.search}` }),
+        { status: response.status, headers: out },
+      );
+    }
+    const sse =
+      REALTIME_STREAM.test(route.path) && (response.headers.get("content-type") ?? "").includes("text/event-stream");
+    return new Response(sse && response.body ? asDefaultEvents(response.body) : response.body, {
       status: response.status,
       headers: downstreamHeaders(response, requestId, cookies),
     });

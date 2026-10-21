@@ -23,7 +23,11 @@ test.describe("LIFF entry", () => {
     await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
     await expect(page.getByTestId("header-building")).toHaveText("อาคาร A");
 
-    expect(await sessionCookieNames(context)).toEqual(["__Host-gp_at", "__Host-gp_rt"]);
+    // The session pair, plus (once the realtime bridge authorised its stream) the 60-s stream-token cookie (review L5).
+    expect((await sessionCookieNames(context)).filter((name) => name !== "__Host-gp_sst")).toEqual([
+      "__Host-gp_at",
+      "__Host-gp_rt",
+    ]);
     for (const cookie of (await context.cookies()).filter((c) => c.name.startsWith("__Host-gp_"))) {
       expect(cookie).toMatchObject({ httpOnly: true, secure: true, sameSite: "Lax", path: "/" });
     }

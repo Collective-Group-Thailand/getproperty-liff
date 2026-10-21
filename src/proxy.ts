@@ -5,6 +5,7 @@ import { parseCookieHeader, rewriteCookieHeader, SESSION_COOKIE_FLAGS } from "@/
 import { PATHNAME_HEADER } from "@/lib/auth/redirects";
 import { renewBeforeRender, sessionKindForPath } from "@/lib/auth/renew";
 import { serverEnv } from "@/lib/env";
+import { clientIpFrom, requestIdFrom } from "@/lib/http/edge";
 import { contentSecurityPolicy, createNonce, originOf } from "@/lib/security/headers";
 
 /**
@@ -33,7 +34,8 @@ export async function proxy(request: NextRequest) {
   });
 
   const requestHeaders = new Headers(request.headers);
-  const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+  // A client-chosen id is not trusted (review L4): only a UUID passes, else this request gets its own.
+  const requestId = requestIdFrom(request.headers);
   requestHeaders.set("x-request-id", requestId);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("content-security-policy", csp);
@@ -42,6 +44,8 @@ export async function proxy(request: NextRequest) {
   let cookies: Awaited<ReturnType<typeof renewBeforeRender>> = [];
   if (request.method === "GET" && (env.API_INTERNAL_URL || env.API_MOCKS)) {
     const extra: Record<string, string> = { "x-request-id": requestId };
+    const clientIp = clientIpFrom(request.headers, env.TRUSTED_HOPS);
+    if (clientIp) extra["x-forwarded-for"] = clientIp;
     if (process.env.NEXT_PUBLIC_LIFF_MOCK === "1") {
       const scenario = parseCookieHeader(request.headers.get("cookie")).get(MOCK_SCENARIO_COOKIE);
       if (scenario) extra[MOCK_SCENARIO_HEADER] = scenario;

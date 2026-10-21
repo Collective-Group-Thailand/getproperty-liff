@@ -157,7 +157,16 @@ export const PNG_1PX = Buffer.from(
  * A "slip" the fake verifiers read (getproperty-api `FakeSlipVerifier`, the mock's copy of it): a PNG followed by
  * the JSON a real verifier would return.
  */
-export function slipImage(fields: { transRef: string; amount: string; receiverAccount?: string }): Buffer {
+export function slipImage(
+  fields: { transRef: string; amount: string; receiverAccount?: string },
+  /** Total size in bytes (a real bank-app screenshot is 250 KB – 1.5 MB): padded after the image data. */
+  size = 0,
+): Buffer {
+  const slip = slipBytes(fields);
+  return size > slip.length ? Buffer.concat([slip, Buffer.alloc(size - slip.length, 0x20)]) : slip;
+}
+
+function slipBytes(fields: { transRef: string; amount: string; receiverAccount?: string }): Buffer {
   return Buffer.concat([
     PNG_1PX,
     Buffer.from(

@@ -5,50 +5,27 @@ import { useEffect, useRef } from "react";
 
 import { browserApi } from "@/lib/api/browser";
 import { peekQueryClient } from "@/lib/api/query-runtime";
+import { createRealtimeConnection } from "@/lib/realtime/connection";
 import { backoff, pathMatches, queriesFor, routesFor, signalRealtime } from "@/lib/realtime/events";
 
-/** Named SSE events this app reacts to (contract §6; the API's event types, `src/core/events/event-types.ts`). */
-const REALTIME_EVENTS = [
-  "payment.confirmed",
-  "payment.failed",
-  "payment.reversed",
-  // D-228 (LIFF #30): a transfer of mine is held for the office / the office dismissed it — the pay sheet refetches.
-  "payment.held",
-  "payment.dismissed",
-  "invoice.issued",
-  "invoice.paid",
-  "invoice.partially_paid",
-  "invoice.balance_changed",
-  "invoice.overdue",
-  "invoice.voided",
-  "receipt.issued",
-  "receipt.voided",
-  "tax_invoice.issued",
-  "slip.review_requested",
-  "slip.reviewed",
-  "notification.created",
-  "consent.changed",
-  // D-228 (LIFF #31): the office confirmed or declined my phone-match link request (my `user:` channel).
-  "party.link_changed",
-  // L4 (B5): the resident's requests, parcels, bookings and door codes.
-  "service_request.created",
-  "service_request.changed",
-  "service_request.rated",
-  "service_request.message",
-  "parcel.received",
-  "parcel.picked_up",
-  "parcel.returned",
-  "facility_booking.changed",
-  "access.credential_issued",
-  "access.credential_revoked",
-] as const;
+/**
+ * `SIGNED_OUT_EVENT` of `@/lib/auth/signOut`, repeated as a literal: that module is loaded only when the resident
+ * signs out, and importing it here would put it in the shell (D-179 budget; the unit test pins the two together).
+ */
+export const SIGNED_OUT = "gp:signed-out";
 
 /**
  * Server-sent events for the signed-in resident (contract §6): `POST /v1/resident/realtime/auth` (through the
- * BFF) gives a 60-second stream token and URL; the stream is read through the BFF's streaming passthrough; each
- * event's type invalidates the matching TanStack queries once a query client exists (ids only — the data is
- * refetched). A dropped stream is
- * re-authorised with backoff; a hidden LIFF view closes it and reopens it when the resident comes back.
+ * BFF) authorises a 60-second stream — the token stays in an httpOnly cookie of the BFF, never in this URL (review
+ * L5) — and the stream is read through the BFF, which delivers every event as a default message with its `type` in
+ * the data (one listener, no list of event names in the shell — D-179); each event's type invalidates the matching
+ * TanStack queries once a query client exists (ids only — the data is refetched). A dropped stream is re-authorised
+ * with backoff; a hidden LIFF view closes it and reopens it when the resident comes back.
+ *
+ * **One stream at most** (review M5): every connection attempt takes a new generation number; an authorisation that
+ * comes back after the view was hidden, after sign-out, after unmount or after a newer attempt started is dropped
+ * without opening anything, and each stream's `onerror` closes that stream only. Signing out (`SIGNED_OUT`)
+ * closes the stream and stops reconnecting.
  */
 export function RealtimeBridge() {
   const router = useRouter();
@@ -60,11 +37,6 @@ export function RealtimeBridge() {
 
   useEffect(() => {
     if (typeof EventSource === "undefined") return;
-    let source: EventSource | null = null;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let attempt = 0;
-    let stopped = false;
-
     const onEvent = (event: MessageEvent<string>) => {
       let type = event.type;
       try {
@@ -80,51 +52,30 @@ export function RealtimeBridge() {
       if (!queryClient) return;
       for (const queryKey of queriesFor(type)) void queryClient.invalidateQueries({ queryKey });
     };
-
-    const schedule = () => {
-      if (stopped) return;
-      timer = setTimeout(connect, backoff(attempt));
-      attempt += 1;
-    };
-
-    async function connect() {
-      if (stopped || document.visibilityState === "hidden") return;
-      const { data } = await browserApi.POST("/v1/resident/realtime/auth").catch(() => ({ data: undefined }));
-      if (stopped) return;
-      if (!data) return schedule();
-      source = new EventSource(`/bff${data.streamUrl}`);
-      source.addEventListener("ready", () => {
-        attempt = 0;
-      });
-      source.onmessage = onEvent;
-      for (const name of REALTIME_EVENTS) {
-        source.addEventListener(name, onEvent as EventListener);
-      }
-      source.onerror = () => {
-        source?.close();
-        source = null;
-        schedule();
-      };
-    }
+    const connection = createRealtimeConnection({
+      authorize: async () => {
+        const { data } = await browserApi.POST("/v1/resident/realtime/auth").catch(() => ({ data: undefined }));
+        return data ? `/bff${data.streamUrl}` : null;
+      },
+      open: (url) => new EventSource(url),
+      onEvent,
+      visible: () => document.visibilityState !== "hidden",
+      delay: backoff,
+    });
 
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") {
-        source?.close();
-        source = null;
-        clearTimeout(timer);
-      } else if (!source) {
-        attempt = 0;
-        void connect();
-      }
+      if (document.visibilityState === "hidden") connection.pause();
+      else connection.resume();
     };
+    const onSignedOut = () => connection.stop();
 
-    void connect();
+    connection.resume();
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener(SIGNED_OUT, onSignedOut);
     return () => {
-      stopped = true;
-      clearTimeout(timer);
-      source?.close();
+      connection.stop();
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener(SIGNED_OUT, onSignedOut);
     };
   }, [router]);
 

@@ -27,16 +27,25 @@ here.
 - **Single-flight refresh, process-wide.** Concurrent refreshes of one refresh token in a process share one call,
   and its result is remembered for 20 s, so a page render and its client fetches cannot spend the same token twice
   (which would end the sign-in). The map lives on `globalThis` because Next bundles the proxy and the route
-  handlers separately. Several Cloud Run instances can still race; renewing 60 s before expiry keeps the window
-  small. If it shows in production, the fix is a refresh grace window in the API (contract request), not more
-  client cleverness.
+  handlers separately. Several Cloud Run instances can still race; since api `a352998` (D-229) the API answers the
+  immediately previous token within 30 s of its rotation with the **same** successor pair instead of revoking the
+  family, so that race no longer signs anyone out (review M3).
 - **CSRF.** Every non-GET BFF call needs `x-getproperty-csrf: 1` and a same-origin `Origin`/`Sec-Fetch-Site`
   (`APP_ORIGIN` when a proxy rewrites `Host`); CORS is never granted, so a cross-site page can do neither.
 - **Guards.** `getActor()` reads `/v1/resident/me` once per request; the `(resident)` layout sends signed-out
   visitors to `/liff?liff.state=…` inside LINE's in-app browser and to `/auth?next=…` elsewhere, and residents
   with missing required consents to `/consent?next=…` (D-025). Every `next`/`liff.state` passes
   `safeInternalPath` — never an open redirect. Invitation acceptance (`/link`) comes before consent.
-- **Logout** calls `/v1/auth/logout` for every refresh token the browser holds and clears all session cookies.
+- **Logout** calls `/v1/auth/logout` for every refresh token the browser holds and clears all session cookies. It is
+  `POST` with the CSRF checks only (`405` otherwise): a cross-site link must not sign residents out (review L1).
+- **Edge trust** (review H2, L4). The client address sent to the API is the `X-Forwarded-For` entry `TRUSTED_HOPS`
+  from the right (the one our own edge appended; Cloud Run = 1), never the left-most one; with 0 nothing is sent.
+  An inbound `x-request-id` is kept only when it is a UUID.
+- **Realtime stream token** (review L5). `POST …/realtime/auth` answers through the BFF with the token in an httpOnly
+  `__Host-gp_sst` / `__Host-gp_tsst` cookie (≤ 60 s) and a `streamUrl` without it; the BFF puts it back into the
+  API's query string. The API takes the token only in the query (EventSource cannot send headers), so it still
+  appears in the API's platform request log (its own pino logs record the path only); it lives 60 s and opens one
+  ids-only stream.
 
 ## Consequences
 - No token is ever in JS, storage, logs or analytics; Sentry and RUM payloads are scrubbed of cookies, bodies and

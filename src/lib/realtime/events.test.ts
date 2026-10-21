@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { backoff, MESSAGE_EVENT, onRealtime, pathMatches, queriesFor, routesFor, signalRealtime } from "./events";
+import { qk } from "@/lib/api/query-keys";
+
+import { backoff, KEYS, MESSAGE_EVENT, onRealtime, pathMatches, queriesFor, routesFor, signalRealtime } from "./events";
 
 describe("realtime → query invalidation", () => {
+  it("uses exactly the qk prefixes it writes out (kept out of the shell chunk, D-179)", () => {
+    expect(KEYS.payments).toEqual(qk.resident.payments());
+    expect(KEYS.invoices).toEqual(qk.resident.invoices());
+    expect(KEYS.receipts).toEqual(qk.resident.receipts());
+    expect(KEYS.allSlips).toEqual(qk.resident.allSlips());
+    expect(KEYS.notifications).toEqual(qk.resident.notifications());
+  });
+
   it("maps payment status events to payments, invoices and receipts", () => {
     expect(queriesFor("payment.confirmed")).toEqual([
       ["resident", "payments"],

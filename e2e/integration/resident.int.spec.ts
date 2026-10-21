@@ -32,7 +32,8 @@ test("fake LIFF token → resident session → consent → home on the real API"
   await expect(page.getByTestId("unit-card")).toBeVisible();
 
   const cookies = (await context.cookies()).filter((c) => c.name.startsWith("__Host-gp_")).map((c) => c.name);
-  expect(cookies.sort()).toEqual(["__Host-gp_at", "__Host-gp_rt"]);
+  // The session pair, plus the realtime bridge's 60-s stream-token cookie once it authorised its stream (review L5).
+  expect(cookies.filter((name) => name !== "__Host-gp_sst").sort()).toEqual(["__Host-gp_at", "__Host-gp_rt"]);
 
   // The BFF reaches the real resident surface with the cookie session.
   const me = await page.request.get("/bff/v1/resident/me");

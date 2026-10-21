@@ -14,6 +14,7 @@ const handler = createBffHandler(() => {
     upstream: upstreamFetch,
     technicianEnabled: env.FEATURE_TECHNICIAN,
     appOrigin: env.APP_ORIGIN,
+    trustedHops: env.TRUSTED_HOPS,
     upstreamHeaders: (request: Request): Record<string, string> => {
       // Mock builds only (inlined; dropped from production bundles): the e2e scenario travels to the MSW handlers.
       if (process.env.NEXT_PUBLIC_LIFF_MOCK !== "1") return {};

@@ -287,6 +287,34 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
     await checkPage(page);
   });
 
+  test("slip: a 1 MB bank-app screenshot goes through the BFF inline (review H1)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("slipbig"));
+    await page.goto("/");
+    await page.getByTestId("home-pay").click();
+    const sheet = page.getByRole("dialog");
+    await sheet.getByTestId("pay-slip").click();
+    const sent = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" && /\/bff\/v1\/resident\/invoices\/[^/]+\/slips$/.test(response.url()),
+    );
+    await sheet.getByTestId("slip-file").setInputFiles({
+      name: "slip.png",
+      mimeType: "image/png",
+      buffer: slipImage({ transRef: `T-${Date.now()}`, amount: "5856.00" }, 1024 * 1024),
+    });
+    await expect(sheet.getByTestId("slip-preview")).toBeVisible();
+    await sheet.getByTestId("slip-send").click();
+    const response = await sent;
+    expect(response.status()).toBe(201);
+    expect(response.request().postDataBuffer()!.length).toBeGreaterThan(1024 * 1024);
+    await expect(sheet.getByTestId("slip-status")).toHaveAttribute("data-status", "pending_verification");
+    await expect(sheet.getByTestId("pay-paid")).toBeVisible({ timeout: 10_000 });
+  });
+
   test("slip: an amount that does not match waits for the office; the same slip again is a duplicate", async ({
     page,
     context,

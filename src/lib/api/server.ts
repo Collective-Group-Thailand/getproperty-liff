@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 
 import { SESSION_COOKIES, type SessionKind } from "@/lib/auth/cookies";
 import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/i18n/routing";
+import { requestIdFrom } from "@/lib/http/edge";
 
 import type { ApiPaths } from "./types";
 import { apiBaseUrl, MOCK_SCENARIO_COOKIE, MOCK_SCENARIO_HEADER, upstreamFetch } from "./upstream";
@@ -20,7 +21,8 @@ export async function serverApi(kind: SessionKind = "resident"): Promise<Client<
   const access = jar.get(SESSION_COOKIES[kind].access)?.value;
   const cookieLocale = jar.get(LOCALE_COOKIE)?.value;
   const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
-  const requestId = incoming.get("x-request-id") ?? crypto.randomUUID();
+  // The proxy already replaced a non-UUID id (review L4); checked again for renders it did not run for.
+  const requestId = requestIdFrom(incoming);
   const scenario = process.env.NEXT_PUBLIC_LIFF_MOCK === "1" ? jar.get(MOCK_SCENARIO_COOKIE)?.value : undefined;
 
   const client = createClient<ApiPaths>({ baseUrl: apiBaseUrl(), fetch: upstreamFetch });

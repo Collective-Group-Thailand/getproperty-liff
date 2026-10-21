@@ -1,4 +1,14 @@
-import { qk } from "@/lib/api/query-keys";
+/**
+ * Query-key prefixes of `qk.resident.*` (`@/lib/api/query-keys`), written out: importing `qk` put the whole key
+ * module into the shell's realtime chunk (D-179 budget). `events.test.ts` pins each one to its `qk` builder.
+ */
+export const KEYS = {
+  payments: ["resident", "payments"],
+  invoices: ["resident", "invoices"],
+  receipts: ["resident", "receipts"],
+  allSlips: ["resident", "slips"],
+  notifications: ["resident", "notifications"],
+} as const;
 
 /**
  * Realtime events carry ids and a type only (contract §6); the client refetches through the API. This maps an
@@ -7,11 +17,11 @@ import { qk } from "@/lib/api/query-keys";
  * channels (D-208); the open pay sheet keeps a slow poll only for a dropped stream.
  */
 export function queriesFor(type: string): readonly (readonly string[])[] {
-  if (type.startsWith("payment.")) return [qk.resident.payments(), qk.resident.invoices(), qk.resident.receipts()];
-  if (type.startsWith("invoice.")) return [qk.resident.invoices()];
-  if (type.startsWith("receipt.") || type.startsWith("tax_invoice.")) return [qk.resident.receipts()];
-  if (type.startsWith("slip.")) return [qk.resident.allSlips(), qk.resident.invoices(), qk.resident.payments()];
-  if (type.startsWith("notification.")) return [qk.resident.notifications()];
+  if (type.startsWith("payment.")) return [KEYS.payments, KEYS.invoices, KEYS.receipts];
+  if (type.startsWith("invoice.")) return [KEYS.invoices];
+  if (type.startsWith("receipt.") || type.startsWith("tax_invoice.")) return [KEYS.receipts];
+  if (type.startsWith("slip.")) return [KEYS.allSlips, KEYS.invoices, KEYS.payments];
+  if (type.startsWith("notification.")) return [KEYS.notifications];
   // `/me` is read on the server only (the layout, the guards), so `consent.changed`, `occupancy.*`, `lease.*` and
   // `party.link_changed` (D-228 — the pending card re-reads `/me` itself) have no client query to drop.
   return [];

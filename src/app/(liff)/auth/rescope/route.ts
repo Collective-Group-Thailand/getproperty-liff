@@ -1,6 +1,8 @@
 import { apiBaseUrl, MOCK_SCENARIO_COOKIE, MOCK_SCENARIO_HEADER, upstreamFetch } from "@/lib/api/upstream";
 import { parseCookieHeader, serializeCookie } from "@/lib/auth/cookies";
 import { rescopeSession } from "@/lib/auth/rescope";
+import { serverEnv } from "@/lib/env";
+import { clientIpFrom, requestIdFrom } from "@/lib/http/edge";
 import { safeInternalPath } from "@/lib/liff/deepLink";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +21,9 @@ export async function GET(request: Request): Promise<Response> {
   if (request.headers.get("sec-fetch-site") === "cross-site") return new Response(null, { status: 303, headers });
 
   const cookieHeader = request.headers.get("cookie");
-  const upstreamHeaders: Record<string, string> = {};
-  const requestId = request.headers.get("x-request-id");
-  if (requestId) upstreamHeaders["x-request-id"] = requestId;
+  const upstreamHeaders: Record<string, string> = { "x-request-id": requestIdFrom(request.headers) };
+  const clientIp = clientIpFrom(request.headers, serverEnv().TRUSTED_HOPS);
+  if (clientIp) upstreamHeaders["x-forwarded-for"] = clientIp;
   // Mock builds only (inlined; dropped from production bundles): the e2e scenario travels to the MSW handlers.
   if (process.env.NEXT_PUBLIC_LIFF_MOCK === "1") {
     const scenario = parseCookieHeader(cookieHeader).get(MOCK_SCENARIO_COOKIE);

@@ -38,6 +38,12 @@ export const serverSchema = z
     API_MOCKS: flag,
     /** Public origin of this app, for the BFF's same-origin check behind proxies that rewrite `Host`. */
     APP_ORIGIN: origin,
+    /**
+     * Proxies in front of this app that append the client address to `X-Forwarded-For` (Cloud Run's front end: 1; with
+     * the external HTTPS load balancer: 2). The BFF forwards the entry this many from the right as the end user's
+     * address; 0 (default, local dev) forwards none. Never more than the real number (review H2).
+     */
+    TRUSTED_HOPS: z.coerce.number().int().min(0).max(5).default(0),
     /** R2 technician screens and BFF prefixes (`/v1/technician/*`, `/v1/auth/technician/*`). */
     FEATURE_TECHNICIAN: flag,
     SENTRY_DSN: optionalUrl,

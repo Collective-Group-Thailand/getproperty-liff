@@ -244,11 +244,13 @@ describe("LIFF id-token exchange", () => {
 
 describe("authenticated passthrough", () => {
   it("sends the cookie's token as a bearer with the request id, language and client ip", async () => {
-    const { handler, calls } = setup(() => json({ ok: true }, 200, { "x-request-id": "api-1", etag: '"v1"' }));
+    const { handler, calls } = setup(() => json({ ok: true }, 200, { "x-request-id": "api-1", etag: '"v1"' }), {
+      trustedHops: 1,
+    });
     const response = await handler(
       req("/v1/resident/me?x=1", {
         cookies: { "__Host-gp_at": freshAccess, "__Host-gp_rt": "rt-0", gp_locale: "en" },
-        headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1", "user-agent": "Line/14.0" },
+        headers: { "x-forwarded-for": "203.0.113.9", "user-agent": "Line/14.0" },
       }),
     );
     expect(response.status).toBe(200);
@@ -385,12 +387,12 @@ describe("authenticated passthrough", () => {
     expect(upstream).not.toHaveBeenCalled();
   });
 
-  it("streams the body through untouched (SSE, PDF) and never caches", async () => {
+  it("streams the realtime events as default messages (their type is in the data) and never caches", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
-        controller.enqueue(encoder.encode("event: ready\ndata: {}\n\n"));
-        controller.enqueue(encoder.encode("event: payment.confirmed\ndata: {}\n\n"));
+        controller.enqueue(encoder.encode('event: ready\ndata: {"channels":[]}\n\nevent: payment.con'));
+        controller.enqueue(encoder.encode('firmed\ndata: {"type":"payment.confirmed","ids":{}}\n\n: heartbeat\n\n'));
         controller.close();
       },
     });
@@ -401,7 +403,16 @@ describe("authenticated passthrough", () => {
     expect(response.headers.get("content-type")).toBe("text/event-stream");
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("x-accel-buffering")).toBe("no");
-    expect(await response.text()).toBe("event: ready\ndata: {}\n\nevent: payment.confirmed\ndata: {}\n\n");
+    expect(await response.text()).toBe(
+      'data: {"channels":[]}\n\ndata: {"type":"payment.confirmed","ids":{}}\n\n: heartbeat\n\n',
+    );
+  });
+
+  it("streams other bodies through untouched (PDF)", async () => {
+    const bytes = new Uint8Array([37, 80, 68, 70, 10, 101, 118, 101, 110, 116, 58]);
+    const { handler } = setup(() => new Response(bytes, { headers: { "content-type": "application/pdf" } }));
+    const response = await handler(req("/v1/resident/receipts/r1/pdf", { cookies: { "__Host-gp_at": freshAccess } }));
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(bytes);
   });
 
   it("passes the Idempotency-Key the browser chose", async () => {
@@ -427,7 +438,184 @@ describe("authenticated passthrough", () => {
   });
 });
 
+describe("body limits per route (review H1, the API's own limits)", () => {
+  const slipBody = (bytes: number) => JSON.stringify({ imageBase64: "A".repeat(bytes), contentType: "image/png" });
+
+  it("lets a 1 MB slip screenshot through to POST …/slips (inline base64, API limit 7 MiB)", async () => {
+    const { handler, calls } = setup(() => json({ id: "s1" }, 201));
+    const raw = 1024 * 1024;
+    const response = await handler(
+      req("/v1/resident/invoices/inv-1/slips", {
+        method: "POST",
+        body: slipBody(Math.ceil((raw * 4) / 3)),
+        headers: { "content-type": "application/json" },
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(response.status).toBe(201);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.body.length).toBeGreaterThan(raw);
+  });
+
+  it("refuses a slip above the API's 7 MiB before calling it", async () => {
+    const { handler, upstream } = setup(() => json({}, 201));
+    const response = await handler(
+      req("/v1/resident/invoices/inv-1/slips", {
+        method: "POST",
+        body: slipBody(7 * 1024 * 1024 + 1),
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(response.status).toBe(413);
+    expect(upstream).not.toHaveBeenCalled();
+  });
+
+  it("lets a 200 KB signature PNG (≈ 273 KB of base64) through to POST …/sign (API limit 1 MiB)", async () => {
+    const { handler, calls } = setup(() => json({ id: "l1" }));
+    const response = await handler(
+      req("/v1/resident/leases/l1/sign", {
+        method: "POST",
+        body: JSON.stringify({ challengeId: "c", code: "123456", signaturePng: "A".repeat(273 * 1024) }),
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("keeps the 256 KiB default everywhere else", async () => {
+    const { handler, upstream } = setup(() => json({}));
+    const response = await handler(
+      req("/v1/resident/consents", {
+        method: "POST",
+        body: "x".repeat(300 * 1024),
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(response.status).toBe(413);
+    expect(upstream).not.toHaveBeenCalled();
+  });
+});
+
+describe("client address (review H2)", () => {
+  const ipFor = async (xff: string | null, trustedHops?: number) => {
+    const { handler, calls } = setup(() => json({}), trustedHops === undefined ? {} : { trustedHops });
+    const headers: Record<string, string> = { "x-real-ip": "7.7.7.7" };
+    if (xff !== null) headers["x-forwarded-for"] = xff;
+    await handler(req("/v1/resident/me", { headers, cookies: { "__Host-gp_at": freshAccess } }));
+    return calls[0]!.headers.get("x-forwarded-for");
+  };
+
+  it("forwards the entry our edge appended, never the spoofed left-most one", async () => {
+    expect(await ipFor("6.6.6.6, 203.0.113.9", 1)).toBe("203.0.113.9");
+    expect(await ipFor("6.6.6.6, 203.0.113.9, 35.191.0.1", 2)).toBe("203.0.113.9");
+    expect(await ipFor("2001:db8::7", 1)).toBe("2001:db8::7");
+  });
+
+  it("forwards nothing without a trusted edge, with too few entries or a non-address, and never X-Real-IP", async () => {
+    expect(await ipFor("6.6.6.6, 203.0.113.9")).toBeNull();
+    expect(await ipFor("203.0.113.9", 2)).toBeNull();
+    expect(await ipFor("not-an-ip", 1)).toBeNull();
+    expect(await ipFor(null, 1)).toBeNull();
+  });
+
+  it("sends the same address with the refresh it makes for the request", async () => {
+    const { handler, calls } = setup(
+      (request) => (request.url.endsWith("/v1/auth/refresh") ? json(pair(1)) : json({})),
+      {
+        trustedHops: 1,
+      },
+    );
+    await handler(
+      req("/v1/resident/me", {
+        headers: { "x-forwarded-for": "6.6.6.6, 203.0.113.9" },
+        cookies: { "__Host-gp_at": staleAccess, "__Host-gp_rt": "rt-ip" },
+      }),
+    );
+    expect(calls.map((c) => [c.path, c.headers.get("x-forwarded-for")])).toEqual([
+      ["/v1/auth/refresh", "203.0.113.9"],
+      ["/v1/resident/me", "203.0.113.9"],
+    ]);
+  });
+});
+
+describe("request id (review L4)", () => {
+  it("keeps a UUID from the edge and replaces anything else before the API and the logs see it", async () => {
+    const { handler, calls } = setup(() => new Response(null, { status: 204 }));
+    const uuid = "3b241101-e2bb-4255-8caf-4136c566a962";
+    await handler(
+      req("/v1/resident/me", { headers: { "x-request-id": uuid }, cookies: { "__Host-gp_at": freshAccess } }),
+    );
+    const forged = await handler(
+      req("/v1/resident/me", {
+        headers: { "x-request-id": 'evil" level=admin\n' },
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(calls[0]!.headers.get("x-request-id")).toBe(uuid);
+    const replaced = calls[1]!.headers.get("x-request-id")!;
+    expect(replaced).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(forged.headers.get("x-request-id")).toBe(replaced);
+  });
+});
+
+describe("realtime stream token (review L5)", () => {
+  const grant = {
+    channels: ["user:u1"],
+    expiresAt: "2026-11-01T00:01:00+07:00",
+    streamToken: "tok.sig",
+    streamUrl: "/v1/resident/realtime/stream?token=tok.sig",
+  };
+
+  it("keeps the token in an httpOnly cookie and out of the stream URL the browser opens", async () => {
+    const { handler } = setup(() => json(grant));
+    const response = await handler(
+      req("/v1/resident/realtime/auth", { method: "POST", cookies: { "__Host-gp_at": freshAccess } }),
+    );
+    const body = await response.json();
+    expect(body.streamUrl).toBe("/v1/resident/realtime/stream");
+    expect(body.streamToken).toBe("");
+    expect(JSON.stringify(body)).not.toContain("tok.sig");
+    const cookie = setCookies(response).find((c) => c.startsWith("__Host-gp_sst="))!;
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("Secure");
+    expect(cookie).toContain("Max-Age=60");
+  });
+
+  it("puts the cookie's token back into the API's query string for the stream", async () => {
+    const { handler, calls } = setup(() => new Response("", { headers: { "content-type": "text/event-stream" } }));
+    await handler(
+      req("/v1/resident/realtime/stream", { cookies: { "__Host-gp_at": freshAccess, "__Host-gp_sst": "tok.sig" } }),
+    );
+    expect(calls[0]!.path).toBe("/v1/resident/realtime/stream?token=tok.sig");
+  });
+});
+
 describe("logout", () => {
+  it("refuses GET (a cross-site link must not sign residents out — review L1) and never calls the API", async () => {
+    const { handler, upstream } = setup(() => new Response(null, { status: 204 }));
+    for (const method of ["GET", "HEAD"]) {
+      const response = await handler(req("/auth/logout", { method, cookies: { "__Host-gp_rt": "rt-r" } }));
+      expect(response.status).toBe(405);
+      expect(response.headers.get("allow")).toBe("POST");
+      expect(setCookies(response)).toEqual([]);
+    }
+    expect(upstream).not.toHaveBeenCalled();
+  });
+
+  it("refuses a cross-site POST", async () => {
+    const { handler, upstream } = setup(() => new Response(null, { status: 204 }));
+    const response = await handler(
+      req("/auth/logout", {
+        method: "POST",
+        headers: { origin: "https://evil.example" },
+        cookies: { "__Host-gp_rt": "r" },
+      }),
+    );
+    expect(response.status).toBe(403);
+    expect(upstream).not.toHaveBeenCalled();
+  });
+
   it("ends every sign-in of this browser at the API and clears all session cookies", async () => {
     const { handler, calls } = setup(() => new Response(null, { status: 204 }), { technicianEnabled: true });
     const response = await handler(
@@ -442,8 +630,10 @@ describe("logout", () => {
     expect(cookies.map((c) => c.split("=")[0]).sort()).toEqual([
       "__Host-gp_at",
       "__Host-gp_rt",
+      "__Host-gp_sst",
       "__Host-gp_tat",
       "__Host-gp_trt",
+      "__Host-gp_tsst",
     ]);
     for (const cookie of cookies) expect(cookie).toContain("Max-Age=0");
   });
