@@ -57,6 +57,27 @@ server-rendered.
 | `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.0–177.7, 171.8, 175.5, 167.8 KB | 180 KB |
 | `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.4, 177.7 KB | 180 KB |
 
+### Independent review fixes, api `a352998` (2026-10-21, `pnpm lhci`, every set passes)
+
+Adopting the contract alone took `/profile` 20 bytes over the hard limit (the four new idempotent operations in the
+shell's list: 184 340 > 184 320). Kept within it by: the sign-out code loaded on demand (`src/lib/auth/signOut.ts`, from
+the settings menu and the profile button); the realtime bridge without its list of 29 event names (the BFF delivers
+every event as a default message with its `type` in the data) and without the query-key module (`events.ts` writes the
+five prefixes out, pinned to `qk` by a test); `IdempotentAttempt` creating its key with `crypto.randomUUID()` instead
+of importing `idempotency.ts` — that import moved Turbopack's loader manifest into an extra 1.2 KB request on every
+page. `/profile` is now 184 274 bytes (46 under the limit, 24 below `0428349`).
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link` | 171.3, 171.2, 173.5, 173.4, 172.3 KB | 180 KB |
+| `resident` | `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 177.7, 175.1, 178.1, 174.3 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy` | **179.9**, 174.3 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>` | 169.8, 176.7, 175.3 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 170.9, 169.8, 172.4, 174.9, 177.0, 171.4, 176.7 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` | 169.3, 179.6 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.3, 171.8, 175.6, 167.8 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.3, 178.1 KB | 180 KB |
+
 ### Release fixes api `048a8bd` (2026-10-21, `pnpm lhci`, every set passes)
 
 Every URL is unchanged to the tenth of a KB: the D-226 "waiting for the office to confirm" card on home is
