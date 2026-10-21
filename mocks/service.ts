@@ -30,7 +30,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type { components } from "../src/lib/api/schema";
 import { example, mswPath, problem } from "./contract";
 import { emit } from "./events";
-import { authenticate } from "./handlers";
+import { authenticate, unmatchedPhone } from "./handlers";
 import { accountFor, occupancyStart, UNIT_A, UNIT_B, type MockAccount } from "./state";
 import { bangkokIso } from "./tokens";
 import { mockPhoto, presign, uploadedBy, uploads, validPresign } from "./uploads";
@@ -614,6 +614,8 @@ function myWorkOrders(account: MockAccount): MockWorkOrder[] {
   seedTechnician(account);
   // D-226: an SMS sign-in sees no work order until the Owner confirms the phone match.
   if (account.technicianPending) return [];
+  // …and a phone that matched nobody has no work at all.
+  if (account.subject.startsWith("tech-phone:") && unmatchedPhone(account.phone)) return [];
   return [...service.workOrders.values()]
     .filter(
       (wo) =>
@@ -863,6 +865,8 @@ export const serviceHandlers: HttpHandler[] = [
       ...base,
       scopes: ids.map((id) => `work_order:${id}`),
       workOrderIds: ids,
+      // D-226 / D-228 (LIFF #29): the SMS-matched party still waiting for the Owner.
+      linkRequestsPending: auth.account.technicianPending ? 1 : 0,
       user: {
         ...base.user,
         id: auth.account.userId,

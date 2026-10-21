@@ -23,7 +23,10 @@
  * `user:` and the invoice's `unit:` channels (contract request #16, closed in F2). Its optional body plays the
  * other provider outcomes: `{ amount }` below what is due is a part payment (booked: `partially_paid`, the balance
  * goes down); `{ held: true }` is a transfer the API holds as a possible duplicate (D-220) — stored `pending` for the
- * Owner, nothing allocated, no receipt, no event to the resident, so the bill stays as it was.
+ * Owner, nothing allocated, no receipt, so the bill stays as it was; the resident hears `payment.held` and the pay
+ * sheet's `checking` counts it (D-228). `POST /v1/resident/__mock/invoices/{id}/held` plays the Owner's decision on
+ * those held transfers: `{ decision: "dismiss" }` closes them (`payment.dismissed`, the bill unchanged), `{ decision:
+ * "confirm" }` books them as a second transfer (the invoice is paid — `payment.confirmed` …).
  *
  * Slips follow the API's rules, including D-220's `possible_qr_duplicate`: a slip of the same amount as a QR payment
  * already booked for the invoice waits for the office.
@@ -91,8 +94,17 @@ export interface MockBilling {
   inbox: Schemas["InboxItemDto"][];
   /** QR payments booked per invoice (amounts as decimal strings) — the slip rule of D-220 compares with them. */
   qrPayments: { invoiceId: string; amount: string }[];
-  /** Provider payments held for the Owner as possible duplicates (D-220): never visible to the resident. */
-  held: { invoiceId: string; amount: string; reason: Schemas["PaymentHeldReason"] }[];
+  /**
+   * Provider payments held for the Owner as possible duplicates (D-220): the resident sees only how many and since
+   * when (`ResidentPaymentDto.checking`, D-228) — never the amount or the reason.
+   */
+  held: {
+    paymentId: string;
+    invoiceId: string;
+    amount: string;
+    reason: Schemas["PaymentHeldReason"];
+    receivedAt: number;
+  }[];
 }
 
 /** The landlord's account in the mock (masked like the API); slips must name these last 4 digits. */
@@ -398,6 +410,13 @@ export function thaiQrPayload(reference: string, amount: string): string {
   return `${body}6304${crc16(`${body}6304`)}`;
 }
 
+/** D-228: my transfers for this invoice held for the office — a count and the oldest's time only. */
+function checkingOf(invoice: MockInvoice, billing: MockBilling): Schemas["ResidentPaymentCheckingDto"] | null {
+  const held = billing.held.filter((entry) => entry.invoiceId === invoice.dto.id);
+  if (held.length === 0) return null;
+  return { count: held.length, since: bangkokIso(Math.min(...held.map((entry) => entry.receivedAt))) };
+}
+
 function paymentView(invoice: MockInvoice, billing: MockBilling): Schemas["ResidentPaymentDto"] {
   const due = dueNow(invoice);
   const reference = invoice.dto.number.replace(/-/g, "");
@@ -428,6 +447,7 @@ function paymentView(invoice: MockInvoice, billing: MockBilling): Schemas["Resid
     account,
     allowSlip: billing.allowSlip,
     allowPartial: false,
+    checking: checkingOf(invoice, billing),
   };
 }
 
@@ -716,7 +736,15 @@ export const billingHandlers: HttpHandler[] = [
     }
     if (body?.held === true) {
       // D-220: held `pending` for the Owner (confirm / dismiss) — the resident's bill does not change.
-      billing.held.push({ invoiceId: invoice.dto.id, amount: dueNow(invoice), reason: "qr_already_paid" });
+      const paymentId = crypto.randomUUID();
+      billing.held.push({
+        paymentId,
+        invoiceId: invoice.dto.id,
+        amount: dueNow(invoice),
+        reason: "qr_already_paid",
+        receivedAt: Date.now(),
+      });
+      emitTo(auth.account, "payment.held", { paymentId, invoiceId: invoice.dto.id });
       return HttpResponse.json(invoiceView(invoice, billing));
     }
     if (typeof body?.amount === "string" && isOpen(invoice)) {
@@ -729,6 +757,23 @@ export const billingHandlers: HttpHandler[] = [
       }
     }
     payInvoice(auth.account, billing, invoice, "qr");
+    return HttpResponse.json(invoiceView(invoice, billing));
+  }),
+
+  // The Owner's decision on the transfers held for this invoice (D-220): dismissed as the same transfer, or booked.
+  http.post(mswPath("/v1/resident/__mock/invoices/:invoiceId/held"), async ({ request, params }) => {
+    const auth = authenticate(request, "resident", "resident.invoices.get");
+    if (auth instanceof Response) return auth;
+    const billing = billingOf(auth.account);
+    const invoice = billing.invoices.find((i) => i.dto.id === params.invoiceId);
+    if (!invoice) return problem("resident.invoices.get", "http.not_found");
+    const body = (await request.json().catch(() => null)) as { decision?: unknown } | null;
+    const held = billing.held.filter((entry) => entry.invoiceId === invoice.dto.id);
+    if (held.length === 0 || (body?.decision !== "dismiss" && body?.decision !== "confirm"))
+      return problem("resident.invoices.get", "validation.failed");
+    billing.held = billing.held.filter((entry) => entry.invoiceId !== invoice.dto.id);
+    if (body.decision === "confirm") payInvoice(auth.account, billing, invoice, "qr");
+    else for (const entry of held) emitTo(auth.account, "payment.dismissed", { paymentId: entry.paymentId });
     return HttpResponse.json(invoiceView(invoice, billing));
   }),
 

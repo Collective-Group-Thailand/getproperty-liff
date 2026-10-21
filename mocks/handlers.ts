@@ -235,7 +235,7 @@ export const contractHandlers: HttpHandler[] = [
     });
     // D-226: the verified phone links nothing; the party the office entered with it waits for the Owner.
     if (first) {
-      account.pendingUnits = pending.phone.endsWith("0000") ? [] : [...account.units];
+      account.pendingUnits = unmatchedPhone(pending.phone) ? [] : [...account.units];
       account.units = [];
     }
     if (account.disabled) return problem(op, "auth.account_disabled");
@@ -280,7 +280,8 @@ export const contractHandlers: HttpHandler[] = [
       phone: pending.phone,
       lineLinked: false,
     });
-    if (first) account.technicianPending = true;
+    // D-226: the phone matches a party the office entered (pending for the Owner) — numbers ending 0000 match nobody.
+    if (first) account.technicianPending = !unmatchedPhone(pending.phone);
     if (account.disabled) return problem(op, "auth.account_disabled");
     return HttpResponse.json(tokenPair(openSession("technician", account.userId), account));
   }),
@@ -404,3 +405,8 @@ export const exampleHandlers: HttpHandler[] = GENERATED_OPERATIONS.filter((op) =
 });
 
 export { problemResponse };
+
+/** The mock's phone match (D-226): numbers ending in 0000 match no party any office entered. */
+export function unmatchedPhone(phone: string | null): boolean {
+  return phone?.endsWith("0000") ?? false;
+}

@@ -4557,6 +4557,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         },
         allowPartial: false,
         allowSlip: true,
+        checking: null,
         due: "5344.00",
         invoiceId: "3b241101-e2bb-4255-8caf-4136c566a962",
         number: "INV-2026-00042",
@@ -10089,6 +10090,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       status: 200,
       contentType: "application/json",
       example: {
+        linkRequestsPending: 0,
         scopes: [],
         user: {
           displayName: "Somchai Test",

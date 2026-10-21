@@ -677,3 +677,80 @@ describe("api 048a8bd release fixes (F7, D-219–D-227)", () => {
     expect(slips[0]!.reasons).toContain("possible_qr_duplicate");
   });
 });
+
+describe("api 0428349 — LIFF #29–#31 (F8, D-228)", () => {
+  async function smsSignIn(b: ReturnType<typeof browser>, phone: string, audience: "resident" | "technician") {
+    const challenge = await b.call("POST", `/v1/auth/${audience}/otp/request`, { phone });
+    const challengeId = challenge.body!.challengeId as string;
+    expect((await b.call("POST", `/v1/auth/${audience}/otp/verify`, { challengeId, code: OTP_CODE })).status).toBe(200);
+  }
+
+  async function heard(userId: string, run: () => Promise<unknown>): Promise<string[]> {
+    const { subscribeEvents } = await import("./events");
+    const types: string[] = [];
+    const off = subscribeEvents(userId, (type) => types.push(type));
+    try {
+      await run();
+    } finally {
+      off();
+    }
+    return types;
+  }
+
+  it("#29: the technician's /me counts the phone match still waiting for the Owner", async () => {
+    const b = browser(true);
+    await smsSignIn(b, "0812225566", "technician");
+    expect((await b.call("GET", "/v1/technician/me")).body).toMatchObject({ workOrderIds: [], linkRequestsPending: 1 });
+    expect((await b.call("POST", "/v1/technician/__mock/link-requests/confirm")).status).toBe(204);
+    expect((await b.call("GET", "/v1/technician/me")).body).toMatchObject({ linkRequestsPending: 0 });
+  });
+
+  it("#30: a held transfer is counted on the pay sheet (no amount, no reason) until the office decides", async () => {
+    const b = browser();
+    await b.signIn("Umock-d228-held-1");
+    const me = (await b.call("GET", "/v1/resident/me")).body as { user: { id: string } };
+    const [open] = (await b.call("GET", "/v1/resident/invoices?unpaid=true")).body!.data as { id: string }[];
+    const payment = `/v1/resident/invoices/${open!.id}/payment`;
+    expect((await b.call("GET", payment)).body).toMatchObject({ checking: null });
+
+    const events = await heard(me.user.id, async () => {
+      await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/pay`, { held: true });
+      await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/pay`, { held: true });
+    });
+    expect(events).toEqual(["payment.held", "payment.held"]);
+    const checking = (await b.call("GET", payment)).body!.checking as Record<string, unknown>;
+    expect(checking).toEqual({ count: 2, since: expect.stringMatching(/\+07:00$/) });
+
+    expect(
+      await heard(me.user.id, () =>
+        b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/held`, { decision: "dismiss" }),
+      ),
+    ).toEqual(["payment.dismissed", "payment.dismissed"]);
+    expect((await b.call("GET", payment)).body).toMatchObject({ checking: null });
+    expect(
+      (await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/held`, { decision: "dismiss" })).status,
+    ).toBe(422);
+
+    // A held transfer the office books as a second payment: the bill is paid.
+    await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/pay`, { held: true });
+    const booked = await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/held`, { decision: "confirm" });
+    expect(booked.body).toMatchObject({ status: "paid" });
+  });
+
+  it("#31: the Owner's decision is heard as party.link_changed; a rejection leaves nothing pending and no unit", async () => {
+    const b = browser();
+    await smsSignIn(b, "0810003579", "resident");
+    const me = (await b.call("GET", "/v1/resident/me")).body as { user: { id: string }; linkRequestsPending: number };
+    expect(me.linkRequestsPending).toBe(1);
+    const events = await heard(me.user.id, () => b.call("POST", "/v1/resident/__mock/link-requests/reject"));
+    expect(events).toEqual(["party.link_changed"]);
+    expect((await b.call("GET", "/v1/resident/me")).body).toMatchObject({ units: [], linkRequestsPending: 0 });
+
+    const other = browser();
+    await smsSignIn(other, "0810009753", "resident");
+    const otherMe = (await other.call("GET", "/v1/resident/me")).body as { user: { id: string } };
+    expect(await heard(otherMe.user.id, () => other.call("POST", "/v1/resident/__mock/link-requests/confirm"))).toEqual(
+      ["party.link_changed"],
+    );
+  });
+});

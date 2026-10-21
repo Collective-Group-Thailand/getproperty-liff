@@ -9523,9 +9523,9 @@ export interface paths {
         };
         /**
          * Pay an invoice: Thai QR and account
-         * @description What is due now (this invoice and earlier unpaid ones, oldest paid first, D-193), the Thai QR for it (Tag 30, created when missing, expired or for another amount — the money goes to the landlord’s own account, D-042), the account for a plain transfer (in full with its bank code while something is due — the reveal is audited, D-209), and whether slips and partial payments are accepted.
+         * @description What is due now (this invoice and earlier unpaid ones, oldest paid first, D-193), the Thai QR for it (Tag 30, created when missing, expired or for another amount — the money goes to the landlord’s own account, D-042), the account for a plain transfer (in full with its bank code while something is due — the reveal is audited, D-209), and whether slips and partial payments are accepted. `checking` tells me a transfer of mine for this invoice is held for the office (D-220, D-228) — never its amount, reason or the payment it may repeat.
          *
-         *     Implements: D-042, D-043, D-154, D-209.
+         *     Implements: D-042, D-043, D-154, D-209, D-228.
          */
         get: operations["resident.invoices.payment"];
         put?: never;
@@ -11785,9 +11785,9 @@ export interface paths {
         };
         /**
          * Who I am in the technician app
-         * @description The technician and the work orders their token covers (`work_order:<uuid>`, B5.1); details in `GET /v1/technician/work-orders`.
+         * @description The technician and the work orders their token covers (`work_order:<uuid>`, B5.1); details in `GET /v1/technician/work-orders`. `linkRequestsPending` counts the SMS-matched parties still waiting for the office to confirm me (D-226).
          *
-         *     Implements: D-072, D-154.
+         *     Implements: D-072, D-154, D-226.
          */
         get: operations["technician.me.get"];
         put?: never;
@@ -23085,6 +23085,19 @@ export interface components {
         ResidentParcelsDto: {
             data: components["schemas"]["ResidentParcelDto"][];
         };
+        ResidentPaymentCheckingDto: {
+            /**
+             * @description How many of my payments for this invoice are held for the office.
+             * @example 1
+             */
+            count: number;
+            /**
+             * Format: date-time
+             * @description When the oldest of them was received.
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            since: string;
+        };
         ResidentPaymentDto: {
             /** @description For a plain transfer (then upload the slip). */
             account: components["schemas"]["ResidentAccountDto"] | null;
@@ -23092,6 +23105,8 @@ export interface components {
             allowPartial: boolean;
             /** @example true */
             allowSlip: boolean;
+            /** @description A QR / bank-settlement payment of mine for this invoice that looks like a transfer already booked is held for the office to check (D-220, D-228): the pay sheet says “a transfer is being checked by the office”. The bill (`due`, the invoice status) stays what decides; null when nothing of mine is held. */
+            checking: components["schemas"]["ResidentPaymentCheckingDto"] | null;
             /**
              * @description Due now (this invoice and earlier unpaid ones, oldest paid first). Unit: THB, decimal string (D-046).
              * @example 5344.00
@@ -25634,6 +25649,11 @@ export interface components {
         /** @enum {string} */
         TariffVersionState: "draft" | "entered" | "verified" | "published" | "superseded";
         TechnicianMeDto: {
+            /**
+             * @description Parties matched by my SMS-verified phone that wait for their landlord’s confirmation before their work orders reach me (D-226, LIFF #29): with no work orders and a count above 0 show “waiting for the office to confirm you”, not “no work assigned yet”.
+             * @example 0
+             */
+            linkRequestsPending: number;
             /** @example [] */
             scopes: string[];
             user: components["schemas"]["MeUserDto"];
@@ -90504,6 +90524,7 @@ export interface operations {
                      *       },
                      *       "allowPartial": false,
                      *       "allowSlip": true,
+                     *       "checking": null,
                      *       "due": "5344.00",
                      *       "invoiceId": "3b241101-e2bb-4255-8caf-4136c566a962",
                      *       "number": "INV-2026-00042",
@@ -105731,6 +105752,7 @@ export interface operations {
                 content: {
                     /**
                      * @example {
+                     *       "linkRequestsPending": 0,
                      *       "scopes": [],
                      *       "user": {
                      *         "displayName": "Somchai Test",
