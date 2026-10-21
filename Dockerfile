@@ -4,8 +4,14 @@
 # products/getproperty/docker-compose.yml as `getproperty-liff`: :3000, GET /api/healthz (liveness), GET /api/metrics
 # (Prometheus, docker network only), TZ=Asia/Bangkok. Pattern: collective-infra platform/products/getpack/Dockerfile.web.example.
 #
-#   docker build --build-arg NEXT_PUBLIC_LIFF_ID=… -t getproperty/liff .
-#   docker run --rm -p 3300:3000 -e API_INTERNAL_URL=http://host.docker.internal:3000 getproperty/liff
+# No build arguments: every environment value — API_INTERNAL_URL, TRUSTED_HOPS and the public NEXT_PUBLIC_* values
+# (LIFF id, VAPID key, Sentry DSN, env badge, asset origin) too — is read at run time from the box's
+# /run/collective/getproperty-liff.env, so the image that passed UAT is promoted to production unchanged
+# (collective-infra promote.yml, D-230; ADR-0007).
+#
+#   docker build -t getproperty/liff .
+#   docker run --rm -p 3300:3000 -e API_INTERNAL_URL=http://host.docker.internal:3000 \
+#     -e NEXT_PUBLIC_LIFF_ID=1234567890-AbCdEfGh getproperty/liff
 ARG NODE_IMAGE=node:24-bookworm-slim
 
 FROM ${NODE_IMAGE} AS base
@@ -21,16 +27,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-# NEXT_PUBLIC_* are inlined at build time (server and browser code alike), so each environment builds its own image
-# with its own values (deploy.yml); build arguments are in the environment of the RUN below. NEXT_PUBLIC_LIFF_MOCK is
-# deliberately not an argument: a production image never contains the fake LIFF or the mock API, and
-# `release:hygiene` below fails the build if it did.
-ARG NEXT_PUBLIC_LIFF_ID
-ARG NEXT_PUBLIC_LINE_OA_ID
-ARG NEXT_PUBLIC_ASSET_BASE_URL
-ARG NEXT_PUBLIC_VAPID_PUBLIC_KEY
-ARG NEXT_PUBLIC_SENTRY_DSN
-ARG NEXT_PUBLIC_ENV_BADGE
+# Nothing environment-specific is compiled in (src/lib/env.ts, runtime-env.test.ts). NEXT_PUBLIC_LIFF_MOCK is never set
+# here: a platform image never contains the fake LIFF or the mock API, and `release:hygiene` fails the build if it did.
 RUN NODE_OPTIONS=--max-old-space-size=4096 pnpm build && pnpm release:hygiene
 
 FROM ${NODE_IMAGE} AS runtime

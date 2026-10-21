@@ -32,16 +32,31 @@ scraping containers labelled `collective.metrics`, deploys from GitHub Actions (
 - **Client address** (D-229): Caddy replaces an internet client's `X-Forwarded-For` with that client's address, so
   the container sees exactly one hop: `TRUSTED_HOPS=1` (set by the platform compose file). The BFF reaches the API
   at `API_INTERNAL_URL=http://getproperty-api:3000` over the docker network.
-- **Public configuration is build-time.** `NEXT_PUBLIC_*` (LIFF id, LINE OA id, asset origin = the product's S3
-  bucket, VAPID key, Sentry DSN, env badge) are inlined by Next, server code included, so `.github/workflows/deploy.yml`
-  builds one image per environment (main → `:uat`, tag `vX.Y.Z` → `:prod`) from repository variables and refuses to
-  build without a LIFF id. Server values (`API_INTERNAL_URL`, `APP_ORIGIN`, `SENTRY_DSN`, `FEATURE_TECHNICIAN`, …)
-  come from the box's `/run/collective/getproperty-liff.env` at run time.
+- **One image for every environment** (amended 2026-10-21, as getproperty-web `54e02c9`): no value is compiled in.
+  The public settings keep their `NEXT_PUBLIC_*` names (`NEXT_PUBLIC_LIFF_ID`, `NEXT_PUBLIC_LINE_OA_ID`,
+  `NEXT_PUBLIC_ASSET_BASE_URL`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_ENV_BADGE`) but
+  are read **on the server at run time** with every other value (`serverEnv()`, `src/lib/env.ts`, from the box's
+  `/run/collective/getproperty-liff.env` = the secret `collective/<env>/getproperty/liff`). The browser gets what it
+  needs from the server-rendered root element — `<html data-liff-id data-sentry-dsn data-env>`
+  (`src/lib/publicConfig.ts`): the LIFF SDK's `liff.init({ liffId })`, "open in LINE" links built in the browser
+  and Sentry's DSN and environment; the VAPID key is a prop of the server-rendered pages that offer push; the asset
+  origin is only used by the proxy's CSP. `src/lib/runtime-env.test.ts` fails on any literal
+  `process.env.NEXT_PUBLIC_…` read (Next would inline it) except `NEXT_PUBLIC_LIFF_MOCK`, the **build flavour** (mock
+  builds for e2e / Storybook / Lighthouse; never set for the platform image, `release:hygiene` refuses the fake LIFF
+  and the mock API in a build). A production server without `NEXT_PUBLIC_LIFF_ID` fails its start-up check (the instrumentation hook
+  throws) and answers every request, `/api/healthz` included, with 500 — so a deploy that forgot it fails its health
+  check and rolls back. Cost: none on the budget — `<html>` attributes are markup; the
+  reader is a few bytes and replaces the inlined values (`docs/performance-budgets.md`, "Run-time settings").
+- **Deploys** (`.github/workflows/deploy.yml`, as getproperty-web's): one build per commit (main → `:sha-…` + `:uat`
+  → UAT; tag `vX.Y.Z` → `:prod` → production), no build arguments, no repository variables; collective-infra's
+  `promote.yml --component liff` may instead ship the image UAT ran to production. CI's `image` job starts the one
+  image with two LIFF ids and checks each container serves its own, and that neither is in the client chunks.
 
 ## Consequences
-- The image differs per environment: collective-infra's `promote.yml` (re-tag uat → prod without a rebuild) must
-  not promote `getproperty/liff` — production gets its own build from the release tag. Moving the public values to
-  run time (a server-rendered config read by the client) would make one image serve both; it costs initial JS on
-  `/profile`, which has 0.1 KB of headroom (`docs/performance-budgets.md`), and is left for after R1.
+- The UAT image can be promoted to production like getproperty-web's (collective-infra `promote.yml`); the values
+  that differ per environment live only in the platform secrets (collective-infra README, getproperty-api
+  `docs/deployment.md` §3). Changing the LIFF id or the env badge is a secret change plus a restart, not a rebuild.
+- (Superseded) Until 2026-10-21 the public values were inlined and each environment built its own image from
+  repository variables `UAT_*` / `PROD_*`; those variables are no longer read and can be deleted.
 - `next start` still serves the same standalone build for e2e, Lighthouse and the integration project; its warning
   that it "does not work with output: standalone" is expected (the image runs `node server.js`).

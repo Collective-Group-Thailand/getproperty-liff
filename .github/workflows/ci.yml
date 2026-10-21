@@ -39,6 +39,8 @@ jobs:
         run: pnpm fonts:scripts:check
       - name: Icon glyphs match the curated set (D-179)
         run: pnpm icons:check
+      - name: Brand outputs (LINE MINI App icon, offline page logo) match the founder's logo
+        run: pnpm brand:check
       - name: Typecheck
         run: pnpm typecheck
       - name: Generated API types and mocks match the pinned contract
@@ -75,6 +77,52 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # The platform image (D-230, ADR-0007): built without build arguments, then started twice with two different LIFF
+  # ids — the one image must serve each environment's id (collective-infra promote.yml ships the UAT bytes to
+  # production).
+  image:
+    name: image (docker build + smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: docker build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: getproperty/liff:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke (healthz, metrics, TZ, run-time LIFF id, unhealthy without one)
+        run: |
+          start() {
+            docker run -d --name "$1" -e API_INTERNAL_URL=http://getproperty-api:3000 -e TRUSTED_HOPS=1 \
+              -e NEXT_PUBLIC_LIFF_ID="$2" -e NEXT_PUBLIC_ENV_BADGE="$3" getproperty/liff:ci
+            for i in $(seq 1 30); do
+              [ "$(docker inspect -f '{{.State.Health.Status}}' "$1")" = healthy ] && break; sleep 2
+            done
+            docker inspect -f '{{.State.Health.Status}}' "$1" | grep -qx healthy
+          }
+          start uat 2000000000-uatChannel uat
+          start prod 2000000001-prodChannel production
+          docker exec uat wget -qO- http://127.0.0.1:3000/api/metrics | grep -q 'service="getproperty-liff"'
+          docker exec uat node -e 'console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)' | grep -qx Asia/Bangkok
+          # No API here: the sign-in page needs none. Each container stamps its own environment's id.
+          docker exec uat wget -qO- http://127.0.0.1:3000/auth | grep -q 'data-liff-id="2000000000-uatChannel"'
+          docker exec prod wget -qO- http://127.0.0.1:3000/auth | grep -q 'data-liff-id="2000000001-prodChannel"'
+          ! docker exec prod wget -qO- http://127.0.0.1:3000/auth | grep -q 'data-env='
+          # Neither id is in the image's client chunks.
+          ! docker exec uat grep -rqs -e 2000000000-uatChannel -e 2000000001-prodChannel /app/.next/static
+          # Without its LIFF id a production container fails its start-up check (src/lib/env.ts): every request, the
+          # health check included, answers 500, so a platform deploy rolls back.
+          docker run -d --name noliff -e API_INTERNAL_URL=http://getproperty-api:3000 getproperty/liff:ci
+          sleep 15
+          docker logs noliff 2>&1 | grep -q 'NEXT_PUBLIC_LIFF_ID: required in production'
+      - if: failure()
+        run: docker logs uat; docker logs prod; docker logs noliff || true
 
   storybook:
     name: storybook
