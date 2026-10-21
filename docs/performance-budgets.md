@@ -34,6 +34,29 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### LIFF #29–#31 api `0428349` (2026-10-21, `pnpm lhci`, every set passes)
+
+The pending card's watcher (`LinkPendingWatch`: realtime `party.link_changed`, in-place "check again", rescope /
+declined) is loaded on demand through `LinkPendingLazy` (`React.lazy`): a home with nothing pending never downloads it
+(home 171.3 → **171.4 KB**, the wrapper; a first build that imported the watcher directly measured 172.5 KB). The
+shell's realtime bridge listens to three more events (`payment.held`, `payment.dismissed`, `party.link_changed`): that
+alone took `/profile` 7 bytes over the hard limit (184 327 > 184 320), so the bridge's dead `/me` invalidation
+(`consent.changed`, `occupancy.*`, `lease.*` → a query key no client component reads — `/me` is server-rendered) was
+dropped; `/profile` is back **at 180.0 KB** (within the limit, no headroom gained). The pay sheet's "the office is
+checking your transfer" callout lives in the on-demand sheet (e2e: ≤ 50 KB still holds); the technician's pending card is
+server-rendered.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link` | 171.4, 171.3, 173.6, 173.5, 171.8 KB | 180 KB |
+| `resident` | `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 177.8, 174.7, 177.7, 174.4 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy` | **180.0**, 174.4 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>` | 170.0, 176.8, 175.4 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 171.0, 170.0, 172.5, 174.5, 177.1, 171.5, 176.4 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` | 169.2, 179.1 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.0–177.7, 171.8, 175.5, 167.8 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.4, 177.7 KB | 180 KB |
+
 ### Release fixes api `048a8bd` (2026-10-21, `pnpm lhci`, every set passes)
 
 Every URL is unchanged to the tenth of a KB: the D-226 "waiting for the office to confirm" card on home is
