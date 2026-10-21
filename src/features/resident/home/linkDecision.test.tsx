@@ -21,17 +21,28 @@ const me = (over: Partial<Parameters<typeof linkDecision>[1]> = {}) => ({
 });
 
 describe("link decision from a fresh /me (D-226, D-228)", () => {
-  it("is confirmed when /me lists a new unit, or one the token does not cover yet", () => {
+  it("is confirmed when /me lists a new unit", () => {
     expect(linkDecision({ pending: 1, unitIds: [] }, me({ linkRequestsPending: 0, units: [{ unitId: UNIT }] }))).toBe(
       "confirmed",
     );
-    // Same units as the page, but the lease is not in the token yet (a move-in since the last refresh).
+  });
+
+  it("review L2: scopes that only lag behind /me are not a confirmation (no /auth/rescope loop from the client)", () => {
+    // Same units as the page, the lease not in the token yet, nothing decided: keep waiting — the layout's guard
+    // (with its gp_rescoped marker) repairs the token, never this check on every arrival.
     expect(
       linkDecision(
         { pending: 1, unitIds: [UNIT] },
         me({ units: [{ unitId: UNIT }], leaseIds: [LEASE], scopes: [`unit:${UNIT}`] }),
       ),
-    ).toBe("confirmed");
+    ).toBe("waiting");
+    // A request was decided for a unit already shown: re-render, and the server guard rescopes once.
+    expect(
+      linkDecision(
+        { pending: 1, unitIds: [UNIT] },
+        me({ linkRequestsPending: 0, units: [{ unitId: UNIT }], leaseIds: [LEASE], scopes: [`unit:${UNIT}`] }),
+      ),
+    ).toBe("changed");
   });
 
   it("is declined when nothing waits any more and there is still no unit", () => {
@@ -127,6 +138,16 @@ describe("LinkPendingWatch — the pending card follows the office's decision (L
     nav.bff.mockResolvedValueOnce(me({ linkRequestsPending: 0, units: [{ unitId: UNIT }] }));
     act(() => signalRealtime(LINK_CHANGED_EVENT));
     await waitFor(() => expect(nav.assign).toHaveBeenCalledWith("/auth/rescope?next=%2F"));
+  });
+
+  it("review L2: a token that only lags behind /me never sends the page to /auth/rescope", async () => {
+    nav.bff.mockResolvedValue(me({ units: [], leaseIds: [LEASE], scopes: [] }));
+    await arrived(renderCard);
+    act(() => signalRealtime(LINK_CHANGED_EVENT));
+    await waitFor(() => expect(nav.bff).toHaveBeenCalledTimes(2));
+    act(() => signalRealtime(LINK_CHANGED_EVENT));
+    await waitFor(() => expect(nav.bff).toHaveBeenCalledTimes(3));
+    expect(nav.assign).not.toHaveBeenCalled();
   });
 
   it("ignores other realtime events", async () => {
