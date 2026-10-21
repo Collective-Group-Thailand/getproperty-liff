@@ -34,6 +34,11 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### D-230 platform image (2026-10-21, `pnpm lhci`, every set passes)
+
+`/api/healthz` and `/api/metrics` are server-only route handlers (the Prometheus client is a server external): no
+client chunk changed — `/profile` **179.9 KB**, technician work order 179.6, `/deposit` 178.1, home 171.3.
+
 ### LIFF #29–#31 api `0428349` (2026-10-21, `pnpm lhci`, every set passes)
 
 The pending card's watcher (`LinkPendingWatch`: realtime `party.link_changed`, in-place "check again", rescope /
