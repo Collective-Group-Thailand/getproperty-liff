@@ -104,7 +104,8 @@
         "receiver_mismatch": "The receiving account on the slip is not the landlord's.",
         "amount_above_due": "The amount on the slip is more than what is due.",
         "amount_below_due": "The amount on the slip is less than what is due.",
-        "amount_unreadable": "The amount on the slip could not be read."
+        "amount_unreadable": "The amount on the slip could not be read.",
+        "possible_qr_duplicate": "A QR payment of the same amount for this bill was already received. The office will check that it is not the same transfer."
       },
       "duplicateTitle": "This slip was sent before",
       "duplicateBody": "One transfer can pay only once. If you made a new transfer, send that slip.",

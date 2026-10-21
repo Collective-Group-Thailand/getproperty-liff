@@ -104,7 +104,8 @@
         "receiver_mismatch": "凭证上的收款账户不是房东的。",
         "amount_above_due": "凭证金额高于应付金额。",
         "amount_below_due": "凭证金额低于应付金额。",
-        "amount_unreadable": "无法读取凭证上的金额。"
+        "amount_unreadable": "无法读取凭证上的金额。",
+        "possible_qr_duplicate": "此账单已收到一笔相同金额的二维码付款。管理处将核实这不是同一笔转账。"
       },
       "duplicateTitle": "此凭证之前已提交",
       "duplicateBody": "一笔转账只能付款一次。如果您进行了新的转账，请发送那张凭证。",

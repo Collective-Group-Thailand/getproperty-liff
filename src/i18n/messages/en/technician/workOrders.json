@@ -1,7 +1,7 @@
 {
   "title": "My work orders",
   "greeting": "Hello, {name}",
-  "body": "Work orders assigned to you will appear here",
+  "body": "Work orders assigned to you will appear here. Signed in with your mobile number? The building's office first confirms that it is really you — ask them, then tap “Check for new work”.",
   "empty": "No work orders yet",
   "refresh": "Check for new work",
   "refreshed": "Up to date",

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 import { pageLocale } from "@/features/resident/lease/data";
 import { loadRequest } from "@/features/resident/requests/data";
@@ -28,6 +29,8 @@ export default async function RequestPage({
     getTranslations("resident.requests"),
   ]);
   const loaded = await loadRequest(requestId);
+  // Not mine — e.g. an old LINE link to a request of the unit's former occupant (D-224): the plain not-found page.
+  if (loaded.error?.status === 404) notFound();
   return (
     <ResidentShell active="requests">
       <BackLink href="/requests">{t("detail.back")}</BackLink>

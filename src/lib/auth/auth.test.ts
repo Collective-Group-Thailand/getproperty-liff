@@ -14,6 +14,7 @@ import { entitlementsOf } from "./entitlements";
 import { consentPath, isLineInAppBrowser, signInPath } from "./redirects";
 import { refreshTokens, resetRefreshCacheForTesting } from "./refresh";
 import { renewBeforeRender, sessionKindForPath } from "./renew";
+import { RESCOPE_COOKIE, rescopePath, rescopeSession, scopesStale } from "./rescope";
 
 const NOW = Date.parse("2026-11-01T00:00:00+07:00");
 const jwt = (claims: object) => `h.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.s`;
@@ -120,6 +121,60 @@ describe("refreshTokens", () => {
     expect((await refreshTokens("http://api", "rt", flaky)).ok).toBe(false);
     expect((await refreshTokens("http://api", "rt", flaky)).ok).toBe(true);
     expect(calls).toBe(2);
+  });
+});
+
+describe("rescope (D-226: a party linked after the token was issued)", () => {
+  const unit = "3b241101-e2bb-4255-8caf-4136c566a962";
+  const lease = "9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a";
+
+  it("is stale only when /me lists a unit or lease the token's scopes do not cover", () => {
+    expect(scopesStale({ scopes: [], units: [], leaseIds: [] })).toBe(false);
+    expect(
+      scopesStale({ scopes: [`unit:${unit}`, `lease:${lease}`], units: [{ unitId: unit }], leaseIds: [lease] }),
+    ).toBe(false);
+    // A unlinked party's scope left in the token is not a reason to rotate.
+    expect(scopesStale({ scopes: [`unit:${unit}`, "unit:other"], units: [{ unitId: unit }], leaseIds: [] })).toBe(
+      false,
+    );
+    expect(scopesStale({ scopes: [], units: [{ unitId: unit }], leaseIds: [] })).toBe(true);
+    expect(scopesStale({ scopes: [`unit:${unit}`], units: [{ unitId: unit }], leaseIds: [lease] })).toBe(true);
+  });
+
+  it("goes through /auth/rescope and back to an in-app path only", () => {
+    expect(rescopePath("/invoices?x=1")).toBe("/auth/rescope?next=%2Finvoices%3Fx%3D1");
+    expect(rescopePath("https://evil.example/")).toBe("/auth/rescope?next=%2F");
+  });
+
+  it("rotates the resident session and sets the marker; clears a refused session; keeps cookies when unreachable", async () => {
+    const ok = await rescopeSession({
+      cookieHeader: "__Host-gp_rt=r1",
+      apiBaseUrl: "http://api",
+      upstream: async () => new Response(JSON.stringify(pair)),
+      now: NOW,
+    });
+    expect(ok.map((c) => c.name)).toEqual(["__Host-gp_at", "__Host-gp_rt", RESCOPE_COOKIE]);
+    expect(ok.at(-1)).toMatchObject({ value: "1", maxAge: 30 });
+
+    const refused = await rescopeSession({
+      cookieHeader: "__Host-gp_rt=r2",
+      apiBaseUrl: "http://api",
+      upstream: async () => new Response(JSON.stringify({ code: "auth.refresh_reused" }), { status: 401 }),
+      now: NOW,
+    });
+    expect(refused.slice(0, 2).every((c) => c.maxAge === 0)).toBe(true);
+
+    const down = await rescopeSession({
+      cookieHeader: "__Host-gp_rt=r3",
+      apiBaseUrl: "http://api",
+      upstream: async () => new Response("{}", { status: 503 }),
+      now: NOW,
+    });
+    expect(down.map((c) => c.name)).toEqual([RESCOPE_COOKIE]);
+
+    const upstream = vi.fn();
+    expect(await rescopeSession({ cookieHeader: "", apiBaseUrl: "http://api", upstream, now: NOW })).toHaveLength(1);
+    expect(upstream).not.toHaveBeenCalled();
   });
 });
 

@@ -48,5 +48,13 @@
   "inbox": {
     "title": "Latest notifications",
     "unread": "New:"
+  },
+  "linkPending": {
+    "title": "Waiting for the building's office to confirm",
+    "body": "Your mobile number matches {count, plural, one {a resident record} other {# resident records}} the building's office entered. To keep your account safe, the office first confirms that it is really you.",
+    "hidden": "Your bills, lease and door codes appear here once it is confirmed. Ask the office to confirm, then check again.",
+    "check": "Check again",
+    "invite": "Have an invitation code? It links your unit at once, with no wait.",
+    "more": "{count, plural, one {One more record waits} other {# more records wait}} for the building's office to confirm it is you before it appears here."
   }
 }

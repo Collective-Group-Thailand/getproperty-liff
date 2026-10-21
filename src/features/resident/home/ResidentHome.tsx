@@ -11,6 +11,7 @@ import type { InvoiceView } from "@/lib/api/types";
 import type { InboxItem, ResidentEntitlement, ResidentMe, ResidentUnit } from "@/lib/api/types";
 import type { ResidentNavEntitlements } from "@/lib/auth/entitlements";
 import { Button } from "@/ui/components/Button";
+import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
@@ -18,6 +19,7 @@ import { Icon, type IconGlyph } from "@/ui/icons";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
 import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconClock } from "@/ui/icons/glyphs/clock";
 import { IconCalendarCheck } from "@/ui/icons/glyphs/calendar-check";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconContact } from "@/ui/icons/glyphs/contact";
@@ -28,6 +30,7 @@ import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLease } from "@/ui/icons/glyphs/lease";
 import { IconParcel } from "@/ui/icons/glyphs/parcel";
 import { IconPayment } from "@/ui/icons/glyphs/payment";
+import { IconRefresh } from "@/ui/icons/glyphs/refresh";
 import { IconRules } from "@/ui/icons/glyphs/rules";
 import { IconRoom } from "@/ui/icons/glyphs/room";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
@@ -47,6 +50,46 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
   { key: "rules", href: "/rules", icon: IconRules, needs: "lease" },
   { key: "contacts", href: "/contacts", icon: IconContact, needs: "lease" },
 ];
+
+/**
+ * D-226: the resident signed in with an SMS code and their phone matches parties the office entered — nothing is
+ * linked until the landlord's Owner confirms who signed in, so there are no bills, lease or door codes yet. "Check
+ * again" reloads the page: once confirmed, `/me` lists the unit and the resident layout rotates the session for its
+ * scopes (`/auth/rescope`). An invitation code links at once (D-175). Server-rendered, no client JS.
+ */
+async function LinkPending({ count }: { count: number }) {
+  const t = await getTranslations("resident.home");
+  return (
+    <Card
+      as="section"
+      aria-labelledby="link-pending-title"
+      padding="lg"
+      className="bg-primary-subtle border-transparent"
+      data-testid="home-link-pending"
+    >
+      <h2 id="link-pending-title" className="text-primary-subtle-fg flex items-center gap-2 font-semibold">
+        <Icon icon={IconClock} />
+        {t("linkPending.title")}
+      </h2>
+      <p className="mt-2 text-sm">{t("linkPending.body", { count })}</p>
+      <p className="text-muted mt-2 text-sm">{t("linkPending.hidden")}</p>
+      <div className="mt-4 flex flex-col gap-2">
+        <Button asChild block iconStart={IconRefresh}>
+          {/* A full document load on purpose (not a client navigation): the layout re-reads /me and, once the link
+              is confirmed, redirects through the /auth/rescope route handler that rotates the session cookies. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- see above */}
+          <a href="/" data-testid="home-link-pending-check">
+            {t("linkPending.check")}
+          </a>
+        </Button>
+        <p className="text-muted mt-2 text-sm">{t("linkPending.invite")}</p>
+        <Button asChild block variant="secondary" iconStart={IconKey}>
+          <Link href="/link">{t("noUnit.cta")}</Link>
+        </Button>
+      </div>
+    </Card>
+  );
+}
 
 /** The selected unit's invoices: by `unitId`; an invoice without one (a final bill of an ended lease) by unit no. + landlord. */
 function ofUnit(invoices: InvoiceView[], unit: ResidentUnit): InvoiceView[] {
@@ -126,6 +169,13 @@ export async function ResidentHome({
 
       {unit ? (
         <>
+          {me.linkRequestsPending > 0 ? (
+            <div data-testid="home-link-pending-more">
+              <Callout tone="info" icon={IconClock} className="text-sm">
+                {t("linkPending.more", { count: me.linkRequestsPending })}
+              </Callout>
+            </div>
+          ) : null}
           {entitlements.has("bills") ? (
             hero && heroState ? (
               <Card
@@ -244,6 +294,8 @@ export async function ResidentHome({
             </section>
           ) : null}
         </>
+      ) : me.linkRequestsPending > 0 ? (
+        <LinkPending count={me.linkRequestsPending} />
       ) : pending ? null : (
         <EmptyState
           icon={IconRoom}
