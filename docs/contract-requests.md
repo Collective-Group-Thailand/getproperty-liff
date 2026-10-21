@@ -3,7 +3,8 @@
 Endpoints and fields this app needs that the backend contract does not yet publish (contract §1) — `/v1/resident/*`,
 `/v1/auth/resident/*` and (R2) `/v1/technician/*` only. An open request is mocked in `mocks/contract-requests.ts` and
 marked `// CONTRACT-REQUEST` where it is called; the mock goes when the contract ships it (`pnpm gen:api --adopt`).
-Problem codes reuse what the contract already documents. Contract pinned at getproperty-api **`0428349`** (F8, LIFF
+Problem codes reuse what the contract already documents. Contract pinned at getproperty-api **`74bdcdc`** (F11, D-239–D-248;
+adopted 2026-10-22 — resident / technician surface unchanged; before it `8cb41af`, `a352998`). Before that **`0428349`** (F8, LIFF
 #29–#31, D-228; adopted 2026-10-21 with `API_CONTRACT_REF=0428349 pnpm gen:api --adopt` — 93 operations, none added or
 removed; `TechnicianMeDto.linkRequestsPending`, `ResidentPaymentDto.checking` (`ResidentPaymentCheckingDto`) new,
 realtime `payment.held` / `payment.dismissed` and `party.link_changed` on the login's `user:` channel; before that
