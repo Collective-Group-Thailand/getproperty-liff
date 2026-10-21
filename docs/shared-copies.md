@@ -95,7 +95,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/brand/geometry.ts` | generated | `79541bc` |
 | `src/ui/brand/index.ts` | verbatim | `79541bc` |
 | `src/ui/components/AlertDialog.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/AlertDialog.tsx` | verbatim | `2493107` |
+| `src/ui/components/AlertDialog.tsx` | verbatim | `838a6bf` |
 | `src/ui/components/AppShell.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/AppShell.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Badge.stories.tsx` | verbatim | `f57d4dc` |

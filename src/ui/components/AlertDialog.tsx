@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
+// copied from getproperty-web@838a6bf until collective-shared exists (D-155)
 "use client";
 
 import { useId, useState } from "react";
@@ -69,6 +69,9 @@ export function AlertDialog({
           className={cn(
             "z-modal fixed top-1/2 left-1/2 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
             "border-border bg-surface-raised rounded-card shadow-overlay border p-5",
+            // A long confirmation (risks, reason, typed phrase) scrolls inside the viewport instead of pushing its
+            // buttons off a short screen.
+            "max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain",
           )}
         >
           <AlertDialogPrimitive.Title className="text-lg font-semibold">{title}</AlertDialogPrimitive.Title>
