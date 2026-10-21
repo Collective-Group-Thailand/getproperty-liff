@@ -107,6 +107,11 @@ describe("allow-list", () => {
     "/v1/technician/me",
     "/v1/auth/technician/line",
     "/auth/technician/line",
+    // Routes are case-sensitive in the API since the release fixes (review #7): never forwarded in another case.
+    "/V1/RESIDENT/me",
+    "/v1/Resident/me",
+    "/v1/auth/Resident/otp/verify",
+    "/AUTH/REFRESH",
     "/",
   ])("refuses %s", (path) => {
     expect(routeFor(path, false)).toBeNull();

@@ -125,8 +125,13 @@ describe("mock API through the BFF", () => {
     const ok = await b.call("POST", "/v1/auth/resident/otp/verify", { challengeId, code: OTP_CODE });
     expect(ok.status).toBe(200);
     expect(JSON.stringify(ok.body)).not.toContain("mock-rt.");
+    // D-226: the verified phone matches a party, which waits for the Owner — nothing is linked yet.
     expect((await b.call("GET", "/v1/resident/me")).body).toMatchObject({
       user: { phone: "+66810001234", lineLinked: false },
+      units: [],
+      leaseIds: [],
+      entitlements: [],
+      linkRequestsPending: 1,
     });
     const invalid = await b.call("POST", "/v1/auth/resident/otp/request", { phone: "12" });
     expect(invalid).toMatchObject({ status: 422, body: { code: "validation.failed" } });
@@ -575,5 +580,100 @@ describe("contract requests #22–#28 as the API ships them (D-218)", () => {
     await noCommunity.signIn("Umock-d218-nocommunity-9");
     const bare = (await noCommunity.call("GET", "/v1/resident/me")).body as { entitlements: string[] };
     expect(bare.entitlements).not.toContain("facilities");
+  });
+});
+
+describe("api 048a8bd release fixes (F7, D-219–D-227)", () => {
+  async function smsSignIn(b: ReturnType<typeof browser>, phone: string, audience: "resident" | "technician") {
+    const challenge = await b.call("POST", `/v1/auth/${audience}/otp/request`, { phone });
+    const challengeId = challenge.body!.challengeId as string;
+    expect((await b.call("POST", `/v1/auth/${audience}/otp/verify`, { challengeId, code: OTP_CODE })).status).toBe(200);
+  }
+
+  it("D-226: a phone match links nothing until the Owner confirms; the token gains the scopes on refresh", async () => {
+    const b = browser();
+    await smsSignIn(b, "0810002468", "resident");
+    expect((await b.call("GET", "/v1/resident/me")).body).toMatchObject({ units: [], linkRequestsPending: 1 });
+    expect((await b.call("GET", "/v1/resident/invoices")).body).toMatchObject({ data: [] });
+
+    const confirmed = await b.call("POST", "/v1/resident/__mock/link-requests/confirm");
+    expect(confirmed.status).toBe(200);
+    const me = (await b.call("GET", "/v1/resident/me")).body as {
+      units: { unitId: string }[];
+      leaseIds: string[];
+      scopes: string[];
+      linkRequestsPending: number;
+    };
+    expect(me.linkRequestsPending).toBe(0);
+    expect(me.units).toHaveLength(1);
+    expect(me.leaseIds).toHaveLength(1);
+    // `/me` reads the links; the token issued before the confirmation does not carry them yet.
+    expect(me.scopes).toEqual([]);
+    expect((await b.call("POST", "/auth/refresh")).status).toBe(200);
+    const after = (await b.call("GET", "/v1/resident/me")).body as { scopes: string[] };
+    expect(after.scopes).toEqual(expect.arrayContaining([`unit:${me.units[0]!.unitId}`, `lease:${me.leaseIds[0]!}`]));
+    expect(((await b.call("GET", "/v1/resident/invoices")).body!.data as unknown[]).length).toBeGreaterThan(0);
+
+    // A phone no office entered: nothing waits.
+    const stranger = browser();
+    await smsSignIn(stranger, "0810000000", "resident");
+    expect((await stranger.call("GET", "/v1/resident/me")).body).toMatchObject({ units: [], linkRequestsPending: 0 });
+  });
+
+  it("D-226: a technician's phone match shows no work order until the Owner confirms", async () => {
+    const b = browser(true);
+    await smsSignIn(b, "0812223344", "technician");
+    expect((await b.call("GET", "/v1/technician/me")).body).toMatchObject({ workOrderIds: [] });
+    expect((await b.call("GET", "/v1/technician/work-orders")).body).toMatchObject({ data: [] });
+    expect((await b.call("POST", "/v1/technician/__mock/link-requests/confirm")).status).toBe(204);
+    expect(((await b.call("GET", "/v1/technician/me")).body!.workOrderIds as string[]).length).toBe(2);
+  });
+
+  it("D-224: a former occupant's request, parcel and booking are never the new resident's", async () => {
+    const b = browser();
+    await b.signIn("Umock-d224-occupant-1");
+    const { mockSeedId } = await import("./service");
+    const former = mockSeedId("line:Umock-d224-occupant-1", "request", "former");
+    const requests = (await b.call("GET", "/v1/resident/service-requests")).body!.data as { id: string }[];
+    expect(requests.length).toBeGreaterThan(0);
+    expect(requests.map((r) => r.id)).not.toContain(former);
+    expect((await b.call("GET", `/v1/resident/service-requests/${former}`)).status).toBe(404);
+    expect((await b.call("GET", `/v1/resident/service-requests/${former}/messages`)).status).toBe(404);
+    const parcels = (await b.call("GET", "/v1/resident/parcels")).body!.data as { trackingNo: string | null }[];
+    expect(parcels).toHaveLength(2);
+    expect(parcels.map((p) => p.trackingNo)).not.toContain("TH0000FORMER");
+    const bookings = (await b.call("GET", "/v1/resident/facility-bookings")).body!.data as { note: string | null }[];
+    expect(bookings.map((x) => x.note)).not.toContain("ประชุมผู้เช่าคนก่อน");
+  });
+
+  it("D-220: a held QR payment leaves the bill as it was; a slip like a booked QR payment waits for the office", async () => {
+    const b = browser();
+    await b.signIn("Umock-d220-held-1");
+    const [open] = (await b.call("GET", "/v1/resident/invoices?unpaid=true")).body!.data as {
+      id: string;
+      balance: string;
+      status: string;
+    }[];
+    const held = await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/pay`, { held: true });
+    expect(held.body).toMatchObject({ status: open!.status, balance: open!.balance });
+
+    const part = await b.call("POST", `/v1/resident/__mock/invoices/${open!.id}/pay`, { amount: "1000.00" });
+    expect(part.body).toMatchObject({ status: "partially_paid" });
+    const slip = Buffer.concat([
+      Buffer.from("89504e47", "hex"),
+      Buffer.from(JSON.stringify({ transRef: "T-QRDUP", amount: "1000.00", receiverAccount: "xxx1234" })),
+    ]).toString("base64");
+    const sent = await b.call("POST", `/v1/resident/invoices/${open!.id}/slips`, {
+      image: slip,
+      mimeType: "image/png",
+    });
+    expect(sent.status).toBe(201);
+    await new Promise((r) => setTimeout(r, 1400));
+    const slips = (await b.call("GET", `/v1/resident/invoices/${open!.id}/slips`)).body!.data as {
+      status: string;
+      reasons: string[];
+    }[];
+    expect(slips[0]).toMatchObject({ status: "pending_review" });
+    expect(slips[0]!.reasons).toContain("possible_qr_duplicate");
   });
 });

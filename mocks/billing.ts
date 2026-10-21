@@ -20,7 +20,13 @@
  * Mock-only control (never in the contract, never in a real build): `POST /v1/resident/__mock/invoices/{id}/pay`
  * plays the payment provider's callback — the invoice is paid, a receipt issued and `payment.confirmed`,
  * `invoice.paid`, `receipt.issued` go down the resident's realtime stream — the API publishes them to the payer's
- * `user:` and the invoice's `unit:` channels (contract request #16, closed in F2).
+ * `user:` and the invoice's `unit:` channels (contract request #16, closed in F2). Its optional body plays the
+ * other provider outcomes: `{ amount }` below what is due is a part payment (booked: `partially_paid`, the balance
+ * goes down); `{ held: true }` is a transfer the API holds as a possible duplicate (D-220) — stored `pending` for the
+ * Owner, nothing allocated, no receipt, no event to the resident, so the bill stays as it was.
+ *
+ * Slips follow the API's rules, including D-220's `possible_qr_duplicate`: a slip of the same amount as a QR payment
+ * already booked for the invoice waits for the office.
  */
 import { createHash } from "node:crypto";
 
@@ -83,6 +89,10 @@ export interface MockBilling {
   replays: Map<string, { status: number; body: unknown }>;
   /** The resident's in-app inbox (`GET /v1/resident/notifications`), newest first. */
   inbox: Schemas["InboxItemDto"][];
+  /** QR payments booked per invoice (amounts as decimal strings) — the slip rule of D-220 compares with them. */
+  qrPayments: { invoiceId: string; amount: string }[];
+  /** Provider payments held for the Owner as possible duplicates (D-220): never visible to the resident. */
+  held: { invoiceId: string; amount: string; reason: Schemas["PaymentHeldReason"] }[];
 }
 
 /** The landlord's account in the mock (masked like the API); slips must name these last 4 digits. */
@@ -264,6 +274,11 @@ function emitTo(account: MockAccount, type: string, ids: Record<string, string>)
   emit(account.userId, type, ids);
 }
 
+/** Drops the account's bills so the next read seeds them for its units (a link the Owner just confirmed). */
+export function forgetBilling(account: MockAccount): void {
+  billings.delete(account.userId);
+}
+
 export function billingOf(account: MockAccount): MockBilling {
   const existing = billings.get(account.userId);
   if (existing) return existing;
@@ -279,6 +294,8 @@ export function billingOf(account: MockAccount): MockBilling {
     qr: new Map(),
     replays: new Map(),
     inbox: [],
+    qrPayments: [],
+    held: [],
   };
   billings.set(account.userId, billing);
   if (account.units.length === 0) return billing;
@@ -418,6 +435,7 @@ function paymentView(invoice: MockInvoice, billing: MockBilling): Schemas["Resid
 export function payInvoice(account: MockAccount, billing: MockBilling, invoice: MockInvoice, via: "qr" | "slip") {
   if (!isOpen(invoice)) return;
   const now = Date.now();
+  if (via === "qr") billing.qrPayments.push({ invoiceId: invoice.dto.id, amount: invoice.dto.balance });
   invoice.dto.status = "paid";
   invoice.dto.balance = "0.00";
   billing.qr.delete(invoice.dto.id);
@@ -429,7 +447,26 @@ export function payInvoice(account: MockAccount, billing: MockBilling, invoice: 
   emitTo(account, "receipt.issued", { receiptId: receipt.id });
 }
 
-/** The same rules as the API's slip verification (D-043, D-198), on the fake verifier's JSON trailer. */
+/** A decimal string as whole satang (the mock's own bookkeeping; the app never does this). */
+function satang(amount: string): number {
+  const [baht = "0", part = ""] = amount.split(".");
+  return Number(baht) * 100 + Number(part.padEnd(2, "0").slice(0, 2));
+}
+
+function fromSatang(value: number): string {
+  return `${Math.floor(value / 100)}.${String(value % 100).padStart(2, "0")}`;
+}
+
+/** A QR part payment the provider confirmed: booked, the balance goes down, the bill is `partially_paid`. */
+function partPay(account: MockAccount, billing: MockBilling, invoice: MockInvoice, amount: string): void {
+  billing.qrPayments.push({ invoiceId: invoice.dto.id, amount });
+  invoice.dto.balance = fromSatang(satang(invoice.dto.balance) - satang(amount));
+  invoice.dto.status = "partially_paid";
+  billing.qr.delete(invoice.dto.id);
+  emitTo(account, "payment.confirmed", { paymentId: crypto.randomUUID(), invoiceId: invoice.dto.id, via: "qr" });
+}
+
+/** The same rules as the API's slip verification (D-043, D-198, D-220), on the fake verifier's JSON trailer. */
 function verifySlip(account: MockAccount, billing: MockBilling, slip: MockSlip, bytes: Buffer): void {
   const invoice = billing.invoices.find((i) => i.dto.id === slip.invoiceId);
   if (!invoice) return;
@@ -464,6 +501,10 @@ function verifySlip(account: MockAccount, billing: MockBilling, slip: MockSlip, 
     if (!amount) reasons.push("amount_unreadable");
     else if (Number(amount) > Number(due)) reasons.push("amount_above_due");
     else if (Number(amount) < Number(due)) reasons.push("amount_below_due");
+    // D-220: a QR payment of the same amount for this invoice was booked already — maybe the same transfer.
+    if (amount && billing.qrPayments.some((p) => p.invoiceId === invoice.dto.id && p.amount === amount)) {
+      reasons.push("possible_qr_duplicate");
+    }
   }
   slip.reasons = reasons;
   slip.status = duplicate ? "duplicate" : reasons.length ? "pending_review" : "auto_confirmed";
@@ -661,12 +702,32 @@ export const billingHandlers: HttpHandler[] = [
   }),
 
   // ── mock-only controls (e2e, `pnpm dev:mock`) ──────────────────────────────────────────────────────────────
-  http.post(mswPath("/v1/resident/__mock/invoices/:invoiceId/pay"), ({ request, params }) => {
+  http.post(mswPath("/v1/resident/__mock/invoices/:invoiceId/pay"), async ({ request, params }) => {
     const auth = authenticate(request, "resident", "resident.invoices.get");
     if (auth instanceof Response) return auth;
     const billing = billingOf(auth.account);
     const invoice = billing.invoices.find((i) => i.dto.id === params.invoiceId);
     if (!invoice) return problem("resident.invoices.get", "http.not_found");
+    let body: { amount?: unknown; held?: unknown } | null = null;
+    try {
+      body = (await request.json()) as { amount?: unknown; held?: unknown };
+    } catch {
+      body = null;
+    }
+    if (body?.held === true) {
+      // D-220: held `pending` for the Owner (confirm / dismiss) — the resident's bill does not change.
+      billing.held.push({ invoiceId: invoice.dto.id, amount: dueNow(invoice), reason: "qr_already_paid" });
+      return HttpResponse.json(invoiceView(invoice, billing));
+    }
+    if (typeof body?.amount === "string" && isOpen(invoice)) {
+      const paid = satang(body.amount);
+      const due = satang(invoice.dto.balance);
+      if (paid <= 0 || paid > due) return problem("resident.invoices.get", "validation.failed");
+      if (paid < due) {
+        partPay(auth.account, billing, invoice, body.amount);
+        return HttpResponse.json(invoiceView(invoice, billing));
+      }
+    }
     payInvoice(auth.account, billing, invoice, "qr");
     return HttpResponse.json(invoiceView(invoice, billing));
   }),

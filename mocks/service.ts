@@ -31,7 +31,7 @@ import type { components } from "../src/lib/api/schema";
 import { example, mswPath, problem } from "./contract";
 import { emit } from "./events";
 import { authenticate } from "./handlers";
-import { accountFor, UNIT_A, UNIT_B, type MockAccount } from "./state";
+import { accountFor, occupancyStart, UNIT_A, UNIT_B, type MockAccount } from "./state";
 import { bangkokIso } from "./tokens";
 import { mockPhoto, presign, uploadedBy, uploads, validPresign } from "./uploads";
 
@@ -91,6 +91,11 @@ function categoriesOf(tenantId: string): Schemas["ServiceCategoryDto"][] {
 export interface MockRequest {
   dto: Request_;
   residentUserId: string;
+  /**
+   * The login whose unit history a seeded request belongs to (D-224 in the mock: every mock account occupies the
+   * same example units, so unit-wide visibility is limited to the household it was seeded for).
+   */
+  seededFor?: string;
   tenantId: string;
   buildingId: string;
   buildingName: string;
@@ -284,6 +289,11 @@ function touch(workOrder: MockWorkOrder): void {
   if (request) emit(request.residentUserId, "service_request.changed", { serviceRequestId: request.dto.id });
 }
 
+/** Lets the next read seed the account's requests again (a party link the Owner just confirmed, D-226). */
+export function forgetServiceSeed(account: MockAccount): void {
+  service.seeded.delete(account.userId);
+}
+
 function seedResident(account: MockAccount): void {
   if (service.seeded.has(account.userId)) return;
   service.seeded.add(account.userId);
@@ -292,6 +302,21 @@ function seedResident(account: MockAccount): void {
   const unit = account.units.some((u) => u.unitId === UNIT_A.unitId) ? UNIT_A : UNIT_B;
   const now = Date.now();
   const crew = accountFor("line:Umock-crew-somsak", { displayName: "ช่างสมศักดิ์", phone: null, lineLinked: true });
+
+  // D-224: the unit's previous occupant reported a leak before this occupancy began — never shown to this resident.
+  const former = accountFor(`line:Umock-former-of-${account.userId}`, {
+    displayName: "ผู้เช่าคนก่อน",
+    phone: null,
+    lineLinked: true,
+  });
+  service.seeded.add(former.userId);
+  newRequest(
+    former,
+    unit,
+    { categoryKey: "plumbing", description: "ก๊อกน้ำห้องน้ำรั่ว (ผู้เช่าคนก่อน)", priority: "normal", photoIds: [] },
+    occupancyStart(unit, now) - 30 * DAY,
+    mockSeedId(account.subject, "request", "former"),
+  ).seededFor = account.userId;
 
   const closed = newRequest(
     account,
@@ -564,10 +589,20 @@ function messageReplay(request: Request, op: string, userId: string): { response
   return { key: id };
 }
 
+/**
+ * D-224: the requests I reported, and those of my current units created since my occupancy began — never a former
+ * occupant's (their detail, thread, cancel and rating are 404 like the API's).
+ */
 function myRequests(account: MockAccount): MockRequest[] {
   seedResident(account);
+  const since = new Map(account.units.map((u) => [u.unitId, occupancyStart(u)]));
   return [...service.requests.values()]
-    .filter((r) => r.residentUserId === account.userId)
+    .filter((r) => {
+      if (r.residentUserId === account.userId) return true;
+      if (r.seededFor !== account.userId) return false;
+      const from = r.dto.unitId ? since.get(r.dto.unitId) : undefined;
+      return from !== undefined && Date.parse(r.dto.createdAt) >= from;
+    })
     .sort((a, b) => b.dto.createdAt.localeCompare(a.dto.createdAt));
 }
 
@@ -577,6 +612,8 @@ export function myRequest(account: MockAccount, id: unknown): MockRequest | unde
 
 function myWorkOrders(account: MockAccount): MockWorkOrder[] {
   seedTechnician(account);
+  // D-226: an SMS sign-in sees no work order until the Owner confirms the phone match.
+  if (account.technicianPending) return [];
   return [...service.workOrders.values()]
     .filter(
       (wo) =>

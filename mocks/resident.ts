@@ -157,7 +157,7 @@ export const residentHandlers: HttpHandler[] = [
       return problem(op, "validation.failed");
     }
     auth.account.language = language as Schemas["ResidentLanguage"];
-    return HttpResponse.json(residentMe(auth.account));
+    return HttpResponse.json(residentMe(auth.account, auth.session));
   }),
 
   // ── leases and e-signature (B2.3, D-062) ──────────────────────────────────────────────────────

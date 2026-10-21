@@ -11,6 +11,7 @@ import { readFakeLineIdToken } from "../src/lib/liff/fakeLineToken";
 import { example, GENERATED_OPERATIONS, mswPath, problem, problemResponse } from "./contract";
 import {
   accountById,
+  accountBySubject,
   accountFor,
   challenge,
   dropChallenge,
@@ -50,9 +51,16 @@ export const MOCK_ENTITLEMENTS = [
 ] as const;
 const R2_MODULES = new Set<string>(["service_requests", "announcements", "parcels", "facilities", "access"]);
 
+/** The resident scopes the API puts in a token (`SubjectsService.resident`): my leases, then my occupied units. */
+export function residentScopes(account: MockAccount): string[] {
+  const leases = residenceOf(account).leases.map(({ dto }) => `lease:${dto.id}`);
+  return [...leases, ...account.units.map((u) => `unit:${u.unitId}`)];
+}
+
 function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
   const base = example<Schemas["TokenPairDto"]>("auth.residentLine.exchange");
   const access = mockAccessToken({ sub: account.userId, aud: session.audience, sid: session.sid }, now);
+  if (session.audience === "resident") session.scopes = residentScopes(account);
   return {
     ...base,
     accessToken: access.token,
@@ -63,7 +71,7 @@ function tokenPair(session: MockSession, account: MockAccount, now = Date.now())
       ...base.subject,
       audience: session.audience,
       id: account.userId,
-      scopes: account.units.map((u) => `unit:${u.unitId}`),
+      scopes: session.audience === "resident" ? [...(session.scopes ?? [])] : [],
     },
   };
 }
@@ -93,7 +101,12 @@ function consentComplete(account: MockAccount): boolean {
   return account.consents.every((c) => !c.required || (c.granted === true && c.grantedVersion === c.version));
 }
 
-export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
+/**
+ * `GET /v1/resident/me`: units, leases and entitlements from the links as they are now; `scopes` are the token's
+ * (issued at sign-in or the last refresh), so a party the Owner linked since then is in `units` but not yet in
+ * `scopes` — the app rotates the session when it sees that (D-226).
+ */
+export function residentMe(account: MockAccount, session?: MockSession): Schemas["ResidentMeDto"] {
   const base = example<Schemas["ResidentMeDto"]>("resident.me.get");
   const residence = residenceOf(account);
   const leases = residence.leases.map(({ dto }) => ({
@@ -117,8 +130,9 @@ export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
       required: c.required,
       version: c.version,
     })),
-    scopes: [...account.units.map((u) => `unit:${u.unitId}`), ...leases.map((l) => `lease:${l.leaseId}`)],
+    scopes: session?.scopes ? [...session.scopes] : residentScopes(account),
     units: account.units,
+    linkRequestsPending: account.pendingUnits.length,
     leases,
     leaseIds: leases.map((l) => l.leaseId),
     user: {
@@ -130,7 +144,9 @@ export function residentMe(account: MockAccount): Schemas["ResidentMeDto"] {
       language: account.language,
       lineLinked: account.lineLinked,
     },
-    entitlements: MOCK_ENTITLEMENTS.filter((e) => e !== "usage" || residence.usage === "iot")
+    // Like the API: nothing without a unit or a lease (an SMS sign-in still waiting for the Owner, D-226).
+    entitlements: (account.units.length === 0 && leases.length === 0 ? [] : MOCK_ENTITLEMENTS)
+      .filter((e) => e !== "usage" || residence.usage === "iot")
       .filter((e) => !R2_MODULES.has(e) || !account.subject.toLowerCase().includes("nocommunity"))
       .filter((e) => e !== "access" || !account.subject.toLowerCase().includes("nolocks")),
   };
@@ -210,17 +226,25 @@ export const contractHandlers: HttpHandler[] = [
     }
     dropChallenge(body.challengeId);
     const base = example<Schemas["ResidentMeDto"]>("resident.me.get");
-    const account = accountFor(`phone:${pending.phone}`, {
+    const subject = `phone:${pending.phone}`;
+    const first = !accountBySubject(subject);
+    const account = accountFor(subject, {
       displayName: base.user.displayName,
       phone: pending.phone,
       lineLinked: false,
     });
+    // D-226: the verified phone links nothing; the party the office entered with it waits for the Owner.
+    if (first) {
+      account.pendingUnits = pending.phone.endsWith("0000") ? [] : [...account.units];
+      account.units = [];
+    }
     if (account.disabled) return problem(op, "auth.account_disabled");
     return HttpResponse.json(tokenPair(openSession("resident", account.userId), account));
   }),
 
-  // Technicians (B5.1, D-210): SMS sign-in for a technician the owner entered with a phone; the phone match links
-  // the party, so the mock account is keyed `tech-phone:` (its work orders are seeded, `mocks/service.ts`).
+  // Technicians (B5.1, D-226): SMS sign-in for a technician the owner entered with a phone; the phone match waits for
+  // the Owner's confirmation (no work orders until then). The account is keyed `tech-phone:` (its work orders are
+  // seeded, `mocks/service.ts`).
   http.post(mswPath("/v1/auth/technician/otp/request"), async ({ request }) => {
     const body = await json<{ phone?: unknown }>(request);
     const phone = typeof body?.phone === "string" ? body.phone.replace(/[\s-]/g, "") : "";
@@ -249,11 +273,14 @@ export const contractHandlers: HttpHandler[] = [
       return problem(op, "auth.otp_invalid", { attemptsRemaining: OTP_MAX_ATTEMPTS - pending.attempts });
     }
     dropChallenge(body.challengeId);
-    const account = accountFor(`tech-phone:${pending.phone}`, {
+    const subject = `tech-phone:${pending.phone}`;
+    const first = !accountBySubject(subject);
+    const account = accountFor(subject, {
       displayName: "ช่างสมชาย",
       phone: pending.phone,
       lineLinked: false,
     });
+    if (first) account.technicianPending = true;
     if (account.disabled) return problem(op, "auth.account_disabled");
     return HttpResponse.json(tokenPair(openSession("technician", account.userId), account));
   }),
@@ -278,7 +305,7 @@ export const contractHandlers: HttpHandler[] = [
   http.get(mswPath("/v1/resident/me"), ({ request }) => {
     const auth = authenticate(request, "resident", "resident.me.get");
     if (auth instanceof Response) return auth;
-    return HttpResponse.json(residentMe(auth.account));
+    return HttpResponse.json(residentMe(auth.account, auth.session));
   }),
 
   http.get(mswPath("/v1/resident/consents"), ({ request }) => {

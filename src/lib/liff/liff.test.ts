@@ -190,6 +190,14 @@ describe("resolveLiffState", () => {
   });
 });
 
+describe("case-sensitive paths (api release fixes, review #7)", () => {
+  it("never turns another case of a known screen into that screen", () => {
+    expect(safeInternalPath("/Requests/abc")).toBe("/");
+    expect(safeInternalPath("/INVOICES")).toBe("/");
+    expect(safeInternalPath("/requests/abc")).toBe("/requests/abc");
+  });
+});
+
 describe("safeInternalPath", () => {
   it("keeps known in-app paths and refuses everything else", () => {
     expect(safeInternalPath("/consent?next=%2Fbills")).toBe("/consent?next=/bills");

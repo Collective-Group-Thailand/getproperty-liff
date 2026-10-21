@@ -6664,6 +6664,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
             unitNo: "A-201",
           },
         ],
+        linkRequestsPending: 0,
         scopes: ["unit:3b241101-e2bb-4255-8caf-4136c566a962"],
         units: [
           {
@@ -6790,6 +6791,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
             unitNo: "A-201",
           },
         ],
+        linkRequestsPending: 0,
         scopes: ["unit:3b241101-e2bb-4255-8caf-4136c566a962"],
         units: [
           {

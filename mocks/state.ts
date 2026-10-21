@@ -8,6 +8,11 @@
  *   …invitee…   no unit yet (accepts an invitation code) and consents unanswered
  *   …signer… / …moveout… / …manual…   lease, deposit and usage scenarios (`mocks/residence.ts`)
  *   …disabled…  the account is disabled (`auth.account_disabled`)
+ *
+ * An SMS sign-in (`phone:<E.164>` / `tech-phone:<E.164>` accounts) links nothing by itself (D-226): the party the
+ * office entered with that phone becomes a link request (`pendingUnits` / `technicianPending`) until the Owner
+ * confirms it — in the mock through `POST /v1/{resident,technician}/__mock/link-requests/confirm`. Phones ending in
+ * `0000` match no party at all.
  */
 import type { components } from "../src/lib/api/schema";
 
@@ -34,6 +39,13 @@ export interface MockAccount {
   disabled: boolean;
   /** Invitation codes this account accepted (`POST /v1/resident/link`). */
   accepted: Set<string>;
+  /**
+   * D-226: the units of parties matched by the SMS-verified phone, waiting for the Owner's confirmation
+   * (`ResidentMeDto.linkRequestsPending`); none of them is visible until then.
+   */
+  pendingUnits: Unit[];
+  /** D-226: a technician signed in by SMS whose party match waits for the Owner (no work orders until then). */
+  technicianPending: boolean;
 }
 
 export interface MockSession {
@@ -44,6 +56,11 @@ export interface MockSession {
   refreshToken: string;
   rotated: Set<string>;
   revoked: boolean;
+  /**
+   * The `unit:` / `lease:` scopes of the newest access token, computed when it was issued like the API's — a party
+   * linked later shows up in `/me` at once but in the token only after a refresh (D-226).
+   */
+  scopes: string[] | null;
 }
 
 export const UNIT_A: Unit = {
@@ -90,6 +107,20 @@ export const PURPOSES = {
 
 export const NOW = "2026-11-01T00:15:00+07:00";
 
+const DAY_MS = 24 * 3_600_000;
+
+/**
+ * D-224: the instant from which a resident sees a unit's requests, parcels and bookings — 00:00 Asia/Bangkok of the
+ * first day of their occupancy. The mock units carry the contract example's `validFrom`, which can lie after the
+ * machine's date; such an occupancy counts as begun 90 days ago so the seeded history stays visible.
+ */
+export function occupancyStart(unit: Pick<Unit, "validFrom">, now = Date.now()): number {
+  const from = Date.parse(`${unit.validFrom}T00:00:00+07:00`);
+  if (Number.isFinite(from) && from <= now) return from;
+  const day = new Date(now - 90 * DAY_MS + 7 * 3_600_000).toISOString().slice(0, 10);
+  return Date.parse(`${day}T00:00:00+07:00`);
+}
+
 /**
  * One store per server process, on `globalThis`: Next bundles the proxy and the route handlers separately, so a
  * module-level Map would give the proxy's refresh and the BFF two different mock APIs.
@@ -134,9 +165,15 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
     consents: consentsFor(!(has("newcomer") || has("invitee"))),
     disabled: has("disabled"),
     accepted: new Set(),
+    pendingUnits: [],
+    technicianPending: false,
   };
   accounts.set(subject, account);
   return account;
+}
+
+export function accountBySubject(subject: string): MockAccount | undefined {
+  return accounts.get(subject);
 }
 
 export function accountById(userId: string): MockAccount | undefined {
@@ -152,6 +189,7 @@ export function openSession(audience: MockSession["audience"], userId: string): 
     refreshToken: `mock-rt.${crypto.randomUUID()}`,
     rotated: new Set(),
     revoked: false,
+    scopes: null,
   };
   sessions.set(session.sid, session);
   refreshIndex.set(session.refreshToken, session.sid);

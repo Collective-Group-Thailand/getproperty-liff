@@ -20,7 +20,7 @@ import type { components } from "../src/lib/api/schema";
 import { example, mswPath, problem } from "./contract";
 import { emit } from "./events";
 import { authenticate } from "./handlers";
-import { UNIT_A, type MockAccount } from "./state";
+import { occupancyStart, UNIT_A, type MockAccount } from "./state";
 import { bangkokIso } from "./tokens";
 
 type Schemas = components["schemas"];
@@ -58,6 +58,32 @@ interface MockCommunity {
   visitorMaxHours: number;
   /** `Idempotency-Key` → the visitor code it created (contract §3: a retry answers the first code). */
   visitorReplays: Map<string, Schemas["IssuedCredentialDto"]>;
+  /** When each booking was made (`BookingDto` does not carry it; D-224 scopes by it). */
+  bookedAt: Map<string, number>;
+}
+
+/**
+ * D-224: what a resident sees of their units — parcels received and bookings made since 00:00 Asia/Bangkok of the
+ * first day of their current occupancy, never a former occupant's.
+ */
+function since(account: MockAccount): Map<string, number> {
+  return new Map(account.units.map((u) => [u.unitId, occupancyStart(u)]));
+}
+
+function myParcels(account: MockAccount, community: MockCommunity): Schemas["ResidentParcelDto"][] {
+  const from = since(account);
+  return community.parcels.filter((p) => {
+    const start = from.get(p.unitId);
+    return start !== undefined && Date.parse(p.receivedAt) >= start;
+  });
+}
+
+function myBookings(account: MockAccount, community: MockCommunity): Schemas["BookingDto"][] {
+  const from = since(account);
+  return community.bookings.filter((b) => {
+    const start = from.get(b.unitId);
+    return start !== undefined && (community.bookedAt.get(b.id) ?? Date.now()) >= start;
+  });
 }
 
 const holder = globalThis as typeof globalThis & { __gpMockCommunity?: Map<string, MockCommunity> };
@@ -103,6 +129,11 @@ export const FACILITIES: Schemas["FacilityDto"][] = [
 ];
 
 const OTHER_UNIT = uuidFrom("unit#A-305");
+
+/** Drops the account's community state so the next read seeds it for its units (a link just confirmed). */
+export function forgetCommunity(account: MockAccount): void {
+  communities.delete(account.userId);
+}
 
 export function communityOf(account: MockAccount): MockCommunity {
   const existing = communities.get(account.userId);
@@ -199,6 +230,7 @@ export function communityOf(account: MockAccount): MockCommunity {
     visitorAllowed: !has("novisitor"),
     visitorMaxHours: has("novisitor") ? 0 : 12,
     visitorReplays: new Map(),
+    bookedAt: new Map(),
   };
   if (!has("nolocks")) {
     const lockId = uuidFrom(`lock#${unit.unitId}`);
@@ -226,6 +258,38 @@ export function communityOf(account: MockAccount): MockCommunity {
     note: null,
     cancelReason: null,
   });
+  // D-224: the unit's previous occupant — a parcel picked up and a booking made before this occupancy began.
+  const start = occupancyStart(unit, now);
+  community.parcels.push({
+    ...example<Schemas["ResidentParcelsDto"]>("resident.community.parcels").data[0]!,
+    id: uuidFrom(`parcel#former#${account.subject}`),
+    unitId: unit.unitId,
+    unitNo: unit.unitNo,
+    buildingId: unit.buildingId,
+    carrier: "Flash Express",
+    trackingNo: "TH0000FORMER",
+    receivedAt: bangkokIso(start - 20 * DAY),
+    notifiedAt: bangkokIso(start - 20 * DAY + 60_000),
+    pickedUpAt: bangkokIso(start - 19 * DAY),
+    pickupConfirmedBy: "resident_pin",
+    status: "picked_up",
+    pin: null,
+  });
+  const formerDay = bangkokDay(start - 35 * DAY);
+  const formerBooking: Schemas["BookingDto"] = {
+    id: uuidFrom(`booking#former#${account.subject}`),
+    facilityId: FACILITIES[0]!.id,
+    facilityName: FACILITIES[0]!.name,
+    unitId: unit.unitId,
+    unitNo: unit.unitNo,
+    startsAt: `${formerDay}T10:00:00+07:00`,
+    endsAt: `${formerDay}T11:00:00+07:00`,
+    status: "confirmed",
+    note: "ประชุมผู้เช่าคนก่อน",
+    cancelReason: null,
+  };
+  community.bookings.push(formerBooking);
+  community.bookedAt.set(formerBooking.id, start - 40 * DAY);
   communities.set(account.userId, community);
   return community;
 }
@@ -430,7 +494,7 @@ export const communityHandlers: HttpHandler[] = [
     const auth = authenticate(request, "resident", "resident.community.parcels");
     if (auth instanceof Response) return auth;
     if (auth.account.units.length === 0) return HttpResponse.json({ data: [] });
-    return HttpResponse.json({ data: communityOf(auth.account).parcels });
+    return HttpResponse.json({ data: myParcels(auth.account, communityOf(auth.account)) });
   }),
 
   // ── facilities and bookings ───────────────────────────────────────────────────────────────────
@@ -454,20 +518,20 @@ export const communityHandlers: HttpHandler[] = [
       return problem(op, "http.not_found");
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return problem(op, "validation.failed");
-    const mine = new Set(auth.account.units.map((u) => u.unitId));
-    const busy = communityOf(auth.account)
-      .bookings.filter((b) => b.facilityId === facility.id && live(b) && b.startsAt.startsWith(date))
-      .map((b) => ({ startsAt: b.startsAt, endsAt: b.endsAt, status: b.status, mine: mine.has(b.unitId) }));
+    const community = communityOf(auth.account);
+    const mine = new Set(myBookings(auth.account, community).map((b) => b.id));
+    const busy = community.bookings
+      .filter((b) => b.facilityId === facility.id && live(b) && b.startsAt.startsWith(date))
+      .map((b) => ({ startsAt: b.startsAt, endsAt: b.endsAt, status: b.status, mine: mine.has(b.id) }));
     return HttpResponse.json({ date, facility, busy });
   }),
 
   http.get(mswPath("/v1/resident/facility-bookings"), ({ request }) => {
     const auth = authenticate(request, "resident", "resident.community.bookings");
     if (auth instanceof Response) return auth;
-    const mine = new Set(auth.account.units.map((u) => u.unitId));
-    const data = communityOf(auth.account)
-      .bookings.filter((b) => mine.has(b.unitId))
-      .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
+    const data = myBookings(auth.account, communityOf(auth.account)).sort((a, b) =>
+      b.startsAt.localeCompare(a.startsAt),
+    );
     return HttpResponse.json({ data });
   }),
 
@@ -533,6 +597,7 @@ export const communityHandlers: HttpHandler[] = [
       cancelReason: null,
     };
     community.bookings.push(booking);
+    community.bookedAt.set(booking.id, Date.now());
     emit(auth.account.userId, "facility_booking.changed", { bookingId: booking.id });
     return HttpResponse.json(booking, { status: 201 });
   }),
@@ -541,8 +606,7 @@ export const communityHandlers: HttpHandler[] = [
     const op = "resident.community.cancelBooking";
     const auth = authenticate(request, "resident", op);
     if (auth instanceof Response) return auth;
-    const mine = new Set(auth.account.units.map((u) => u.unitId));
-    const booking = communityOf(auth.account).bookings.find((b) => b.id === params.bookingId && mine.has(b.unitId));
+    const booking = myBookings(auth.account, communityOf(auth.account)).find((b) => b.id === params.bookingId);
     if (!booking) return problem(op, "http.not_found");
     if (!live(booking)) return problem(op, "facility.booking_invalid_state");
     const body = await json<{ reason?: unknown }>(request);

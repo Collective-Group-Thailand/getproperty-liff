@@ -188,8 +188,14 @@ function proposedDeposit(lease: Lease): Deposit {
   };
 }
 
-/** Before photos of the move-in inspection per deduction (`beforeEvidenceUrls`). */
-export const BEFORE_PHOTOS = new Map<string, string[]>();
+/**
+ * Before photos of the move-in inspection per deduction (`beforeEvidenceUrls`). On `globalThis` like the other
+ * stores: the residence may be built by the proxy's refresh (its token scopes name the leases), which Next bundles
+ * apart from the route handlers that read the photos.
+ */
+const photoHolder = globalThis as typeof globalThis & { __gpMockBeforePhotos?: Map<string, string[]> };
+photoHolder.__gpMockBeforePhotos ??= new Map();
+export const BEFORE_PHOTOS = photoHolder.__gpMockBeforePhotos;
 
 function noticeOn(lease: Lease, effectiveDate: string): Lease {
   return {
@@ -209,6 +215,11 @@ function noticeOn(lease: Lease, effectiveDate: string): Lease {
 const holder = globalThis as typeof globalThis & { __gpMockResidences?: Map<string, MockResidence> };
 holder.__gpMockResidences ??= new Map();
 const residences = holder.__gpMockResidences;
+
+/** Drops the account's residence so the next read builds it from its links (a link the Owner just confirmed). */
+export function forgetResidence(account: MockAccount): void {
+  residences.delete(account.userId);
+}
 
 export function residenceOf(account: MockAccount): MockResidence {
   const existing = residences.get(account.userId);
@@ -232,7 +243,8 @@ export function residenceOf(account: MockAccount): MockResidence {
   };
   // Registered first: building the leases below reads it (their ids count the leases already there).
   residences.set(account.userId, residence);
-  if (!has("invitee")) {
+  // An invitee, or an SMS sign-in whose party still waits for the Owner (D-226), holds no lease yet.
+  if (!has("invitee") && account.units.length > 0) {
     if (has("signer")) {
       residence.leases.push({ dto: baseLease(account, "pending_signature"), rulesAcknowledgedAt: null });
     } else if (has("moveout")) {
