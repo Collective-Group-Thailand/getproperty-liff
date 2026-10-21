@@ -1,0 +1,25 @@
+# Build context of the Dockerfile (D-230): sources only — never dependencies, build output, local env or reports.
+.git
+.github
+node_modules
+.pnpm-store
+.next
+out
+dist
+*.tsbuildinfo
+coverage
+playwright-report
+playwright-report-*
+test-results
+storybook-static
+.lighthouseci
+lighthouse/.port-*.json
+public/sw.js
+.env
+.env*.local
+*.local
+.shared-source
+.extra
+.DS_Store
+Dockerfile
+.dockerignore

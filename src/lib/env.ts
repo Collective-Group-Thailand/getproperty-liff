@@ -39,11 +39,20 @@ export const serverSchema = z
     /** Public origin of this app, for the BFF's same-origin check behind proxies that rewrite `Host`. */
     APP_ORIGIN: origin,
     /**
-     * Proxies in front of this app that append the client address to `X-Forwarded-For` (Cloud Run's front end: 1; with
-     * the external HTTPS load balancer: 2). The BFF forwards the entry this many from the right as the end user's
-     * address; 0 (default, local dev) forwards none. Never more than the real number (review H2).
+     * Proxies in front of this app that append the client address to `X-Forwarded-For`. On the Collective platform
+     * (D-230, D-229) Caddy is the one proxy: it replaces the header of an internet client with that client's address,
+     * so production sets 1 (collective-infra `products/getproperty/docker-compose.yml`). The BFF forwards the entry
+     * this many from the right as the end user's address; 0 (default, local dev) forwards none. Never more than the
+     * real number (review H2).
      */
     TRUSTED_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+    /**
+     * Who may read `/api/metrics` (comma-separated IPs / CIDRs). Default: loopback + the private ranges — Grafana
+     * Alloy on the platform's docker network. Requests through Caddy carry the internet client's address and get 404.
+     * Parsed at boot by `src/instrumentation.ts` (an invalid entry stops the server; `node:net` stays out of this
+     * module, which server components share with the client bundle's `clientEnv`).
+     */
+    METRICS_ALLOWED_CIDRS: z.string().optional(),
     /** R2 technician screens and BFF prefixes (`/v1/technician/*`, `/v1/auth/technician/*`). */
     FEATURE_TECHNICIAN: flag,
     SENTRY_DSN: optionalUrl,

@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
   // generated agent rules.
   agentRules: false,
   poweredByHeader: false,
+  // The container image (D-230, `Dockerfile`): `.next/standalone` holds `server.js` with only the traced
+  // dependencies; `next start` still serves the same build locally, in e2e and in Lighthouse.
+  output: "standalone",
+  // Server-only (`/api/metrics`); loaded from node_modules at run time rather than bundled.
+  serverExternalPackages: ["@prometheus-io/client"],
   // Always defined, so the bundler inlines it and drops the branch it does not take: with "0" the fake
   // LIFF (src/lib/liff/fake.ts) is not in the bundle at all (`pnpm release:hygiene` checks).
   env: { NEXT_PUBLIC_LIFF_MOCK: process.env.NEXT_PUBLIC_LIFF_MOCK === "1" ? "1" : "0" },

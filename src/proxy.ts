@@ -73,9 +73,9 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      // Pages only: not the BFF, Next's static files, the service worker, icons, fonts or the manifest.
+      // Pages only: not the BFF, the operations routes (`/api/healthz`, `/api/metrics`), Next's static files, the service worker, icons, fonts or the manifest.
       source:
-        "/((?!bff|_next/static|_next/image|sw\\.js|icons/|brand/|fonts/|favicon|icon\\.svg|manifest\\.webmanifest|offline\\.html).*)",
+        "/((?!bff|api/|_next/static|_next/image|sw\\.js|icons/|brand/|fonts/|favicon|icon\\.svg|manifest\\.webmanifest|offline\\.html).*)",
     },
   ],
 };

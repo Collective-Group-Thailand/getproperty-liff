@@ -1,10 +1,13 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: + LIFF fake marker
+// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: + LIFF fake marker, + standalone dependencies (D-230)
 /**
  * Release hygiene: fails when a production build ships what only development and the mock
  * API should see — the mock API's own markers, the copy that marks mock rows, `debugger`
  * statements, browser source maps — in the client bundles (`.next/static`) or the prerendered HTML
  * (`.next/server/app`), and the in-process mock API anywhere in the server code (`.next/server`). Run after
  * `pnpm build`, which never sets `API_MOCKS` or `NEXT_PUBLIC_LIFF_MOCK`.
+ *
+ * The container image ships `.next/standalone` (D-230, ADR-0007): its traced `node_modules` must hold no
+ * development-only package (the mock API's MSW, test runners, Storybook).
  *
  * Third-party code that merely references `console.debug` is not a finding; a pattern is listed
  * here only when nothing legitimate in a production build can contain it.
@@ -65,6 +68,22 @@ for (const target of TARGETS) {
         );
       }
     }
+  }
+}
+
+// The standalone server's traced dependencies (what the image copies): nothing development-only.
+const DEV_ONLY =
+  /^(msw|@mswjs\+|vitest|@vitest\+|@playwright\+|playwright|storybook|@storybook\+|@testing-library\+|jsdom)(@|$)/;
+const standalone = join(ROOT, ".next/standalone/node_modules");
+if (existsSync(standalone)) {
+  const store = join(standalone, ".pnpm");
+  const packages = [
+    ...readdirSync(standalone).filter((name) => name !== ".pnpm"),
+    ...(existsSync(store) ? readdirSync(store) : []),
+  ];
+  for (const name of packages) {
+    scanned++;
+    if (DEV_ONLY.test(name)) findings.push(`.next/standalone/node_modules: development-only package ${name}`);
   }
 }
 
