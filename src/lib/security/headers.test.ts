@@ -25,10 +25,15 @@ describe("contentSecurityPolicy", () => {
 
   it("adds the object-storage host for signed images and uploads, and Sentry's ingest", () => {
     const withHosts = contentSecurityPolicy({
-      extraImg: ["https://storage.googleapis.com"],
-      extraConnect: ["https://storage.googleapis.com", "https://o1.ingest.sentry.io"],
+      extraImg: ["https://collective-prod-getproperty-assets.s3.ap-southeast-7.amazonaws.com"],
+      extraConnect: [
+        "https://collective-prod-getproperty-assets.s3.ap-southeast-7.amazonaws.com",
+        "https://o1.ingest.sentry.io",
+      ],
     });
-    expect(directive(withHosts, "img-src")).toContain("https://storage.googleapis.com");
+    expect(directive(withHosts, "img-src")).toContain(
+      "https://collective-prod-getproperty-assets.s3.ap-southeast-7.amazonaws.com",
+    );
     expect(directive(withHosts, "connect-src")).toContain("https://o1.ingest.sentry.io");
   });
 

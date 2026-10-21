@@ -59,7 +59,7 @@ getproperty-liff/
 `pnpm gen:api` (copied from getproperty-web) reads `API_CONTRACT_SOURCE` (local `../getproperty-api/contract/openapi.json`; CI the release asset in `contract.lock.json`) → `src/lib/api/schema.d.ts` → MSW handlers in `mocks/generated/` — only the `/v1/resident/*`, `/v1/auth/resident/*` and `/v1/technician/*` operations are used. CI fails on drift. Missing endpoints → `docs/contract-requests.md` + `// CONTRACT-REQUEST` mock.
 
 ## 6. Platform baseline
-Same as getproperty-web: Next.js 16 (App Router, RSC), React 19, TypeScript strict, Tailwind v4, pnpm 10, Node ≥ 24, Radix + CVA, Storybook 10, Vitest + Testing Library (+ axe per story), Playwright (+ axe, 360 × 780), Lighthouse CI, MSW, next-intl — plus `@line/liff`. Deployed on Cloud Run (D-160) as its own service; the LIFF endpoint URL in the LINE Developers console points at `/liff` on this host.
+Same as getproperty-web: Next.js 16 (App Router, RSC), React 19, TypeScript strict, Tailwind v4, pnpm 10, Node ≥ 24, Radix + CVA, Storybook 10, Vitest + Testing Library (+ axe per story), Playwright (+ axe, 360 × 780), Lighthouse CI, MSW, next-intl — plus `@line/liff`. Deployed as its own container (`getproperty/liff`, standalone Next.js, linux/arm64) on Collective's shared AWS platform beside getproperty-web and getproperty-api (D-230, ADR-0007: collective-infra, Caddy in front, the API at `http://getproperty-api:3000` on the docker network); the LIFF endpoint URL in the LINE Developers console points at `/liff` on this host.
 
 ## 7. Run order
 | Step | Prompt | Output | Needs from backend | Release |

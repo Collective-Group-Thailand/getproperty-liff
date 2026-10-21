@@ -27,7 +27,8 @@ here.
 - **Single-flight refresh, process-wide.** Concurrent refreshes of one refresh token in a process share one call,
   and its result is remembered for 20 s, so a page render and its client fetches cannot spend the same token twice
   (which would end the sign-in). The map lives on `globalThis` because Next bundles the proxy and the route
-  handlers separately. Several Cloud Run instances can still race; since api `a352998` (D-229) the API answers the
+  handlers separately. Several server processes (a restart overlapping a deploy, or a second replica) can still
+  race; since api `a352998` (D-229) the API answers the
   immediately previous token within 30 s of its rotation with the **same** successor pair instead of revoking the
   family, so that race no longer signs anyone out (review M3).
 - **CSRF.** Every non-GET BFF call needs `x-getproperty-csrf: 1` and a same-origin `Origin`/`Sec-Fetch-Site`
@@ -39,7 +40,8 @@ here.
 - **Logout** calls `/v1/auth/logout` for every refresh token the browser holds and clears all session cookies. It is
   `POST` with the CSRF checks only (`405` otherwise): a cross-site link must not sign residents out (review L1).
 - **Edge trust** (review H2, L4). The client address sent to the API is the `X-Forwarded-For` entry `TRUSTED_HOPS`
-  from the right (the one our own edge appended; Cloud Run = 1), never the left-most one; with 0 nothing is sent.
+  from the right (the one our own edge appended; the platform's Caddy = 1, D-230), never the left-most one; with 0
+  nothing is sent.
   An inbound `x-request-id` is kept only when it is a UUID.
 - **Realtime stream token** (review L5). `POST …/realtime/auth` answers through the BFF with the token in an httpOnly
   `__Host-gp_sst` / `__Host-gp_tsst` cookie (≤ 60 s) and a `streamUrl` without it; the BFF puts it back into the

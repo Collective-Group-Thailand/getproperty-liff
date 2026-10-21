@@ -21,9 +21,9 @@ function isIpAddress(value: string): boolean {
 }
 
 /**
- * The end user's address as **our** edge saw it (review H2): load balancers and Cloud Run's front end *append* the
- * address they received the request from to `X-Forwarded-For`, so everything left of the entries they added is
- * whatever the client sent. With `trustedHops` proxies in front of this app, the client is the entry `trustedHops`
+ * The end user's address as **our** edge saw it (review H2): a reverse proxy *appends* the address it received the
+ * request from to `X-Forwarded-For`, so everything left of the entries it added is whatever the client sent (on the
+ * Collective platform, D-230, Caddy is the one proxy and even replaces an internet client's header: 1 hop). With `trustedHops` proxies in front of this app, the client is the entry `trustedHops`
  * from the right. 0 (no trusted proxy, local dev) or a header with fewer entries → unknown: nothing is forwarded.
  * `X-Real-IP` is never read (any client can send it).
  */

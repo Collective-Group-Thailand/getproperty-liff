@@ -44,7 +44,7 @@ export interface BffConfig {
   appOrigin?: string;
   /** Default body cap for routes without their own (`BODY_LIMITS`). */
   maxBodyBytes?: number;
-  /** Proxies in front of this app that append to `X-Forwarded-For` (Cloud Run: 1); 0 = forward no client address. */
+  /** Proxies in front of this app that append to `X-Forwarded-For` (Caddy on the platform: 1); 0 = forward none. */
   trustedHops?: number;
   now?: () => number;
   /** Extra headers for every upstream call (the mock scenario in mock builds). */

@@ -187,7 +187,7 @@ export const residentHandlers: HttpHandler[] = [
       number: lease.dto.number,
       sha256: MOCK_CONTRACT_SHA,
       signed: lease.dto.status !== "pending_signature",
-      url: `https://storage.example.com/contracts/${lease.dto.id}.pdf?X-Goog-Signature=mock`,
+      url: `https://storage.example.com/contracts/${lease.dto.id}.pdf?X-Amz-Signature=mock`,
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
     });
   }),
@@ -474,7 +474,7 @@ export const residentHandlers: HttpHandler[] = [
     return HttpResponse.json({
       id: document.id,
       title: document.title,
-      url: `https://storage.example.com/documents/${document.id}.pdf?X-Goog-Signature=mock`,
+      url: `https://storage.example.com/documents/${document.id}.pdf?X-Amz-Signature=mock`,
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
     });
   }),
