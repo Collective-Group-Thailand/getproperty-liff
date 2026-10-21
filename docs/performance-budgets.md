@@ -34,6 +34,24 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### Release fixes api `048a8bd` (2026-10-21, `pnpm lhci`, every set passes)
+
+Every URL is unchanged to the tenth of a KB: the D-226 "waiting for the office to confirm" card on home is
+server-rendered (its "check again" is a plain link), the session rotation for new scopes is a server redirect through
+the `/auth/rescope` route handler, and the slip reason is copy. `/profile` stays **at 180.0 KB** (nothing was added to the
+shell), the technician work order at 179.1 KB.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link` | 171.3, 171.3, 173.6, 173.5, 171.8 KB | 180 KB |
+| `resident` | `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 177.8, 174.7, 177.7, 174.4 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy` | **180.0**, 174.4 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>` | 170.0, 176.8, 175.4 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 171.0, 170.0, 172.5, 174.5, 177.1, 171.5, 176.4 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` | 169.2, 179.1 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.0–177.6, 171.8, 175.5, 167.8 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.4, 177.7 KB | 180 KB |
+
 ### Contract adoption api `18b160e` (2026-10-21, `pnpm lhci`, every set passes)
 
 | Set | URL | Initial JS | Budget |
