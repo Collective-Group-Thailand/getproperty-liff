@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -38,17 +38,20 @@ export function RulesAcknowledge({ leaseId, acknowledgedOn }: { leaseId: string;
         if (!read) return;
         setBusy(true);
         setError(null);
+        let leaving = false;
         try {
           unwrap(
             await browserApi.POST("/v1/resident/leases/{leaseId}/rules/acknowledge", {
               params: { path: { leaseId } },
             }),
           );
+          leaving = true;
           router.refresh();
         } catch (caught) {
-          if (!isApiError(caught)) throw caught;
-          setError(caught);
-          setBusy(false);
+          setError(toApiError(caught));
+        } finally {
+          // Stays busy only while the page re-renders with the acknowledgement (review M1).
+          if (!leaving) setBusy(false);
         }
       }}
     >

@@ -8,7 +8,7 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { RevealedCredentials } from "@/lib/api/types";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
@@ -50,8 +50,7 @@ export function MyCodes({ unitId }: { unitId: string }) {
             try {
               setCodes(unwrap(await browserApi.GET("/v1/resident/access/credentials")));
             } catch (caught) {
-              if (!isApiError(caught)) throw caught;
-              setError(caught);
+              setError(toApiError(caught));
             } finally {
               setBusy(false);
             }

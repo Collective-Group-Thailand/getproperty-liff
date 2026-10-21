@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ResidentLinked } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -31,29 +32,37 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
   const [error, setError] = useState<ApiError | null>(null);
   const [linked, setLinked] = useState<ResidentLinked | null>(null);
   const [busy, setBusy] = useState(false);
+  const attempt = useIdempotentAttempt<{ code: string }>();
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
     setBusy(true);
+    let result: ResidentLinked;
     try {
-      const result = unwrap(
-        await browserApi.POST("/v1/resident/link", {
-          body: { code: code.trim() },
-        }),
+      // One key per code: a retry after a lost answer replays the link instead of "code already used" (review M2).
+      const { key, body } = await attempt.prepare({ code: code.trim() }, () => ({ code: code.trim() }));
+      result = unwrap(
+        await browserApi.POST("/v1/resident/link", { params: { header: { "Idempotency-Key": key } }, body }),
       );
-      if (result.refreshRequired) await bffJson("/auth/refresh", { method: "POST" });
-      setLinked(result);
+      attempt.succeeded();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      if (caught.code === "consent.required") {
+      const problem = toApiError(caught);
+      attempt.failed(problem);
+      if (problem.code === "consent.required") {
         router.replace(`/consent?next=${encodeURIComponent(`/link?code=${encodeURIComponent(code.trim())}`)}`);
         return;
       }
-      setError(caught);
+      setError(problem);
+      return;
     } finally {
       setBusy(false);
     }
+    // The link is on file: show it whatever the session rotation does (review L3). The new `lease:` / `unit:` scopes
+    // are best-effort here; when this refresh fails, the resident layout's rescope guard renews the session on the
+    // next page (`/auth/rescope`), so a retry of the — now used — code is never needed.
+    setLinked(result);
+    if (result.refreshRequired) await bffJson("/auth/refresh", { method: "POST" }).catch(() => undefined);
   }
 
   if (linked) {

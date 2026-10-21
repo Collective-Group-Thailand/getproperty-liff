@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -42,6 +43,7 @@ export function BookingPicker({
   const [minutes, setMinutes] = useState(0);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const attempt = useIdempotentAttempt<Schemas["BookingCreateDto"]>();
   const [error, setError] = useState<ApiError | null>(null);
   const [done, setDone] = useState<Schemas["BookingDto"] | null>(null);
 
@@ -108,24 +110,30 @@ export function BookingPicker({
             setBusy(true);
             setError(null);
             try {
+              const request = {
+                facilityId,
+                unitId,
+                startsAt: slots[index]!.startsAt,
+                endsAt: chosen.endsAt,
+                note: note.trim() || null,
+              };
+              // One key per booking: a retry after a lost answer gets the booking, not 409 for my own slot (D-229).
+              const { key, body } = await attempt.prepare(request, () => request);
               const booking = unwrap(
                 await browserApi.POST("/v1/resident/facility-bookings", {
-                  body: {
-                    facilityId,
-                    unitId,
-                    startsAt: slots[index]!.startsAt,
-                    endsAt: chosen.endsAt,
-                    note: note.trim() || null,
-                  },
+                  params: { header: { "Idempotency-Key": key } },
+                  body,
                 }),
               );
+              attempt.succeeded();
               setDone(booking);
               setIndex(null);
               setNote("");
               router.refresh();
             } catch (caught) {
-              if (!isApiError(caught)) throw caught;
-              setError(caught);
+              const problem = toApiError(caught);
+              attempt.failed(problem);
+              setError(problem);
               router.refresh();
             } finally {
               setBusy(false);

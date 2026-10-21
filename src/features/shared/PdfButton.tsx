@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { openExternal } from "@/lib/liff/client";
 import { Button } from "@/ui/components/Button";
 import { IconExternal } from "@/ui/icons/glyphs/external";
@@ -53,8 +53,7 @@ export function PdfButton({
           try {
             await openExternal(new URL(await documentUrl(kind, id), window.location.href).toString());
           } catch (caught) {
-            if (!isApiError(caught)) throw caught;
-            setError(caught);
+            setError(toApiError(caught));
           } finally {
             setBusy(false);
           }

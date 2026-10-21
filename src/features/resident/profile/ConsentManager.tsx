@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { acceptLanguage, browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ConsentPurpose } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Badge } from "@/ui/components/Badge";
@@ -49,8 +49,7 @@ export function ConsentManager({
       setConfirm(null);
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      setError(toApiError(caught));
     } finally {
       setBusy(null);
     }

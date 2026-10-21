@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/routing";
 import { browserApi } from "@/lib/api/browser";
-import { signOut } from "@/lib/auth/client";
 
 import { SettingsMenuView } from "./SettingsMenuView";
 
@@ -26,6 +25,8 @@ export function SettingsMenu({ locale, signedIn }: { locale: Locale; signedIn: b
         router.refresh();
       }}
       onSignOut={async () => {
+        // Loaded on demand: sign-out is rare and the shell is at its JS budget (D-179).
+        const { signOut } = await import("@/lib/auth/signOut");
         await signOut();
         router.replace("/signed-out");
         router.refresh();

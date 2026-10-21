@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import type { ApiError } from "@/lib/api/problem";
+import { NETWORK_UNAVAILABLE, type ApiError } from "@/lib/api/problem";
 import { Callout } from "@/ui/components/Callout";
 import { ErrorState } from "@/ui/components/ErrorState";
 
@@ -10,6 +10,7 @@ import { ErrorState } from "@/ui/components/ErrorState";
  * BFF and network failures (`bff.*`, no body) get this app's copy instead.
  */
 function copyFor(error: ApiError, t: (key: string) => string) {
+  if (error.code === NETWORK_UNAVAILABLE) return { title: t("network.title"), body: t("network.body") };
   if (error.code === "bff.upstream_unavailable" || error.status === 503 || error.status === 502) {
     return { title: t("unavailable.title"), body: t("unavailable.body") };
   }

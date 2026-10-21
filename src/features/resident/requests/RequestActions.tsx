@@ -6,7 +6,7 @@ import { useId, useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
@@ -31,8 +31,7 @@ function useRun() {
       router.refresh();
       return true;
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      setError(toApiError(caught));
       return false;
     } finally {
       setBusy(false);

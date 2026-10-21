@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { DsrKind } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -79,8 +79,7 @@ export function DsrForm() {
           setSent(true);
           router.refresh();
         } catch (caught) {
-          if (!isApiError(caught)) throw caught;
-          setError(caught);
+          setError(toApiError(caught));
         } finally {
           setBusy(false);
         }

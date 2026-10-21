@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { openExternal } from "@/lib/liff/client";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -34,8 +34,7 @@ export function DocumentButton({ documentId, title }: { documentId: string; titl
             );
             await openExternal(download.url);
           } catch (caught) {
-            if (!isApiError(caught)) throw caught;
-            setError(caught);
+            setError(toApiError(caught));
           } finally {
             setBusy(false);
           }

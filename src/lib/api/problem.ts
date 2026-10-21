@@ -65,3 +65,24 @@ export function problemFromParsed(response: Response, error: unknown): ApiError 
   const body = error && typeof error === "object" ? (error as Record<string, unknown>) : {};
   return new ApiError(response.status, body, response.headers.get("x-request-id") ?? undefined);
 }
+
+/** The code of a call that never got an answer (dropped mobile data, LINE's in-app browser offline — review M1). */
+export const NETWORK_UNAVAILABLE = "network.unavailable";
+
+/** A request that failed before any HTTP answer, as an `ApiError` (status 0) the screens can show. */
+export const networkError = () => new ApiError(0, { code: NETWORK_UNAVAILABLE });
+
+/** `fetch` rejects with a `TypeError` when the network fails. */
+export const isNetworkFailure = (value: unknown) => value instanceof TypeError;
+
+/**
+ * Whatever a call threw, as an `ApiError` — so a catch block always has something to show and never rethrows past
+ * the `finally` that resets its busy state (review M1). A network failure becomes `network.unavailable`; anything
+ * else (a bug) is reported to the page's error handlers (Sentry) and shown as a generic failure.
+ */
+export function toApiError(caught: unknown): ApiError {
+  if (isApiError(caught)) return caught;
+  if (isNetworkFailure(caught)) return networkError();
+  globalThis.reportError?.(caught);
+  return new ApiError(0, { code: "client.unexpected" });
+}

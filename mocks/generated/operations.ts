@@ -3566,7 +3566,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
     method: "POST",
     path: "/v1/resident/facility-bookings",
     surface: "resident",
-    idempotent: false,
+    idempotent: true,
     success: {
       status: 201,
       contentType: "application/json",
@@ -3594,6 +3594,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 400,
           title: "คำขอไม่ถูกต้อง",
           type: "https://errors.getproperty.co/http.bad_request",
+        },
+      },
+      {
+        status: 400,
+        code: "idempotency.key_invalid",
+        example: {
+          code: "idempotency.key_invalid",
+          detail: "Idempotency-Key ต้องเป็น uuid",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 400,
+          title: "Idempotency-Key ไม่ถูกต้อง",
+          type: "https://errors.getproperty.co/idempotency.key_invalid",
         },
       },
       {
@@ -3669,6 +3681,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         },
       },
       {
+        status: 409,
+        code: "idempotency.in_progress",
+        example: {
+          code: "idempotency.in_progress",
+          detail: "คำขอที่ใช้ Idempotency-Key นี้ยังดำเนินการอยู่ กรุณาลองใหม่อีกครั้ง",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 409,
+          title: "คำขอกำลังดำเนินการ",
+          type: "https://errors.getproperty.co/idempotency.in_progress",
+        },
+      },
+      {
         status: 422,
         code: "facility.quota_exceeded",
         example: {
@@ -3678,6 +3702,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 422,
           title: "ครบโควตาการจองแล้ว",
           type: "https://errors.getproperty.co/facility.quota_exceeded",
+        },
+      },
+      {
+        status: 422,
+        code: "idempotency.key_reused",
+        example: {
+          code: "idempotency.key_reused",
+          detail: "Idempotency-Key นี้ถูกใช้แล้วกับคำขอที่มีเนื้อหาต่างกัน",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "Idempotency-Key ถูกใช้ซ้ำ",
+          type: "https://errors.getproperty.co/idempotency.key_reused",
         },
       },
       {
@@ -5481,7 +5517,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
     method: "POST",
     path: "/v1/resident/leases/{leaseId}/notice",
     surface: "resident",
-    idempotent: false,
+    idempotent: true,
     success: {
       status: 200,
       contentType: "application/json",
@@ -5540,6 +5576,30 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 400,
           title: "คำขอไม่ถูกต้อง",
           type: "https://errors.getproperty.co/http.bad_request",
+        },
+      },
+      {
+        status: 400,
+        code: "idempotency.key_invalid",
+        example: {
+          code: "idempotency.key_invalid",
+          detail: "Idempotency-Key ต้องเป็น uuid",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 400,
+          title: "Idempotency-Key ไม่ถูกต้อง",
+          type: "https://errors.getproperty.co/idempotency.key_invalid",
+        },
+      },
+      {
+        status: 400,
+        code: "idempotency.key_required",
+        example: {
+          code: "idempotency.key_required",
+          detail: "การดำเนินการนี้ต้องส่งส่วนหัว Idempotency-Key (uuid)",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 400,
+          title: "ต้องระบุ Idempotency-Key",
+          type: "https://errors.getproperty.co/idempotency.key_required",
         },
       },
       {
@@ -5604,6 +5664,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       },
       {
         status: 409,
+        code: "idempotency.in_progress",
+        example: {
+          code: "idempotency.in_progress",
+          detail: "คำขอที่ใช้ Idempotency-Key นี้ยังดำเนินการอยู่ กรุณาลองใหม่อีกครั้ง",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 409,
+          title: "คำขอกำลังดำเนินการ",
+          type: "https://errors.getproperty.co/idempotency.in_progress",
+        },
+      },
+      {
+        status: 409,
         code: "lease.invalid_state",
         example: {
           code: "lease.invalid_state",
@@ -5627,6 +5699,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 422,
           title: "ระยะเวลาแจ้งล่วงหน้าไม่พอ",
           type: "https://errors.getproperty.co/compliance.notice_period",
+        },
+      },
+      {
+        status: 422,
+        code: "idempotency.key_reused",
+        example: {
+          code: "idempotency.key_reused",
+          detail: "Idempotency-Key นี้ถูกใช้แล้วกับคำขอที่มีเนื้อหาต่างกัน",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "Idempotency-Key ถูกใช้ซ้ำ",
+          type: "https://errors.getproperty.co/idempotency.key_reused",
         },
       },
       {
@@ -11260,7 +11344,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
     method: "POST",
     path: "/v1/technician/work-orders/{workOrderId}/actions/complete",
     surface: "technician",
-    idempotent: false,
+    idempotent: true,
     success: {
       status: 200,
       contentType: "application/json",
@@ -11336,6 +11420,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         },
       },
       {
+        status: 400,
+        code: "idempotency.key_invalid",
+        example: {
+          code: "idempotency.key_invalid",
+          detail: "Idempotency-Key ต้องเป็น uuid",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 400,
+          title: "Idempotency-Key ไม่ถูกต้อง",
+          type: "https://errors.getproperty.co/idempotency.key_invalid",
+        },
+      },
+      {
         status: 401,
         code: "auth.unauthenticated",
         example: {
@@ -11385,6 +11481,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       },
       {
         status: 409,
+        code: "idempotency.in_progress",
+        example: {
+          code: "idempotency.in_progress",
+          detail: "คำขอที่ใช้ Idempotency-Key นี้ยังดำเนินการอยู่ กรุณาลองใหม่อีกครั้ง",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 409,
+          title: "คำขอกำลังดำเนินการ",
+          type: "https://errors.getproperty.co/idempotency.in_progress",
+        },
+      },
+      {
+        status: 409,
         code: "work_order.invalid_state",
         example: {
           code: "work_order.invalid_state",
@@ -11405,6 +11513,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 412,
           title: "ข้อมูลถูกเปลี่ยนแปลง",
           type: "https://errors.getproperty.co/concurrency.stale",
+        },
+      },
+      {
+        status: 422,
+        code: "idempotency.key_reused",
+        example: {
+          code: "idempotency.key_reused",
+          detail: "Idempotency-Key นี้ถูกใช้แล้วกับคำขอที่มีเนื้อหาต่างกัน",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "Idempotency-Key ถูกใช้ซ้ำ",
+          type: "https://errors.getproperty.co/idempotency.key_reused",
         },
       },
       {
@@ -11833,7 +11953,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
     method: "POST",
     path: "/v1/technician/work-orders/{workOrderId}/cost-lines",
     surface: "technician",
-    idempotent: false,
+    idempotent: true,
     success: {
       status: 201,
       contentType: "application/json",
@@ -11909,6 +12029,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         },
       },
       {
+        status: 400,
+        code: "idempotency.key_invalid",
+        example: {
+          code: "idempotency.key_invalid",
+          detail: "Idempotency-Key ต้องเป็น uuid",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 400,
+          title: "Idempotency-Key ไม่ถูกต้อง",
+          type: "https://errors.getproperty.co/idempotency.key_invalid",
+        },
+      },
+      {
         status: 401,
         code: "auth.unauthenticated",
         example: {
@@ -11958,6 +12090,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       },
       {
         status: 409,
+        code: "idempotency.in_progress",
+        example: {
+          code: "idempotency.in_progress",
+          detail: "คำขอที่ใช้ Idempotency-Key นี้ยังดำเนินการอยู่ กรุณาลองใหม่อีกครั้ง",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 409,
+          title: "คำขอกำลังดำเนินการ",
+          type: "https://errors.getproperty.co/idempotency.in_progress",
+        },
+      },
+      {
+        status: 409,
         code: "work_order.invalid_state",
         example: {
           code: "work_order.invalid_state",
@@ -11978,6 +12122,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 412,
           title: "ข้อมูลถูกเปลี่ยนแปลง",
           type: "https://errors.getproperty.co/concurrency.stale",
+        },
+      },
+      {
+        status: 422,
+        code: "idempotency.key_reused",
+        example: {
+          code: "idempotency.key_reused",
+          detail: "Idempotency-Key นี้ถูกใช้แล้วกับคำขอที่มีเนื้อหาต่างกัน",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "Idempotency-Key ถูกใช้ซ้ำ",
+          type: "https://errors.getproperty.co/idempotency.key_reused",
         },
       },
       {

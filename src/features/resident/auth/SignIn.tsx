@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
@@ -38,6 +38,7 @@ export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
     setInvalid(false);
     setError(null);
     setBusy(true);
+    let leaving = false;
     try {
       const challenge = unwrap(
         await browserApi.POST("/v1/auth/resident/otp/request", {
@@ -47,11 +48,13 @@ export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
       savePendingOtp({ ...challenge, phone: e164 });
       const params = new URLSearchParams({ c: challenge.challengeId });
       if (next !== "/") params.set("next", next);
+      leaving = true;
       router.push(`/auth/otp?${params.toString()}`);
     } catch (caught) {
-      if (isApiError(caught)) setError(caught);
-      else throw caught;
-      setBusy(false);
+      setError(toApiError(caught));
+    } finally {
+      // Stays busy only while the app moves on to the code screen (review M1).
+      if (!leaving) setBusy(false);
     }
   }
 

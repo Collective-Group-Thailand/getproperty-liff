@@ -6,7 +6,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ContractDownload, ResidentLease, SignatureOtp } from "@/lib/api/types";
 import { openExternal } from "@/lib/liff/client";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
@@ -71,7 +71,7 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
         try {
           setContract(unwrap(result));
         } catch (caught) {
-          if (isApiError(caught)) setError(caught);
+          setError(toApiError(caught));
         }
       });
     return () => {
@@ -124,8 +124,7 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
       setCode("");
       setNow(Date.now());
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      setError(toApiError(caught));
     } finally {
       setBusy(false);
     }
@@ -155,9 +154,9 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
       // back to the lease loads it fresh.
       setStep("done");
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
-      if (caught.code === "lease.contract_changed") {
+      const problem = toApiError(caught);
+      setError(problem);
+      if (problem.code === "lease.contract_changed") {
         // The office changed the document since it was opened: read the new one, sign again.
         setChallenge(null);
         setReachedEnd(false);
@@ -165,9 +164,9 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
         setContract(null);
         setStep("read");
         setContractRound((round) => round + 1);
-      } else if (caught.code === "auth.otp_invalid") {
+      } else if (problem.code === "auth.otp_invalid") {
         setCode("");
-      } else if (caught.code === "auth.otp_expired" || caught.code === "auth.otp_attempts_exceeded") {
+      } else if (problem.code === "auth.otp_expired" || problem.code === "auth.otp_attempts_exceeded") {
         setChallenge(null);
         setCode("");
       }

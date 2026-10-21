@@ -4,7 +4,9 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ACTIVE_LOCALES, LOCALES, type Locale } from "@/i18n/routing";
+import { NETWORK_UNAVAILABLE, toApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
+import { Callout } from "@/ui/components/Callout";
 import { SegmentedControl } from "@/ui/components/SegmentedControl";
 // eslint-disable-next-line no-restricted-imports -- this module is itself loaded on first open (SettingsMenuView, D-179)
 import { Sheet } from "@/ui/components/Sheet";
@@ -28,6 +30,9 @@ export default function SettingsSheet({ open, setOpen, locale, signedIn, onLangu
   const common = useTranslations("common");
   const { choice, choices, setChoice } = useTheme();
   const [busy, setBusy] = useState(false);
+  const errors = useTranslations("errors");
+  // "network" or "generic" — the copy of `errors.*` (the full ProblemCallout would reshape the shell's chunks, D-179).
+  const [error, setError] = useState<"network" | "generic" | null>(null);
 
   return (
     <Sheet open={open} onOpenChange={setOpen} title={t("menu.title")} closeLabel={common("close")}>
@@ -79,12 +84,29 @@ export default function SettingsSheet({ open, setOpen, locale, signedIn, onLangu
             loading={busy}
             onClick={async () => {
               setBusy(true);
-              await onSignOut();
+              setError(null);
+              let leaving = false;
+              try {
+                await onSignOut();
+                leaving = true;
+              } catch (caught) {
+                // No connection: the session is still there — say so and let the resident try again (review M1).
+                setError(toApiError(caught).code === NETWORK_UNAVAILABLE ? "network" : "generic");
+              } finally {
+                if (!leaving) setBusy(false);
+              }
             }}
             data-testid="sign-out"
           >
             {busy ? t("menu.signingOut") : t("menu.signOut")}
           </Button>
+        ) : null}
+        {error ? (
+          <div role="alert" data-testid="sign-out-error">
+            <Callout tone="danger" title={errors(`${error}.title`)}>
+              {errors(`${error}.body`)}
+            </Callout>
+          </div>
         ) : null}
       </div>
     </Sheet>

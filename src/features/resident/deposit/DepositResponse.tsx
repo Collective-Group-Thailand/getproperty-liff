@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { useCameraLabels } from "@/features/shared/useCameraLabels";
@@ -29,7 +29,9 @@ type Mode = "choose" | "accept" | "dispute";
 /**
  * The resident's answer to the proposed settlement (D-023): accept the refund the API proposes, or dispute it with
  * a reason and photos (`CameraCapture`; uploaded by presigned URL first, `POST /v1/resident/uploads`). Both POSTs carry an
- * `Idempotency-Key` kept for the attempt, so a retried tap never answers twice.
+ * `Idempotency-Key` per logical answer with its body frozen (review M2): a photo is uploaded once (its file id is
+ * cached), and a retry of the same reason and photos sends the same body under the same key, so a dropped answer
+ * never turns into `idempotency.key_reused` or a second answer.
  */
 export function DepositResponse({
   depositId,
@@ -51,19 +53,27 @@ export function DepositResponse({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [reasonMissing, setReasonMissing] = useState(false);
-  const [key, setKey] = useState(newIdempotencyKey);
+  const accept = useIdempotentAttempt<null>();
+  const dispute = useIdempotentAttempt<Schemas["ResidentDisputeDto"]>();
+  /** Photo (its preview URL) → uploaded file id, so a second attempt does not upload it again. */
+  const uploaded = useRef(new Map<string, string>());
 
   useEffect(() => () => photos.forEach((p) => URL.revokeObjectURL(p.url)), [photos]);
 
-  async function run(action: () => Promise<unknown>) {
+  async function run(attempt: { succeeded(): void; failed(error: unknown): void }, action: () => Promise<unknown>) {
     setBusy(true);
     setError(null);
     try {
       await action();
+      attempt.succeeded();
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      const problem = toApiError(caught);
+      attempt.failed(problem);
+      setError(problem);
+      // The answer may already be on file under another body: re-read the deposit (the page shows what the API has).
+      if (problem.code === "idempotency.key_reused") router.refresh();
+    } finally {
       setBusy(false);
     }
   }
@@ -84,13 +94,14 @@ export function DepositResponse({
             iconStart={IconCheckCircle}
             data-testid="deposit-accept-submit"
             onClick={() =>
-              void run(async () =>
+              void run(accept, async () => {
+                const { key } = await accept.prepare({ depositId, answer: "accept" }, () => null);
                 unwrap(
                   await browserApi.POST("/v1/resident/deposits/{depositId}/actions/accept", {
                     params: { path: { depositId }, header: { "Idempotency-Key": key } },
                   }),
-                ),
-              )
+                );
+              })
             }
           >
             {t("acceptSubmit")}
@@ -116,13 +127,21 @@ export function DepositResponse({
             return;
           }
           setReasonMissing(false);
-          void run(async () => {
-            const photoDocumentIds: string[] = [];
-            for (const photo of photos) {
-              const target = { purpose: "deposit_dispute", depositId } as const;
-              photoDocumentIds.push(await withRetry(() => uploadResidentPhoto(photo.file, target)));
-            }
-            const body: Schemas["ResidentDisputeDto"] = { reason: reason.trim(), photoDocumentIds };
+          void run(dispute, async () => {
+            const intent = { depositId, reason: reason.trim(), photos: photos.map((p) => p.url) };
+            const { key, body } = await dispute.prepare(intent, async () => {
+              const photoDocumentIds: string[] = [];
+              for (const photo of photos) {
+                let fileId = uploaded.current.get(photo.url);
+                if (!fileId) {
+                  const target = { purpose: "deposit_dispute", depositId } as const;
+                  fileId = await withRetry(() => uploadResidentPhoto(photo.file, target));
+                  uploaded.current.set(photo.url, fileId);
+                }
+                photoDocumentIds.push(fileId);
+              }
+              return { reason: reason.trim(), photoDocumentIds };
+            });
             unwrap(
               await browserApi.POST("/v1/resident/deposits/{depositId}/actions/dispute", {
                 params: { path: { depositId }, header: { "Idempotency-Key": key } },
@@ -142,7 +161,6 @@ export function DepositResponse({
             value={reason}
             onChange={(event) => {
               setReason(event.target.value);
-              setKey(newIdempotencyKey());
             }}
             data-testid="deposit-dispute-reason"
           />
@@ -160,7 +178,6 @@ export function DepositResponse({
             setPhotos((current) =>
               [...current, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))].slice(0, MAX_PHOTOS),
             );
-            setKey(newIdempotencyKey());
           }}
         />
         {photos.length ? (
@@ -184,7 +201,6 @@ export function DepositResponse({
                   onClick={() => {
                     URL.revokeObjectURL(photo.url);
                     setPhotos((current) => current.filter((p) => p.url !== photo.url));
-                    setKey(newIdempotencyKey());
                   }}
                 />
               </li>

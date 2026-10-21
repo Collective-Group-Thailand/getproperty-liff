@@ -9,7 +9,7 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { VISIT_PREFERENCES, type VisitPreference } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Field } from "@/ui/components/Field";
@@ -89,10 +89,10 @@ export function NewRequestForm({
       );
       router.push(`/requests/${created.id}?sent=1`);
     } catch (caught) {
+      setError(toApiError(caught));
+    } finally {
       setProgress(null);
       setBusy(false);
-      if (isApiError(caught)) setError(caught);
-      else throw caught;
     }
   }
 

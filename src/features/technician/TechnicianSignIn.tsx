@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatPhone } from "@/i18n/format";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { OtpChallenge } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -51,8 +51,7 @@ export function TechnicianSignIn({ lineHref, next }: { lineHref: string; next: s
       setChallenge({ ...sent, phone: e164 });
       setCode("");
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      setError(toApiError(caught));
     } finally {
       setBusy(false);
     }
@@ -62,19 +61,22 @@ export function TechnicianSignIn({ lineHref, next }: { lineHref: string; next: s
     if (!challenge || value.length !== 6) return;
     setBusy(true);
     setError(null);
+    let leaving = false;
     try {
       unwrap(
         await browserApi.POST("/v1/auth/technician/otp/verify", {
           body: { challengeId: challenge.challengeId, code: value },
         }),
       );
+      leaving = true;
       router.replace(next);
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      setError(toApiError(caught));
       setCode("");
-      setBusy(false);
+    } finally {
+      // Stays busy only while the app navigates on (review M1).
+      if (!leaving) setBusy(false);
     }
   }
 

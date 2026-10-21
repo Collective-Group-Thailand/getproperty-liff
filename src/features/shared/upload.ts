@@ -1,7 +1,7 @@
 "use client";
 
 import { browserApi, CSRF_HEADERS, unwrap } from "@/lib/api/browser";
-import { problemFromResponse } from "@/lib/api/problem";
+import { isNetworkFailure, networkError, problemFromResponse } from "@/lib/api/problem";
 import type { UploadContentType, UploadPresign } from "@/lib/api/types";
 import { compressImage } from "@/ui/lib/image";
 
@@ -37,12 +37,17 @@ export async function preparePhoto(
  */
 export async function putToPresigned(presign: Pick<UploadPresign, "uploadUrl" | "method" | "headers">, photo: Blob) {
   const sameOrigin = presign.uploadUrl.startsWith("/");
-  const response = await fetch(presign.uploadUrl, {
-    method: presign.method,
-    body: photo,
-    headers: { "content-type": photo.type || "image/jpeg", ...presign.headers, ...(sameOrigin ? CSRF_HEADERS : {}) },
-    credentials: sameOrigin ? "same-origin" : "omit",
-  });
+  let response: Response;
+  try {
+    response = await fetch(presign.uploadUrl, {
+      method: presign.method,
+      body: photo,
+      headers: { "content-type": photo.type || "image/jpeg", ...presign.headers, ...(sameOrigin ? CSRF_HEADERS : {}) },
+      credentials: sameOrigin ? "same-origin" : "omit",
+    });
+  } catch (caught) {
+    throw isNetworkFailure(caught) ? networkError() : caught;
+  }
   if (!response.ok) throw await problemFromResponse(response);
 }
 

@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
@@ -38,6 +39,7 @@ export function WorkOrderActions({
   const [error, setError] = useState<ApiError | null>(null);
   const [note, setNote] = useState("");
   const [noteFor, setNoteFor] = useState<"wait-parts" | "complete" | null>(null);
+  const completion = useIdempotentAttempt<{ note: string | null }>();
 
   async function run(action: FieldAction, done: string) {
     setBusy(action);
@@ -53,15 +55,25 @@ export function WorkOrderActions({
         unwrap(await browserApi.POST("/v1/technician/work-orders/{workOrderId}/actions/resume", path));
       if (action === "wait-parts")
         unwrap(await browserApi.POST("/v1/technician/work-orders/{workOrderId}/actions/wait-parts", { ...path, body }));
-      if (action === "complete")
-        unwrap(await browserApi.POST("/v1/technician/work-orders/{workOrderId}/actions/complete", { ...path, body }));
+      if (action === "complete") {
+        // Irreversible: one key per completion (note frozen), so a retry after a lost answer replays it (D-229).
+        const { key, body: frozen } = await completion.prepare({ workOrderId, note: body.note }, () => body);
+        unwrap(
+          await browserApi.POST("/v1/technician/work-orders/{workOrderId}/actions/complete", {
+            params: { path: { workOrderId }, header: { "Idempotency-Key": key } },
+            body: frozen,
+          }),
+        );
+        completion.succeeded();
+      }
       setNote("");
       setNoteFor(null);
       void toast.success(done);
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
+      const problem = toApiError(caught);
+      completion.failed(problem);
+      setError(problem);
     } finally {
       setBusy(null);
     }

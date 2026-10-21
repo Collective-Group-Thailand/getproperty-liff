@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
 import type { NotificationPreference } from "@/lib/api/types";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Checkbox } from "@/ui/components/Checkbox";
@@ -43,8 +43,7 @@ export function NotificationPreferences({ initial }: { initial: NotificationPref
           setItems(saved.items);
           toast.success(t("saved"));
         } catch (caught) {
-          if (!isApiError(caught)) throw caught;
-          setError(caught);
+          setError(toApiError(caught));
         } finally {
           setBusy(false);
         }

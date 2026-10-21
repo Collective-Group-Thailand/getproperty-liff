@@ -7,7 +7,7 @@ import { formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { newIdempotencyKey } from "@/lib/api/idempotency";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ServiceMessage } from "@/lib/api/types";
 import { MESSAGE_EVENT, onRealtime } from "@/lib/realtime/events";
 import { Button } from "@/ui/components/Button";
@@ -92,8 +92,7 @@ export function RequestThread({
         setLoadError(null);
       },
       (caught: unknown) => {
-        if (!isApiError(caught)) throw caught;
-        if (!cancelled) setLoadError(caught);
+        if (!cancelled) setLoadError(toApiError(caught));
       },
     );
     return () => {
@@ -164,8 +163,7 @@ export function RequestThread({
               setText("");
               setKey(newIdempotencyKey());
             } catch (caught) {
-              if (!isApiError(caught)) throw caught;
-              setError(caught);
+              setError(toApiError(caught));
             } finally {
               setBusy(false);
             }

@@ -7,8 +7,9 @@ import { useState } from "react";
 
 import { formatDate } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ResidentLease } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
@@ -44,6 +45,8 @@ export function NoticeForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [done, setDone] = useState<ResidentLease | null>(null);
+  /** One `Idempotency-Key` per notice (date + reason), its body frozen for retries (review M2, M4; D-229). */
+  const attempt = useIdempotentAttempt<{ effectiveDate: string; reason: string | null }>();
 
   if (done?.notice) {
     return (
@@ -66,22 +69,51 @@ export function NoticeForm({
     );
   }
 
+  /** After a refusal that may mean "already on file", the lease as the API has it — with the recorded notice. */
+  async function recordedNotice(): Promise<ResidentLease | null> {
+    try {
+      const current = unwrap(
+        await browserApi.GET("/v1/resident/leases/{leaseId}", { params: { path: { leaseId: lease.id } } }),
+      );
+      return current.notice?.by === "lessee" ? current : null;
+    } catch {
+      return null;
+    }
+  }
+
   async function submit() {
     setBusy(true);
     setError(null);
     try {
+      const intent = { leaseId: lease.id, effectiveDate: date, reason: reason.trim() || null };
+      const { key, body } = await attempt.prepare(intent, () => ({
+        effectiveDate: date,
+        reason: reason.trim() || null,
+      }));
       const result = unwrap(
         await browserApi.POST("/v1/resident/leases/{leaseId}/notice", {
-          params: { path: { leaseId: lease.id } },
-          body: { effectiveDate: date, reason: reason.trim() || null },
+          params: { path: { leaseId: lease.id }, header: { "Idempotency-Key": key } },
+          body,
         }),
       );
+      attempt.succeeded();
       setDone(result);
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
-      setConfirming(false);
+      const problem = toApiError(caught);
+      attempt.failed(problem);
+      // Review M4: the notice may be on file although this answer was lost — show the recorded notice, not an error.
+      const onFile =
+        problem.code === "lease.invalid_state" || problem.code === "idempotency.key_reused"
+          ? await recordedNotice()
+          : null;
+      if (onFile) {
+        setDone(onFile);
+        router.refresh();
+      } else {
+        setError(problem);
+        setConfirming(false);
+      }
     } finally {
       setBusy(false);
     }

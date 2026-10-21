@@ -100,7 +100,7 @@ export const OPERATIONS = [
     path: "/v1/resident/facility-bookings",
     idempotent: false,
   },
-  { operationId: "resident.community.book", method: "POST", path: "/v1/resident/facility-bookings", idempotent: false },
+  { operationId: "resident.community.book", method: "POST", path: "/v1/resident/facility-bookings", idempotent: true },
   {
     operationId: "resident.community.cancelBooking",
     method: "POST",
@@ -163,7 +163,7 @@ export const OPERATIONS = [
     operationId: "resident.leases.giveNotice",
     method: "POST",
     path: "/v1/resident/leases/{leaseId}/notice",
-    idempotent: false,
+    idempotent: true,
   },
   {
     operationId: "resident.leases.acknowledgeRules",
@@ -326,7 +326,7 @@ export const OPERATIONS = [
     operationId: "technician.workOrders.complete",
     method: "POST",
     path: "/v1/technician/work-orders/{workOrderId}/actions/complete",
-    idempotent: false,
+    idempotent: true,
   },
   {
     operationId: "technician.workOrders.resume",
@@ -344,7 +344,7 @@ export const OPERATIONS = [
     operationId: "technician.workOrders.addCost",
     method: "POST",
     path: "/v1/technician/work-orders/{workOrderId}/cost-lines",
-    idempotent: false,
+    idempotent: true,
   },
   {
     operationId: "technician.workOrders.messages",
@@ -374,8 +374,10 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/data-subject-requests",
   "POST /v1/resident/deposits/{depositId}/actions/accept",
   "POST /v1/resident/deposits/{depositId}/actions/dispute",
+  "POST /v1/resident/facility-bookings",
   "POST /v1/resident/invitations/{code}/accept",
   "POST /v1/resident/invoices/{invoiceId}/slips",
+  "POST /v1/resident/leases/{leaseId}/notice",
   "POST /v1/resident/leases/{leaseId}/rules/acknowledge",
   "POST /v1/resident/leases/{leaseId}/sign",
   "POST /v1/resident/link",
@@ -383,5 +385,7 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/service-requests",
   "POST /v1/resident/service-requests/{serviceRequestId}/messages",
   "POST /v1/resident/surveys/csat",
+  "POST /v1/technician/work-orders/{workOrderId}/actions/complete",
+  "POST /v1/technician/work-orders/{workOrderId}/cost-lines",
   "POST /v1/technician/work-orders/{workOrderId}/messages",
 ];

@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { LazyAlertDialog } from "@/ui/components/overlays";
 import { toast } from "@/ui/components/Toast";
@@ -61,8 +61,7 @@ export function CancelBooking({
             void toast.success(t("cancelled"));
             router.refresh();
           } catch (caught) {
-            if (!isApiError(caught)) throw caught;
-            setError(caught);
+            setError(toApiError(caught));
             setOpen(false);
           } finally {
             setBusy(false);

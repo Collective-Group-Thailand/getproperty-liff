@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ConsentPurpose } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Badge } from "@/ui/components/Badge";
@@ -57,6 +57,7 @@ export function ConsentForm({
     setMissing(false);
     setError(null);
     setBusy(true);
+    let leaving = false;
     try {
       unwrap(
         await browserApi.POST("/v1/resident/consents", {
@@ -66,12 +67,14 @@ export function ConsentForm({
           },
         }),
       );
+      leaving = true;
       router.replace(next);
       router.refresh();
     } catch (caught) {
-      if (!isApiError(caught)) throw caught;
-      setError(caught);
-      setBusy(false);
+      setError(toApiError(caught));
+    } finally {
+      // Stays busy only while the app navigates on (review M1).
+      if (!leaving) setBusy(false);
     }
   }
 

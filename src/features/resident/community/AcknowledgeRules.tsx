@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Checkbox } from "@/ui/components/Checkbox";
 import { toast } from "@/ui/components/Toast";
@@ -32,8 +32,7 @@ export function AcknowledgeRules({ unitId }: { unitId: string }) {
           void toast.success(t("done"));
           router.refresh();
         } catch (caught) {
-          if (!isApiError(caught)) throw caught;
-          setError(caught);
+          setError(toApiError(caught));
         } finally {
           setBusy(false);
         }

@@ -3,7 +3,7 @@
 import createClient from "openapi-fetch";
 
 import { needsIdempotencyKey, newIdempotencyKey } from "./idempotency";
-import { problemFromParsed, problemFromResponse, type ApiError } from "./problem";
+import { isNetworkFailure, networkError, problemFromParsed, problemFromResponse, type ApiError } from "./problem";
 import type { ApiPaths } from "./types";
 
 /**
@@ -39,6 +39,11 @@ browserApi.use({
     if (language && !request.headers.has("accept-language")) request.headers.set("accept-language", language);
     return request;
   },
+  // A dropped connection makes `fetch` reject with a TypeError: thrown as an `ApiError` (`network.unavailable`, status
+  // 0) so every screen's catch shows "No connection — try again" instead of an unhandled rejection (review M1).
+  onError({ error }) {
+    if (isNetworkFailure(error)) return networkError();
+  },
 });
 
 /** openapi-fetch result → data or a thrown `ApiError` (what TanStack Query expects from a query function). */
@@ -64,12 +69,17 @@ export async function bffJson<T>(
     headers.set("content-type", "application/json");
   }
   if (init.idempotencyKey) headers.set("idempotency-key", init.idempotencyKey);
-  const response = await fetch(`${BFF_BASE}${path}`, {
-    method,
-    headers,
-    credentials: "same-origin",
-    body: init.body === undefined ? undefined : JSON.stringify(init.body),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${BFF_BASE}${path}`, {
+      method,
+      headers,
+      credentials: "same-origin",
+      body: init.body === undefined ? undefined : JSON.stringify(init.body),
+    });
+  } catch (caught) {
+    throw isNetworkFailure(caught) ? networkError() : caught;
+  }
   if (!response.ok) throw await problemFromResponse(response);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Field } from "@/ui/components/Field";
@@ -33,6 +34,7 @@ export function CostLineForm({ workOrderId }: { workOrderId: string }) {
   const [invalid, setInvalid] = useState<{ description?: boolean; quantity?: boolean; price?: boolean }>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const attempt = useIdempotentAttempt<Schemas["CostLineCreateDto"]>();
 
   return (
     <form
@@ -51,20 +53,30 @@ export function CostLineForm({ workOrderId }: { workOrderId: string }) {
         setBusy(true);
         setError(null);
         try {
+          const line = {
+            kind,
+            description: description.trim(),
+            quantity: quantity.trim(),
+            unitPrice: unitPrice.trim(),
+          };
+          // One key per line typed: a retry after a lost answer never adds the money line twice (D-229).
+          const { key, body } = await attempt.prepare({ workOrderId, ...line }, () => line);
           unwrap(
             await browserApi.POST("/v1/technician/work-orders/{workOrderId}/cost-lines", {
-              params: { path: { workOrderId } },
-              body: { kind, description: description.trim(), quantity: quantity.trim(), unitPrice: unitPrice.trim() },
+              params: { path: { workOrderId }, header: { "Idempotency-Key": key } },
+              body,
             }),
           );
+          attempt.succeeded();
           setDescription("");
           setQuantity("1");
           setUnitPrice("");
           void toast.success(t("added"));
           router.refresh();
         } catch (caught) {
-          if (!isApiError(caught)) throw caught;
-          setError(caught);
+          const problem = toApiError(caught);
+          attempt.failed(problem);
+          setError(problem);
         } finally {
           setBusy(false);
         }

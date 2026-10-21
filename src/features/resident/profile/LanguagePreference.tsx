@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALES, type Locale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { isApiError, type ApiError } from "@/lib/api/problem";
+import { toApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Field } from "@/ui/components/Field";
 import { NativeSelect } from "@/ui/components/NativeSelect";
@@ -41,9 +41,8 @@ export function LanguagePreference({ current }: { current: Locale }) {
               document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax${secure}`;
               router.refresh();
             } catch (caught) {
-              if (!isApiError(caught)) throw caught;
               setValue(previous);
-              setError(caught);
+              setError(toApiError(caught));
             }
           }}
         />
