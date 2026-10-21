@@ -1,7 +1,12 @@
 {
   "title": "My work orders",
   "greeting": "Hello, {name}",
-  "body": "Work orders assigned to you will appear here. Signed in with your mobile number? The building's office first confirms that it is really you — ask them, then tap “Check for new work”.",
+  "body": "Work orders assigned to you will appear here. Tap “Check for new work” to look again.",
+  "pending": {
+    "title": "Waiting for the office to confirm you",
+    "body": "Your mobile number matches {count, plural, one {a record} other {# records}} a building's office entered. To keep things safe, the office first confirms that it is really you — your work orders appear here after that.",
+    "next": "Ask the office to confirm you, then tap “Check for new work”."
+  },
   "empty": "No work orders yet",
   "refresh": "Check for new work",
   "refreshed": "Up to date",

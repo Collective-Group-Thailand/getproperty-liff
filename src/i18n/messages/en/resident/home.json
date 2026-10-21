@@ -55,6 +55,12 @@
     "hidden": "Your bills, lease and door codes appear here once it is confirmed. Ask the office to confirm, then check again.",
     "check": "Check again",
     "invite": "Have an invitation code? It links your unit at once, with no wait.",
-    "more": "{count, plural, one {One more record waits} other {# more records wait}} for the building's office to confirm it is you before it appears here."
+    "more": "{count, plural, one {One more record waits} other {# more records wait}} for the building's office to confirm it is you before it appears here.",
+    "stillWaiting": "Not confirmed yet — the office has not decided. This page updates by itself as soon as they do."
+  },
+  "linkDeclined": {
+    "title": "The building's office did not confirm this sign-in",
+    "body": "The office declined to link your mobile number to the resident records it entered, so no unit was added to this account.",
+    "next": "If you live in this building, contact the building's office, or ask them for an invitation code — it links your unit at once."
   }
 }

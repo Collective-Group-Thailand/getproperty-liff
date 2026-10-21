@@ -1,7 +1,6 @@
-import { safeInternalPath } from "@/lib/liff/deepLink";
-
 import { clearedCookies, parseCookieHeader, SESSION_COOKIES, sessionCookies, type CookieToSet } from "./cookies";
 import { refreshRejected, refreshTokens } from "./refresh";
+import { RESCOPE_COOKIE, RESCOPE_MARKER_SECONDS } from "./scopes";
 
 /**
  * A party linked after the access token was issued (D-226: the Owner confirmed a phone match; also a move-in that
@@ -13,26 +12,7 @@ import { refreshRejected, refreshTokens } from "./refresh";
  *
  * Framework-free: the guard, the route handler and the tests share it.
  */
-export const RESCOPE_COOKIE = "gp_rescoped";
-/** Seconds the marker lives: one rotation per half minute at most. */
-export const RESCOPE_MARKER_SECONDS = 30;
-export const RESCOPE_PATH = "/auth/rescope";
-
-/** True when `/me` lists a unit or a lease the token's scopes do not cover yet. */
-export function scopesStale(me: {
-  scopes: readonly string[];
-  units: readonly { unitId: string }[];
-  leaseIds: readonly string[];
-}): boolean {
-  const held = new Set(me.scopes);
-  return (
-    me.units.some((unit) => !held.has(`unit:${unit.unitId}`)) || me.leaseIds.some((id) => !held.has(`lease:${id}`))
-  );
-}
-
-export function rescopePath(next: string): string {
-  return `${RESCOPE_PATH}?next=${encodeURIComponent(safeInternalPath(next))}`;
-}
+export { RESCOPE_COOKIE, RESCOPE_MARKER_SECONDS, RESCOPE_PATH, rescopePath, scopesStale } from "./scopes";
 
 /**
  * The rotation behind `/auth/rescope`: the session cookies to write (new pair; cleared when the API refuses the

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Due } from "@/features/resident/invoices/Due";
 import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { dueState, needsAttention, openFirst } from "@/features/resident/invoices/model";
+import { LINK_CHECK_ATTRIBUTE } from "@/features/resident/home/linkDecision";
+import { LinkPendingLazy } from "@/features/resident/home/LinkPendingLazy";
 import { LEASE_STATUS } from "@/domain/status/lease";
 import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
@@ -53,41 +55,59 @@ const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitl
 
 /**
  * D-226: the resident signed in with an SMS code and their phone matches parties the office entered — nothing is
- * linked until the landlord's Owner confirms who signed in, so there are no bills, lease or door codes yet. "Check
- * again" reloads the page: once confirmed, `/me` lists the unit and the resident layout rotates the session for its
- * scopes (`/auth/rescope`). An invitation code links at once (D-175). Server-rendered, no client JS.
+ * linked until the landlord's Owner confirms who signed in, so there are no bills, lease or door codes yet. The card
+ * follows the decision by itself (D-228, `LinkPendingWatch`, loaded on demand): the realtime `party.link_changed` on the resident's
+ * `user:` channel re-reads `/me` — confirmed → the session is rotated for the unit's scopes (`/auth/rescope`) and
+ * home shows the unit; declined → "the office declined" with the way forward (contact the office, an invitation
+ * code, D-175). "Check again" does the same on a tap and stays a plain reload without JavaScript.
  */
 async function LinkPending({ count }: { count: number }) {
   const t = await getTranslations("resident.home");
+  const invite = (
+    <Button asChild block variant="secondary" iconStart={IconKey}>
+      <Link href="/link">{t("noUnit.cta")}</Link>
+    </Button>
+  );
+  // Inserted in place of the waiting card when the office declines: the warning callout is an alert (announced).
+  const declined = (
+    <section aria-label={t("linkDeclined.title")} className="flex flex-col gap-3" data-testid="home-link-declined">
+      <Callout tone="warning" title={t("linkDeclined.title")}>
+        <p>{t("linkDeclined.body")}</p>
+        <p className="mt-2">{t("linkDeclined.next")}</p>
+      </Callout>
+      {invite}
+    </section>
+  );
   return (
-    <Card
-      as="section"
-      aria-labelledby="link-pending-title"
-      padding="lg"
-      className="bg-primary-subtle border-transparent"
-      data-testid="home-link-pending"
-    >
-      <h2 id="link-pending-title" className="text-primary-subtle-fg flex items-center gap-2 font-semibold">
-        <Icon icon={IconClock} />
-        {t("linkPending.title")}
-      </h2>
-      <p className="mt-2 text-sm">{t("linkPending.body", { count })}</p>
-      <p className="text-muted mt-2 text-sm">{t("linkPending.hidden")}</p>
-      <div className="mt-4 flex flex-col gap-2">
-        <Button asChild block iconStart={IconRefresh}>
-          {/* A full document load on purpose (not a client navigation): the layout re-reads /me and, once the link
-              is confirmed, redirects through the /auth/rescope route handler that rotates the session cookies. */}
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- see above */}
-          <a href="/" data-testid="home-link-pending-check">
-            {t("linkPending.check")}
-          </a>
-        </Button>
-        <p className="text-muted mt-2 text-sm">{t("linkPending.invite")}</p>
-        <Button asChild block variant="secondary" iconStart={IconKey}>
-          <Link href="/link">{t("noUnit.cta")}</Link>
-        </Button>
-      </div>
-    </Card>
+    <LinkPendingLazy pending={count} unitIds={[]} declined={declined} stillWaiting={t("linkPending.stillWaiting")}>
+      <Card
+        as="section"
+        aria-labelledby="link-pending-title"
+        padding="lg"
+        className="bg-primary-subtle border-transparent"
+        data-testid="home-link-pending"
+      >
+        <h2 id="link-pending-title" className="text-primary-subtle-fg flex items-center gap-2 font-semibold">
+          <Icon icon={IconClock} />
+          {t("linkPending.title")}
+        </h2>
+        <p className="mt-2 text-sm">{t("linkPending.body", { count })}</p>
+        <p className="text-muted mt-2 text-sm">{t("linkPending.hidden")}</p>
+        <div className="mt-4 flex flex-col gap-2">
+          <Button asChild block iconStart={IconRefresh}>
+            {/* A full document load without JavaScript (not a client navigation): the layout re-reads /me and, once
+                the link is confirmed, redirects through the /auth/rescope route handler that rotates the session
+                cookies. Hydrated, LinkPendingWatch reads /me in place first. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- see above */}
+            <a href="/" data-testid="home-link-pending-check" {...{ [LINK_CHECK_ATTRIBUTE]: "" }}>
+              {t("linkPending.check")}
+            </a>
+          </Button>
+          <p className="text-muted mt-2 text-sm">{t("linkPending.invite")}</p>
+          {invite}
+        </div>
+      </Card>
+    </LinkPendingLazy>
   );
 }
 
@@ -170,11 +190,15 @@ export async function ResidentHome({
       {unit ? (
         <>
           {me.linkRequestsPending > 0 ? (
-            <div data-testid="home-link-pending-more">
-              <Callout tone="info" icon={IconClock} className="text-sm">
-                {t("linkPending.more", { count: me.linkRequestsPending })}
-              </Callout>
-            </div>
+            // A decision on one of them (D-228) re-reads /me: a newly confirmed unit rotates the session, a declined
+            // record just leaves this note.
+            <LinkPendingLazy pending={me.linkRequestsPending} unitIds={me.units.map((u) => u.unitId)}>
+              <div data-testid="home-link-pending-more">
+                <Callout tone="info" icon={IconClock} className="text-sm">
+                  {t("linkPending.more", { count: me.linkRequestsPending })}
+                </Callout>
+              </div>
+            </LinkPendingLazy>
           ) : null}
           {entitlements.has("bills") ? (
             hero && heroState ? (

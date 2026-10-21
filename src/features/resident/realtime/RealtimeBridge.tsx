@@ -12,6 +12,9 @@ const REALTIME_EVENTS = [
   "payment.confirmed",
   "payment.failed",
   "payment.reversed",
+  // D-228 (LIFF #30): a transfer of mine is held for the office / the office dismissed it — the pay sheet refetches.
+  "payment.held",
+  "payment.dismissed",
   "invoice.issued",
   "invoice.paid",
   "invoice.partially_paid",
@@ -25,6 +28,8 @@ const REALTIME_EVENTS = [
   "slip.reviewed",
   "notification.created",
   "consent.changed",
+  // D-228 (LIFF #31): the office confirmed or declined my phone-match link request (my `user:` channel).
+  "party.link_changed",
   // L4 (B5): the resident's requests, parcels, bookings and door codes.
   "service_request.created",
   "service_request.changed",

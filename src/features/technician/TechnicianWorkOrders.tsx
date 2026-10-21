@@ -7,9 +7,11 @@ import { formatDate } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import type { TechnicianMe } from "@/lib/api/types";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
+import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
+import { IconClock } from "@/ui/icons/glyphs/clock";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
 import { groupWorkOrders, type WorkOrder } from "./model";
@@ -62,7 +64,9 @@ async function Item({ item, locale }: { item: WorkOrder; locale: Locale }) {
 /**
  * "My work orders" (L4 4.4 §2, A4.3): today's visits first, then the next ones, the unscheduled and the finished
  * ones (until the owner verifies them). A work order assigned after sign-in arrives with the next token (D-210):
- * "check for new work" rotates the technician session and reloads.
+ * "check for new work" rotates the technician session and reloads. A technician signed in by SMS whose phone match
+ * still waits for the office (`linkRequestsPending`, D-226, D-228) sees "waiting for the office to confirm you"
+ * instead of the empty list.
  */
 export async function TechnicianWorkOrders({
   me,
@@ -77,6 +81,8 @@ export async function TechnicianWorkOrders({
 }) {
   const t = await getTranslations("technician.workOrders");
   const groups = groupWorkOrders(items, now);
+  // D-226 / LIFF #29: signed in by SMS, matched to parties the office has not confirmed yet — not "no work yet".
+  const waiting = items.length === 0 && me.workOrderIds.length === 0 && me.linkRequestsPending > 0;
   const sections = [
     ["today", groups.today],
     ["upcoming", groups.upcoming],
@@ -89,8 +95,26 @@ export async function TechnicianWorkOrders({
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("greeting", { name: me.user.displayName })}</p>
       </div>
+      {waiting ? (
+        <Card
+          as="section"
+          aria-labelledby="technician-pending-title"
+          padding="lg"
+          className="bg-primary-subtle border-transparent"
+          data-testid="technician-link-pending"
+        >
+          <h2 id="technician-pending-title" className="text-primary-subtle-fg flex items-center gap-2 font-semibold">
+            <Icon icon={IconClock} />
+            {t("pending.title")}
+          </h2>
+          <p className="mt-2 text-sm">{t("pending.body", { count: me.linkRequestsPending })}</p>
+          <p className="text-muted mt-2 text-sm">{t("pending.next")}</p>
+        </Card>
+      ) : null}
       <RefreshWork />
-      {items.length === 0 ? <EmptyState icon={IconTicket} title={t("empty")} description={t("body")} /> : null}
+      {items.length === 0 && !waiting ? (
+        <EmptyState icon={IconTicket} title={t("empty")} description={t("body")} />
+      ) : null}
       {sections.map(([key, list]) =>
         list.length ? (
           <section key={key} aria-labelledby={`wo-${key}`} className="flex flex-col gap-2">

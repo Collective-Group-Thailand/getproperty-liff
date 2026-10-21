@@ -24,6 +24,21 @@ describe("realtime → query invalidation", () => {
     ]);
   });
 
+  it("refetches the pay sheet on a held / dismissed transfer and /me on a link decision (D-228)", () => {
+    for (const type of ["payment.held", "payment.dismissed"])
+      expect(queriesFor(type)).toEqual([
+        ["resident", "payments"],
+        ["resident", "invoices"],
+        ["resident", "receipts"],
+      ]);
+    // The pending card re-reads /me itself (LinkPendingWatch): nothing cached to drop, no page refresh.
+    expect(queriesFor("party.link_changed")).toEqual([]);
+    // `/me` is server-rendered only: nothing cached to drop for these either.
+    expect(queriesFor("consent.changed")).toEqual([]);
+    expect(queriesFor("lease.signed")).toEqual([]);
+    expect(routesFor("party.link_changed")).toEqual([]);
+  });
+
   it("refreshes the server-rendered R2 screens an event touches (L4)", () => {
     expect(routesFor("service_request.changed")).toEqual(["/requests", "/"]);
     expect(routesFor("parcel.received")).toContain("/parcels");

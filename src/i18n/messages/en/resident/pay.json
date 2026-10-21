@@ -34,6 +34,10 @@
     "scan": "Open your banking app, choose scan, and pick the QR from your photos.",
     "back": "Come back here — we confirm the payment by ourselves."
   },
+  "checking": {
+    "title": "The office is checking your transfer",
+    "body": "We received {count, plural, one {a transfer} other {# transfers}} for this bill on {since} that the building's office needs to check. Please wait before paying again — this screen updates by itself once the office decides."
+  },
   "waitingShort": "Waiting for payment",
   "waiting": "Waiting for your payment — this screen updates by itself when the money arrives.",
   "noQrTitle": "Pay by bank transfer",

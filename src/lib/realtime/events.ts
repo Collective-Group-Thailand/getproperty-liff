@@ -12,8 +12,8 @@ export function queriesFor(type: string): readonly (readonly string[])[] {
   if (type.startsWith("receipt.") || type.startsWith("tax_invoice.")) return [qk.resident.receipts()];
   if (type.startsWith("slip.")) return [qk.resident.allSlips(), qk.resident.invoices(), qk.resident.payments()];
   if (type.startsWith("notification.")) return [qk.resident.notifications()];
-  if (type === "consent.changed" || type.startsWith("occupancy.") || type.startsWith("lease."))
-    return [qk.resident.me()];
+  // `/me` is read on the server only (the layout, the guards), so `consent.changed`, `occupancy.*`, `lease.*` and
+  // `party.link_changed` (D-228 — the pending card re-reads `/me` itself) have no client query to drop.
   return [];
 }
 

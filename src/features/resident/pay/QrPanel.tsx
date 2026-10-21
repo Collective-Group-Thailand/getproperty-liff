@@ -113,6 +113,20 @@ export function QrPanel({
         ) : null}
       </div>
 
+      {payment.checking ? (
+        // D-220 / D-228 (LIFF #30): a transfer of mine for this bill looks like one already booked and waits for the
+        // office. Only a hint — the bill (`due`, its status) still decides; `payment.held` / `payment.dismissed`
+        // refetch this. Never the amount, the reason or the payment it may repeat (the API does not send them).
+        <div data-testid="pay-checking" data-count={payment.checking.count}>
+          <Callout tone="warning" title={t("checking.title")}>
+            {t("checking.body", {
+              count: payment.checking.count,
+              since: formatDateTime(payment.checking.since, locale),
+            })}
+          </Callout>
+        </div>
+      ) : null}
+
       {qr ? (
         <>
           <div className="relative">
