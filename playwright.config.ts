@@ -29,6 +29,9 @@ const phone = {
   screen: { width: 360, height: 780 },
 };
 
+/** Must match e2e/brand.spec.ts. */
+const RUNTIME_LIFF_ID = "2000000000-e2eRuntime";
+
 export default defineConfig({
   testDir: "./e2e",
   testIgnore: ["integration/**"],
@@ -45,14 +48,17 @@ export default defineConfig({
   // The project is called chromium like getproperty-web's, so `pnpm e2e` reads the same in both repos.
   projects: [{ name: "chromium", use: { ...phone, browserName: "chromium" } }],
   webServer: {
-    // A production build locally as well as in CI: the pages must be tested as they ship.
-    command: `pnpm build && pnpm start -p ${PORT}`,
+    // A production build locally as well as in CI: the pages must be tested as they ship. The LIFF id is given to the
+    // server only, after the build (D-230: run-time public settings; e2e/brand.spec.ts checks it reaches the page
+    // and no script).
+    command: `pnpm build && NEXT_PUBLIC_LIFF_ID=${RUNTIME_LIFF_ID} pnpm start -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
     env: {
       ...process.env,
       NEXT_PUBLIC_LIFF_MOCK: "1",
+      NEXT_PUBLIC_LIFF_ID: "",
       API_MOCKS: "1",
       API_INTERNAL_URL: "",
       // L4: the technician screens are on in this suite (their guard and the BFF prefixes are unit-tested with the

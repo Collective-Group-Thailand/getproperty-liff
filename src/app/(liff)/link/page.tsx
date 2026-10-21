@@ -25,7 +25,7 @@ export default async function LinkPage({
   const self = code ? `/link?code=${encodeURIComponent(code)}` : "/link";
   await requireResident({ path: self });
   return (
-    <ResidentShell active={null} chrome="minimal">
+    <ResidentShell active={null} chrome="entry">
       <LinkInvitation initialCode={code} />
     </ResidentShell>
   );

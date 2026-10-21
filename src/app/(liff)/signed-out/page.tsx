@@ -15,7 +15,7 @@ export async function generateMetadata() {
 export default async function SignedOutPage() {
   const t = await getTranslations("resident.auth.signedOut");
   return (
-    <ResidentShell active={null} chrome="minimal">
+    <ResidentShell active={null} chrome="entry">
       <div className="py-10" data-testid="signed-out">
         <EmptyState
           icon={IconCheckCircle}

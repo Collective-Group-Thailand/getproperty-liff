@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { isLocale } from "@/i18n/routing";
 import type { ResidentEntitlement } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
-import { clientEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/env";
 import type { NavItem } from "@/ui/components/AppShell";
 import { Icon, type IconGlyph } from "@/ui/icons";
 import { IconBill } from "@/ui/icons/glyphs/bill";
@@ -32,8 +32,9 @@ export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph;
 
 /**
  * The resident app frame, from `/v1/resident/me`: unit code + building name in the header (with the switcher
- * for several occupancies), settings, and the bottom nav from the entitlements. `chrome="minimal"` (sign-in,
- * consent, linking, errors) keeps only the wordmark and settings.
+ * for several occupancies), settings, and the bottom nav from the entitlements. `chrome="minimal"` (errors) keeps
+ * only the logo and settings; `chrome="entry"` (sign-in, the SMS code, the LINE entry, consent, linking, signed out)
+ * shows the full logo above the content instead of in the top bar.
  */
 export async function ResidentShell({
   active,
@@ -41,7 +42,7 @@ export async function ResidentShell({
   children,
 }: {
   active: ResidentNavKey | null;
-  chrome?: "full" | "minimal";
+  chrome?: "full" | "minimal" | "entry";
   children: React.ReactNode;
 }) {
   const [t, nav, actor, current] = await Promise.all([
@@ -63,7 +64,8 @@ export async function ResidentShell({
       }))
     : [];
 
-  const badge = clientEnv().NEXT_PUBLIC_ENV_BADGE;
+  // Read at run time (the same image runs in UAT and production, D-230).
+  const badge = serverEnv().NEXT_PUBLIC_ENV_BADGE;
 
   return (
     <ResidentShellView
@@ -71,6 +73,7 @@ export async function ResidentShell({
       navLabel={t("bottomNav")}
       navItems={items}
       envBadge={badge ? t("envBadge", { name: badge }) : undefined}
+      brand={chrome === "entry" ? "hero" : "header"}
       unit={
         signedIn && actor.unit && chrome === "full" ? (
           <UnitSwitcher

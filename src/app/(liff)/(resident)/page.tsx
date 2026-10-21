@@ -3,7 +3,7 @@ import { bangkokToday } from "@/features/resident/invoices/model";
 import { ResidentHome } from "@/features/resident/home/ResidentHome";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { getActor } from "@/lib/auth/actor";
-import { clientEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/env";
 import { serverApi } from "@/lib/api/server";
 import type { InboxItem } from "@/lib/api/types";
 
@@ -35,7 +35,7 @@ export default async function HomePage() {
         openInvoices={open.data ?? null}
         notifications={notifications}
         today={bangkokToday()}
-        vapidKey={clientEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
       />
     </ResidentShell>
   );

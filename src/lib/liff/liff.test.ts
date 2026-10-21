@@ -9,6 +9,10 @@ import type { LiffExchange, LiffStepName, LiffStepState } from "./types";
 
 const ok: LiffExchange = async () => ({ ok: true });
 
+afterEach(() => {
+  delete document.documentElement.dataset.liffId;
+});
+
 describe("createFakeLiff", () => {
   it("behaves like the SDK inside LINE by default and records calls", async () => {
     const liff = createFakeLiff();
@@ -242,7 +246,7 @@ describe("client", () => {
   it("initialises the SDK first on pages other than the LIFF entry (a reloaded /lease)", async () => {
     const fake = createFakeLiff();
     setLiffForTesting(fake);
-    vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "1234567890-abcdefgh");
+    document.documentElement.dataset.liffId = "1234567890-abcdefgh"; // server-rendered by the root layout
     await openExternal("https://storage.example.com/lease.pdf");
     vi.unstubAllEnvs();
     expect(fake.initialised).toBe(true);
@@ -253,7 +257,7 @@ describe("client", () => {
     const message = [{ type: "text" as const, text: "ใบเสร็จ RCP-2026-00001" }];
     const inside = createFakeLiff();
     setLiffForTesting(inside);
-    vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "1234567890-abcdefgh");
+    document.documentElement.dataset.liffId = "1234567890-abcdefgh"; // server-rendered by the root layout
     expect(await shareToLine(message)).toBe("sent");
     expect(inside.shared).toEqual([message]);
     expect(await inLineClient()).toBe(true);
@@ -270,5 +274,18 @@ describe("client", () => {
     setLiffForTesting(createFakeLiff({ failInit: "boom" }));
     expect(await shareToLine(message)).toBe("unavailable");
     vi.unstubAllEnvs();
+  });
+});
+
+describe("run-time LIFF id (D-230)", () => {
+  it("comes from the server-rendered <html data-liff-id>, not from the bundle", async () => {
+    const { liffId } = await import("./client");
+    const { liffUrl } = await import("./links");
+    expect(liffId()).toBeUndefined();
+    document.documentElement.dataset.liffId = "2000000000-uatChannel";
+    expect(liffId()).toBe("2000000000-uatChannel");
+    expect(liffUrl("/receipts/r1", liffId())).toBe("https://liff.line.me/2000000000-uatChannel/receipts/r1");
+    expect(liffUrl("/", "2000000001-prodChannel")).toBe("https://liff.line.me/2000000001-prodChannel");
+    expect(liffUrl("/invoices", undefined)).toBe("/liff?liff.state=%2Finvoices");
   });
 });

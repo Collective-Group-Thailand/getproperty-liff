@@ -7,7 +7,7 @@ import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
-import { clientEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/env";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.invoices.detail");
@@ -40,7 +40,7 @@ export default async function InvoicePage({
           locale={locale}
           today={bangkokToday()}
           autoPay={query.pay === "1"}
-          vapidKey={clientEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+          vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
         />
       ) : (
         <ProblemPage error={loaded.error} />

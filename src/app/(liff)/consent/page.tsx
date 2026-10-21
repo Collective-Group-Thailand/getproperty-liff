@@ -35,7 +35,7 @@ export default async function ConsentPage({
   const failure = actor.status === "error" ? actor.error : !data ? problemFromParsed(response, error) : null;
 
   return (
-    <ResidentShell active={null} chrome="minimal">
+    <ResidentShell active={null} chrome="entry">
       {failure || !data ? (
         <ProblemPage error={failure!} />
       ) : (

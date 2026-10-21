@@ -21,7 +21,7 @@ export default async function OtpPage({
   const challenge = typeof params.c === "string" && UUID.test(params.c) ? params.c : null;
   const next = safeInternalPath(typeof params.next === "string" ? params.next : null);
   return (
-    <ResidentShell active={null} chrome="minimal">
+    <ResidentShell active={null} chrome="entry">
       <OtpVerifyClient challengeFromUrl={challenge} next={next} />
     </ResidentShell>
   );

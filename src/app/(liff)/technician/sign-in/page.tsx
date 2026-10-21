@@ -5,6 +5,7 @@ import { TechnicianShell } from "@/features/technician/TechnicianShell";
 import { TechnicianSignIn } from "@/features/technician/TechnicianSignIn";
 import { getTechnician } from "@/lib/auth/actor";
 import { safeInternalPath } from "@/lib/liff/deepLink";
+import { serverEnv } from "@/lib/env";
 import { liffUrl } from "@/lib/liff/links";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +26,8 @@ export default async function TechnicianSignInPage({
   const next = wanted.startsWith("/technician") ? wanted : "/technician";
   if ((await getTechnician()).status === "signed-in") redirect(next);
   return (
-    <TechnicianShell>
-      <TechnicianSignIn next={next} lineHref={liffUrl(next)} />
+    <TechnicianShell entry>
+      <TechnicianSignIn next={next} lineHref={liffUrl(next, serverEnv().NEXT_PUBLIC_LIFF_ID)} />
     </TechnicianShell>
   );
 }

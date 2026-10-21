@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { shareToLine } from "@/lib/liff/client";
+import { liffId, shareToLine } from "@/lib/liff/client";
 import { liffUrl } from "@/lib/liff/links";
 import { Button } from "@/ui/components/Button";
 import { IconChat } from "@/ui/icons/glyphs/chat";
@@ -32,7 +32,7 @@ export function ShareReceipt({
   const [outcome, setOutcome] = useState<Outcome>("idle");
 
   async function share() {
-    const link = new URL(liffUrl(`/receipts/${receiptId}`), window.location.href).toString();
+    const link = new URL(liffUrl(`/receipts/${receiptId}`, liffId()), window.location.href).toString();
     const text = t("text", { number, amount, issuer, link });
     const viaLine = await shareToLine([{ type: "text", text }]);
     if (viaLine === "sent") return setOutcome("sent");

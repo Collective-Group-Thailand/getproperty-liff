@@ -1,15 +1,20 @@
 /**
- * Browser error reporting (L1 1.3 §5): Sentry only when `NEXT_PUBLIC_SENTRY_DSN` is set at build time, loaded
- * lazily so a build without it ships none of the SDK (the 150 KB initial-JS budget), and scrubbed — no cookies,
- * query strings, bodies or user. Its ingest origin is added to the CSP `connect-src` by the proxy.
+ * Browser error reporting (L1 1.3 §5): Sentry only when a DSN is configured, loaded lazily so a deployment without
+ * one ships none of the SDK (the initial-JS budget), and scrubbed — no cookies, query strings, bodies or user. Its
+ * ingest origin is added to the CSP `connect-src` by the proxy.
+ *
+ * The DSN and the environment are run-time values (D-230: one image for every environment): the root layout renders
+ * them from the server's environment onto `<html data-sentry-dsn data-env>`.
  */
-const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+import { publicConfig } from "@/lib/publicConfig";
+
+const { sentryDsn: dsn, env } = publicConfig();
 
 if (dsn) {
   void Promise.all([import("@sentry/nextjs"), import("@/lib/observability/scrub")]).then(([Sentry, { scrubEvent }]) => {
     Sentry.init({
       dsn,
-      environment: process.env.NEXT_PUBLIC_ENV_BADGE || "production",
+      environment: env || "production",
       tracesSampleRate: 0,
       beforeSend: (event) => scrubEvent(event),
       beforeBreadcrumb: (crumb) => {

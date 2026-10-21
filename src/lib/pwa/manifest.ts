@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
 
 import { BRAND_NAME } from "@/ui/brand/config";
+import { LOGO_COLOURS } from "@/ui/brand/geometry";
 import { oklchToHex } from "@/ui/tokens/color";
 import { THEMES } from "@/ui/tokens/semantic";
 
 /**
  * The web app manifest (PWA-ready: installable from the browser outside LINE, `standalone` with the
- * brand mark). Colours come from the tokens so they follow the brand kit when it lands (D-100). L1
+ * founder's app icon — `public/icons/*`, copies of getproperty-web's `pnpm brand` output). The theme colour is the
+ * logo's house blue (as `<meta name="theme-color">`), the background the light page paper from the tokens. L1
  * adds the service worker (app-shell caching only — invoices are never cached offline).
  */
 export function residentManifest(): MetadataRoute.Manifest {
@@ -22,7 +24,7 @@ export function residentManifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     background_color: oklchToHex(THEMES.light.bg),
-    theme_color: oklchToHex(THEMES.light.primary),
+    theme_color: LOGO_COLOURS.blue,
     categories: ["lifestyle", "utilities"],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

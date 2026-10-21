@@ -123,3 +123,14 @@ export const English: Story = {
 export const WithEnvironmentBadge: Story = {
   args: { ...SignedIn.args, envBadge: "สภาพแวดล้อม uat" },
 };
+
+/** Sign-in, the SMS code, consent, the LINE entry: the full logo above the content, none in the top bar. */
+export const Entry: Story = {
+  args: { ...SignedOut.args, brand: "hero" },
+};
+
+/** The founder's white version in the dark theme (the `logo-*` tokens). */
+export const EntryDark: Story = {
+  args: Entry.args,
+  globals: { theme: "dark" },
+};

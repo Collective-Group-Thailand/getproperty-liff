@@ -8,7 +8,7 @@ import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import type { InvoiceView } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
-import { clientEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/env";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.invoices.list");
@@ -47,7 +47,7 @@ export default async function InvoicesPage({
           locale={locale}
           today={bangkokToday()}
           showUnit={showUnit}
-          vapidKey={clientEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+          vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
         />
       )}
     </ResidentShell>

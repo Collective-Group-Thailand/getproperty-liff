@@ -26,11 +26,11 @@ export async function proxy(request: NextRequest) {
   const csp = contentSecurityPolicy({
     nonce,
     dev: process.env.NODE_ENV !== "production",
-    extraConnect: [
-      originOf(process.env.NEXT_PUBLIC_ASSET_BASE_URL),
-      originOf(process.env.NEXT_PUBLIC_SENTRY_DSN),
-    ].filter((o): o is string => !!o),
-    extraImg: [originOf(process.env.NEXT_PUBLIC_ASSET_BASE_URL)].filter((o): o is string => !!o),
+    // Run-time values (D-230: the same image in every environment).
+    extraConnect: [originOf(env.NEXT_PUBLIC_ASSET_BASE_URL), originOf(env.NEXT_PUBLIC_SENTRY_DSN)].filter(
+      (o): o is string => !!o,
+    ),
+    extraImg: [originOf(env.NEXT_PUBLIC_ASSET_BASE_URL)].filter((o): o is string => !!o),
   });
 
   const requestHeaders = new Headers(request.headers);

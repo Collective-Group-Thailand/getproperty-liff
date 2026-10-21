@@ -12,7 +12,7 @@ export async function generateMetadata() {
 /** The LIFF endpoint URL registered in the LINE Developers console (`https://<host>/liff`). */
 export default function LiffEntryPage() {
   return (
-    <ResidentShell active={null} chrome="minimal">
+    <ResidentShell active={null} chrome="entry">
       <LiffEntry technicianEnabled={technicianEnabled()} />
     </ResidentShell>
   );

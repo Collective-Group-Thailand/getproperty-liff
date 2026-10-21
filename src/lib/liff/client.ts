@@ -1,3 +1,5 @@
+import { publicConfig } from "@/lib/publicConfig";
+
 import type { LiffClient, LiffTextMessage } from "./types";
 
 /**
@@ -27,9 +29,12 @@ export function isLiffMocked(): boolean {
   return process.env.NEXT_PUBLIC_LIFF_MOCK === "1";
 }
 
-/** The LIFF app id from the LINE Developers console; a fixed stand-in when mocked. */
+/**
+ * The LIFF app id from the LINE Developers console — read at run time from the server-rendered `<html data-liff-id>`
+ * (D-230: the same image runs in UAT and production, each with its own LINE channel); a fixed stand-in when mocked.
+ */
 export function liffId(): string | undefined {
-  return process.env.NEXT_PUBLIC_LIFF_MOCK === "1" ? "0000000000-mock" : process.env.NEXT_PUBLIC_LIFF_ID || undefined;
+  return process.env.NEXT_PUBLIC_LIFF_MOCK === "1" ? "0000000000-mock" : publicConfig().liffId;
 }
 
 /**
