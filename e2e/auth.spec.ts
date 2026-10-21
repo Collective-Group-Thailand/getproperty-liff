@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { expectAxeClean, expectNoHorizontalScroll, seedSession, sessionCookieNames, subject } from "./support";
+import {
+  expectAxeClean,
+  expectNoHorizontalScroll,
+  mockOwnerConfirmsLink,
+  seedSession,
+  sessionCookieNames,
+  subject,
+} from "./support";
 
 /**
  * L1 1.2 — signing in outside LINE (SMS code / magic link, D-060), guards, sign-out, and the audience boundary:
@@ -32,7 +39,10 @@ test.describe("outside LINE", () => {
     await line.close();
   });
 
-  test("signs in with an SMS code: wrong code → tries left, right code → home", async ({ page }) => {
+  test("signs in with an SMS code: wrong code → tries left, right code → waits for the Owner (D-226) → home", async ({
+    page,
+    context,
+  }) => {
     await page.goto("/auth?next=%2F");
     await page.getByLabel("เบอร์มือถือ").fill("0810001234");
     await page.getByTestId("send-code").click();
@@ -46,7 +56,41 @@ test.describe("outside LINE", () => {
 
     await page.getByLabel("หลักที่ 1").pressSequentially("123456");
     await expect(page.getByTestId("resident-home")).toBeVisible();
+    // D-226: the phone matches a party the office entered — nothing is linked until the landlord's Owner confirms.
+    await expect(page.getByTestId("home-link-pending")).toContainText("รอผู้ดูแลอาคารยืนยัน");
+    await expect(page.getByTestId("home-link-pending")).toContainText("ข้อมูลผู้พักอาศัย 1 รายการ");
+    await expect(page.getByTestId("unit-card")).toHaveCount(0);
+    await expect(page.getByTestId("home-invoice")).toHaveCount(0);
+    await expectAxeClean(page);
+    await expectNoHorizontalScroll(page);
+    // No bills, lease or door codes while it waits.
+    await page.goto("/access");
+    await expect(page.getByTestId("access")).toHaveCount(0);
+    await page.goto("/");
+
+    // "Check again" before the Owner decides: still waiting.
+    await page.getByTestId("home-link-pending-check").click();
+    await expect(page.getByTestId("home-link-pending")).toBeVisible();
+
+    // The Owner confirms; "check again" reloads, the session is rotated for the new scopes and the unit is there.
+    await mockOwnerConfirmsLink(page);
+    await page.getByTestId("home-link-pending-check").click();
     await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
+    await expect(page.getByTestId("home-link-pending")).toHaveCount(0);
+    await expect(page.getByTestId("home-invoice")).toBeVisible();
+    expect((await context.cookies()).map((c) => c.name)).toContain("gp_rescoped");
+    const me = await (await page.request.get("/bff/v1/resident/me")).json();
+    expect(me.scopes).toContain("unit:3b241101-e2bb-4255-8caf-4136c566a962");
+  });
+
+  test("an SMS sign-in that matches nobody offers the invitation code", async ({ page }) => {
+    await page.goto("/auth?next=%2F");
+    await page.getByLabel("เบอร์มือถือ").fill("0820000000");
+    await page.getByTestId("send-code").click();
+    await page.getByLabel("หลักที่ 1").pressSequentially("123456");
+    await expect(page.getByTestId("resident-home")).toBeVisible();
+    await expect(page.getByTestId("home-link-pending")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "กรอกรหัสคำเชิญ" })).toBeVisible();
   });
 
   test("an expired code sends the resident back for a new one", async ({ page }) => {

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { expect, test } from "@playwright/test";
 
 import { expectAxeClean, expectNoHorizontalScroll, PNG_1PX, seedSession, showThread, subject } from "./support";
@@ -171,5 +173,32 @@ test.describe("service requests (D-072)", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "แจ้งซ่อม" })).toHaveCount(0);
     expect((await page.goto("/requests"))?.status()).toBe(404);
+  });
+
+  test("a new occupant never sees the former occupant's request, parcel or booking (D-224)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    const sub = subject("occupant");
+    await seedSession(context, baseURL!, sub);
+    // The mock seeds a request the unit's previous occupant reported before this occupancy began (`mockSeedId`).
+    const hex = createHash("sha256").update(`line:${sub}#request#former`).digest("hex");
+    const formerId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+
+    await page.goto("/requests");
+    await expect(page.getByTestId("request-item").first()).toBeVisible();
+    await expect(page.getByTestId("requests")).not.toContainText("ผู้เช่าคนก่อน");
+    expect((await page.goto(`/requests/${formerId}`))?.status()).toBe(404);
+    expect((await page.request.get(`/bff/v1/resident/service-requests/${formerId}/messages`)).status()).toBe(404);
+
+    await page.goto("/parcels");
+    await expect(page.getByTestId("parcel")).toHaveCount(2);
+    await expect(page.getByText("TH0000FORMER")).toHaveCount(0);
+
+    await page.goto("/facilities");
+    await expect(page.getByTestId("facilities")).toBeVisible();
+    await expect(page.getByText("ประชุมผู้เช่าคนก่อน")).toHaveCount(0);
+    await expectAxeClean(page);
   });
 });

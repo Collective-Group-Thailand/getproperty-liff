@@ -306,6 +306,68 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
     await checkPage(page);
   });
 
+  test("a QR transfer held by the API as a possible duplicate never shows as paid (D-220)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("heldqr"));
+    await page.goto("/");
+    const id = await openInvoiceId(page);
+    await page.getByTestId("home-pay").click();
+    const sheet = page.getByRole("dialog");
+    await expect(sheet.getByTestId("pay-waiting")).toBeVisible();
+    // The provider reports a transfer the API holds for the Owner (pending, nothing booked, no event to the resident).
+    const origin = new URL(page.url()).origin;
+    const held = await page.request.post(`/bff/v1/resident/__mock/invoices/${id}/pay`, {
+      headers: { "x-getproperty-csrf": "1", origin },
+      data: { held: true },
+    });
+    expect(held.status()).toBe(200);
+    // Past the 10-second status poll: still waiting, never "paid".
+    await page.waitForTimeout(11_000);
+    await expect(sheet.getByTestId("pay-paid")).toHaveCount(0);
+    await expect(sheet.getByTestId("pay-waiting")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.reload();
+    await expect(page.getByTestId("home-invoice")).toBeVisible();
+  });
+
+  test("a slip of the same amount as a QR payment already booked waits for the office (possible_qr_duplicate)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("qrdup"));
+    await page.goto("/");
+    const id = await openInvoiceId(page);
+    const origin = new URL(page.url()).origin;
+    // A QR part payment of ฿1,000 is booked first (the bill is partly paid)…
+    const part = await page.request.post(`/bff/v1/resident/__mock/invoices/${id}/pay`, {
+      headers: { "x-getproperty-csrf": "1", origin },
+      data: { amount: "1000.00" },
+    });
+    expect(part.status()).toBe(200);
+    await page.reload();
+    // …then a slip of the same ฿1,000 arrives: maybe the same transfer, so the office checks it (D-220).
+    await page.getByTestId("home-pay").click();
+    const sheet = page.getByRole("dialog");
+    await sheet.getByTestId("pay-slip").click();
+    await sheet.getByTestId("slip-file").setInputFiles({
+      name: "slip.png",
+      mimeType: "image/png",
+      buffer: slipImage({ transRef: `T-${Date.now()}`, amount: "1000.00" }),
+    });
+    await sheet.getByTestId("slip-send").click();
+    await expect(sheet.getByTestId("slip-status")).toHaveAttribute("data-status", "pending_review", {
+      timeout: 10_000,
+    });
+    await expect(sheet.getByTestId("slip-reasons")).toContainText(
+      "มีการชำระด้วย QR ยอดเดียวกันสำหรับบิลนี้แล้ว ผู้ดูแลอาคารจะตรวจสอบว่าไม่ใช่การโอนครั้งเดียวกัน",
+    );
+    await checkPage(page);
+  });
+
   test("no QR from the landlord: the transfer account, then the slip", async ({ page, context, baseURL }) => {
     await seedSession(context, baseURL!, subject("noqr"));
     await page.goto("/");

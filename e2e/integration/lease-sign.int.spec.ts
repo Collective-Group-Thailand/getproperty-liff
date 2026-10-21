@@ -138,4 +138,12 @@ test("the office sends a lease; the resident links, reads, signs with OTP; count
   await expect(page.getByTestId("lease-parties")).toContainText("ลงนามเมื่อ");
   const lease = await page.request.get(`/bff/v1/resident/leases/${leaseId}`);
   expect(await lease.json()).toMatchObject({ status: "active", signatureRequired: false });
+
+  // D-222 limits the stored contract to operators holding `party.pii.decrypt`; the resident keeps their own copy.
+  const contract = await page.request.get(`/bff/v1/resident/leases/${leaseId}/contract`);
+  expect(contract.status(), await contract.text()).toBe(200);
+  const download = (await contract.json()) as { url: string; title: string };
+  const pdf = await request.get(download.url);
+  expect(pdf.status()).toBe(200);
+  expect((await pdf.body()).subarray(0, 4).toString("latin1")).toBe("%PDF");
 });

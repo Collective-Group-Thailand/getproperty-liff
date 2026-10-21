@@ -112,6 +112,18 @@ export async function mockProviderPays(page: Page, invoiceId: string): Promise<v
   expect(response.status(), await response.text()).toBe(200);
 }
 
+/**
+ * Plays the landlord's Owner confirming the phone match of the signed-in resident or technician (D-226) in the mock
+ * API (`POST /v1/{resident,technician}/__mock/link-requests/confirm`, mocks only).
+ */
+export async function mockOwnerConfirmsLink(page: Page, audience: "resident" | "technician" = "resident") {
+  const origin = new URL(page.url()).origin;
+  const response = await page.request.post(`/bff/v1/${audience}/__mock/link-requests/confirm`, {
+    headers: { "x-getproperty-csrf": "1", origin },
+  });
+  expect(response.ok(), await response.text()).toBe(true);
+}
+
 /** A 1×1 PNG. */
 export const PNG_1PX = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",

@@ -4,6 +4,7 @@ import {
   expectAxeClean,
   expectNoHorizontalScroll,
   fakeLiff,
+  mockOwnerConfirmsLink,
   PNG_1PX,
   seedSession,
   showThread,
@@ -103,7 +104,9 @@ test.describe("technician app (D-072, D-210)", () => {
     await expectNoHorizontalScroll(page);
   });
 
-  test("signs in by SMS code outside LINE", async ({ page }) => {
+  test("signs in by SMS code outside LINE; the work orders appear once the Owner confirms (D-226)", async ({
+    page,
+  }) => {
     await page.goto("/technician");
     await expect(page).toHaveURL(/\/technician\/sign-in\?next=%2Ftechnician$/);
     await expectAxeClean(page);
@@ -115,6 +118,14 @@ test.describe("technician app (D-072, D-210)", () => {
     await expect(otp).toContainText("เหลือ 4 ครั้ง");
     await otp.getByRole("textbox").first().fill("123456");
     await expect(page).toHaveURL(/\/technician$/);
+    // D-226: the phone match waits for the Owner — no work order yet, and the screen says why.
+    await expect(page.getByTestId("work-order-item")).toHaveCount(0);
+    await expect(page.getByTestId("technician-home")).toContainText("ผู้ดูแลอาคารต้องยืนยันว่าเป็นคุณก่อน");
+    await expectAxeClean(page);
+    await expectNoHorizontalScroll(page);
+    // Confirmed: "check for new work" rotates the technician session and the work orders are there.
+    await mockOwnerConfirmsLink(page, "technician");
+    await page.getByTestId("technician-refresh").click();
     await expect(page.getByTestId("work-order-item")).toHaveCount(2);
     await expectAxeClean(page);
   });

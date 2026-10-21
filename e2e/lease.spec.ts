@@ -88,14 +88,22 @@ test.describe("lease and e-signature (D-062)", () => {
     await readToTheEnd(page);
 
     // WCAG 2.5.7: the signature without dragging — Tab to "use a photo", Enter, choose the file.
+    // The pad and its buttons load on demand (D-179): a key pressed before they are interactive is retried, the way a
+    // person would press again.
     const upload = page.getByRole("button", { name: "ใช้รูปลายเซ็นของฉัน" });
-    await upload.focus();
-    const chooser = page.waitForEvent("filechooser");
-    await page.keyboard.press("Enter");
-    await (await chooser).setFiles({ name: "signature.png", mimeType: "image/png", buffer: PNG });
+    await expect(async () => {
+      await upload.focus();
+      const chooser = page.waitForEvent("filechooser", { timeout: 2_000 });
+      await page.keyboard.press("Enter");
+      await (await chooser).setFiles({ name: "signature.png", mimeType: "image/png", buffer: PNG });
+    }).toPass({ timeout: 15_000 });
     await expect(page.getByTestId("signature-pad")).toHaveAttribute("data-empty", "false");
-    await page.getByTestId("sign-draw-next").focus();
-    await page.keyboard.press("Enter");
+    await expect(async () => {
+      if (await page.getByTestId("sign-otp-lead").isVisible()) return;
+      await page.getByTestId("sign-draw-next").focus({ timeout: 1_000 });
+      await page.keyboard.press("Enter");
+      await expect(page.getByTestId("sign-otp-lead")).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 15_000 });
 
     await expect(page.getByTestId("sign-otp-lead")).toContainText("1234");
     await page.getByRole("textbox", { name: "หลักที่ 1" }).fill("654321");
