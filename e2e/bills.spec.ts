@@ -7,6 +7,7 @@ import {
   expectNoHorizontalScroll,
   fakeLiff,
   fakeLiffRecord,
+  mockOwnerDecidesHeld,
   mockProviderPays,
   seedSession,
   slipImage,
@@ -23,6 +24,16 @@ import {
 async function checkPage(page: Page) {
   await expectNoHorizontalScroll(page);
   await expectAxeClean(page);
+}
+
+/** The payment provider reports a transfer the API holds as a possible duplicate (mock-only control, D-220). */
+async function mockHeld(page: Page, invoiceId: string): Promise<void> {
+  const origin = new URL(page.url()).origin;
+  const held = await page.request.post(`/bff/v1/resident/__mock/invoices/${invoiceId}/pay`, {
+    headers: { "x-getproperty-csrf": "1", origin },
+    data: { held: true },
+  });
+  expect(held.status()).toBe(200);
 }
 
 async function openInvoiceId(page: Page): Promise<string> {
@@ -306,7 +317,7 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
     await checkPage(page);
   });
 
-  test("a QR transfer held by the API as a possible duplicate never shows as paid (D-220)", async ({
+  test("a QR transfer held by the API as a possible duplicate never shows as paid; the sheet says the office is checking it (D-220, D-228)", async ({
     page,
     context,
     baseURL,
@@ -317,20 +328,47 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
     await page.getByTestId("home-pay").click();
     const sheet = page.getByRole("dialog");
     await expect(sheet.getByTestId("pay-waiting")).toBeVisible();
-    // The provider reports a transfer the API holds for the Owner (pending, nothing booked, no event to the resident).
-    const origin = new URL(page.url()).origin;
-    const held = await page.request.post(`/bff/v1/resident/__mock/invoices/${id}/pay`, {
-      headers: { "x-getproperty-csrf": "1", origin },
-      data: { held: true },
-    });
-    expect(held.status()).toBe(200);
-    // Past the 10-second status poll: still waiting, never "paid".
+    await expect(sheet.getByTestId("pay-checking")).toHaveCount(0);
+    // The provider reports a transfer the API holds for the Owner (pending, nothing booked): `payment.held` reaches
+    // the resident, the sheet refetches its payment details and says the office is checking — no amount, no reason.
+    await mockHeld(page, id);
+    const checking = sheet.getByTestId("pay-checking");
+    await expect(checking).toContainText("ผู้ดูแลอาคารกำลังตรวจสอบการโอนของคุณ", { timeout: 5000 });
+    await expect(checking).toContainText("1 รายการ");
+    await expect(checking).toHaveAttribute("data-count", "1");
+    await expect(sheet.getByTestId("pay-paid")).toHaveCount(0);
+    await expect(sheet.getByTestId("pay-waiting")).toBeVisible();
+    await checkPage(page);
+    // Past the status poll: still waiting, never "paid".
     await page.waitForTimeout(11_000);
     await expect(sheet.getByTestId("pay-paid")).toHaveCount(0);
+    // The office dismisses it as the same transfer (`payment.dismissed`): the hint goes, the bill is as it was.
+    await mockOwnerDecidesHeld(page, id, "dismiss");
+    await expect(checking).toHaveCount(0, { timeout: 5000 });
     await expect(sheet.getByTestId("pay-waiting")).toBeVisible();
     await page.keyboard.press("Escape");
     await page.reload();
     await expect(page.getByTestId("home-invoice")).toBeVisible();
+  });
+
+  test("a held transfer the office books as a second payment turns the sheet paid (English, D-228)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await context.addCookies([{ name: "gp_locale", value: "en", url: baseURL! }]);
+    await seedSession(context, baseURL!, subject("heldbook"));
+    await page.goto("/");
+    const id = await openInvoiceId(page);
+    // Held before the sheet is opened: it says so straight away.
+    await mockHeld(page, id);
+    await page.getByTestId("home-pay").click();
+    const sheet = page.getByRole("dialog");
+    await expect(sheet.getByTestId("pay-checking")).toContainText("The office is checking your transfer");
+    await expect(sheet.getByTestId("pay-checking")).toContainText("Please wait before paying again");
+    await checkPage(page);
+    await mockOwnerDecidesHeld(page, id, "confirm");
+    await expect(sheet.getByTestId("pay-paid")).toBeVisible({ timeout: 5000 });
   });
 
   test("a slip of the same amount as a QR payment already booked waits for the office (possible_qr_duplicate)", async ({

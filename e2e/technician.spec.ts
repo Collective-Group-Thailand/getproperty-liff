@@ -118,16 +118,36 @@ test.describe("technician app (D-072, D-210)", () => {
     await expect(otp).toContainText("เหลือ 4 ครั้ง");
     await otp.getByRole("textbox").first().fill("123456");
     await expect(page).toHaveURL(/\/technician$/);
-    // D-226: the phone match waits for the Owner — no work order yet, and the screen says why.
+    // D-226 / #29: the phone match waits for the Owner — no work order yet, and the screen says exactly that.
     await expect(page.getByTestId("work-order-item")).toHaveCount(0);
-    await expect(page.getByTestId("technician-home")).toContainText("ผู้ดูแลอาคารต้องยืนยันว่าเป็นคุณก่อน");
+    const pending = page.getByTestId("technician-link-pending");
+    await expect(pending).toContainText("รอผู้ดูแลอาคารยืนยันตัวคุณ");
+    await expect(pending).toContainText("ข้อมูล 1 รายการ");
+    await expect(page.getByText("ยังไม่มีงาน")).toHaveCount(0);
     await expectAxeClean(page);
     await expectNoHorizontalScroll(page);
     // Confirmed: "check for new work" rotates the technician session and the work orders are there.
     await mockOwnerConfirmsLink(page, "technician");
     await page.getByTestId("technician-refresh").click();
     await expect(page.getByTestId("work-order-item")).toHaveCount(2);
+    await expect(page.getByTestId("technician-link-pending")).toHaveCount(0);
     await expectAxeClean(page);
+  });
+
+  test("a technician with nothing pending and no work sees the plain empty list (English)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await context.addCookies([{ name: "gp_locale", value: "en", url: baseURL! }]);
+    await page.goto("/technician/sign-in");
+    // A phone no office entered (the mock matches nobody for numbers ending in 0000).
+    await page.getByLabel("Mobile number").fill("0812340000");
+    await page.getByTestId("technician-send-code").click();
+    await page.getByTestId("technician-otp").getByRole("textbox").first().fill("123456");
+    await expect(page).toHaveURL(/\/technician$/);
+    await expect(page.getByTestId("technician-link-pending")).toHaveCount(0);
+    await expect(page.getByText("No work orders yet")).toBeVisible();
   });
 
   test("residents never reach technician screens, technicians never reach resident ones", async ({

@@ -10,13 +10,16 @@ import { API_PORT, intDatabase, ownerAccessToken, setLatestOtpCode } from "./har
  * code and is told the landlord's office must confirm first — no unit, bills or work orders; the Owner confirms the
  * link request through the owner API (`/v1/owner/party-link-requests/{id}/actions/confirm`, Idempotency-Key); the
  * resident's "check again" and the technician's "check for new work" then rotate the session and the unit / work
- * order is there (`linkedVia: admin`).
+ * order is there (`linkedVia: admin`). D-228 (#29, #31): the technician's `/me` counts the pending match, and a
+ * rejected match turns the resident's waiting card into "the office declined" (read from `/me` — in this harness the
+ * worker's realtime does not reach the API's stream, so "check again" finds it; on the mocks the event does).
  */
 const API = `http://127.0.0.1:${API_PORT}`;
 const DEV_TENANT = "0199f2a0-0000-7000-8000-000000000001";
 const CODE = "135791";
 const RESIDENT_PHONE = "0810009911";
 const TECHNICIAN_PHONE = "0810009922";
+const DECLINED_PHONE = "0810009933";
 
 async function createParty(request: APIRequestContext, owner: string, displayName: string, phone: string) {
   const created = await request.post(`${API}/v1/owner/parties`, {
@@ -27,8 +30,13 @@ async function createParty(request: APIRequestContext, owner: string, displayNam
   return ((await created.json()) as { id: string }).id;
 }
 
-/** The Owner confirms the one pending link request of `partyId`. */
-async function confirmLink(request: APIRequestContext, owner: string, partyId: string) {
+/** The Owner confirms (or rejects) the one pending link request of `partyId`. */
+async function confirmLink(
+  request: APIRequestContext,
+  owner: string,
+  partyId: string,
+  decision: "confirm" | "reject" = "confirm",
+) {
   const headers = { authorization: `Bearer ${owner}` };
   const listed = await request.get(`${API}/v1/owner/party-link-requests?state=pending&partyId=${partyId}`, {
     headers,
@@ -37,11 +45,12 @@ async function confirmLink(request: APIRequestContext, owner: string, partyId: s
   const pending = ((await listed.json()) as { data: { id: string; partyId: string; state: string }[] }).data;
   expect(pending).toHaveLength(1);
   expect(pending[0]).toMatchObject({ partyId, state: "pending" });
-  const confirmed = await request.post(`${API}/v1/owner/party-link-requests/${pending[0]!.id}/actions/confirm`, {
+  const decided = await request.post(`${API}/v1/owner/party-link-requests/${pending[0]!.id}/actions/${decision}`, {
     headers: { ...headers, "idempotency-key": randomUUID() },
+    data: decision === "reject" ? { reason: "ไม่ใช่ผู้เช่าห้องนี้ (integration)" } : undefined,
   });
-  expect(confirmed.status(), await confirmed.text()).toBe(200);
-  expect(await confirmed.json()).toMatchObject({ state: "confirmed" });
+  expect(decided.status(), await decided.text()).toBe(200);
+  expect(await decided.json()).toMatchObject({ state: decision === "confirm" ? "confirmed" : "rejected" });
 }
 
 async function residentSmsSignIn(page: Page, phone: string) {
@@ -102,8 +111,10 @@ test("resident: SMS sign-in waits for the Owner; once confirmed, check again →
   expect(before).toMatchObject({ units: [], linkRequestsPending: 1 });
   expect(before.scopes.filter((s) => s.startsWith("unit:"))).toEqual([]);
 
-  // Not yet: "check again" still waits.
+  // Not yet: "check again" reads /me in place and says the office has not decided.
+  await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
   await page.getByTestId("home-link-pending-check").click();
+  await expect(page.getByTestId("link-pending-status")).toHaveText(/ยังไม่ได้รับการยืนยัน/);
   await expect(pending).toBeVisible();
 
   await confirmLink(request, owner, partyId);
@@ -163,11 +174,38 @@ test("technician: SMS sign-in shows no work order until the Owner confirms; chec
   await otp.getByRole("textbox").first().fill(CODE);
   await expect(page).toHaveURL(/\/technician$/, { timeout: 30_000 });
   await expect(page.getByTestId("work-order-item")).toHaveCount(0);
-  await expect(page.getByTestId("technician-home")).toContainText("ผู้ดูแลอาคารต้องยืนยันว่าเป็นคุณก่อน");
+  // #29: the API counts the pending match — "waiting for the office to confirm you", not "no work yet".
+  await expect(page.getByTestId("technician-link-pending")).toContainText("รอผู้ดูแลอาคารยืนยันตัวคุณ");
+  const me = (await (await page.request.get("/bff/v1/technician/me")).json()) as { linkRequestsPending: number };
+  expect(me.linkRequestsPending).toBe(1);
 
   await confirmLink(request, owner, partyId);
   await page.getByTestId("technician-refresh").click();
   await expect(page.getByTestId("work-order-item")).toHaveCount(1, { timeout: 30_000 });
   await expect(page.getByTestId("work-order-item")).toContainText("เปลี่ยนหลอดไฟทางเดิน (integration)");
+  await expect(page.getByTestId("technician-link-pending")).toHaveCount(0);
   await context.close();
+});
+
+test("resident: the Owner rejects the phone match → the card says the office declined, nothing is linked", async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(150_000);
+  const owner = await ownerAccessToken(request);
+  const partyId = await createParty(request, owner, "ผู้เช่า ถูกปฏิเสธ", DECLINED_PHONE);
+  await residentSmsSignIn(page, DECLINED_PHONE);
+  await expect(page.getByTestId("home-link-pending")).toBeVisible();
+  await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
+
+  await confirmLink(request, owner, partyId, "reject");
+  await page.getByTestId("home-link-pending-check").click();
+  const declined = page.getByTestId("home-link-declined");
+  await expect(declined).toContainText("ผู้ดูแลอาคารไม่ได้ยืนยันการเข้าสู่ระบบนี้", { timeout: 30_000 });
+  await expect(declined.getByRole("link", { name: "กรอกรหัสคำเชิญ" })).toBeVisible();
+  const me = (await (await page.request.get("/bff/v1/resident/me")).json()) as {
+    units: unknown[];
+    linkRequestsPending: number;
+  };
+  expect(me).toMatchObject({ units: [], linkRequestsPending: 0 });
 });

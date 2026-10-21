@@ -114,14 +114,37 @@ export async function mockProviderPays(page: Page, invoiceId: string): Promise<v
 
 /**
  * Plays the landlord's Owner confirming the phone match of the signed-in resident or technician (D-226) in the mock
- * API (`POST /v1/{resident,technician}/__mock/link-requests/confirm`, mocks only).
+ * API (`POST /v1/{resident,technician}/__mock/link-requests/confirm`, mocks only). The login hears
+ * `party.link_changed` on its realtime stream (D-228).
  */
 export async function mockOwnerConfirmsLink(page: Page, audience: "resident" | "technician" = "resident") {
+  await mockOwnerDecidesLink(page, "confirm", audience);
+}
+
+/** The Owner's decision on the signed-in login's phone match (`…/__mock/link-requests/{confirm,reject}`, mocks only). */
+export async function mockOwnerDecidesLink(
+  page: Page,
+  decision: "confirm" | "reject",
+  audience: "resident" | "technician" = "resident",
+) {
   const origin = new URL(page.url()).origin;
-  const response = await page.request.post(`/bff/v1/${audience}/__mock/link-requests/confirm`, {
+  const response = await page.request.post(`/bff/v1/${audience}/__mock/link-requests/${decision}`, {
     headers: { "x-getproperty-csrf": "1", origin },
   });
   expect(response.ok(), await response.text()).toBe(true);
+}
+
+/**
+ * Plays the Owner's decision on the QR transfers held for an invoice (D-220) in the mock API
+ * (`POST /v1/resident/__mock/invoices/{id}/held`, mocks only): `dismiss` → `payment.dismissed`, `confirm` → booked.
+ */
+export async function mockOwnerDecidesHeld(page: Page, invoiceId: string, decision: "dismiss" | "confirm") {
+  const origin = new URL(page.url()).origin;
+  const response = await page.request.post(`/bff/v1/resident/__mock/invoices/${invoiceId}/held`, {
+    headers: { "x-getproperty-csrf": "1", origin },
+    data: { decision },
+  });
+  expect(response.status(), await response.text()).toBe(200);
 }
 
 /** A 1×1 PNG. */

@@ -169,6 +169,51 @@ test("issued invoice → resident opens it → Thai QR → provider callback →
   await expect(sheet.getByTestId("pay-reference")).toHaveText(reference);
   await expect(sheet).toContainText("฿5,344.00");
 
+  // D-228 (LIFF #30): a QR transfer of this resident that D-220 holds for the office (here written straight into the
+  // database: the hold itself is the API's suite's business) — the sheet says "the office is checking", a count and
+  // a time only; the Owner dismisses it through the owner API and the hint is gone. Without the worker's realtime in
+  // this harness the sheet is reopened (on the mocks, `payment.held` / `payment.dismissed` refetch it in place).
+  const heldDb = await intDatabase();
+  let heldId: string;
+  try {
+    const held = await heldDb.query<{ id: string }>(
+      `INSERT INTO ops.payment (tenant_id, building_id, unit_id, invoice_id, payer_party_id, amount, method, provider,
+                                provider_ref, status, paid_at, held_reason)
+       SELECT tenant_id, building_id, unit_id, id, billed_party_id, 5344.00, 'qr', 'kbank', $2, 'pending', now(),
+              'possible_duplicate_transfer'
+         FROM ops.invoice WHERE id = $1
+       RETURNING id`,
+      [invoiceId, `KB-HELD-${Date.now()}`],
+    );
+    heldId = held.rows[0]!.id;
+  } finally {
+    await heldDb.end();
+  }
+  const reopen = async () => {
+    await page.keyboard.press("Escape");
+    await expect(sheet).toHaveCount(0);
+    await page.getByTestId("invoice-pay").click();
+    await expect(sheet.getByTestId("pay-qr")).toBeVisible({ timeout: 30_000 });
+  };
+  await reopen();
+  const checking = sheet.getByTestId("pay-checking");
+  await expect(checking).toContainText("ผู้ดูแลอาคารกำลังตรวจสอบการโอนของคุณ");
+  await expect(checking).toHaveAttribute("data-count", "1");
+  // Never the amount, the reason or the provider's reference.
+  await expect(checking).not.toContainText("5,344");
+  const paymentView = (await (await page.request.get(`/bff/v1/resident/invoices/${invoiceId}/payment`)).json()) as {
+    checking: unknown;
+  };
+  expect(paymentView.checking).toEqual({ count: 1, since: expect.stringMatching(/T/) });
+  expect(JSON.stringify(paymentView)).not.toContain("KB-HELD-");
+  const dismissed = await request.post(`${API}/v1/owner/payments/${heldId}/actions/dismiss`, {
+    headers: { ...headers, "idempotency-key": randomUUID() },
+    data: { reason: "โอนครั้งเดียวกัน (integration)" },
+  });
+  expect(dismissed.status(), await dismissed.text()).toBe(200);
+  await reopen();
+  await expect(sheet.getByTestId("pay-checking")).toHaveCount(0);
+
   // The provider's signed callback; the worker confirms and allocates (D-042, D-197).
   const callback = signedCallback(MERCHANT, reference, "5344.00", `KB-L2-${Date.now()}`);
   const delivered = await request.post(`${API}/webhooks/payments/kbank`, {

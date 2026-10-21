@@ -1,9 +1,10 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   expectAxeClean,
   expectNoHorizontalScroll,
   mockOwnerConfirmsLink,
+  mockOwnerDecidesLink,
   seedSession,
   sessionCookieNames,
   subject,
@@ -13,6 +14,14 @@ import {
  * L1 1.2 — signing in outside LINE (SMS code / magic link, D-060), guards, sign-out, and the audience boundary:
  * a cookie from getproperty-web (another host, another audience) never authenticates here.
  */
+/** The LIFF view goes to the background: the realtime bridge closes its stream (it reopens when visible again). */
+async function hideView(page: Page) {
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+}
+
 test.describe("outside LINE", () => {
   test("a signed-out visitor is sent to the sign-in page; inside LINE to the LIFF endpoint", async ({
     browser,
@@ -68,11 +77,16 @@ test.describe("outside LINE", () => {
     await expect(page.getByTestId("access")).toHaveCount(0);
     await page.goto("/");
 
-    // "Check again" before the Owner decides: still waiting.
+    // "Check again" before the Owner decides: read in place, still waiting — and it says so.
+    await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
     await page.getByTestId("home-link-pending-check").click();
+    await expect(page.getByTestId("link-pending-status")).toHaveText(/ยังไม่ได้รับการยืนยัน/);
     await expect(page.getByTestId("home-link-pending")).toBeVisible();
+    await expectAxeClean(page);
 
-    // The Owner confirms; "check again" reloads, the session is rotated for the new scopes and the unit is there.
+    // The Owner confirms while the stream is closed (LINE suspends hidden views); "check again" reads /me, the
+    // session is rotated for the new scopes and the unit is there. (With the stream open it happens by itself.)
+    await hideView(page);
     await mockOwnerConfirmsLink(page);
     await page.getByTestId("home-link-pending-check").click();
     await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
@@ -81,6 +95,62 @@ test.describe("outside LINE", () => {
     expect((await context.cookies()).map((c) => c.name)).toContain("gp_rescoped");
     const me = await (await page.request.get("/bff/v1/resident/me")).json();
     expect(me.scopes).toContain("unit:3b241101-e2bb-4255-8caf-4136c566a962");
+  });
+
+  test("the pending card follows the Owner's confirmation by itself (realtime party.link_changed, D-228)", async ({
+    page,
+    context,
+  }) => {
+    await page.goto("/auth?next=%2F");
+    await page.getByLabel("เบอร์มือถือ").fill("0810005678");
+    await page.getByTestId("send-code").click();
+    const stream = page.waitForResponse((r) => r.url().includes("/realtime/stream"));
+    await page.getByLabel("หลักที่ 1").pressSequentially("123456");
+    await expect(page.getByTestId("home-link-pending")).toBeVisible();
+    // The realtime stream is open and the card's watcher is there; then the Owner confirms — no tap, no reload.
+    await stream;
+    await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
+    await mockOwnerConfirmsLink(page);
+    await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201", { timeout: 10_000 });
+    await expect(page.getByTestId("home-link-pending")).toHaveCount(0);
+    await expect(page.getByTestId("home-invoice")).toBeVisible();
+    expect((await context.cookies()).map((c) => c.name)).toContain("gp_rescoped");
+  });
+
+  test("the Owner declines: the card says so and shows the way forward, in place (D-228)", async ({ page }) => {
+    await page.goto("/auth?next=%2F");
+    await page.getByLabel("เบอร์มือถือ").fill("0810006789");
+    await page.getByTestId("send-code").click();
+    const stream = page.waitForResponse((r) => r.url().includes("/realtime/stream"));
+    await page.getByLabel("หลักที่ 1").pressSequentially("123456");
+    await expect(page.getByTestId("home-link-pending")).toBeVisible();
+    await stream;
+    await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
+    await mockOwnerDecidesLink(page, "reject");
+    const declined = page.getByTestId("home-link-declined");
+    await expect(declined).toContainText("ผู้ดูแลอาคารไม่ได้ยืนยันการเข้าสู่ระบบนี้", { timeout: 10_000 });
+    await expect(declined).toContainText("ติดต่อผู้ดูแลอาคาร");
+    await expect(page.getByTestId("home-link-pending")).toHaveCount(0);
+    await expect(declined.getByRole("link", { name: "กรอกรหัสคำเชิญ" })).toBeVisible();
+    await expectAxeClean(page);
+    await expectNoHorizontalScroll(page);
+    // Later visits: nothing pending, no unit — the invitation code is the way in.
+    await page.reload();
+    await expect(page.getByTestId("home-link-pending")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "กรอกรหัสคำเชิญ" })).toBeVisible();
+  });
+
+  test("'check again' finds the decline when the stream was not open", async ({ page }) => {
+    await page.goto("/auth?next=%2F");
+    await page.getByLabel("เบอร์มือถือ").fill("0810007890");
+    await page.getByTestId("send-code").click();
+    await page.getByLabel("หลักที่ 1").pressSequentially("123456");
+    await expect(page.locator("[data-testid=link-pending-watch][data-ready]")).toHaveCount(1);
+    // A dropped stream (LINE suspends hidden views): the decision is found by the manual check.
+    await hideView(page);
+    await mockOwnerDecidesLink(page, "reject");
+    await page.getByTestId("home-link-pending-check").click();
+    await expect(page.getByTestId("home-link-declined")).toContainText("ผู้ดูแลอาคารไม่ได้ยืนยันการเข้าสู่ระบบนี้");
   });
 
   test("an SMS sign-in that matches nobody offers the invitation code", async ({ page }) => {
