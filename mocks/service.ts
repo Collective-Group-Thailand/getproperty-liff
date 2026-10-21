@@ -407,7 +407,11 @@ function seedTechnician(account: MockAccount): void {
     { categoryKey: "plumbing", description: "ก๊อกน้ำอ่างล้างหน้ารั่ว น้ำหยดตลอด", priority: "high", photoIds: [photo] },
     now - DAY,
   );
-  assignToTechnician(leak, account, now + 2 * HOUR, Date.now(), mockSeedId(account.subject, "work-order", "leak"));
+  // Today's visit stays on today's Bangkok date whatever the hour (after 22:00, `now + 2h` was tomorrow and the
+  // technician home had no "today" group): an hour ago when two hours ahead would cross midnight.
+  const inTwoHours = now + 2 * HOUR;
+  const todayVisit = bangkokIso(inTwoHours).slice(0, 10) === bangkokIso(now).slice(0, 10) ? inTwoHours : now - HOUR;
+  assignToTechnician(leak, account, todayVisit, Date.now(), mockSeedId(account.subject, "work-order", "leak"));
   const light = newRequest(
     resident,
     UNIT_B,
