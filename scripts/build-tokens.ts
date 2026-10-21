@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@79541bc until collective-shared exists (D-155)
 /**
  * Generates src/ui/generated/tokens.css from the TypeScript tokens (ADR-0003).
  *
@@ -61,7 +61,7 @@ function themeBlock(): string {
 
   lines.push(
     "/*",
-    " * Tailwind's own palette, fonts, radii and shadows are replaced, not extended: `bg-teal-600`",
+    " * Tailwind's own palette, fonts, radii and shadows are replaced, not extended: `bg-sky-600`",
     " * and `text-slate-500` must stop resolving, or the design system is a suggestion.",
     " */",
     "--color-*: initial;",

@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@79541bc until collective-shared exists (D-155)
 "use client";
 
 import { useRef } from "react";
@@ -19,6 +19,8 @@ export interface SegmentedControlProps {
   /** Accessible name for the group, from `src/i18n`. */
   label: string;
   size?: "md" | "lg";
+  /** Fill the container: segments share the width and long labels wrap (a 360 px phone). */
+  fullWidth?: boolean;
   className?: string;
 }
 
@@ -35,6 +37,7 @@ export function SegmentedControl({
   onValueChange,
   label,
   size = "md",
+  fullWidth = false,
   className,
 }: SegmentedControlProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -60,7 +63,11 @@ export function SegmentedControl({
   };
 
   return (
-    <div role="radiogroup" aria-label={label} className={cn("bg-bg-subtle rounded-control inline-flex p-1", className)}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={cn("bg-bg-subtle rounded-control p-1", fullWidth ? "flex w-full" : "inline-flex", className)}
+    >
       {options.map((option, index) => {
         const checked = index === current;
         return (
@@ -79,9 +86,16 @@ export function SegmentedControl({
             onClick={() => onValueChange(option.value)}
             onKeyDown={(event) => move(event, index)}
             className={cn(
-              "rounded-control text-muted flex items-center justify-center gap-2 px-3 font-medium whitespace-nowrap",
+              "rounded-control text-muted flex items-center justify-center gap-2 font-medium",
               "data-[state=on]:bg-surface data-[state=on]:text-fg data-[state=on]:shadow-card hover:text-fg",
-              size === "md" ? "h-8 text-sm" : "h-11 text-base",
+              fullWidth ? "min-w-0 flex-1 px-2 py-1 text-center" : "px-3 whitespace-nowrap",
+              size === "md"
+                ? fullWidth
+                  ? "min-h-8 text-sm"
+                  : "h-8 text-sm"
+                : fullWidth
+                  ? "min-h-11 text-base"
+                  : "h-11 text-base",
             )}
           >
             {option.icon ? <Icon icon={option.icon} /> : null}

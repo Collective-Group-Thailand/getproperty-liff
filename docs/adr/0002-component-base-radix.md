@@ -23,7 +23,7 @@ themable, documented in Storybook with a11y tests", used unchanged by four zones
 - **Looks from Tailwind v4 utilities over semantic tokens** (ADR-0003), composed with
   `class-variance-authority` (variants = the component tier of the tokens) and merged with
   `tailwind-merge` through `cn()`, so a caller can override without `!important`. A component never
-  names a raw palette step; ESLint refuses `bg-teal-600` in `className`.
+  names a raw palette step; ESLint refuses `bg-brand-600` in `className`.
 - **Forms through `<Field>`**: one context provides `id`, `aria-describedby` (error first, then hint),
   `aria-invalid`, `required`, `disabled` to whatever control sits inside (`useFieldProps`), or
   `aria-labelledby` to a composite (`useFieldGroupProps`: RadioCards, OTPInput, SegmentedControl). A11y

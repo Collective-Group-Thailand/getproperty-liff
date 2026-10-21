@@ -50,6 +50,16 @@ them: `BigActionButton`, `NumericKeypad` + `lib/decimal.ts`, `ScanButton`/`ScanP
 `Popover`, `RadioCards`, `Select`, `Switch`, `Tooltip`. The deposit dispute moved to the new `CameraCapture` API
 (`useCameraLabels`, `common.camera` copy as in getproperty-web's `staff.capture.camera`).
 
+**Founder's logo (2026-10-21) — getproperty-web's committed `79541bc`** (its `docs/shared-copies.md` list; `git archive`
+of web HEAD `7cf057e` = `0f759fe` + docs → `SHARED_SOURCE=… pnpm shared:check --strict`: 0 drift): `src/ui/brand/*`
+(the founder's paths in `geometry.ts`, `Mark` / `Wordmark` server components, `brand.test.tsx`), `tokens/primitives.ts` +
+`semantic.ts` (brand ramp replaces teal, `logo-*` keys) and the regenerated `tokens.css`, `check-contrast.ts` /
+`build-tokens.ts`, `Stat`, `SegmentedControl` (`fullWidth`) + stories, `Tokens.mdx`, `Principles.mdx` (adapted: the
+`primary` line), `src/ui/README.md` (adapted: the Brand paragraph), `docs/ui/brand.md`, the ESLint palette guard
+(`teal` → `brand`, adapted) and every brand binary (section "Brand files"). Removed: the placeholder
+`public/brand/wordmark.svg`, `src/app/icon.svg`. Not copied: getproperty-web's `scripts/build-brand.ts` (its outputs are
+copied instead; this app's own `scripts/build-brand.ts` writes only the LINE channel icon and the offline page's logo).
+
 **L4, second pass (2026-10-21) — getproperty-web's committed `7f6030b`** (its F2 2.7 / F4 4.4 commits landed while L4 was
 under way; `SHARED_SOURCE=<git archive 7f6030b> pnpm shared:check --strict`: 262 copies, 0 drift): the R2 glyphs
 `archive`, `calendar-check`, `contact`, `door`, `package-check`, `receipt`, `rules`, `timer`, `unlock`, `wrench`
@@ -76,12 +86,14 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 
 | Path | Mode | Source commit |
 |---|---|---|
-| `src/ui/README.md` | adapted | `08ff63b` |
-| `src/ui/brand/Mark.tsx` | verbatim | `08ff63b` |
-| `src/ui/brand/Wordmark.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/brand/Wordmark.tsx` | verbatim | `08ff63b` |
-| `src/ui/brand/config.ts` | verbatim | `08ff63b` |
-| `src/ui/brand/index.ts` | verbatim | `08ff63b` |
+| `src/ui/README.md` | adapted | `79541bc` |
+| `src/ui/brand/Mark.tsx` | verbatim | `79541bc` |
+| `src/ui/brand/Wordmark.stories.tsx` | verbatim | `79541bc` |
+| `src/ui/brand/Wordmark.tsx` | verbatim | `79541bc` |
+| `src/ui/brand/brand.test.tsx` | verbatim | `79541bc` |
+| `src/ui/brand/config.ts` | verbatim | `79541bc` |
+| `src/ui/brand/geometry.ts` | generated | `79541bc` |
+| `src/ui/brand/index.ts` | verbatim | `79541bc` |
 | `src/ui/components/AlertDialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/AlertDialog.tsx` | verbatim | `2493107` |
 | `src/ui/components/AppShell.stories.tsx` | verbatim | `f57d4dc` |
@@ -132,8 +144,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/PhoneInput.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Progress.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Progress.tsx` | verbatim | `6a8ffcf` |
-| `src/ui/components/SegmentedControl.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/SegmentedControl.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/SegmentedControl.stories.tsx` | verbatim | `79541bc` |
+| `src/ui/components/SegmentedControl.tsx` | verbatim | `79541bc` |
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
@@ -146,7 +158,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Spinner.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Spinner.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stat.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Stat.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Stat.tsx` | verbatim | `79541bc` |
 | `src/ui/components/Stepper.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Stepper.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/Switch.stories.tsx` | verbatim | `2493107` |
@@ -161,8 +173,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/ToastViewport.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/index.ts` | adapted | `2493107` |
 | `src/ui/components/overlays.tsx` | adapted | `f57d4dc` |
-| `src/ui/docs/Principles.mdx` | adapted | `08ff63b` |
-| `src/ui/docs/Tokens.mdx` | verbatim | `08ff63b` |
+| `src/ui/docs/Principles.mdx` | adapted | `79541bc` |
+| `src/ui/docs/Tokens.mdx` | verbatim | `79541bc` |
 | `src/ui/docs/VoiceAndTone.mdx` | verbatim | `08ff63b` |
 | `src/ui/docs/tokens-blocks.tsx` | verbatim | `08ff63b` |
 | `src/ui/fonts/README.md` | verbatim | `08ff63b` |
@@ -172,7 +184,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/fonts/files/noto-sans-thai-latin.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/files/noto-sans-thai-thai.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/index.ts` | verbatim | `08ff63b` |
-| `src/ui/generated/tokens.css` | generated | `08ff63b` |
+| `src/ui/generated/tokens.css` | generated | `79541bc` |
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
@@ -207,9 +219,9 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/tokens/color.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/contrast.test.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/index.ts` | verbatim | `08ff63b` |
-| `src/ui/tokens/primitives.ts` | verbatim | `08ff63b` |
+| `src/ui/tokens/primitives.ts` | verbatim | `79541bc` |
 | `src/ui/tokens/scale.ts` | verbatim | `08ff63b` |
-| `src/ui/tokens/semantic.ts` | verbatim | `08ff63b` |
+| `src/ui/tokens/semantic.ts` | verbatim | `79541bc` |
 
 ## i18n formatters and status presentation
 
@@ -231,18 +243,52 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `eslint-rules/no-money-arithmetic.mjs` | verbatim | `08ff63b` |
 | `eslint-rules/no-money-arithmetic.test.ts` | verbatim | `08ff63b` |
 | `scripts/build-icons.ts` | verbatim | `f57d4dc` |
-| `scripts/build-tokens.ts` | verbatim | `08ff63b` |
-| `scripts/check-contrast.ts` | verbatim | `08ff63b` |
+| `scripts/build-tokens.ts` | verbatim | `79541bc` |
+| `scripts/check-contrast.ts` | verbatim | `79541bc` |
 | `scripts/copy-fonts.ts` | verbatim | `08ff63b` |
 | `scripts/gen-api.ts` | adapted | `08ff63b` |
 | `scripts/lhci.ts` | adapted | `f57d4dc` |
 | `scripts/release-hygiene.ts` | adapted | `08ff63b` |
 | `src/app/global-error.tsx` | verbatim | `08ff63b` |
 
+## Brand files (the founder's logo, getproperty-web `pnpm brand` output)
+
+Byte-for-byte copies. The manifest icons of this app are getproperty-web's staff PWA icons (the same artwork —
+the founder's app icon, white house on the house blue; maskable with the mark inside the 80 % safe circle), kept
+under this app's names (`copy ← source`). Not from getproperty-web: `docs/brand/line/` (the LINE MINI App channel
+icon) and the logo block of `public/offline.html` — both written by this app's `pnpm brand` from the files below.
+
+| Path | Mode | Source commit |
+|---|---|---|
+| `docs/brand/getproperty-app-icon.svg` | binary | `79541bc` |
+| `docs/brand/getproperty-logo-source.png` | binary | `79541bc` |
+| `docs/brand/getproperty-logo-white.svg` | binary | `79541bc` |
+| `docs/brand/getproperty-logo.svg` | binary | `79541bc` |
+| `docs/brand/getproperty-mark-white.svg` | binary | `79541bc` |
+| `docs/brand/getproperty-mark.svg` | binary | `79541bc` |
+| `docs/brand/logo-preview.png` | binary | `79541bc` |
+| `public/brand/apple-touch-icon.png` | binary | `79541bc` |
+| `public/brand/favicon-16.png` | binary | `79541bc` |
+| `public/brand/favicon-32.png` | binary | `79541bc` |
+| `public/brand/favicon-48.png` | binary | `79541bc` |
+| `public/brand/favicon.svg` | binary | `79541bc` |
+| `public/brand/getproperty-app-icon.svg` | binary | `79541bc` |
+| `public/brand/getproperty-logo-white.png` | binary | `79541bc` |
+| `public/brand/getproperty-logo-white.svg` | binary | `79541bc` |
+| `public/brand/getproperty-logo.png` | binary | `79541bc` |
+| `public/brand/getproperty-logo.svg` | binary | `79541bc` |
+| `public/brand/getproperty-mark-white.svg` | binary | `79541bc` |
+| `public/brand/getproperty-mark.svg` | binary | `79541bc` |
+| `public/favicon.ico` | binary | `79541bc` |
+| `public/icons/apple-touch-icon.png` ← `public/brand/apple-touch-icon.png` | binary | `79541bc` |
+| `public/icons/icon-192.png` ← `public/pwa/staff-192.png` | binary | `79541bc` |
+| `public/icons/icon-512.png` ← `public/pwa/staff-512.png` | binary | `79541bc` |
+| `public/icons/maskable-512.png` ← `public/pwa/staff-maskable-512.png` | binary | `79541bc` |
+
 ## Reference docs
 
 | Path | Mode | Source commit |
 |---|---|---|
 | `docs/prompts/design-system.md` | verbatim | `f57d4dc` |
-| `docs/ui/brand.md` | verbatim | `08ff63b` |
+| `docs/ui/brand.md` | verbatim | `79541bc` |
 | `docs/ui/voice-and-tone.md` | verbatim | `08ff63b` |

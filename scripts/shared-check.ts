@@ -14,6 +14,9 @@
  *   SHARED_SOURCE=/path pnpm shared:check another checkout
  *   pnpm shared:check --strict           exit 1 on drift (for a deliberate re-sync session)
  *
+ * A copy kept under another name names its source after an arrow — `public/icons/icon-192.png ← public/pwa/staff-192.png`
+ * (getproperty-web's staff PWA icon is this app's manifest icon, same artwork).
+ *
  * A row may name every file of one directory with an extension glob — `src/ui/icons/glyphs/*.ts` (D-179: one
  * generated module per icon) — which stands for each such file in the source *and* in the copy, so a glyph
  * added or removed on either side shows up as missing.
@@ -25,7 +28,10 @@ import { fileURLToPath } from "node:url";
 
 export type CopyMode = "verbatim" | "adapted" | "generated" | "binary";
 export interface ManifestEntry {
+  /** Path in this repository. */
   path: string;
+  /** Path in getproperty-web when it differs (`copy ← source` in the table). */
+  source?: string;
   mode: CopyMode;
   commit: string;
 }
@@ -42,9 +48,10 @@ export function parseManifest(markdown: string): ManifestEntry[] {
       .slice(1, -1)
       .map((cell) => cell.trim().replace(/^`|`$/g, ""));
     if (cells.length !== 3) continue;
-    const [path, mode, commit] = cells as [string, string, string];
+    const [pathCell, mode, commit] = cells as [string, string, string];
     if (!(MODES as readonly string[]).includes(mode)) continue;
-    rows.push({ path, mode: mode as CopyMode, commit });
+    const [path, source] = pathCell.split(/`?\s*←\s*`?/).map((part) => part.trim()) as [string, string | undefined];
+    rows.push(source ? { path, source, mode: mode as CopyMode, commit } : { path, mode: mode as CopyMode, commit });
   }
   return rows;
 }
@@ -116,7 +123,7 @@ function main(): void {
       if (!copy) problems.push(`missing-copy  ${entry.path}`);
       continue;
     }
-    const sourcePath = join(sourceRoot, entry.path);
+    const sourcePath = join(sourceRoot, entry.source ?? entry.path);
     const status = compare(entry, copy, existsSync(sourcePath) ? readFileSync(sourcePath) : null);
     counts[status] = (counts[status] ?? 0) + 1;
     if (status !== "same" && status !== "adapted") problems.push(`${status.padEnd(14)}${entry.path}`);

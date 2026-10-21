@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@79541bc until collective-shared exists (D-155)
 import { Icon, type IconGlyph } from "../icons";
 import { IconChevronDown } from "../icons/glyphs/chevron-down";
 import { IconChevronUp } from "../icons/glyphs/chevron-up";
@@ -14,7 +14,7 @@ export interface StatProps {
   hint?: React.ReactNode;
   trend?: { direction: "up" | "down" | "flat"; label: React.ReactNode; good?: boolean };
   icon?: IconGlyph;
-  /** The "money recovered" variant: teal figure. */
+  /** The "money recovered" variant: brand-blue figure. */
   variant?: "default" | "recovered";
   className?: string;
 }

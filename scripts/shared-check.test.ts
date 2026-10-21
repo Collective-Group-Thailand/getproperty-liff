@@ -23,6 +23,13 @@ describe("parseManifest", () => {
       { path: "src/ui/theme/themes.ts", mode: "adapted", commit: "08ff63b" },
     ]);
   });
+
+  it("reads a copy kept under another name (`copy ← source`)", () => {
+    const md = "| `public/icons/icon-192.png` ← `public/pwa/staff-192.png` | binary | `79541bc` |";
+    expect(parseManifest(md)).toEqual([
+      { path: "public/icons/icon-192.png", source: "public/pwa/staff-192.png", mode: "binary", commit: "79541bc" },
+    ]);
+  });
 });
 
 describe("headers", () => {
