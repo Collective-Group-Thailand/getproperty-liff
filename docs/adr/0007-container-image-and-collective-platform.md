@@ -46,7 +46,7 @@ scraping containers labelled `collective.metrics`, deploys from GitHub Actions (
   and the mock API in a build). A production server without `NEXT_PUBLIC_LIFF_ID` fails its start-up check (the instrumentation hook
   throws) and answers every request, `/api/healthz` included, with 500 — so a deploy that forgot it fails its health
   check and rolls back. Cost: none on the budget — `<html>` attributes are markup; the
-  reader is a few bytes and replaces the inlined values (`docs/performance-budgets.md`, "Run-time settings").
+  reader is a few bytes and replaces the inlined values (`docs/performance-budgets.md`, "Founder's logo + run-time public settings": `/profile` 184 272 B, 2 below before).
 - **Deploys** (`.github/workflows/deploy.yml`, as getproperty-web's): one build per commit (main → `:sha-…` + `:uat`
   → UAT; tag `vX.Y.Z` → `:prod` → production), no build arguments, no repository variables; collective-infra's
   `promote.yml --component liff` may instead ship the image UAT ran to production. CI's `image` job starts the one

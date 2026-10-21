@@ -34,6 +34,26 @@ resident budget to 180 KB and made it a hard limit once the reductions below lan
 `/liff` counts the LIFF entry *and* the home route it hands over to (a client-side navigation inside the
 measured load).
 
+### Founder's logo + run-time public settings (2026-10-21, `pnpm lhci`, every set passes)
+
+The logo is server-rendered markup (the shells, the entry screens, the root not-found page) — its path data is in
+the HTML, never in a script (`brand-boundary.test.ts`, `e2e/brand.spec.ts`). The public settings moved from
+build-time inlining to the server-rendered `<html data-liff-id data-sentry-dsn data-env>` (D-230: one image for every
+environment): the reader (`src/lib/publicConfig.ts`) replaces the inlined strings, and Sentry's lazy chunk is now
+referenced by the client instrumentation (loaded only when a DSN is set at run time). `/profile` **184 272 bytes**
+(2 under `a352998`'s 184 274; 48 under the limit).
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link` | 171.3, 171.2, 173.5, 173.4, 172.3 KB | 180 KB |
+| `resident` | `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 177.7, 175.1, 178.1, 174.3 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy` | **180.0** (184 272 B), 174.3 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>` | 169.9, 176.8, 175.3 KB | 180 KB |
+| `resident-r2` | `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 170.9, 169.9, 172.4, 174.9, 177.0, 171.4, 176.7 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` | 169.3, 179.6 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 174.3–177.8, 171.9, 175.6, 167.8 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 175.3, 178.1 KB | 180 KB |
+
 ### D-230 platform image (2026-10-21, `pnpm lhci`, every set passes)
 
 `/api/healthz` and `/api/metrics` are server-only route handlers (the Prometheus client is a server external): no
