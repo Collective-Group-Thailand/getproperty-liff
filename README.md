@@ -1,6 +1,6 @@
 # getproperty-liff
 
-**getproperty — บิลทำเอง เก็บเงินเอง ถูกกฎหมาย** · Collective Group (Thailand)
+**getproperty — ให้เช่าง่าย อยู่สบาย** · Collective Group (Thailand)
 
 The resident LINE Mini App (LIFF) of getproperty (D-154): one Next.js 16 app, one zone — residents'
 invoices & pay, service requests, lease & e-sign, usage, announcements, parcels, profile; and in R2 the

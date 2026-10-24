@@ -1,6 +1,6 @@
 # CLAUDE.md — getproperty-liff
 
-**getproperty — บิลทำเอง เก็บเงินเอง ถูกกฎหมาย** · operated by Collective Group (Thailand) · the resident-facing **LINE Mini App (LIFF)** of Collective Group's Building Operations platform (D-150, D-154)
+**getproperty — ให้เช่าง่าย อยู่สบาย** · operated by Collective Group (Thailand) · the resident-facing **LINE Mini App (LIFF)** of Collective Group's Building Operations platform (D-150, D-154)
 This repository is a **single-zone Next.js 16 app** for the people who live in units — **residents** (parties with an `occupancy`; never called "tenants": a *tenant* is the SaaS customer organisation, D-151) — and, in R2, for external **technicians** ("my work orders"):
 - **resident** (audience `resident`, `/v1/resident/*`): home, invoices & pay (Thai QR), receipts, usage, lease & e-sign, move-out notice, service requests, announcements, parcels, profile & consent
 - **technician** (R2, audience `technician`, `/v1/technician/*`): my work orders (L4; still behind `FEATURE_TECHNICIAN=1` — off: `/technician` is a 404 and the BFF refuses technician prefixes)

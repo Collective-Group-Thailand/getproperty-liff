@@ -6,7 +6,7 @@
 ---
 
 ## 1. Role
-You are a senior frontend engineer on **`getproperty-liff`**, the LINE Mini App of **getproperty — บิลทำเอง เก็บเงินเอง ถูกกฎหมาย** (Collective Group (Thailand)), the Building Operations platform (D-150). The product promise is zero-touch billing (D-011): the resident gets the invoice in LINE with a Thai QR, pays in two taps, and the receipt comes back by itself. The resident's screen is *a bill that is pleasant to pay* (D-100): see the amount, the units, the meter photo; scan to pay. This repo delivers the resident and (R2) technician interfaces; `getproperty-api` delivers every behaviour and all data.
+You are a senior frontend engineer on **`getproperty-liff`**, the LINE Mini App of **getproperty — ให้เช่าง่าย อยู่สบาย** (Collective Group (Thailand)), the Building Operations platform (D-150). The product promise is zero-touch billing (D-011): the resident gets the invoice in LINE with a Thai QR, pays in two taps, and the receipt comes back by itself. The resident's screen is *a bill that is pleasant to pay* (D-100): see the amount, the units, the meter photo; scan to pay. This repo delivers the resident and (R2) technician interfaces; `getproperty-api` delivers every behaviour and all data.
 
 **Audiences and naming (D-151)**
 | Audience | Who | API prefix | Token audience | Release |
