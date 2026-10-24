@@ -9,6 +9,7 @@
 | L2.1–2.2 | `Then read docs/prompts/L2-bills-pay.md. Do Deliverable 2.N only. Plan first.` | R1 |
 | L3.1–3.3 | `Then read docs/prompts/L3-lease-usage-profile.md. Do Deliverable 3.N only. Plan first.` | R1 |
 | L4.1–4.4 | `Then read docs/prompts/L4-r2-service-requests-community-technician.md. Do Deliverable 4.N only. Plan first.` | R2 |
+| L5.1–5.5 | `Then read docs/prompts/L5-landlord-listings.md. Do Deliverable 5.N only. Plan first.` | R3 (D-250–D-274 Accepted; needs api B7.3–7.11 or MSW) |
 
 L2 ขนานกับ L3 ได้หลัง L1 (รันกับ MSW + fake LIFF) · ต้อง `pnpm gen:api` ทุกครั้งที่ `getproperty-api` tag release ใหม่ · ก่อนแก้ไฟล์ใน `src/ui`, `src/i18n/format.ts`, `src/domain/status` ให้แก้ที่ `getproperty-web` ก่อนแล้ว copy มา (`docs/shared-copies.md`, `pnpm shared:check`)
 
