@@ -27,4 +27,10 @@ You are a senior frontend engineer on **`getproperty-liff`**. Decisions **D-250 
 2. Rich-menu targets (bills, pay, lease, repairs) work the same whichever OA opened the LIFF.
 3. Acceptance: e2e link from a fake own-OA webhook token → linked; expired/used token handled.
 
+## Deliverable 5.5 — Resident side of the blue-ocean features (D-256, D-266, D-267; api B7.10–7.11)
+1. Condition report in LINE: guided room-by-room photos at move-in and move-out, confirm the owner's report or add notes; side-by-side view before a deposit refund is final.
+2. Rent record: see the record, share it with a listing enquiry or as a PDF letter, revoke shares.
+3. Identity verification (optional) with the provider handoff; badge shown to owners on enquiries.
+4. Listing payments only through the gateway; a warning card when a chat message contains a bank account number.
+
 After each deliverable: `docs/PROGRESS.md`, `docs/contract-requests.md`, commit.
