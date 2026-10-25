@@ -3,8 +3,15 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getActor, getProspect, getTechnician } from "./actor";
-import { consentPath, PATHNAME_HEADER, prospectSignInPath, signInPath, technicianSignInPath } from "./redirects";
+import { getActor, getLandlord, getProspect, getTechnician } from "./actor";
+import {
+  consentPath,
+  landlordSignInPath,
+  PATHNAME_HEADER,
+  prospectSignInPath,
+  signInPath,
+  technicianSignInPath,
+} from "./redirects";
 import { RESCOPE_COOKIE, rescopePath, scopesStale } from "./rescope";
 
 /** The path of this request, as the proxy recorded it (layouts cannot read the URL). */
@@ -46,5 +53,13 @@ export async function requireProspect(options: { path?: string } = {}) {
   const actor = await getProspect();
   const path = options.path ?? (await currentPath());
   if (actor.status === "anonymous") redirect(prospectSignInPath(path, (await headers()).get("user-agent")));
+  return actor;
+}
+
+/** Guard of the landlord's quick actions (L5 5.3, D-251). Signed out → LINE sign-in as the landlord inside LINE. */
+export async function requireLandlord(options: { path?: string } = {}) {
+  const actor = await getLandlord();
+  const path = options.path ?? (await currentPath());
+  if (actor.status === "anonymous") redirect(landlordSignInPath(path, (await headers()).get("user-agent")));
   return actor;
 }

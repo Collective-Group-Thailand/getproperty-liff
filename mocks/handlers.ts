@@ -57,7 +57,7 @@ export function residentScopes(account: MockAccount): string[] {
   return [...leases, ...account.units.map((u) => `unit:${u.unitId}`)];
 }
 
-function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
+export function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
   const base = example<Schemas["TokenPairDto"]>("auth.residentLine.exchange");
   const access = mockAccessToken({ sub: account.userId, aud: session.audience, sid: session.sid }, now);
   if (session.audience === "resident") session.scopes = residentScopes(account);
@@ -71,7 +71,7 @@ function tokenPair(session: MockSession, account: MockAccount, now = Date.now())
       ...base.subject,
       audience: session.audience,
       id: account.userId,
-      scopes: session.audience === "resident" ? [...(session.scopes ?? [])] : [],
+      scopes: [...(session.scopes ?? [])],
     },
   };
 }

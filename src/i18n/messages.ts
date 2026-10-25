@@ -14,7 +14,7 @@ import { FALLBACK_LOCALE, type Locale } from "./routing";
  * Fallback (D-064): every locale is merged over English, key by key, so a missing my/km/lo/zh string renders in
  * English rather than as a key. Thai and English must be complete (`messages.test.ts`).
  */
-export type Namespace = "shared" | "resident" | "technician" | "prospect";
+export type Namespace = "shared" | "resident" | "technician" | "prospect" | "landlord";
 type Messages = Record<string, unknown>;
 
 export const MESSAGE_FILES = {
@@ -40,6 +40,8 @@ export const MESSAGE_FILES = {
   technician: ["auth", "workOrders"],
   /** L5 (D-252): people asking about a listing — Thai and English first, the other languages fall back to English. */
   prospect: ["rent"],
+  /** L5 5.3 (D-251): a landlord's quick actions — Thai and English; the other languages fall back to English. */
+  landlord: ["home"],
 } as const satisfies Record<Namespace, readonly string[]>;
 
 async function loadFile(locale: Locale, namespace: Namespace, feature: string): Promise<Messages> {

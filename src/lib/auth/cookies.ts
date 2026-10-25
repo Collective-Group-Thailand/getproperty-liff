@@ -2,18 +2,27 @@
  * Session cookies (ADR-0006). Tokens live only here: httpOnly, `Secure`, `SameSite=Lax`, `__Host-` prefixed
  * (host-only, `Path=/`, never a `Domain`), so neither page scripts nor another getproperty host can read or
  * plant them — an owner/staff cookie of getproperty-web has another name on another host and is never sent
- * here. Residents, technicians (R2) and prospects (L5) have separate pairs, so one person can be all three.
+ * here. Residents, technicians (R2), prospects (L5) and landlords (L5 5.3) have separate pairs, so one person can be
+ * all of them.
  *
  * Framework-free: the proxy, the BFF and the tests share it.
  */
-export type SessionKind = "resident" | "technician" | "prospect";
+export type SessionKind = "resident" | "technician" | "prospect" | "landlord";
 
 export const SESSION_COOKIES: Record<SessionKind, { access: string; refresh: string }> = {
   resident: { access: "__Host-gp_at", refresh: "__Host-gp_rt" },
   technician: { access: "__Host-gp_tat", refresh: "__Host-gp_trt" },
   /** People asking about a listing or booking a viewing (L5, D-281): an audience and a cookie pair of their own. */
   prospect: { access: "__Host-gp_pat", refresh: "__Host-gp_prt" },
+  /**
+   * A landlord's own operator session for the quick actions in LINE (L5 5.3, D-251): audience `operator`, signed in
+   * with the LINE identity linked in the web console (D-255); never mixed with their resident session.
+   */
+  landlord: { access: "__Host-gp_lat", refresh: "__Host-gp_lrt" },
 };
+
+/** The landlord's tenant (`X-Tenant-Id` of every landlord call), from the session's `tenant:` scope — not a secret. */
+export const LANDLORD_TENANT_COOKIE = "__Host-gp_ltid";
 
 /** The unit the resident picked in the header (not a secret: it only chooses among their own units). */
 export const UNIT_COOKIE = "gp_unit";

@@ -16,10 +16,12 @@ export interface LiffEntryOptions {
 
 /**
  * A deep link into the technician screens signs in as a technician (R2), one into `/rent` (a listing, my enquiries)
- * as a prospect (L5, D-281); everything else as a resident.
+ * as a prospect (L5, D-281), one into `/landlord` as the landlord's operator session (L5 5.3, D-251); everything else
+ * as a resident.
  */
 export function audienceFor(target: string, technicianEnabled: boolean): LiffAudience {
   if (/^\/rent(\/|\?|#|$)/.test(target)) return "prospect";
+  if (/^\/landlord(\/|\?|#|$)/.test(target)) return "landlord";
   return technicianEnabled && /^\/technician(\/|\?|#|$)/.test(target) ? "technician" : "resident";
 }
 

@@ -226,11 +226,13 @@ test.describe("session boundary", () => {
   });
 
   test("the BFF answers only the resident's API and refuses cross-site writes", async ({ request }) => {
-    for (const path of ["/bff/v1/owner/me", "/bff/v1/admin/me", "/bff/v1/staff/me", "/bff/v1/auth/refresh"]) {
+    for (const path of ["/bff/v1/owner/members", "/bff/v1/admin/me", "/bff/v1/staff/me", "/bff/v1/auth/refresh"]) {
       const response = await request.get(path);
       expect(response.status(), path).toBe(404);
       expect((await response.json()).code).toBe("bff.not_allowed");
     }
+    // The landlord's quick actions (L5 5.3) need the landlord's own session: without it the API answers 401.
+    expect((await request.get("/bff/v1/owner/me")).status()).toBe(401);
     const csrf = await request.post("/bff/v1/resident/consents", {
       data: {},
       headers: { origin: "https://evil.example" },

@@ -34,6 +34,17 @@ export function prospectSignInPath(next: string, userAgent: string | null | unde
   return `/rent/sign-in?next=${encodeURIComponent(target)}`;
 }
 
+/**
+ * Where a signed-out landlord goes (L5 5.3, D-251): LINE sign-in with the landlord's operator session inside LINE;
+ * elsewhere a page that says to open it in LINE (the full console is getproperty-web).
+ */
+export function landlordSignInPath(next: string, userAgent: string | null | undefined): string {
+  const safe = safeInternalPath(next);
+  const target = safe.startsWith("/landlord") ? safe : "/landlord";
+  if (isLineInAppBrowser(userAgent)) return `/liff?${LIFF_STATE_PARAM}=${encodeURIComponent(target)}`;
+  return `/landlord/sign-in?next=${encodeURIComponent(target)}`;
+}
+
 export function consentPath(next: string): string {
   const target = safeInternalPath(next);
   return target === "/" ? "/consent" : `/consent?next=${encodeURIComponent(target)}`;

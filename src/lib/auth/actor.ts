@@ -5,7 +5,7 @@ import { cache } from "react";
 
 import { problemFromParsed, type ApiError } from "@/lib/api/problem";
 import { hasSessionCookie, serverApi } from "@/lib/api/server";
-import type { ProspectMe, ResidentMe, ResidentUnit, TechnicianMe } from "@/lib/api/types";
+import type { ProspectMe, ResidentMe, ResidentUnit, Schemas, TechnicianMe } from "@/lib/api/types";
 
 import { UNIT_COOKIE } from "./cookies";
 import { entitlementsOf, type ResidentNavEntitlements } from "./entitlements";
@@ -63,6 +63,30 @@ export const getProspect = cache(async (): Promise<ProspectActor> => {
   const api = await serverApi("prospect");
   const { data, error, response } = await api.GET("/v1/prospect/me");
   if (data) return { status: "signed-in", me: data };
+  const problem = problemFromParsed(response, error);
+  if (response.status === 401 || problem.code === "auth.wrong_audience") return { status: "anonymous" };
+  return { status: "error", error: problem };
+});
+
+export type LandlordActor =
+  | { status: "anonymous" }
+  | { status: "error"; error: ApiError }
+  /** Signed in, but the organisation is not a landlord's (an apartment's operators use the web console). */
+  | { status: "not-landlord"; me: Schemas["OperatorMeDto"] }
+  | { status: "signed-in"; me: Schemas["OperatorMeDto"] };
+
+/**
+ * The landlord's operator session (L5 5.3, D-251): `/v1/owner/me` with the session's tenant. Only a landlord tenant
+ * gets the quick actions; anyone else is pointed to the web console.
+ */
+export const getLandlord = cache(async (): Promise<LandlordActor> => {
+  if (!(await hasSessionCookie("landlord"))) return { status: "anonymous" };
+  const api = await serverApi("landlord");
+  const { data, error, response } = await api.GET("/v1/owner/me");
+  if (data)
+    return data.currentTenant?.type === "landlord"
+      ? { status: "signed-in", me: data }
+      : { status: "not-landlord", me: data };
   const problem = problemFromParsed(response, error);
   if (response.status === 401 || problem.code === "auth.wrong_audience") return { status: "anonymous" };
   return { status: "error", error: problem };

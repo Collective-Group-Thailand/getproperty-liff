@@ -101,6 +101,11 @@ export function LiffEntry({ technicianEnabled }: { technicianEnabled: boolean })
         router.replace(next);
         return;
       }
+      // A landlord whose LINE is not linked to their getproperty account yet (L5 5.3, D-255): say how to link it.
+      if (outcome.status === "error" && outcome.code === "auth.identity_not_linked") {
+        router.replace("/landlord/sign-in?reason=not_linked");
+        return;
+      }
       setResult(outcome);
     })();
     return () => {
