@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { loadLease, loadNotices, pageLocale } from "@/features/resident/lease/data";
+import { CERTIFICATE_LEASE_STATES, CertificateLink } from "@/features/resident/lease/Certificates";
 import { LetterList } from "@/features/resident/lease/Letters";
 import { LeaseView } from "@/features/resident/lease/LeaseView";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
@@ -33,6 +34,7 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
         <>
           <LeaseView lease={lease.data} locale={locale} depositId={depositId} />
           {notices.data ? <LetterList leaseId={leaseId} notices={notices.data} locale={locale} /> : null}
+          {CERTIFICATE_LEASE_STATES.includes(lease.data.status) ? <CertificateLink leaseId={leaseId} /> : null}
         </>
       )}
     </ResidentShell>

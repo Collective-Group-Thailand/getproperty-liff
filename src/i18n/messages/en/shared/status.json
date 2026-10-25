@@ -114,5 +114,10 @@
     "cancelled": "Cancelled",
     "completed": "Viewed",
     "no_show": "Missed"
+  },
+  "rentCertificate": {
+    "requested": "Waiting",
+    "issued": "Issued",
+    "declined": "Declined"
   }
 }

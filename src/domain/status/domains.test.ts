@@ -12,6 +12,7 @@ import { LEASE_STATUS } from "./lease";
 import { PARCEL_STATUS } from "./parcel";
 import { PAYMENT_STATUS } from "./payment";
 import { READING_SOURCE } from "./reading";
+import { RENT_CERTIFICATE_STATE } from "./rentCertificate";
 import { SERVICE_REQUEST_STATUS } from "./serviceRequest";
 import { SETTLEMENT_STATUS } from "./settlement";
 import { SLIP_STATUS } from "./slip";
@@ -34,6 +35,7 @@ const MAPS = {
   booking: BOOKING_STATUS,
   credential: CREDENTIAL_STATUS,
   accessResult: ACCESS_RESULT,
+  rentCertificate: RENT_CERTIFICATE_STATE,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {

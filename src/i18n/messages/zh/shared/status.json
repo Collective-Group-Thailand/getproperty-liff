@@ -114,5 +114,10 @@
     "cancelled": "已取消",
     "completed": "已看房",
     "no_show": "未到场"
+  },
+  "rentCertificate": {
+    "requested": "等待中",
+    "issued": "已开具",
+    "declined": "已拒绝"
   }
 }

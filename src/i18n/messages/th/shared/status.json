@@ -114,5 +114,10 @@
     "cancelled": "ยกเลิกแล้ว",
     "completed": "ดูห้องแล้ว",
     "no_show": "ไม่ได้ไปตามนัด"
+  },
+  "rentCertificate": {
+    "requested": "รอเจ้าของ",
+    "issued": "ออกแล้ว",
+    "declined": "ออกให้ไม่ได้"
   }
 }

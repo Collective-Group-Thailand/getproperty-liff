@@ -228,6 +228,24 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "resident.leases.rentCertificates",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/rent-certificates",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.leases.requestRentCertificate",
+    method: "POST",
+    path: "/v1/resident/leases/{leaseId}/rent-certificates",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.leases.rentCertificateDocument",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/rent-certificates/{certificateId}/document",
+    idempotent: false,
+  },
+  {
     operationId: "resident.leases.acknowledgeRules",
     method: "POST",
     path: "/v1/resident/leases/{leaseId}/rules/acknowledge",

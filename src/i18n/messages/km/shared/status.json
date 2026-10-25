@@ -114,5 +114,10 @@
     "cancelled": "បានលុបចោល",
     "completed": "បានមើលរួច",
     "no_show": "មិនបានមកតាមការណាត់"
+  },
+  "rentCertificate": {
+    "requested": "កំពុងរង់ចាំ",
+    "issued": "បានចេញ",
+    "declined": "បានបដិសេធ"
   }
 }

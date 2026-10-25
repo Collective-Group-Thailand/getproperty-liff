@@ -195,5 +195,49 @@
     },
     "toBills": "Go to my bills",
     "toLease": "See the lease"
+  },
+  "certificates": {
+    "title": "Rent payment certificate",
+    "linkHint": "For a visa, a bank or an employer",
+    "lead": "Ask {name} here. When it is issued, we will tell you in LINE.",
+    "back": "Back to the lease",
+    "listTitle": "Your requests",
+    "empty": "You have not asked for a certificate yet.",
+    "open": "Open the certificate (PDF)",
+    "period": "{from} – {to}",
+    "issued": "No. {number} · issued {date}",
+    "totalPaid": "paid {amount}",
+    "waiting": "Asked on {date}; waiting for the landlord.",
+    "declined": "The landlord could not issue it: {reason}",
+    "openTitle": "A request is waiting",
+    "openBody": "One request at a time. Once the landlord answers this one, you can ask again.",
+    "unavailableTitle": "Not yet",
+    "unavailableBody": "You can ask for a certificate once the lease has started.",
+    "purposes": {
+      "visa": "Visa",
+      "bank": "Bank",
+      "employer": "Employer",
+      "other": "Other"
+    },
+    "form": {
+      "title": "Ask for a new certificate",
+      "lead": "Covers the payments of the last 12 months (not before the lease began), with any balance due.",
+      "purpose": "What it is for",
+      "language": "Language",
+      "languageHint": "Embassies and foreign banks usually want English.",
+      "languages": {
+        "th": "ไทย",
+        "en": "English"
+      },
+      "note": "Message to the landlord",
+      "noteHint": "Optional — for example, the date you need it by",
+      "submit": "Send the request",
+      "purposes": {
+        "visa": "Visa",
+        "bank": "Bank",
+        "employer": "Employer",
+        "other": "Other"
+      }
+    }
   }
 }

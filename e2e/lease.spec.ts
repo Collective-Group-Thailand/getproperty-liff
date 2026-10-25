@@ -179,3 +179,34 @@ test.describe("letters from the landlord (B7.5, D-253)", () => {
     await expect(page.getByTestId("lease-view")).toBeVisible();
   });
 });
+
+test.describe("rent payment certificate (B7.5, D-253)", () => {
+  test("from the lease: open the issued one, ask for a new one, then wait — one request at a time", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("certs"));
+    await page.goto("/lease");
+    await page.getByTestId("lease-certificates").click();
+    const view = page.getByTestId("certificates-page");
+    await expect(view.getByRole("heading", { level: 1 })).toHaveText("หนังสือรับรองการชำระค่าเช่า");
+    const issued = view.getByTestId("certificate").filter({ hasText: "RPC-2569-00001" });
+    await expect(issued).toHaveAttribute("data-state", "issued");
+    await expect(issued.getByTestId("certificate-document")).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await expectAxeClean(page);
+
+    const form = page.getByTestId("certificate-form");
+    await form.getByRole("radio", { name: "นายจ้าง" }).click();
+    await form.getByRole("radio", { name: "English" }).click();
+    await page.getByTestId("certificate-note").fill("ต้องใช้ภายในสิ้นเดือน");
+    await page.getByTestId("certificate-submit").click();
+    await expect(page.getByTestId("certificate-open")).toBeVisible();
+    await expect(page.getByTestId("certificate-form")).toHaveCount(0);
+    const waiting = view.getByTestId("certificate").first();
+    await expect(waiting).toHaveAttribute("data-state", "requested");
+    await expect(waiting).toContainText("นายจ้าง");
+    await expectAxeClean(page);
+  });
+});
