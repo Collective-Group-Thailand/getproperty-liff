@@ -105,6 +105,23 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
         />
       </Card>
 
+      {/* A landlord's decision (D-263): who fixes it and who pays, as the owner set it. */}
+      {request.decision ? (
+        <Card as="section" padding="md" aria-labelledby="decision-title" data-testid="request-decision">
+          <h2 id="decision-title" className="font-semibold">
+            {t("detail.decision.title")}
+          </h2>
+          <p className="mt-1" data-testid="request-decision-handled">
+            {t(`detail.decision.handled.${request.decision.handledBy}`)}
+          </p>
+          <p className="text-muted mt-1 text-sm" data-testid="request-decision-bearer">
+            {request.decision.costBearer === "shared"
+              ? t("detail.decision.shared", { share: Number(request.decision.tenantSharePercent ?? 0) })
+              : t(`detail.decision.bearer.${request.decision.costBearer}`)}
+          </p>
+        </Card>
+      ) : null}
+
       {/* The SLA as the API keeps it (D-210, D-218) while the request is open; `paused` while referred to the warranty. */}
       {request.sla && request.sla.state !== "none" && isOpenRequest(request) ? (
         <div data-testid="request-sla" data-state={request.sla.state}>

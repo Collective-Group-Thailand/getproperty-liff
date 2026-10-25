@@ -91,7 +91,20 @@
       "cancelled": "ຍົກເລີກແລ້ວ"
     },
     "ratingShown": "{rating, plural, other {ທ່ານໃຫ້ # ດາວ}}",
-    "ratingComment": "“{comment}”"
+    "ratingComment": "“{comment}”",
+    "decision": {
+      "title": "ໃຜສ້ອມ ໃຜຈ່າຍ",
+      "handled": {
+        "owner_technician": "ເຈົ້າຂອງຈະສົ່ງຊ່າງມາສ້ອມ",
+        "tenant": "ເຈົ້າຂອງຂໍໃຫ້ທ່ານຈັດຫາຊ່າງເອງ",
+        "partner": "ເຈົ້າຂອງຈະປະສານຊ່າງຂອງນິຕິບຸກຄົນ ຫຼື ພາກສ່ວນ"
+      },
+      "bearer": {
+        "owner": "ເຈົ້າຂອງເປັນຜູ້ຈ່າຍຄ່າສ້ອມ",
+        "tenant": "ທ່ານເປັນຜູ້ຈ່າຍຄ່າສ້ອມ ຈະຢູ່ໃນບິນຖັດໄປ"
+      },
+      "shared": "ແບ່ງຈ່າຍ: ສ່ວນຂອງທ່ານ {share}% ຈະຢູ່ໃນບິນຖັດໄປ"
+    }
   },
   "cancel": {
     "action": "ຍົກເລີກເລື່ອງນີ້",

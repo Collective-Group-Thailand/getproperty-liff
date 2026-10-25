@@ -200,6 +200,15 @@ function newRequest(
       unitId: unit.unitId,
       unitNo: unit.unitNo,
       nextActions: ["cancel"],
+      // `…decided…` accounts: the landlord decides at once who fixes and who pays (D-263), as the owner console would.
+      decision: account.subject.toLowerCase().includes("decided")
+        ? {
+            handledBy: "owner_technician",
+            costBearer: "shared",
+            tenantSharePercent: "50.00",
+            decidedAt: bangkokIso(at),
+          }
+        : null,
     },
   };
   service.requests.set(id, request);
