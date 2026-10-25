@@ -3,7 +3,7 @@ import "server-only";
 import { getLocale } from "next-intl/server";
 
 import { isLocale, type Locale } from "@/i18n/routing";
-import type { LeaseView } from "@/lib/api/types";
+import type { LeaseView, Schemas } from "@/lib/api/types";
 import { problemFromParsed, type ApiError } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
 
@@ -28,6 +28,15 @@ export async function loadLeases(): Promise<Loaded<LeaseView[]>> {
 export async function loadLease(leaseId: string): Promise<Loaded<LeaseView>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/leases/{leaseId}", {
+    params: { path: { leaseId } },
+  });
+  return data ? { data } : { error: problemFromParsed(response, error) };
+}
+
+/** `GET /v1/resident/leases/{leaseId}/notices` — letters from the landlord on this lease, newest first (B7.5, D-253). */
+export async function loadNotices(leaseId: string): Promise<Loaded<Schemas["LeaseNoticeDto"][]>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/leases/{leaseId}/notices", {
     params: { path: { leaseId } },
   });
   return data ? { data } : { error: problemFromParsed(response, error) };

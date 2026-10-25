@@ -216,6 +216,18 @@ export const OPERATIONS = [
     idempotent: true,
   },
   {
+    operationId: "resident.leases.notices",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/notices",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.leases.noticeDocument",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/notices/{noticeId}/document",
+    idempotent: false,
+  },
+  {
     operationId: "resident.leases.acknowledgeRules",
     method: "POST",
     path: "/v1/resident/leases/{leaseId}/rules/acknowledge",

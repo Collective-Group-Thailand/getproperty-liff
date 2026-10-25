@@ -155,5 +155,45 @@
       "back": "返回租约",
       "documents": "我的文件"
     }
+  },
+  "letters": {
+    "title": "房东来信",
+    "open": "阅读完整信件 (PDF)",
+    "back": "返回租约",
+    "sentOn": "发送于 {date}",
+    "sentOnLabel": "发送日期",
+    "from": "来自 {name} · 编号 {number}",
+    "kinds": {
+      "rent_increase": "租金调整通知",
+      "renewal_offer": "续约邀请",
+      "non_renewal": "不续约通知",
+      "termination": "终止租约通知",
+      "late_payment": "欠租通知"
+    },
+    "lead": {
+      "rent_increase": "房东告知下一份租约的新租金。当前租约期间的租金不变。",
+      "renewal_offer": "房东愿意按以下条件为您续约，不收续约费。",
+      "non_renewal": "房东通知不再续约，租约按期结束。",
+      "termination": "房东依完整信件中所述理由终止租约。",
+      "late_payment": "以下款项已逾期。本信不是终止租约。"
+    },
+    "newRent": "月租金",
+    "months": "租期",
+    "monthsValue": "{months} 个月",
+    "fromDate": "生效日期",
+    "endsOn": "租约结束",
+    "amountDue": "逾期金额",
+    "payBy": "请于此日前付款",
+    "answerBy": "请于此日前回复",
+    "item": "账单 {number}，到期 {date}",
+    "after": {
+      "rent_increase": "如有疑问，请按信中方式联系房东。",
+      "renewal_offer": "如需续约，请在期限前回复房东，新租约将发到应用中供您签署。",
+      "non_renewal": "请在租约结束日前交还房间。房东会与您一起验房，并按租约退还押金。",
+      "termination": "任何人都不得停水停电或更换门锁。如有异议，请联系房东或消费者保护委员会 (1166)。",
+      "late_payment": "请用账单上的 Thai QR 付款。如已付款，无需其他操作。"
+    },
+    "toBills": "查看我的账单",
+    "toLease": "查看租约"
   }
 }
