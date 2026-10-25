@@ -1,4 +1,4 @@
-// copied from getproperty-web@6a8ffcf until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -246,7 +246,7 @@ export function CameraCapture({
       </div>
 
       {multiple && shots.length > 0 ? (
-        <ul className="flex gap-2 overflow-x-auto pb-1" data-testid="camera-shots">
+        <ul className="relative flex gap-2 overflow-x-auto pb-1" data-testid="camera-shots">
           {shots.map((shot, index) => (
             <li key={shot.url} className="relative shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element -- a local blob preview, not a page image */}

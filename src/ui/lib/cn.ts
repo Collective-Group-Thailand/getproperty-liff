@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
@@ -9,8 +9,10 @@ import { extendTailwindMerge } from "tailwind-merge";
  * module does not need to; `cn.test.ts` fails if a new radius or shadow in the tokens is missing.
  */
 export const SEMANTIC_SCALE_NAMES = {
-  radius: ["control", "card", "panel"],
+  radius: ["control", "card", "panel", "photo"],
   shadow: ["card", "raised", "overlay"],
+  /** Type-scale steps that are not t-shirt sizes (src/ui/tokens/scale.ts): `text-display` is a size, not a colour. */
+  text: ["display"],
 };
 
 const twMerge = extendTailwindMerge({ extend: { theme: SEMANTIC_SCALE_NAMES } });

@@ -81,6 +81,8 @@ The Noto Sans Myanmar / Khmer / Lao / SC subsets (L4 4.3) are **owned here for n
 generated `scripts.css`, from `scripts/script-fonts.ts`; not in this manifest): getproperty-web's `src/ui/fonts` has no such subsets yet and this session may not edit getproperty-web —
 move them there (and back into this manifest as `binary` rows) when getproperty-web's console gains those locales.
 
+**Re-sync 2026-10-25** (from getproperty-web **`2005ad0`**, `pnpm shared:check`: 291 copies, 0 drift): Anuphan is now the only UI typeface here too (web switched on 2026-10-24: `src/ui/fonts/index.ts`, `.storybook/fonts.css`, `scripts/copy-fonts.ts`, the README; the two Noto Sans Thai files and their rows are gone), `Progress` gained `tone`, the scroll wrappers of `Tabs` / `SimpleTable` / `CameraCapture` / `ImageViewer` became `relative`, `CountBadge`, `cn`, the type scale and `tokens.css`, `format.ts` (+ test), `curated.ts` (+ `book`, `calculator`, `globe`, `percent`, `printer` glyphs, regenerated with `pnpm icons`) and `design-system.md`; `Tokens.mdx` names Anuphan (fixed in getproperty-web first, `a2bd4b6`).
+
 
 ## Design system — `src/ui`
 
@@ -107,13 +109,13 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Callout.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Callout.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/CameraCapture.stories.tsx` | verbatim | `6a8ffcf` |
-| `src/ui/components/CameraCapture.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/CameraCapture.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Checkbox.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/Checkbox.tsx` | verbatim | `2493107` |
 | `src/ui/components/CountBadge.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/CountBadge.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/CountBadge.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/DescriptionList.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/DescriptionList.tsx` | verbatim | `2493107` |
 | `src/ui/components/Dialog.stories.tsx` | verbatim | `08ff63b` |
@@ -131,7 +133,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/IconButton.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/IconButton.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ImageViewer.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/ImageViewer.tsx` | verbatim | `2493107` |
+| `src/ui/components/ImageViewer.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/Input.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/MoneyDisplay.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/MoneyDisplay.tsx` | verbatim | `08ff63b` |
@@ -142,15 +144,15 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/PhoneInput.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.test.ts` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Progress.stories.tsx` | verbatim | `6a8ffcf` |
-| `src/ui/components/Progress.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/Progress.stories.tsx` | verbatim | `2005ad0` |
+| `src/ui/components/Progress.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/SegmentedControl.stories.tsx` | verbatim | `79541bc` |
 | `src/ui/components/SegmentedControl.tsx` | verbatim | `79541bc` |
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/SimpleTable.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/SimpleTable.tsx` | verbatim | `2493107` |
+| `src/ui/components/SimpleTable.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
@@ -164,7 +166,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Switch.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/Switch.tsx` | verbatim | `2493107` |
 | `src/ui/components/Tabs.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/Tabs.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/Tabs.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/Timeline.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Timeline.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Toast.stories.tsx` | verbatim | `08ff63b` |
@@ -174,28 +176,26 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/index.ts` | adapted | `2493107` |
 | `src/ui/components/overlays.tsx` | adapted | `f57d4dc` |
 | `src/ui/docs/Principles.mdx` | adapted | `79541bc` |
-| `src/ui/docs/Tokens.mdx` | verbatim | `79541bc` |
+| `src/ui/docs/Tokens.mdx` | verbatim | `a2bd4b6` |
 | `src/ui/docs/VoiceAndTone.mdx` | verbatim | `08ff63b` |
 | `src/ui/docs/tokens-blocks.tsx` | verbatim | `08ff63b` |
-| `src/ui/fonts/README.md` | verbatim | `08ff63b` |
+| `src/ui/fonts/README.md` | verbatim | `2005ad0` |
 | `src/ui/fonts/files/anuphan-latin.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/files/anuphan-thai.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/files/jetbrains-mono-latin.woff2` | binary | `08ff63b` |
-| `src/ui/fonts/files/noto-sans-thai-latin.woff2` | binary | `08ff63b` |
-| `src/ui/fonts/files/noto-sans-thai-thai.woff2` | binary | `08ff63b` |
-| `src/ui/fonts/index.ts` | verbatim | `08ff63b` |
-| `src/ui/generated/tokens.css` | generated | `79541bc` |
+| `src/ui/fonts/index.ts` | verbatim | `2005ad0` |
+| `src/ui/generated/tokens.css` | generated | `2005ad0` |
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | verbatim | `7f6030b` |
+| `src/ui/icons/curated.ts` | verbatim | `2005ad0` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
 | `src/ui/icons/glyphs/*.ts` | generated | `7f6030b` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/registry.ts` | generated | `7f6030b` |
+| `src/ui/icons/registry.ts` | generated | `2005ad0` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
-| `src/ui/lib/cn.ts` | verbatim | `08ff63b` |
+| `src/ui/lib/cn.ts` | verbatim | `2005ad0` |
 | `src/ui/lib/image.test.ts` | verbatim | `7b560af` |
 | `src/ui/lib/image.ts` | verbatim | `7b560af` |
 | `src/ui/lib/index.ts` | verbatim | `f57d4dc` |
@@ -218,9 +218,9 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/tokens/README.md` | verbatim | `08ff63b` |
 | `src/ui/tokens/color.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/contrast.test.ts` | verbatim | `08ff63b` |
-| `src/ui/tokens/index.ts` | verbatim | `08ff63b` |
+| `src/ui/tokens/index.ts` | verbatim | `2005ad0` |
 | `src/ui/tokens/primitives.ts` | verbatim | `79541bc` |
-| `src/ui/tokens/scale.ts` | verbatim | `08ff63b` |
+| `src/ui/tokens/scale.ts` | verbatim | `2005ad0` |
 | `src/ui/tokens/semantic.ts` | verbatim | `79541bc` |
 
 ## i18n formatters and status presentation
@@ -229,23 +229,23 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 |---|---|---|
 | `src/domain/status/index.ts` | adapted | `f57d4dc` |
 | `src/domain/status/status.test.ts` | adapted | `f57d4dc` |
-| `src/i18n/format.test.ts` | verbatim | `7f6030b` |
-| `src/i18n/format.ts` | verbatim | `7f6030b` |
+| `src/i18n/format.test.ts` | verbatim | `2005ad0` |
+| `src/i18n/format.ts` | verbatim | `2005ad0` |
 
 ## App, scripts, lint rules, Storybook
 
 | Path | Mode | Source commit |
 |---|---|---|
-| `.storybook/fonts.css` | verbatim | `08ff63b` |
+| `.storybook/fonts.css` | verbatim | `2005ad0` |
 | `.storybook/main.ts` | adapted | `08ff63b` |
 | `.storybook/preview.css` | verbatim | `08ff63b` |
 | `.storybook/preview.tsx` | adapted | `08ff63b` |
 | `eslint-rules/no-money-arithmetic.mjs` | verbatim | `08ff63b` |
 | `eslint-rules/no-money-arithmetic.test.ts` | verbatim | `08ff63b` |
 | `scripts/build-icons.ts` | verbatim | `f57d4dc` |
-| `scripts/build-tokens.ts` | verbatim | `79541bc` |
+| `scripts/build-tokens.ts` | verbatim | `2005ad0` |
 | `scripts/check-contrast.ts` | verbatim | `79541bc` |
-| `scripts/copy-fonts.ts` | verbatim | `08ff63b` |
+| `scripts/copy-fonts.ts` | verbatim | `2005ad0` |
 | `scripts/gen-api.ts` | adapted | `08ff63b` |
 | `scripts/lhci.ts` | adapted | `f57d4dc` |
 | `scripts/release-hygiene.ts` | adapted | `08ff63b` |
@@ -289,6 +289,6 @@ icon) and the logo block of `public/offline.html` — both written by this app's
 
 | Path | Mode | Source commit |
 |---|---|---|
-| `docs/prompts/design-system.md` | verbatim | `f57d4dc` |
+| `docs/prompts/design-system.md` | verbatim | `2005ad0` |
 | `docs/ui/brand.md` | verbatim | `79541bc` |
 | `docs/ui/voice-and-tone.md` | verbatim | `08ff63b` |

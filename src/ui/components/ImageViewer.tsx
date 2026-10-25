@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 "use client";
 
 import { useState } from "react";
@@ -31,7 +31,7 @@ export function ImageViewer({ src, alt, labels, className, "data-testid": testId
     <div className={cn("flex flex-col gap-2", className)} data-testid={testId} data-zoom={zoom}>
       {/* Focusable so the zoomed picture can be scrolled with the keyboard (WCAG 2.1.1). */}
       <div
-        className="border-border bg-bg-subtle max-h-[70vh] overflow-auto rounded-md border"
+        className="border-border bg-bg-subtle relative max-h-[70vh] overflow-auto rounded-md border"
         tabIndex={0}
         role="region"
         aria-label={alt}

@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 "use client";
 
 import { Tabs as TabsPrimitive } from "radix-ui";
@@ -30,7 +30,7 @@ export const TabPanel = TabsPrimitive.Content;
 export function Tabs({ tabs, label, children, className, ...props }: TabsProps) {
   return (
     <TabsPrimitive.Root className={className} {...props}>
-      <TabsPrimitive.List aria-label={label} className="border-border flex gap-1 overflow-x-auto border-b">
+      <TabsPrimitive.List aria-label={label} className="border-border relative flex gap-1 overflow-x-auto border-b">
         {tabs.map((tab) => (
           <TabsPrimitive.Trigger
             key={tab.value}

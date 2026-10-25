@@ -23,7 +23,7 @@ function covered(files: string[]): Set<number> {
 }
 
 /** The design system's own faces, ahead of / after the script family in every stack. */
-const LATIN = [join(UI_FONTS, "noto-sans-thai-latin.woff2"), join(UI_FONTS, "noto-sans-thai-thai.woff2")];
+const LATIN = [join(UI_FONTS, "anuphan-latin.woff2"), join(UI_FONTS, "anuphan-thai.woff2")];
 
 /**
  * The language switcher names each language in its own script (`shell.languageNames`) on every page; those

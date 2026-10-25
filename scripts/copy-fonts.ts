@@ -1,6 +1,6 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 /**
- * Copies the five woff2 files the design system ships (ADR-0001) from the `@fontsource-variable/*`
+ * Copies the three woff2 files the design system ships (ADR-0001) from the `@fontsource-variable/*`
  * packages into `src/ui/fonts/files/`, where `next/font/local` and Storybook read them.
  *
  *   pnpm fonts            copy (also runs on `postinstall`)
@@ -21,16 +21,6 @@ const OUT = resolve(dirname(fileURLToPath(import.meta.url)), "../src/ui/fonts/fi
 
 /** Package → the subset file inside its `files/` → the name the app knows it by. */
 const FONTS: { pkg: string; file: string; as: string }[] = [
-  {
-    pkg: "@fontsource-variable/noto-sans-thai",
-    file: "noto-sans-thai-thai-wght-normal.woff2",
-    as: "noto-sans-thai-thai.woff2",
-  },
-  {
-    pkg: "@fontsource-variable/noto-sans-thai",
-    file: "noto-sans-thai-latin-wght-normal.woff2",
-    as: "noto-sans-thai-latin.woff2",
-  },
   { pkg: "@fontsource-variable/anuphan", file: "anuphan-thai-wght-normal.woff2", as: "anuphan-thai.woff2" },
   { pkg: "@fontsource-variable/anuphan", file: "anuphan-latin-wght-normal.woff2", as: "anuphan-latin.woff2" },
   {
