@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 import { cn } from "../lib/cn";
 
 /**
@@ -11,7 +11,7 @@ export function CountBadge({ count, max = 99, className }: { count: number; max?
     <span
       aria-hidden="true"
       className={cn(
-        "bg-primary text-primary-fg absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-none font-semibold tabular-nums",
+        "bg-primary text-primary-fg text-2xs absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 leading-none font-semibold tabular-nums",
         className,
       )}
     >

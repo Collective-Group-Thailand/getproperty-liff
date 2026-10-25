@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 /**
  * The design tokens (ADR-0003), tier by tier:
  *   primitives.ts  the raw OKLCH palette and the paper
@@ -19,6 +19,9 @@ export {
   EASING,
   FONT_FAMILY,
   FONT_SIZE,
+  FONT_LINE_HEIGHT,
+  CONSOLE_FONT_SIZE,
+  CONSOLE_LINE_HEIGHT,
   FONT_WEIGHT,
   LINE_HEIGHT,
   RADIUS,

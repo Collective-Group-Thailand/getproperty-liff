@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
+// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
 import { cn } from "@/ui/lib/cn";
 
 export interface SimpleColumn {
@@ -41,7 +41,7 @@ export function SimpleTable({
   className?: string;
 }) {
   return (
-    <div className={cn("border-border bg-surface rounded-card overflow-x-auto border", className)}>
+    <div className={cn("border-border bg-surface rounded-card relative overflow-x-auto border", className)}>
       <table className="w-full text-sm" style={{ minWidth }} data-testid={testId}>
         <caption className="sr-only">{caption}</caption>
         <thead>
