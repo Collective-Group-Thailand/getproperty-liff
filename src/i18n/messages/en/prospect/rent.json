@@ -14,7 +14,20 @@
     "action": "Sign in with LINE",
     "openInLine": "Open in LINE",
     "lineHint": "You go to LINE and come back to this page.",
-    "soon": "Signing in with a phone number, Google or Apple is coming soon."
+    "or": "or",
+    "otherTitle": "No LINE on this device?",
+    "phone": {
+      "label": "Mobile number",
+      "hint": "We send a 6-digit code by SMS",
+      "invalid": "Enter a 10-digit Thai mobile number",
+      "send": "Send a code by SMS",
+      "sentTo": "Code sent to {phone}",
+      "digit": "Digit {index}",
+      "wrong": "Wrong code. {count, plural, =0 {Ask for a new one.} one {# try left.} other {# tries left.}}",
+      "verify": "Confirm and sign in",
+      "change": "Change number",
+      "resend": "Send a new code"
+    }
   },
   "choose": {
     "label": "What would you like to do",

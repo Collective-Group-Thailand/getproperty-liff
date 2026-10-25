@@ -191,6 +191,39 @@ function lineExchange(audience: MockSession["audience"], operationId: string) {
   });
 }
 
+function readFakeFirebase(provider: unknown, idToken: unknown): { uid: string; email: string | null } | null {
+  if (typeof idToken !== "string" || (provider !== "firebase_google" && provider !== "firebase_apple")) return null;
+  const [marker, kind, uid, ...rest] = idToken.split(".");
+  if (marker !== "fake-firebase" || !uid || `firebase_${kind}` !== provider) return null;
+  const email = rest.join(".");
+  return { uid, email: email ? decodeURIComponent(email) : null };
+}
+
+function firebaseExchange(audience: "prospect" | "resident", operationId: string) {
+  return http.post(mswPath(`/v1/auth/${audience}/identity`), async ({ request }) => {
+    const body = await json<{ provider?: unknown; idToken?: unknown }>(request);
+    if (!body) return problem(operationId, "validation.failed");
+    const identity = readFakeFirebase(body.provider, body.idToken);
+    if (!identity) return problem(operationId, "auth.identity_token_invalid");
+    if (audience === "resident") {
+      if (!identity.uid.startsWith("linked-")) return problem(operationId, "auth.identity_not_linked");
+      const account = accountFor(`firebase:${identity.uid}`, {
+        displayName: "Resident",
+        phone: null,
+        lineLinked: true,
+      });
+      return HttpResponse.json(tokenPair(openSession("resident", account.userId), account));
+    }
+    if (!identity.email) return problem(operationId, "auth.identity_contact_required");
+    const account = accountFor(`prospect-firebase:${identity.uid}`, {
+      displayName: identity.email,
+      phone: null,
+      lineLinked: false,
+    });
+    return HttpResponse.json(tokenPair(openSession("prospect", account.userId), account));
+  });
+}
+
 const THAI_MOBILE = /^(?:\+66|0)([689]\d{8})$/;
 
 export const contractHandlers: HttpHandler[] = [
@@ -242,6 +275,49 @@ export const contractHandlers: HttpHandler[] = [
     if (account.disabled) return problem(op, "auth.account_disabled");
     return HttpResponse.json(tokenPair(openSession("resident", account.userId), account));
   }),
+
+  // Prospects outside LINE (D-255, D-283): an SMS code to any phone; the account is keyed `prospect-phone:`.
+  http.post(mswPath("/v1/auth/prospect/otp/request"), async ({ request }) => {
+    const body = await json<{ phone?: unknown }>(request);
+    const phone = typeof body?.phone === "string" ? body.phone.replace(/[\s-]/g, "") : "";
+    const match = THAI_MOBILE.exec(phone);
+    if (!match) return problem("auth.prospectOtp.request", "validation.failed");
+    const now = Date.now();
+    return HttpResponse.json({
+      challengeId: newChallenge(`+66${match[1]}`),
+      expiresAt: bangkokIso(now + 5 * 60_000),
+      resendAvailableAt: bangkokIso(now + 60_000),
+    } satisfies Schemas["OtpChallengeDto"]);
+  }),
+
+  http.post(mswPath("/v1/auth/prospect/otp/verify"), async ({ request }) => {
+    const op = "auth.prospectOtp.verify";
+    const body = await json<{ challengeId?: unknown; code?: unknown }>(request);
+    if (typeof body?.challengeId !== "string" || typeof body.code !== "string") return problem(op, "validation.failed");
+    const pending = challenge(body.challengeId);
+    if (!pending || body.code === OTP_EXPIRED_CODE) return problem(op, "auth.otp_expired");
+    if (body.code !== OTP_CODE) {
+      pending.attempts += 1;
+      if (pending.attempts >= OTP_MAX_ATTEMPTS) {
+        dropChallenge(body.challengeId);
+        return problem(op, "auth.otp_attempts_exceeded");
+      }
+      return problem(op, "auth.otp_invalid", { attemptsRemaining: OTP_MAX_ATTEMPTS - pending.attempts });
+    }
+    dropChallenge(body.challengeId);
+    const account = accountFor(`prospect-phone:${pending.phone}`, {
+      displayName: pending.phone,
+      phone: pending.phone,
+      lineLinked: false,
+    });
+    return HttpResponse.json(tokenPair(openSession("prospect", account.userId), account));
+  }),
+
+  // Google / Apple (D-255, D-283) with the readable fake Firebase tokens (`fake-firebase.<google|apple>.<uid>[.<email>]`):
+  // a prospect gets an account on first use (it needs the e-mail); a resident only when the identity is linked — in the
+  // mock, a uid starting with `linked-`.
+  firebaseExchange("prospect", "auth.prospectIdentity.exchange"),
+  firebaseExchange("resident", "auth.residentIdentity.exchange"),
 
   // Technicians (B5.1, D-226): SMS sign-in for a technician the owner entered with a phone; the phone match waits for
   // the Owner's confirmation (no work orders until then). The account is keyed `tech-phone:` (its work orders are

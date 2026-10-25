@@ -110,6 +110,21 @@ export const serverSchema = z
     /** OTLP/HTTP collector; when set, server fetches (incl. calls to the API) are traced (`@vercel/otel`). */
     OTEL_EXPORTER_OTLP_ENDPOINT: optionalUrl,
     OTEL_SERVICE_NAME: z.string().default("getproperty-liff"),
+    /**
+     * Google and Apple outside LINE for prospects and residents (D-255, D-283). Unset = `live` in production (a button
+     * shows only when its client below is configured) and `fake` elsewhere (a local test page stands in for the
+     * provider and hands back the fake tokens getproperty-api's fake verifiers accept). LINE is LIFF / "open in LINE".
+     */
+    OAUTH_MODE: z.enum(["live", "fake"]).optional(),
+    GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
+    GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
+    APPLE_SERVICES_ID: z.string().optional(),
+    APPLE_TEAM_ID: z.string().optional(),
+    APPLE_KEY_ID: z.string().optional(),
+    /** The Sign in with Apple `.p8` key (PEM, `\n` allowed). */
+    APPLE_PRIVATE_KEY: z.string().optional(),
+    /** Web API key of getproperty's Firebase project (Google / Apple id token → Firebase ID token). */
+    FIREBASE_WEB_API_KEY: z.string().optional(),
     ...publicShape,
   })
   .superRefine((env, ctx) => {
@@ -135,6 +150,11 @@ export const serverSchema = z
   });
 
 export type ServerEnv = z.infer<typeof serverSchema>;
+
+/** `OAUTH_MODE` with its default: live in production, fake elsewhere. */
+export function oauthMode(env: ServerEnv): "live" | "fake" {
+  return env.OAUTH_MODE ?? (env.NODE_ENV === "production" ? "live" : "fake");
+}
 
 export class InvalidEnvironmentError extends Error {
   constructor(readonly problems: string[]) {

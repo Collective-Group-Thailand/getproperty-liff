@@ -20,7 +20,19 @@ import { savePendingOtp } from "./otpSession";
  * phone → `/v1/auth/resident/otp/request` → a code and a link by SMS → `/auth/otp`. The API answers the same
  * whether or not the number is known (no account enumeration, D-164), and so does this page.
  */
-export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
+export function SignIn({
+  next,
+  lineHref,
+  notice,
+  more,
+}: {
+  next: string;
+  lineHref: string;
+  /** A refusal from a Google / Apple attempt (server-rendered). */
+  notice?: React.ReactNode;
+  /** Google / Apple buttons (D-255), under the SMS form. */
+  more?: React.ReactNode;
+}) {
   const t = useTranslations("resident.auth.signIn");
   const router = useRouter();
   const [phone, setPhone] = useState("");
@@ -64,6 +76,7 @@ export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>
       </div>
+      {notice}
 
       <Card as="section" padding="md" className="flex flex-col gap-3">
         <Button asChild size="lg" block iconStart={IconChat}>
@@ -91,6 +104,7 @@ export function SignIn({ next, lineHref }: { next: string; lineHref: string }) {
             {t("submit")}
           </Button>
         </form>
+        {more ? <div className="mt-4">{more}</div> : null}
       </Card>
     </div>
   );
