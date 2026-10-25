@@ -119,6 +119,34 @@ function usageSummary(residence: MockResidence, from: number, to: number, bucket
   }));
 }
 
+/** The letters of a mock lease (B7.5): one renewal offer once the lease is in force; ids derived from the lease. */
+function noticesOf(lease: MockLease): Schemas["LeaseNoticeDto"][] {
+  if (!["active", "notice_given", "ending"].includes(lease.dto.status)) return [];
+  const end = lease.dto.endDate;
+  const next = new Date(Date.parse(`${end}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+  return [
+    {
+      id: `${lease.dto.id.slice(0, -4)}a0a1`,
+      leaseId: lease.dto.id,
+      kind: "renewal_offer",
+      number: "NTC-2569-00001",
+      language: "th",
+      issuedOn: new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10),
+      effectiveDate: next,
+      respondBy: end,
+      noticeDays: 30,
+      newRent: lease.dto.rent,
+      renewalMonths: 12,
+      amountDue: null,
+      reasonCode: null,
+      message: "ขอบคุณที่เช่ากับเรามาตลอดปีค่ะ",
+      items: [],
+      documentId: `${lease.dto.id.slice(0, -4)}a0d1`,
+      sentAt: bangkokIso(Date.now()),
+    },
+  ];
+}
+
 export const residentHandlers: HttpHandler[] = [
   // ── linking (D-061) and language (D-064) ────────────────────────────────────────────────────
   http.post(mswPath("/v1/resident/link"), async ({ request }) => {
@@ -188,6 +216,30 @@ export const residentHandlers: HttpHandler[] = [
       sha256: MOCK_CONTRACT_SHA,
       signed: lease.dto.status !== "pending_signature",
       url: `https://storage.example.com/contracts/${lease.dto.id}.pdf?X-Amz-Signature=mock`,
+      expiresAt: bangkokIso(Date.now() + 5 * 60_000),
+    });
+  }),
+
+  // ── letters from the landlord (B7.5, D-253): a renewal offer on every lease in force ───────────────────
+  http.get(mswPath("/v1/resident/leases/:leaseId/notices"), ({ request, params }) => {
+    const op = "resident.leases.notices";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const lease = leaseOf(residenceOf(auth.account), params.leaseId);
+    return lease ? HttpResponse.json(noticesOf(lease)) : problem(op, "http.not_found");
+  }),
+
+  http.get(mswPath("/v1/resident/leases/:leaseId/notices/:noticeId/document"), ({ request, params }) => {
+    const op = "resident.leases.noticeDocument";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const lease = leaseOf(residenceOf(auth.account), params.leaseId);
+    const notice = lease ? noticesOf(lease).find((candidate) => candidate.id === params.noticeId) : undefined;
+    if (!notice) return problem(op, "http.not_found");
+    return HttpResponse.json({
+      documentId: notice.documentId!,
+      number: notice.number,
+      url: `https://storage.example.com/notices/${notice.id}.pdf?X-Amz-Signature=mock`,
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
     });
   }),

@@ -160,3 +160,22 @@ test.describe("move-out notice (D-020)", () => {
     await expect(page.getByTestId("lease-notice")).toHaveCount(0);
   });
 });
+
+test.describe("letters from the landlord (B7.5, D-253)", () => {
+  test("the LINE link opens the letter: what it says, the dates, the full PDF", async ({ page, context, baseURL }) => {
+    await seedSession(context, baseURL!, subject("rules"));
+    await page.goto("/lease");
+    const letters = page.getByTestId("lease-letters");
+    await expect(letters).toContainText("จดหมายจากเจ้าของ");
+    await letters.getByTestId("lease-letter").first().click();
+    const view = page.getByTestId("letter-view");
+    await expect(view).toHaveAttribute("data-kind", "renewal_offer");
+    await expect(view.getByRole("heading", { level: 1 })).toHaveText("เสนอต่อสัญญาเช่า");
+    await expect(view.getByTestId("letter-message")).toContainText("ขอบคุณที่เช่ากับเรา");
+    await expect(view.getByTestId("letter-document")).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await expectAxeClean(page);
+    await page.getByRole("link", { name: "กลับไปที่สัญญาเช่า" }).first().click();
+    await expect(page.getByTestId("lease-view")).toBeVisible();
+  });
+});
