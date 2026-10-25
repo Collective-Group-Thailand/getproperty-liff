@@ -38,7 +38,7 @@ export interface LiffTextMessage {
 export type LiffStepName = "init" | "login" | "session" | "link";
 export type LiffStepState = "pending" | "running" | "done" | "failed";
 
-export type LiffAudience = "resident" | "technician";
+export type LiffAudience = "resident" | "technician" | "prospect";
 
 /**
  * The outcome of the entry sequence. It never contains the LINE id token (`liff.test.ts` asserts it): the

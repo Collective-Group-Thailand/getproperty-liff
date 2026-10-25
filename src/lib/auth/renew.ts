@@ -35,5 +35,6 @@ export async function renewBeforeRender(options: {
 }
 
 export function sessionKindForPath(pathname: string): SessionKind {
-  return /^\/technician(\/|$)/.test(pathname) ? "technician" : "resident";
+  if (/^\/technician(\/|$)/.test(pathname)) return "technician";
+  return /^\/rent(\/|$)/.test(pathname) ? "prospect" : "resident";
 }

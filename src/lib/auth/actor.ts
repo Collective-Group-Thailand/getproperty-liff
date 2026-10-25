@@ -5,7 +5,7 @@ import { cache } from "react";
 
 import { problemFromParsed, type ApiError } from "@/lib/api/problem";
 import { hasSessionCookie, serverApi } from "@/lib/api/server";
-import type { ResidentMe, ResidentUnit, TechnicianMe } from "@/lib/api/types";
+import type { ProspectMe, ResidentMe, ResidentUnit, TechnicianMe } from "@/lib/api/types";
 
 import { UNIT_COOKIE } from "./cookies";
 import { entitlementsOf, type ResidentNavEntitlements } from "./entitlements";
@@ -48,6 +48,20 @@ export const getTechnician = cache(async (): Promise<TechnicianActor> => {
   if (!(await hasSessionCookie("technician"))) return { status: "anonymous" };
   const api = await serverApi("technician");
   const { data, error, response } = await api.GET("/v1/technician/me");
+  if (data) return { status: "signed-in", me: data };
+  const problem = problemFromParsed(response, error);
+  if (response.status === 401 || problem.code === "auth.wrong_audience") return { status: "anonymous" };
+  return { status: "error", error: problem };
+});
+
+export type ProspectActor =
+  { status: "anonymous" } | { status: "error"; error: ApiError } | { status: "signed-in"; me: ProspectMe };
+
+/** The prospect session (L5, D-281): its own cookies and audience — a resident's session never counts. */
+export const getProspect = cache(async (): Promise<ProspectActor> => {
+  if (!(await hasSessionCookie("prospect"))) return { status: "anonymous" };
+  const api = await serverApi("prospect");
+  const { data, error, response } = await api.GET("/v1/prospect/me");
   if (data) return { status: "signed-in", me: data };
   const problem = problemFromParsed(response, error);
   if (response.status === 401 || problem.code === "auth.wrong_audience") return { status: "anonymous" };

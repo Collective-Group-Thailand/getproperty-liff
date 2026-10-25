@@ -7,13 +7,14 @@ import { isNetworkFailure, networkError, problemFromResponse, type ApiError } fr
  * body and nowhere else: not state, not storage, not logs. The BFF answers with the subject only and sets the
  * httpOnly session cookies.
  */
-export type Audience = "resident" | "technician";
+export type Audience = "resident" | "technician" | "prospect";
 
 export type ExchangeResult = { ok: true } | { ok: false; error: ApiError };
 
 const EXCHANGE_PATH: Record<Audience, string> = {
   resident: "/bff/auth/line",
   technician: "/bff/auth/technician/line",
+  prospect: "/bff/auth/prospect/line",
 };
 
 export async function exchangeLineIdToken(idToken: string, audience: Audience): Promise<ExchangeResult> {

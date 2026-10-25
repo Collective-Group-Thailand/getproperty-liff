@@ -24,9 +24,11 @@ import { clientIpFrom, requestIdFrom } from "@/lib/http/edge";
  *                                   `refreshRequired`, so the new `lease:`/`unit:` scopes arrive (D-061)
  *   /bff/auth/technician/refresh    rotate the technician session now (POST) — a work order assigned after sign-in
  *                                   arrives with the next token's `work_order:` scopes (D-210)
+ *   /bff/auth/prospect/line         LIFF id token → `/v1/auth/prospect/line` → the prospect's cookies (L5, D-281)
  *
  * Rules: allow-list (`/v1/resident`, `/v1/auth/resident`; `/v1/technician`, `/v1/auth/technician` with the
- * technician flag) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
+ * technician flag; `/v1/prospect`, `/v1/auth/prospect` and the public listing reads `/v1/public/listings` for prospects,
+ * L5) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
  * httpOnly cookie, refreshed before it expires and **once** on a 401, rotated cookies always written back; tokens
  * in auth responses become cookies and never reach the browser; same-origin + `x-getproperty-csrf: 1` on every
  * non-GET; request bodies capped per route, matching the API's own limits (`BODY_LIMITS`: inline slip images and
@@ -73,6 +75,7 @@ export function bodyLimitFor(method: string, path: string, fallback: number = DE
 export const STREAM_TOKEN_COOKIES: Record<SessionKind, string> = {
   resident: "__Host-gp_sst",
   technician: "__Host-gp_tsst",
+  prospect: "__Host-gp_psst",
 };
 const REALTIME_AUTH = /^\/v1\/(resident|technician)\/realtime\/auth$/;
 
@@ -171,6 +174,10 @@ const RESIDENT = /^\/v1\/resident(\/|$)/;
 const AUTH_RESIDENT = /^\/v1\/auth\/resident\//;
 const TECHNICIAN = /^\/v1\/technician(\/|$)/;
 const AUTH_TECHNICIAN = /^\/v1\/auth\/technician\//;
+const PROSPECT = /^\/v1\/prospect(\/|$)/;
+const AUTH_PROSPECT = /^\/v1\/auth\/prospect\//;
+/** Anonymous reads of a published listing and its free viewing times (no session, no personal data). */
+const PUBLIC_LISTINGS = /^\/v1\/public\/listings\/[a-z0-9-]+(\/viewing-slots)?$/;
 
 export function routeFor(pathname: string, technicianEnabled: boolean): Route | null {
   const path = safePath(pathname);
@@ -179,9 +186,14 @@ export function routeFor(pathname: string, technicianEnabled: boolean): Route | 
   if (path === "/auth/technician/line") {
     return technicianEnabled ? { type: "exchange", path: "/v1/auth/technician/line", kind: "technician" } : null;
   }
+  if (path === "/auth/prospect/line") return { type: "exchange", path: "/v1/auth/prospect/line", kind: "prospect" };
   if (path === "/auth/logout") return { type: "logout" };
   if (path === "/auth/refresh") return { type: "refresh", kind: "resident" };
   if (path === "/auth/technician/refresh") return technicianEnabled ? { type: "refresh", kind: "technician" } : null;
+  if (path === "/auth/prospect/refresh") return { type: "refresh", kind: "prospect" };
+  if (PROSPECT.test(path)) return { type: "proxy", path, kind: "prospect", auth: true };
+  if (AUTH_PROSPECT.test(path)) return { type: "proxy", path, kind: "prospect", auth: false };
+  if (PUBLIC_LISTINGS.test(path)) return { type: "proxy", path, kind: "prospect", auth: false };
   if (RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: true };
   if (AUTH_RESIDENT.test(path)) return { type: "proxy", path, kind: "resident", auth: false };
   if (technicianEnabled && TECHNICIAN.test(path)) return { type: "proxy", path, kind: "technician", auth: true };
@@ -358,7 +370,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
     // ── logout: end every sign-in this browser holds, whatever the API answers ──────────────────
     if (route.type === "logout") {
       const cookies: CookieToSet[] = [];
-      for (const kind of ["resident", "technician"] as const) {
+      for (const kind of ["resident", "technician", "prospect"] as const) {
         const refreshToken = jar.get(SESSION_COOKIES[kind].refresh);
         if (refreshToken) {
           const logoutHeaders = new Headers(headers);

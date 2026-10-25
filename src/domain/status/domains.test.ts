@@ -15,6 +15,7 @@ import { READING_SOURCE } from "./reading";
 import { SERVICE_REQUEST_STATUS } from "./serviceRequest";
 import { SETTLEMENT_STATUS } from "./settlement";
 import { SLIP_STATUS } from "./slip";
+import { VIEWING_STATUS } from "./viewing";
 import { WORK_ORDER_STATUS } from "./workOrder";
 
 const MAPS = {
@@ -28,6 +29,7 @@ const MAPS = {
   readingSource: READING_SOURCE,
   settlement: SETTLEMENT_STATUS,
   dsr: DSR_STATE,
+  listingViewing: VIEWING_STATUS,
   slip: SLIP_STATUS,
   booking: BOOKING_STATUS,
   credential: CREDENTIAL_STATUS,

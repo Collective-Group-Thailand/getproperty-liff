@@ -1,0 +1,100 @@
+{
+  "listing": {
+    "perMonth": "/month",
+    "owner": "Owner {name}",
+    "verified": "Verified owner",
+    "size": "{size} m²",
+    "bedrooms": "{count} bedrooms",
+    "noPhoto": "No photos yet",
+    "terms": "Deposit {deposit} months · {advance} months in advance · {term}-month minimum"
+  },
+  "signIn": {
+    "title": "Contact the owner",
+    "lead": "Sign in with LINE to message the owner or book a viewing. The owner's answers reach you in LINE.",
+    "action": "Sign in with LINE",
+    "openInLine": "Open in LINE",
+    "lineHint": "You go to LINE and come back to this page.",
+    "soon": "Signing in with a phone number, Google or Apple is coming soon."
+  },
+  "choose": {
+    "label": "What would you like to do",
+    "ask": "Ask the owner",
+    "book": "Book a viewing"
+  },
+  "ask": {
+    "message": "Message to the owner",
+    "messagePlaceholder": "For example: is it still available? Are pets allowed?",
+    "moveIn": "Move-in date",
+    "term": "Lease length",
+    "termValue": "{count} months",
+    "termAny": "Not sure yet",
+    "occupants": "Occupants",
+    "occupantsValue": "{count} people",
+    "nationality": "Nationality (optional)",
+    "nationalityHint": "Two letters, e.g. TH, JP",
+    "send": "Send message",
+    "optional": "Optional",
+    "more": "Tell the owner more (optional)"
+  },
+  "book": {
+    "day": "Pick a day",
+    "time": "Pick a time",
+    "noSlots": "No free times at the moment. Send the owner a message instead.",
+    "note": "Note to the owner (optional)",
+    "notePlaceholder": "For example: how many of you, when you will arrive",
+    "submit": "Request {time}",
+    "pick": "Pick a time first",
+    "hint": "The owner confirms the viewing in LINE."
+  },
+  "consent": {
+    "label": "I agree that the owner of this listing uses my name, messages and LINE to answer me and arrange a viewing of this place",
+    "hint": "Used only for renting this place, under Thailand's Personal Data Protection Act.",
+    "required": "Please give your consent before sending"
+  },
+  "existing": {
+    "title": "You are already talking about this place",
+    "body": "New messages continue the same conversation.",
+    "open": "Open the conversation"
+  },
+  "safety": "Never transfer money before you have seen the place. If the owner asks you to pay first, report the listing.",
+  "mine": {
+    "title": "My enquiries",
+    "lead": "Places you asked about or booked a viewing for. The owner's answers also reach you in LINE.",
+    "empty": "You have not asked about any place yet",
+    "emptyHint": "Open a listing from the rental search and tap “Ask the owner” or “Book a viewing”.",
+    "open": "In progress",
+    "closed": "Closed",
+    "viewing": "Viewing {date}",
+    "you": "You: {text}",
+    "noMessage": "Asked for a viewing",
+    "back": "My enquiries"
+  },
+  "detail": {
+    "sent": "Sent. The owner replies in LINE.",
+    "booked": "Viewing requested. The owner confirms it in LINE.",
+    "closed": "The owner has closed this enquiry. If you are still interested, send a new message from the listing.",
+    "listing": "View listing",
+    "thread": "Messages",
+    "you": "You",
+    "owner": "Owner",
+    "write": "Message the owner",
+    "send": "Send",
+    "empty": "No messages yet"
+  },
+  "viewing": {
+    "title": "Viewing",
+    "none": "No viewing yet",
+    "book": "Book a viewing",
+    "reschedule": "Change time",
+    "rescheduleTitle": "Pick a new time",
+    "rescheduleConfirm": "Move to {time}",
+    "cancel": "Cancel viewing",
+    "cancelTitle": "Cancel the viewing on {date}?",
+    "cancelBody": "The owner is told. You can book again later.",
+    "keep": "Keep it",
+    "directions": "Directions",
+    "reason": "The owner says: {reason}",
+    "history": "Earlier viewings",
+    "close": "Close"
+  }
+}

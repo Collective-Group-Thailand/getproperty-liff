@@ -196,6 +196,7 @@ const THAI_MOBILE = /^(?:\+66|0)([689]\d{8})$/;
 export const contractHandlers: HttpHandler[] = [
   lineExchange("resident", "auth.residentLine.exchange"),
   lineExchange("technician", "auth.technicianLine.exchange"),
+  lineExchange("prospect", "auth.prospectLine.exchange"),
 
   http.post(mswPath("/v1/auth/resident/otp/request"), async ({ request }) => {
     const body = await json<{ phone?: unknown }>(request);

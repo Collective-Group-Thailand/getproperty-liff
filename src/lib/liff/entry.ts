@@ -14,8 +14,12 @@ export interface LiffEntryOptions {
   onStep?: (step: LiffStepName, state: LiffStepState) => void;
 }
 
-/** A deep link into the technician screens signs in as a technician (R2); everything else as a resident. */
+/**
+ * A deep link into the technician screens signs in as a technician (R2), one into `/rent` (a listing, my enquiries)
+ * as a prospect (L5, D-281); everything else as a resident.
+ */
 export function audienceFor(target: string, technicianEnabled: boolean): LiffAudience {
+  if (/^\/rent(\/|\?|#|$)/.test(target)) return "prospect";
   return technicianEnabled && /^\/technician(\/|\?|#|$)/.test(target) ? "technician" : "resident";
 }
 

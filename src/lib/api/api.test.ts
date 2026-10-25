@@ -13,10 +13,10 @@ describe("Idempotency-Key", () => {
     expect(needsIdempotencyKey("POST", "/v1/resident/consents")).toBe(false);
   });
 
-  it("covers only the resident, technician and their auth operations of the contract", () => {
+  it("covers only the resident, technician and prospect operations (with their auth) and the public listing reads", () => {
     for (const op of OPERATIONS) {
       expect(op.path).toMatch(
-        /^\/v1\/(resident|technician|auth\/resident|auth\/technician)\/|^\/v1\/auth\/(refresh|logout)$/,
+        /^\/v1\/(resident|technician|prospect|auth\/resident|auth\/technician|auth\/prospect|public\/listings)(\/|$)|^\/v1\/auth\/(refresh|logout)$/,
       );
     }
   });

@@ -42,7 +42,7 @@ const OUT_MOCKS = resolve(ROOT, "mocks/generated/operations.ts");
 
 /** Path prefixes this app calls (the BFF allow-list is narrower: refresh/logout are server-only). */
 export const USED_PATH =
-  /^\/v1\/(resident|technician|auth\/resident|auth\/technician)(\/|$)|^\/v1\/auth\/(refresh|logout)$/;
+  /^\/v1\/(resident|technician|prospect|auth\/resident|auth\/technician|auth\/prospect|public\/listings)(\/|$)|^\/v1\/auth\/(refresh|logout)$/;
 
 interface ContractLock {
   $comment?: string;

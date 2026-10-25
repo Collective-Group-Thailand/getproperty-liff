@@ -28,6 +28,7 @@ export type ConsentPurpose = Schemas["ConsentPurposeDto"];
 export type ConsentCapture = Schemas["ConsentCaptureDto"];
 export type OtpChallenge = Schemas["OtpChallengeDto"];
 export type TechnicianMe = Schemas["TechnicianMeDto"];
+export type ProspectMe = Schemas["ProspectMeDto"];
 export type RealtimeAuth = Schemas["RealtimeAuthDto"];
 
 /** Menu entitlements of the resident (`ResidentMeDto.entitlements`, D-063); the keys are this app's menu entries. */

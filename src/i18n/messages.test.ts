@@ -45,9 +45,9 @@ describe("messages", () => {
   });
 
   it.each(R2)(
-    "%s covers every resident and shared message (L4, D-064; technician screens fall back to English)",
+    "%s covers every resident and shared message (L4, D-064; technician and prospect screens fall back to English)",
     (locale) => {
-      for (const file of files.filter((f) => !f.startsWith("technician/"))) {
+      for (const file of files.filter((f) => !f.startsWith("technician/") && !f.startsWith("prospect/"))) {
         expect(keys(read(locale, file)).sort(), `${locale} ${file}`).toEqual(keys(read("en", file)).sort());
       }
     },
@@ -65,7 +65,7 @@ describe("messages", () => {
   });
 
   it("follows the D-151 glossary: English resident copy never calls a resident a tenant", () => {
-    for (const file of files.filter((f) => !f.startsWith("technician/"))) {
+    for (const file of files.filter((f) => !f.startsWith("technician/") && !f.startsWith("prospect/"))) {
       for (const [key, message] of entries(read("en", file))) {
         expect(message, `${file} ${key}`).not.toMatch(/\btenants?\b/i);
       }
