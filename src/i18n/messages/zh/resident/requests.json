@@ -91,7 +91,20 @@
       "cancelled": "已取消"
     },
     "ratingShown": "{rating, plural, other {您评了 # 星}}",
-    "ratingComment": "“{comment}”"
+    "ratingComment": "“{comment}”",
+    "decision": {
+      "title": "谁来修，谁付钱",
+      "handled": {
+        "owner_technician": "房东会派技工来维修",
+        "tenant": "房东请您自行安排维修",
+        "partner": "房东正在安排物业或合作技工"
+      },
+      "bearer": {
+        "owner": "维修费由房东承担",
+        "tenant": "维修费由您承担，将计入下一期账单"
+      },
+      "shared": "分摊：您承担 {share}%，将计入下一期账单"
+    }
   },
   "cancel": {
     "action": "取消报修",

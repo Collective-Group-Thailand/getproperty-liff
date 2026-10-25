@@ -91,7 +91,20 @@
       "cancelled": "Cancelled"
     },
     "ratingShown": "You rated {rating, plural, one {# star} other {# stars}}",
-    "ratingComment": "“{comment}”"
+    "ratingComment": "“{comment}”",
+    "decision": {
+      "title": "Who fixes, who pays",
+      "handled": {
+        "owner_technician": "The owner is sending a technician",
+        "tenant": "The owner asks you to arrange the repair",
+        "partner": "The owner is arranging a building or partner technician"
+      },
+      "bearer": {
+        "owner": "The owner pays for the repair",
+        "tenant": "You pay for the repair; it will be on your next bill"
+      },
+      "shared": "Shared: your {share}% will be on your next bill"
+    }
   },
   "cancel": {
     "action": "Cancel the request",

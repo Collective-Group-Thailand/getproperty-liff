@@ -202,3 +202,18 @@ test.describe("service requests (D-072)", () => {
     await expectAxeClean(page);
   });
 });
+
+test.describe("a landlord's repair (D-263)", () => {
+  test("shows who fixes and who pays once the landlord decides", async ({ page, context, baseURL }) => {
+    await seedSession(context, baseURL!, subject("decided", "norequests"));
+    await page.goto("/requests/new");
+    const form = page.getByTestId("request-form");
+    await form.getByTestId("request-category").selectOption({ index: 1 });
+    await form.getByTestId("request-description").fill("ท่อน้ำใต้ซิงก์แตก");
+    await form.getByTestId("request-submit").click();
+    const decision = page.getByTestId("request-decision");
+    await expect(decision.getByTestId("request-decision-handled")).toHaveText("เจ้าของจะส่งช่างมาซ่อม");
+    await expect(decision.getByTestId("request-decision-bearer")).toContainText("50%");
+    await expectAxeClean(page);
+  });
+});
