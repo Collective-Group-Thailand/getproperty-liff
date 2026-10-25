@@ -2,15 +2,17 @@
  * Session cookies (ADR-0006). Tokens live only here: httpOnly, `Secure`, `SameSite=Lax`, `__Host-` prefixed
  * (host-only, `Path=/`, never a `Domain`), so neither page scripts nor another getproperty host can read or
  * plant them — an owner/staff cookie of getproperty-web has another name on another host and is never sent
- * here. Residents and technicians (R2) have separate pairs, so one person can be both.
+ * here. Residents, technicians (R2) and prospects (L5) have separate pairs, so one person can be all three.
  *
  * Framework-free: the proxy, the BFF and the tests share it.
  */
-export type SessionKind = "resident" | "technician";
+export type SessionKind = "resident" | "technician" | "prospect";
 
 export const SESSION_COOKIES: Record<SessionKind, { access: string; refresh: string }> = {
   resident: { access: "__Host-gp_at", refresh: "__Host-gp_rt" },
   technician: { access: "__Host-gp_tat", refresh: "__Host-gp_trt" },
+  /** People asking about a listing or booking a viewing (L5, D-281): an audience and a cookie pair of their own. */
+  prospect: { access: "__Host-gp_pat", refresh: "__Host-gp_prt" },
 };
 
 /** The unit the resident picked in the header (not a secret: it only chooses among their own units). */

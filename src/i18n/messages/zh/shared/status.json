@@ -106,5 +106,13 @@
     "success": "已开门",
     "denied": "被拒绝",
     "error": "门锁故障"
+  },
+  "listingViewing": {
+    "requested": "等待房东确认",
+    "confirmed": "已确认",
+    "declined": "房东不方便",
+    "cancelled": "已取消",
+    "completed": "已看房",
+    "no_show": "未到场"
   }
 }

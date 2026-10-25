@@ -50,7 +50,7 @@ export interface MockAccount {
 
 export interface MockSession {
   sid: string;
-  audience: "resident" | "technician";
+  audience: "resident" | "technician" | "prospect";
   userId: string;
   /** The current refresh token; any older one of this session is "reused". */
   refreshToken: string;

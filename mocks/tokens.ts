@@ -12,7 +12,7 @@ function b64url(value: unknown): string {
 
 export interface MockClaims {
   sub: string;
-  aud: "resident" | "technician";
+  aud: "resident" | "technician" | "prospect";
   sid: string;
   exp: number;
   iat: number;

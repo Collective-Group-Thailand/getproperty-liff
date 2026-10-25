@@ -133,6 +133,22 @@ describe("allow-list", () => {
     }
   });
 
+  it("opens the prospect prefixes and the public listing reads (L5, D-281)", () => {
+    expect(routeFor("/auth/prospect/line", false)).toMatchObject({ type: "exchange", kind: "prospect" });
+    expect(routeFor("/auth/prospect/refresh", false)).toMatchObject({ type: "refresh", kind: "prospect" });
+    expect(routeFor("/v1/prospect/enquiries", false)).toMatchObject({ type: "proxy", kind: "prospect", auth: true });
+    expect(routeFor("/v1/public/listings/condo-1br-a1b2c3d4e5", false)).toMatchObject({ auth: false });
+    expect(routeFor("/v1/public/listings/condo-1br-a1b2c3d4e5/viewing-slots", false)).toMatchObject({ auth: false });
+    for (const path of [
+      "/v1/public/listings",
+      "/v1/public/listings/sitemap/x",
+      "/v1/public/plans",
+      "/v1/Prospect/me",
+    ]) {
+      expect(routeFor(path, false), path).toBeNull();
+    }
+  });
+
   it("answers a refused path with a 404 problem and never calls the API", async () => {
     const { handler, upstream } = setup(() => json({}));
     for (const path of ["/v1/owner/me", "/v1/admin/me"]) {
@@ -619,16 +635,23 @@ describe("logout", () => {
   it("ends every sign-in of this browser at the API and clears all session cookies", async () => {
     const { handler, calls } = setup(() => new Response(null, { status: 204 }), { technicianEnabled: true });
     const response = await handler(
-      req("/auth/logout", { method: "POST", cookies: { "__Host-gp_rt": "rt-r", "__Host-gp_trt": "rt-t" } }),
+      req("/auth/logout", {
+        method: "POST",
+        cookies: { "__Host-gp_rt": "rt-r", "__Host-gp_trt": "rt-t", "__Host-gp_prt": "rt-p" },
+      }),
     );
     expect(response.status).toBe(204);
     expect(calls.map((c) => [c.path, JSON.parse(c.body)])).toEqual([
       ["/v1/auth/logout", { refreshToken: "rt-r" }],
       ["/v1/auth/logout", { refreshToken: "rt-t" }],
+      ["/v1/auth/logout", { refreshToken: "rt-p" }],
     ]);
     const cookies = setCookies(response);
     expect(cookies.map((c) => c.split("=")[0]).sort()).toEqual([
       "__Host-gp_at",
+      "__Host-gp_pat",
+      "__Host-gp_prt",
+      "__Host-gp_psst",
       "__Host-gp_rt",
       "__Host-gp_sst",
       "__Host-gp_tat",

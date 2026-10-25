@@ -2,6 +2,7 @@
 /** Operations of the contract this app may call (resident, technician and their auth), with their path templates. */
 export const OPERATIONS = [
   { operationId: "auth.sessions.logout", method: "POST", path: "/v1/auth/logout", idempotent: false },
+  { operationId: "auth.prospectLine.exchange", method: "POST", path: "/v1/auth/prospect/line", idempotent: false },
   { operationId: "auth.sessions.refresh", method: "POST", path: "/v1/auth/refresh", idempotent: false },
   { operationId: "auth.residentLine.exchange", method: "POST", path: "/v1/auth/resident/line", idempotent: false },
   { operationId: "auth.residentOtp.request", method: "POST", path: "/v1/auth/resident/otp/request", idempotent: false },
@@ -19,6 +20,55 @@ export const OPERATIONS = [
     path: "/v1/auth/technician/otp/verify",
     idempotent: false,
   },
+  { operationId: "prospect.enquiries.list", method: "GET", path: "/v1/prospect/enquiries", idempotent: false },
+  { operationId: "prospect.enquiries.get", method: "GET", path: "/v1/prospect/enquiries/{leadId}", idempotent: false },
+  {
+    operationId: "prospect.enquiries.write",
+    method: "POST",
+    path: "/v1/prospect/enquiries/{leadId}/messages",
+    idempotent: false,
+  },
+  {
+    operationId: "prospect.enquiries.create",
+    method: "POST",
+    path: "/v1/prospect/listings/{slug}/enquiries",
+    idempotent: false,
+  },
+  {
+    operationId: "prospect.viewings.request",
+    method: "POST",
+    path: "/v1/prospect/listings/{slug}/viewings",
+    idempotent: false,
+  },
+  { operationId: "prospect.me.get", method: "GET", path: "/v1/prospect/me", idempotent: false },
+  { operationId: "prospect.system.ping", method: "GET", path: "/v1/prospect/ping", idempotent: false },
+  {
+    operationId: "prospect.viewings.cancel",
+    method: "POST",
+    path: "/v1/prospect/viewings/{viewingId}/actions/cancel",
+    idempotent: false,
+  },
+  {
+    operationId: "prospect.viewings.reschedule",
+    method: "POST",
+    path: "/v1/prospect/viewings/{viewingId}/actions/reschedule",
+    idempotent: false,
+  },
+  { operationId: "public.listings.search", method: "GET", path: "/v1/public/listings", idempotent: false },
+  { operationId: "public.listings.get", method: "GET", path: "/v1/public/listings/{slug}", idempotent: false },
+  {
+    operationId: "public.listings.report",
+    method: "POST",
+    path: "/v1/public/listings/{slug}/reports",
+    idempotent: false,
+  },
+  {
+    operationId: "public.listings.viewingSlots",
+    method: "GET",
+    path: "/v1/public/listings/{slug}/viewing-slots",
+    idempotent: false,
+  },
+  { operationId: "public.listings.sitemap", method: "GET", path: "/v1/public/listings/sitemap", idempotent: false },
   {
     operationId: "resident.access.credentials",
     method: "GET",

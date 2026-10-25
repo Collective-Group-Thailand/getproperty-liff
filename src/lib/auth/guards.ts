@@ -3,8 +3,8 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getActor, getTechnician } from "./actor";
-import { consentPath, PATHNAME_HEADER, signInPath, technicianSignInPath } from "./redirects";
+import { getActor, getProspect, getTechnician } from "./actor";
+import { consentPath, PATHNAME_HEADER, prospectSignInPath, signInPath, technicianSignInPath } from "./redirects";
 import { RESCOPE_COOKIE, rescopePath, scopesStale } from "./rescope";
 
 /** The path of this request, as the proxy recorded it (layouts cannot read the URL). */
@@ -38,5 +38,13 @@ export async function requireTechnician(options: { path?: string } = {}) {
   const actor = await getTechnician();
   const path = options.path ?? (await currentPath());
   if (actor.status === "anonymous") redirect(technicianSignInPath(path, (await headers()).get("user-agent")));
+  return actor;
+}
+
+/** Guard of a prospect's own screens (L5, D-281): my enquiries. Signed out → LINE sign-in inside LINE, else the sign-in page. */
+export async function requireProspect(options: { path?: string } = {}) {
+  const actor = await getProspect();
+  const path = options.path ?? (await currentPath());
+  if (actor.status === "anonymous") redirect(prospectSignInPath(path, (await headers()).get("user-agent")));
   return actor;
 }

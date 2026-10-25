@@ -23,6 +23,17 @@ export function technicianSignInPath(next: string, userAgent: string | null | un
   return `/technician/sign-in?next=${encodeURIComponent(target)}`;
 }
 
+/**
+ * Where a signed-out prospect goes (L5, D-281): LINE sign-in as a prospect inside LINE, the prospect sign-in page
+ * elsewhere ("open in LINE"; phone, Google and Apple follow with D-255's OAuth clients).
+ */
+export function prospectSignInPath(next: string, userAgent: string | null | undefined): string {
+  const safe = safeInternalPath(next);
+  const target = safe.startsWith("/rent") ? safe : "/rent/enquiries";
+  if (isLineInAppBrowser(userAgent)) return `/liff?${LIFF_STATE_PARAM}=${encodeURIComponent(target)}`;
+  return `/rent/sign-in?next=${encodeURIComponent(target)}`;
+}
+
 export function consentPath(next: string): string {
   const target = safeInternalPath(next);
   return target === "/" ? "/consent" : `/consent?next=${encodeURIComponent(target)}`;

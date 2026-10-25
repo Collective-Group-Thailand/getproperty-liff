@@ -106,5 +106,13 @@
     "success": "Opened",
     "denied": "Refused",
     "error": "Lock error"
+  },
+  "listingViewing": {
+    "requested": "Waiting for the owner",
+    "confirmed": "Confirmed",
+    "declined": "The owner can't make it",
+    "cancelled": "Cancelled",
+    "completed": "Viewed",
+    "no_show": "Missed"
   }
 }

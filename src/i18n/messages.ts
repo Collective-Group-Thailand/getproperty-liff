@@ -4,7 +4,8 @@ import { FALLBACK_LOCALE, type Locale } from "./routing";
  * Messages per feature (L1): `messages/<locale>/<namespace>/<feature>.json`.
  *
  * - `shared/<feature>.json` is mounted at the root (`shell.*`, `common.*`, `errors.*`, `status.*` …);
- * - `resident/<feature>.json` under `resident.<feature>`; `technician/<feature>.json` under `technician.<feature>`.
+ * - `resident/<feature>.json` under `resident.<feature>`; `technician/<feature>.json` under `technician.<feature>`;
+ *   `prospect/<feature>.json` under `prospect.<feature>` (L5).
  *
  * `shared` and `resident` are always loaded; `technician` only where the technician screens are (R2), so a
  * resident's messages never carry them. `MESSAGE_FILES` is the manifest (`messages.test.ts` checks it against
@@ -13,7 +14,7 @@ import { FALLBACK_LOCALE, type Locale } from "./routing";
  * Fallback (D-064): every locale is merged over English, key by key, so a missing my/km/lo/zh string renders in
  * English rather than as a key. Thai and English must be complete (`messages.test.ts`).
  */
-export type Namespace = "shared" | "resident" | "technician";
+export type Namespace = "shared" | "resident" | "technician" | "prospect";
 type Messages = Record<string, unknown>;
 
 export const MESSAGE_FILES = {
@@ -37,6 +38,8 @@ export const MESSAGE_FILES = {
     "usage",
   ],
   technician: ["auth", "workOrders"],
+  /** L5 (D-252): people asking about a listing — Thai and English first, the other languages fall back to English. */
+  prospect: ["rent"],
 } as const satisfies Record<Namespace, readonly string[]>;
 
 async function loadFile(locale: Locale, namespace: Namespace, feature: string): Promise<Messages> {
