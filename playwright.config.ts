@@ -64,6 +64,8 @@ export default defineConfig({
       // L4: the technician screens are on in this suite (their guard and the BFF prefixes are unit-tested with the
       // flag off).
       FEATURE_TECHNICIAN: "1",
+      // Google / Apple through the local test page (D-283).
+      OAUTH_MODE: "fake",
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },

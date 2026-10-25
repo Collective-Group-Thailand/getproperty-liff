@@ -30,5 +30,39 @@
     "zoomOut": "Zoom out",
     "zoom": "Zoom {percent}%",
     "scanning": "Photo being checked"
+  },
+  "oauth": {
+    "continueWith": {
+      "google": "Continue with Google",
+      "apple": "Continue with Apple"
+    },
+    "providers": {
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "errors": {
+      "cancelled": "Sign-in was cancelled. Try again or use another way.",
+      "expired": "The sign-in timed out or was opened in another window. Please start again.",
+      "failed": "The provider could not confirm your account. Please try again.",
+      "unavailable": "This way is not available yet. Try another.",
+      "notLinked": "This account is not linked to getproperty yet. Sign in with LINE or an SMS code first, then add it in your profile.",
+      "emailInUse": "This e-mail already has a getproperty account. Sign in the way you did before.",
+      "contactRequired": "This account did not share an e-mail address. Use your phone number instead.",
+      "disabled": "This account is disabled."
+    },
+    "fake": {
+      "pageTitle": "Test account",
+      "title": "Test {provider} account",
+      "lead": "Stands in for the provider's page on test systems",
+      "notice": "This page exists only on test systems; the real system opens the provider's page.",
+      "uid": "Test user id",
+      "uidHint": "Use the same id to come back as the same person",
+      "name": "Name",
+      "defaultName": "Test user",
+      "email": "E-mail",
+      "emailHint": "Leave empty to act like an account that shares no e-mail",
+      "continue": "Continue",
+      "cancel": "Cancel"
+    }
   }
 }

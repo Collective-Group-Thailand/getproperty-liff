@@ -2,8 +2,22 @@
 /** Operations of the contract this app may call (resident, technician and their auth), with their path templates. */
 export const OPERATIONS = [
   { operationId: "auth.sessions.logout", method: "POST", path: "/v1/auth/logout", idempotent: false },
+  {
+    operationId: "auth.prospectIdentity.exchange",
+    method: "POST",
+    path: "/v1/auth/prospect/identity",
+    idempotent: false,
+  },
   { operationId: "auth.prospectLine.exchange", method: "POST", path: "/v1/auth/prospect/line", idempotent: false },
+  { operationId: "auth.prospectOtp.request", method: "POST", path: "/v1/auth/prospect/otp/request", idempotent: false },
+  { operationId: "auth.prospectOtp.verify", method: "POST", path: "/v1/auth/prospect/otp/verify", idempotent: false },
   { operationId: "auth.sessions.refresh", method: "POST", path: "/v1/auth/refresh", idempotent: false },
+  {
+    operationId: "auth.residentIdentity.exchange",
+    method: "POST",
+    path: "/v1/auth/resident/identity",
+    idempotent: false,
+  },
   { operationId: "auth.residentLine.exchange", method: "POST", path: "/v1/auth/resident/line", idempotent: false },
   { operationId: "auth.residentOtp.request", method: "POST", path: "/v1/auth/resident/otp/request", idempotent: false },
   { operationId: "auth.residentOtp.verify", method: "POST", path: "/v1/auth/resident/otp/verify", idempotent: false },
@@ -262,6 +276,14 @@ export const OPERATIONS = [
   { operationId: "resident.link.create", method: "POST", path: "/v1/resident/link", idempotent: true },
   { operationId: "resident.me.get", method: "GET", path: "/v1/resident/me", idempotent: false },
   { operationId: "resident.me.update", method: "PATCH", path: "/v1/resident/me", idempotent: false },
+  { operationId: "resident.identities.list", method: "GET", path: "/v1/resident/me/identities", idempotent: false },
+  { operationId: "resident.identities.link", method: "POST", path: "/v1/resident/me/identities", idempotent: false },
+  {
+    operationId: "resident.identities.unlink",
+    method: "DELETE",
+    path: "/v1/resident/me/identities/{identityId}",
+    idempotent: false,
+  },
   {
     operationId: "resident.notificationPreferences.get",
     method: "GET",

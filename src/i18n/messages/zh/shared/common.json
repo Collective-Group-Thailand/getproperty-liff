@@ -30,5 +30,39 @@
     "zoomOut": "缩小",
     "zoom": "缩放 {percent}%",
     "scanning": "照片检查中"
+  },
+  "oauth": {
+    "continueWith": {
+      "google": "使用 Google 继续",
+      "apple": "使用 Apple 继续"
+    },
+    "providers": {
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "errors": {
+      "cancelled": "已取消登录。请重试或换一种方式。",
+      "expired": "登录已超时或在其他窗口打开。请重新开始。",
+      "failed": "服务商无法确认您的账户，请重试。",
+      "unavailable": "此方式暂不可用，请换一种方式。",
+      "notLinked": "此账户尚未关联 getproperty。请先用 LINE 或短信验证码登录，再在个人资料中添加。",
+      "emailInUse": "此邮箱已有 getproperty 账户，请用原来的方式登录。",
+      "contactRequired": "此账户未分享邮箱，请改用手机号。",
+      "disabled": "此账户已停用。"
+    },
+    "fake": {
+      "pageTitle": "测试账户",
+      "title": "{provider} 测试账户",
+      "lead": "在测试系统中代替服务商页面",
+      "notice": "此页面仅在测试系统中存在。",
+      "uid": "测试用户 ID",
+      "uidHint": "使用相同 ID 可回到同一个人",
+      "name": "姓名",
+      "defaultName": "测试用户",
+      "email": "邮箱",
+      "emailHint": "留空则相当于不分享邮箱的账户",
+      "continue": "继续",
+      "cancel": "取消"
+    }
   }
 }

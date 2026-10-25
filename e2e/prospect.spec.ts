@@ -87,3 +87,47 @@ test.describe("prospects (D-252, D-281)", () => {
     await expectAxeClean(page);
   });
 });
+
+test.describe("sign-in outside LINE (B7.8, D-255, D-283)", () => {
+  test("a prospect signs in by SMS code, and with Google through the test provider", async ({ page, context }) => {
+    await page.goto("/rent/sign-in?next=%2Frent%2Fenquiries");
+    const sheet = page.getByTestId("prospect-sign-in");
+    await expect(sheet.getByTestId("oauth-buttons").getByRole("link")).toHaveCount(2);
+    await expectAxeClean(page);
+
+    await sheet.getByLabel(/เบอร์มือถือ|Mobile number/).fill("0812345678");
+    await sheet.getByTestId("prospect-send-code").click();
+    await expect(sheet.getByTestId("prospect-code")).toContainText("081");
+    await sheet.getByRole("textbox", { name: /หลักที่ 1|Digit 1/ }).fill("123456");
+    await expect(page).toHaveURL(/\/rent\/enquiries$/);
+    expect(await sessionCookieNames(context)).toContain("__Host-gp_pat");
+
+    await context.clearCookies();
+    await page.goto("/rent/sign-in");
+    await page.getByTestId("oauth-google").click();
+    await page.getByTestId("oauth-fake-email").fill("");
+    await page.getByTestId("oauth-fake-continue").click();
+    await expect(page.getByTestId("oauth-error")).toHaveAttribute("data-code", "auth.identity_contact_required");
+    await page.getByTestId("oauth-google").click();
+    await page.getByTestId("oauth-fake-continue").click();
+    await expect(page).toHaveURL(/\/rent\/enquiries$/);
+  });
+
+  test("a resident opens the app with Apple only once it is linked", async ({ page }) => {
+    await page.goto("/auth");
+    await page.getByTestId("oauth-apple").click();
+    await page.getByTestId("oauth-fake-uid").fill("someone-new");
+    await page.getByTestId("oauth-fake-continue").click();
+    await expect(page.getByTestId("oauth-error")).toHaveAttribute("data-code", "auth.identity_not_linked");
+    await expect(page.getByTestId("sign-in")).toBeVisible();
+
+    await page.getByTestId("oauth-apple").click();
+    await page.getByTestId("oauth-fake-cancel").click();
+    await expect(page.getByTestId("oauth-error")).toHaveAttribute("data-code", "oauth.cancelled");
+
+    await page.getByTestId("oauth-apple").click();
+    await page.getByTestId("oauth-fake-uid").fill("linked-resident-1");
+    await page.getByTestId("oauth-fake-continue").click();
+    await expect(page).not.toHaveURL(/\/auth/);
+  });
+});
