@@ -18,5 +18,39 @@
     "title": "This code can no longer be used",
     "body": "It has been used or has expired. Ask your building's office for a new one"
   },
-  "unit": "Unit {unit} · {building}"
+  "unit": "Unit {unit} · {building}",
+  "oa": {
+    "title": "Get messages through your landlord’s LINE",
+    "lead": "{name} has its own LINE Official Account. Link it to get their messages there instead",
+    "by": "{name}’s LINE Official Account",
+    "gains": {
+      "label": "What comes to this account",
+      "bills": "Rent bills and receipts",
+      "repairs": "Updates on your repair requests",
+      "news": "Announcements and messages about your lease"
+    },
+    "note": "Until you link it, messages keep coming through getproperty’s LINE, so nothing is missed",
+    "confirm": "Link account",
+    "done": {
+      "title": "Account linked",
+      "body": "From now on, bills and messages come from {name}",
+      "home": "Back to home"
+    },
+    "used": {
+      "title": "This link has been used",
+      "body": "If {name} has not written to you yet, send anything in its chat to get a new link"
+    },
+    "expired": {
+      "title": "This link has expired",
+      "body": "Send anything in {name}’s chat to get a new link"
+    },
+    "taken": {
+      "title": "This LINE account is linked to someone else",
+      "body": "The LINE account that follows {name} is linked to another resident. Contact your landlord to fix it"
+    },
+    "invalid": {
+      "title": "This link can’t be used",
+      "body": "Open the link from your landlord’s LINE chat again, or send anything there to get a new one"
+    }
+  }
 }

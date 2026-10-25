@@ -18,5 +18,39 @@
     "title": "此邀请码已无法使用",
     "body": "已被使用或已过期。请向楼宇管理处索取新的邀请码"
   },
-  "unit": "房间 {unit} · {building}"
+  "unit": "房间 {unit} · {building}",
+  "oa": {
+    "title": "通过房东的 LINE 接收消息",
+    "lead": "{name} 有自己的 LINE 官方账号。关联后，消息将改从该账号发送",
+    "by": "{name} 的 LINE 官方账号",
+    "gains": {
+      "label": "将发送到此账号的内容",
+      "bills": "房租账单和收据",
+      "repairs": "报修进度",
+      "news": "公告和租约相关消息"
+    },
+    "note": "关联之前，消息仍通过 getproperty 的 LINE 发送，不会遗漏",
+    "confirm": "关联账号",
+    "done": {
+      "title": "账号已关联",
+      "body": "今后账单和消息将由 {name} 发送",
+      "home": "返回首页"
+    },
+    "used": {
+      "title": "此链接已被使用",
+      "body": "如果还没收到 {name} 的消息，请在其聊天中发送任意内容以获取新链接"
+    },
+    "expired": {
+      "title": "此链接已过期",
+      "body": "在 {name} 的聊天中发送任意内容以获取新链接"
+    },
+    "taken": {
+      "title": "此 LINE 账号已与他人关联",
+      "body": "关注 {name} 的 LINE 账号已与另一位住户关联。请联系房东处理"
+    },
+    "invalid": {
+      "title": "此链接无法使用",
+      "body": "请从房东的 LINE 聊天中重新打开链接，或在该聊天中发送任意内容以获取新链接"
+    }
+  }
 }

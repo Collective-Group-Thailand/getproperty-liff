@@ -297,6 +297,18 @@ export const OPERATIONS = [
     idempotent: false,
   },
   { operationId: "resident.privacy.get", method: "GET", path: "/v1/resident/me/privacy", idempotent: false },
+  {
+    operationId: "resident.messagingLinks.get",
+    method: "GET",
+    path: "/v1/resident/messaging-links/{token}",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.messagingLinks.confirm",
+    method: "POST",
+    path: "/v1/resident/messaging-links/{token}/actions/confirm",
+    idempotent: false,
+  },
   { operationId: "resident.notifications.list", method: "GET", path: "/v1/resident/notifications", idempotent: false },
   {
     operationId: "resident.notifications.markRead",
