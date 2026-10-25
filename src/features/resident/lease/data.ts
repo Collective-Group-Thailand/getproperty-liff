@@ -41,3 +41,12 @@ export async function loadNotices(leaseId: string): Promise<Loaded<Schemas["Leas
   });
   return data ? { data } : { error: problemFromParsed(response, error) };
 }
+
+/** `GET /v1/resident/leases/{leaseId}/rent-certificates` — my requests and certificates, newest first (B7.5, D-253). */
+export async function loadCertificates(leaseId: string): Promise<Loaded<Schemas["RentCertificateDto"][]>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/leases/{leaseId}/rent-certificates", {
+    params: { path: { leaseId } },
+  });
+  return data ? { data } : { error: problemFromParsed(response, error) };
+}

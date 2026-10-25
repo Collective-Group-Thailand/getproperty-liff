@@ -114,5 +114,10 @@
     "cancelled": "ຍົກເລີກແລ້ວ",
     "completed": "ເບິ່ງຫ້ອງແລ້ວ",
     "no_show": "ບໍ່ໄດ້ໄປຕາມນັດ"
+  },
+  "rentCertificate": {
+    "requested": "ລໍຖ້າ",
+    "issued": "ອອກແລ້ວ",
+    "declined": "ປະຕິເສດ"
   }
 }

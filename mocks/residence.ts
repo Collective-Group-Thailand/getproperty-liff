@@ -21,6 +21,7 @@ type Schemas = components["schemas"];
 export type Lease = Schemas["ResidentLeaseDto"];
 export type Deposit = Schemas["ResidentDepositDto"];
 export type Dsr = Schemas["DsrDto"];
+export type RentCertificate = Schemas["RentCertificateDto"];
 
 export const MOCK_CONTRACT_SHA = "9c1185a5c5e9fc54612808977ee8f548b2258d31fd0b7a29b1b6c3e6a4f8e0a1";
 export const SIGNATURE_OTP = "123456";
@@ -46,6 +47,8 @@ export interface MockResidence {
   deposits: Deposit[];
   dsrs: Dsr[];
   documents: MockDocument[];
+  /** Rent certificates per lease (B7.5): an issued one on a lease in force; requests the resident adds. */
+  certificates: RentCertificate[];
   preferences: NotificationPreference[];
   usage: "iot" | "manual";
   /** Signature OTP challenges: id → lease. */
@@ -230,6 +233,7 @@ export function residenceOf(account: MockAccount): MockResidence {
     deposits: [],
     dsrs: [],
     documents: [],
+    certificates: [],
     preferences: [
       { topic: "billing", line: true, sms: true, locked: true },
       { topic: "lease", line: true, sms: true, locked: true },
@@ -261,6 +265,9 @@ export function residenceOf(account: MockAccount): MockResidence {
       residence.deposits.push(heldDeposit(lease));
     }
     for (const { dto } of residence.leases) {
+      if (dto.status === "active" || dto.status === "notice_given") {
+        residence.certificates.push(issuedCertificate(dto));
+      }
       residence.documents.push({
         id: crypto.randomUUID(),
         kind: "lease_contract",
@@ -271,6 +278,62 @@ export function residenceOf(account: MockAccount): MockResidence {
     }
   }
   return residence;
+}
+
+/** An issued rent certificate for the bank, two months ago, over the lease so far (B7.5). */
+function issuedCertificate(lease: Lease): RentCertificate {
+  const decided = Date.now() - 60 * DAY;
+  return {
+    id: `${lease.id.slice(0, -4)}c0c1`,
+    leaseId: lease.id,
+    leaseNumber: null,
+    unitNo: null,
+    purpose: "bank",
+    periodFrom: lease.startDate,
+    periodTo: bangkokDate(decided),
+    language: "th",
+    note: null,
+    state: "issued",
+    requestedByResident: true,
+    requestedAt: bangkokIso(decided - 2 * DAY),
+    decidedAt: bangkokIso(decided),
+    declineReason: null,
+    number: "RPC-2569-00001",
+    totalPaid: lease.rent,
+    documentId: `${lease.id.slice(0, -4)}c0d1`,
+  };
+}
+
+/** Asks for a rent certificate the way the API does: one open request per lease; period default 12 months (≤ today). */
+export function requestCertificate(
+  residence: MockResidence,
+  lease: Lease,
+  body: { purpose: RentCertificate["purpose"]; language?: RentCertificate["language"]; note?: string | null },
+): RentCertificate | "open" {
+  if (residence.certificates.some((c) => c.leaseId === lease.id && c.state === "requested")) return "open";
+  const to = bangkokDate(Date.now());
+  const yearAgo = bangkokDate(Date.now() - 365 * DAY);
+  const certificate: RentCertificate = {
+    id: crypto.randomUUID(),
+    leaseId: lease.id,
+    leaseNumber: null,
+    unitNo: null,
+    purpose: body.purpose,
+    periodFrom: yearAgo > lease.startDate ? yearAgo : lease.startDate,
+    periodTo: to,
+    language: body.language ?? "th",
+    note: body.note?.trim() || null,
+    state: "requested",
+    requestedByResident: true,
+    requestedAt: bangkokIso(Date.now()),
+    decidedAt: null,
+    declineReason: null,
+    number: null,
+    totalPaid: null,
+    documentId: null,
+  };
+  residence.certificates.unshift(certificate);
+  return certificate;
 }
 
 /** A pending lease for an invitee who accepted a `SIGN…` code. */

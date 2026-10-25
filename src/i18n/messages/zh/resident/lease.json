@@ -195,5 +195,49 @@
     },
     "toBills": "查看我的账单",
     "toLease": "查看租约"
+  },
+  "certificates": {
+    "title": "租金支付证明",
+    "linkHint": "用于签证、银行或雇主",
+    "lead": "可在此向 {name} 申请。开具后我们会通过 LINE 通知您。",
+    "back": "返回租约",
+    "listTitle": "您的申请",
+    "empty": "您还没有申请过证明。",
+    "open": "打开证明（PDF）",
+    "period": "{from} – {to}",
+    "issued": "编号 {number} · 开具于 {date}",
+    "totalPaid": "已付 {amount}",
+    "waiting": "已于 {date} 申请，等待房东处理。",
+    "declined": "房东暂时无法开具：{reason}",
+    "openTitle": "有一份申请在等待中",
+    "openBody": "每次只能申请一份。房东答复后即可再次申请。",
+    "unavailableTitle": "暂时无法申请",
+    "unavailableBody": "租约开始后才可申请证明。",
+    "purposes": {
+      "visa": "签证",
+      "bank": "银行",
+      "employer": "雇主",
+      "other": "其他"
+    },
+    "form": {
+      "title": "申请新的证明",
+      "lead": "涵盖最近 12 个月的付款（不早于租约开始），并列出欠款（如有）。",
+      "purpose": "用途",
+      "language": "语言",
+      "languageHint": "使馆和外国银行通常需要英文版。",
+      "languages": {
+        "th": "ไทย",
+        "en": "English"
+      },
+      "note": "给房东的留言",
+      "noteHint": "选填，例如需要的日期",
+      "submit": "提交申请",
+      "purposes": {
+        "visa": "签证",
+        "bank": "银行",
+        "employer": "雇主",
+        "other": "其他"
+      }
+    }
   }
 }

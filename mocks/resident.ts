@@ -16,6 +16,7 @@ import {
   BEFORE_PHOTOS,
   earliestNoticeDate,
   giveNotice,
+  requestCertificate,
   MOCK_CONTRACT_SHA,
   residenceOf,
   signLease,
@@ -240,6 +241,60 @@ export const residentHandlers: HttpHandler[] = [
       documentId: notice.documentId!,
       number: notice.number,
       url: `https://storage.example.com/notices/${notice.id}.pdf?X-Amz-Signature=mock`,
+      expiresAt: bangkokIso(Date.now() + 5 * 60_000),
+    });
+  }),
+
+  // ── rent certificates (B7.5, D-253): one issued for the bank; the resident asks for more, one open at a time ──
+  http.get(mswPath("/v1/resident/leases/:leaseId/rent-certificates"), ({ request, params }) => {
+    const op = "resident.leases.rentCertificates";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const residence = residenceOf(auth.account);
+    const lease = leaseOf(residence, params.leaseId);
+    if (!lease) return problem(op, "http.not_found");
+    return HttpResponse.json(residence.certificates.filter((c) => c.leaseId === lease.dto.id));
+  }),
+
+  http.post(mswPath("/v1/resident/leases/:leaseId/rent-certificates"), async ({ request, params }) => {
+    const op = "resident.leases.requestRentCertificate";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const residence = residenceOf(auth.account);
+    const lease = leaseOf(residence, params.leaseId);
+    if (!lease) return problem(op, "http.not_found");
+    const body = await json<Partial<Schemas["RentCertificateCreateDto"]>>(request);
+    const purposes: readonly string[] = ["visa", "bank", "employer", "other"];
+    if (!body || typeof body.purpose !== "string" || !purposes.includes(body.purpose)) {
+      return problem(op, "validation.failed");
+    }
+    if (typeof body.note === "string" && body.note.length > 300) return problem(op, "validation.failed");
+    if (!["active", "notice_given", "ending", "ended"].includes(lease.dto.status)) {
+      return problem(op, "lease.invalid_state");
+    }
+    const made = requestCertificate(residence, lease.dto, {
+      purpose: body.purpose,
+      language: body.language,
+      note: body.note ?? null,
+    });
+    if (made === "open") return problem(op, "rent_certificate.request_open");
+    return HttpResponse.json(made, { status: 201 });
+  }),
+
+  http.get(mswPath("/v1/resident/leases/:leaseId/rent-certificates/:certificateId/document"), ({ request, params }) => {
+    const op = "resident.leases.rentCertificateDocument";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const residence = residenceOf(auth.account);
+    const lease = leaseOf(residence, params.leaseId);
+    const certificate = lease
+      ? residence.certificates.find((c) => c.leaseId === lease.dto.id && c.id === params.certificateId)
+      : undefined;
+    if (!certificate?.documentId) return problem(op, "http.not_found");
+    return HttpResponse.json({
+      documentId: certificate.documentId,
+      number: certificate.number,
+      url: `https://storage.example.com/certificates/${certificate.id}.pdf?X-Amz-Signature=mock`,
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
     });
   }),

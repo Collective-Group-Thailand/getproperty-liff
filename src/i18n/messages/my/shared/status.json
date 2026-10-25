@@ -114,5 +114,10 @@
     "cancelled": "ပယ်ဖျက်ပြီး",
     "completed": "ကြည့်ရှုပြီး",
     "no_show": "ချိန်းဆိုချိန် မလာခဲ့ပါ"
+  },
+  "rentCertificate": {
+    "requested": "စောင့်နေသည်",
+    "issued": "ထုတ်ပေးပြီး",
+    "declined": "ငြင်းပယ်သည်"
   }
 }
