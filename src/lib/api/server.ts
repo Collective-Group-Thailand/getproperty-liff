@@ -3,7 +3,7 @@ import "server-only";
 import createClient, { type Client } from "openapi-fetch";
 import { cookies, headers } from "next/headers";
 
-import { SESSION_COOKIES, type SessionKind } from "@/lib/auth/cookies";
+import { LANDLORD_TENANT_COOKIE, SESSION_COOKIES, type SessionKind } from "@/lib/auth/cookies";
 import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/i18n/routing";
 import { requestIdFrom } from "@/lib/http/edge";
 
@@ -19,6 +19,7 @@ import { apiBaseUrl, MOCK_SCENARIO_COOKIE, MOCK_SCENARIO_HEADER, upstreamFetch }
 export async function serverApi(kind: SessionKind = "resident"): Promise<Client<ApiPaths>> {
   const [jar, incoming] = await Promise.all([cookies(), headers()]);
   const access = jar.get(SESSION_COOKIES[kind].access)?.value;
+  const tenantId = kind === "landlord" ? jar.get(LANDLORD_TENANT_COOKIE)?.value : undefined;
   const cookieLocale = jar.get(LOCALE_COOKIE)?.value;
   const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
   // The proxy already replaced a non-UUID id (review L4); checked again for renders it did not run for.
@@ -29,6 +30,7 @@ export async function serverApi(kind: SessionKind = "resident"): Promise<Client<
   client.use({
     onRequest({ request }) {
       if (access) request.headers.set("authorization", `Bearer ${access}`);
+      if (tenantId) request.headers.set("x-tenant-id", tenantId);
       if (!request.headers.has("accept-language")) request.headers.set("accept-language", locale);
       request.headers.set("x-request-id", requestId);
       const ua = incoming.get("user-agent");

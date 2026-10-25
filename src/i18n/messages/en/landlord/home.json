@@ -1,0 +1,64 @@
+{
+  "title": "Your day",
+  "intro": "What needs you today. Heavier work is in the web console.",
+  "lead": {
+    "back": "Back to your day",
+    "listing": "Listing {title}",
+    "thread": "Messages",
+    "you": "You",
+    "reply": "Reply",
+    "replyLabel": "Message to the prospect",
+    "send": "Send",
+    "sent": "Sent by LINE",
+    "viewings": "Viewings",
+    "occupants": "{count, plural, one {# person} other {# people}}",
+    "term": "{months, plural, one {# month} other {# months}}"
+  },
+  "greeting": "Hello {name}",
+  "openConsole": "Open the web console",
+  "leads": {
+    "title": "Enquiries waiting for you",
+    "empty": "All answered",
+    "open": "Reply",
+    "moveIn": "Moves in {date}",
+    "awaiting": "Waiting since {date}"
+  },
+  "viewings": {
+    "title": "Viewings to confirm",
+    "empty": "No viewing waiting",
+    "confirm": "Confirm",
+    "decline": "Decline",
+    "confirmed": "Viewing confirmed — the prospect got a LINE message",
+    "declined": "Viewing declined",
+    "declineTitle": "Decline this viewing?",
+    "declineBody": "The prospect gets a LINE message and can pick another time",
+    "declineReason": "Reason (optional)"
+  },
+  "payments": {
+    "title": "Money in, last 7 days",
+    "empty": "Nothing received yet",
+    "total": "Total {amount}"
+  },
+  "overdue": {
+    "title": "Overdue rent",
+    "empty": "Nothing overdue",
+    "due": "Due {date}",
+    "remind": "Send a reminder",
+    "reminded": "Reminder sent by LINE"
+  },
+  "ending": {
+    "title": "Leases ending",
+    "empty": "No lease ending",
+    "ends": "Ends {date}",
+    "manage": "Re-list or offer a renewal in the console"
+  },
+  "signIn": {
+    "title": "Use it in LINE",
+    "lead": "This page is for home and condo owners who linked LINE to their getproperty account",
+    "openInLine": "Open in LINE",
+    "notLinkedTitle": "LINE is not linked to your account yet",
+    "notLinkedBody": "Sign in to the web console with your phone or e-mail, go to Settings › Ways to sign in › Add LINE, then open this page in LINE again",
+    "notLandlordTitle": "This page is for home and condo owners",
+    "notLandlordBody": "Your organisation is managed in the web console"
+  }
+}

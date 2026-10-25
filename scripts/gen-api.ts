@@ -40,9 +40,12 @@ const OUT_SCHEMA = resolve(ROOT, "src/lib/api/schema.d.ts");
 const OUT_OPERATIONS = resolve(ROOT, "src/lib/api/operations.generated.ts");
 const OUT_MOCKS = resolve(ROOT, "mocks/generated/operations.ts");
 
-/** Path prefixes this app calls (the BFF allow-list is narrower: refresh/logout are server-only). */
+/**
+ * Path prefixes this app calls (the BFF allow-list is narrower: refresh/logout are server-only; of `/v1/owner` only the
+ * landlord's quick actions, `LANDLORD_ROUTES`, L5 5.3).
+ */
 export const USED_PATH =
-  /^\/v1\/(resident|technician|prospect|auth\/resident|auth\/technician|auth\/prospect|public\/listings)(\/|$)|^\/v1\/auth\/(refresh|logout)$/;
+  /^\/v1\/(resident|technician|prospect|auth\/resident|auth\/technician|auth\/prospect|public\/listings)(\/|$)|^\/v1\/auth\/(refresh|logout|operator\/identity)$|^\/v1\/owner\/(me|leads|listing-viewings|payments|invoices|leases)(\/|$)/;
 
 interface ContractLock {
   $comment?: string;

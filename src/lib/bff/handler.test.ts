@@ -91,7 +91,8 @@ describe("allow-list", () => {
   });
 
   it.each([
-    "/v1/owner/me",
+    "/v1/owner/members",
+    "/v1/auth/operator/identity",
     "/v1/staff/me",
     "/v1/admin/me",
     "/v1/device/bootstrap",
@@ -127,7 +128,7 @@ describe("allow-list", () => {
     expect(routeFor("/auth/technician/line", true)).toMatchObject({ type: "exchange", kind: "technician" });
     expect(routeFor("/auth/technician/refresh", true)).toMatchObject({ type: "refresh", kind: "technician" });
     expect(routeFor("/v1/auth/technician/otp/verify", true)).toMatchObject({ type: "proxy", auth: false });
-    expect(routeFor("/v1/owner/me", true)).toBeNull();
+    expect(routeFor("/v1/owner/members", true)).toBeNull();
     for (const path of ["/auth/technician/refresh", "/v1/technician/work-orders", "/v1/auth/technician/otp/verify"]) {
       expect(routeFor(path, false), path).toBeNull();
     }
@@ -151,7 +152,7 @@ describe("allow-list", () => {
 
   it("answers a refused path with a 404 problem and never calls the API", async () => {
     const { handler, upstream } = setup(() => json({}));
-    for (const path of ["/v1/owner/me", "/v1/admin/me"]) {
+    for (const path of ["/v1/owner/members", "/v1/admin/me"]) {
       const response = await handler(req(path, { cookies: { "__Host-gp_at": freshAccess } }));
       expect(response.status).toBe(404);
       expect(response.headers.get("content-type")).toBe("application/problem+json");
@@ -637,7 +638,7 @@ describe("logout", () => {
     const response = await handler(
       req("/auth/logout", {
         method: "POST",
-        cookies: { "__Host-gp_rt": "rt-r", "__Host-gp_trt": "rt-t", "__Host-gp_prt": "rt-p" },
+        cookies: { "__Host-gp_rt": "rt-r", "__Host-gp_trt": "rt-t", "__Host-gp_prt": "rt-p", "__Host-gp_lrt": "rt-l" },
       }),
     );
     expect(response.status).toBe(204);
@@ -645,10 +646,15 @@ describe("logout", () => {
       ["/v1/auth/logout", { refreshToken: "rt-r" }],
       ["/v1/auth/logout", { refreshToken: "rt-t" }],
       ["/v1/auth/logout", { refreshToken: "rt-p" }],
+      ["/v1/auth/logout", { refreshToken: "rt-l" }],
     ]);
     const cookies = setCookies(response);
     expect(cookies.map((c) => c.split("=")[0]).sort()).toEqual([
       "__Host-gp_at",
+      "__Host-gp_lat",
+      "__Host-gp_lrt",
+      "__Host-gp_lsst",
+      "__Host-gp_ltid",
       "__Host-gp_pat",
       "__Host-gp_prt",
       "__Host-gp_psst",
@@ -659,6 +665,62 @@ describe("logout", () => {
       "__Host-gp_tsst",
     ]);
     for (const cookie of cookies) expect(cookie).toContain("Max-Age=0");
+  });
+});
+
+describe("landlord quick actions (L5 5.3, D-251)", () => {
+  it("opens exactly the landlord's operator calls, by method", () => {
+    expect(routeFor("/auth/landlord/line", false)).toMatchObject({
+      type: "exchange",
+      kind: "landlord",
+      path: "/v1/auth/operator/identity",
+    });
+    expect(routeFor("/auth/landlord/refresh", false)).toMatchObject({ type: "refresh", kind: "landlord" });
+    const id = "6c000000-0000-4000-8000-000000000101";
+    expect(routeFor("/v1/owner/me", false, "GET")).toMatchObject({ type: "proxy", kind: "landlord", auth: true });
+    expect(routeFor(`/v1/owner/leads/${id}/messages`, false, "POST")).toMatchObject({ kind: "landlord" });
+    expect(routeFor(`/v1/owner/listing-viewings/${id}/actions/confirm`, false, "POST")).toMatchObject({
+      kind: "landlord",
+    });
+    expect(routeFor(`/v1/owner/invoices/${id}/actions/send-reminder`, false, "POST")).toMatchObject({
+      kind: "landlord",
+    });
+    for (const [method, path] of [
+      ["DELETE", "/v1/owner/me"],
+      ["POST", "/v1/owner/leads"],
+      ["POST", `/v1/owner/invoices/${id}/actions/void`],
+      ["PATCH", `/v1/owner/leads/${id}`],
+      ["GET", "/v1/owner/members"],
+    ] as const) {
+      expect(routeFor(path, false, method), `${method} ${path}`).toBeNull();
+    }
+  });
+
+  it("names the provider for the operator exchange, keeps the tenant and sends it on every call", async () => {
+    const pair = {
+      accessToken: "a.b.c",
+      accessTokenExpiresAt: "2099-01-01T00:00:00Z",
+      refreshToken: "r",
+      refreshTokenExpiresAt: "2099-02-01T00:00:00Z",
+      subject: { audience: "operator", scopes: ["tenant:6c000000-0000-4000-8000-0000000000a1"] },
+    };
+    const exchange = setup(() => Response.json(pair));
+    const signedIn = await exchange.handler(
+      req("/auth/landlord/line", { method: "POST", body: JSON.stringify({ idToken: "fake-line.x" }) }),
+    );
+    expect(signedIn.status).toBe(200);
+    expect(JSON.parse(exchange.calls[0]!.body)).toEqual({ provider: "line", idToken: "fake-line.x" });
+    expect(setCookies(signedIn).some((c) => c.startsWith("__Host-gp_ltid=6c000000-0000-4000-8000-0000000000a1"))).toBe(
+      true,
+    );
+
+    const proxied = setup(() => Response.json([]));
+    await proxied.handler(
+      req("/v1/owner/leads", {
+        cookies: { "__Host-gp_lat": "a.b.c", "__Host-gp_ltid": "6c000000-0000-4000-8000-0000000000a1" },
+      }),
+    );
+    expect(proxied.calls[0]!.headers.get("x-tenant-id")).toBe("6c000000-0000-4000-8000-0000000000a1");
   });
 });
 

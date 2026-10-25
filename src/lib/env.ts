@@ -101,6 +101,11 @@ export const serverSchema = z
      * module, which the proxy and the route handlers share).
      */
     METRICS_ALLOWED_CIDRS: z.string().optional(),
+    /**
+     * The owner console of getproperty-web (`https://<OWNER_HOST>`): the landlord's quick actions link there for the
+     * heavier work (L5 5.3). Unset = those links are not shown.
+     */
+    OWNER_CONSOLE_URL: origin,
     /** R2 technician screens and BFF prefixes (`/v1/technician/*`, `/v1/auth/technician/*`). */
     FEATURE_TECHNICIAN: flag,
     SENTRY_DSN: optionalUrl,

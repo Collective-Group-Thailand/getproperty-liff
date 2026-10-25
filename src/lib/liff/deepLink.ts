@@ -31,6 +31,8 @@ export const DEEP_LINK_ROOTS = [
   "technician",
   // L5: a listing someone asks about (`/rent/<slug>`) and my enquiries (`/rent/enquiries/<id>`), D-252.
   "rent",
+  // L5 5.3: a landlord's quick actions (`/landlord`, `/landlord/leads/<id>`), D-251.
+  "landlord",
   // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
   "link",
   "consent",

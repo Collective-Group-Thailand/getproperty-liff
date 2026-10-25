@@ -16,6 +16,6 @@ export default getRequestConfig(async () => {
   return {
     locale,
     timeZone: "Asia/Bangkok",
-    messages: await loadMessages(locale, ["shared", "resident", "technician", "prospect"]),
+    messages: await loadMessages(locale, ["shared", "resident", "technician", "prospect", "landlord"]),
   };
 });

@@ -3,6 +3,7 @@ import {
   clearedCookies,
   parseCookieHeader,
   serializeCookie,
+  LANDLORD_TENANT_COOKIE,
   SESSION_COOKIES,
   sessionCookies,
   type CookieToSet,
@@ -25,10 +26,13 @@ import { clientIpFrom, requestIdFrom } from "@/lib/http/edge";
  *   /bff/auth/technician/refresh    rotate the technician session now (POST) — a work order assigned after sign-in
  *                                   arrives with the next token's `work_order:` scopes (D-210)
  *   /bff/auth/prospect/line         LIFF id token → `/v1/auth/prospect/line` → the prospect's cookies (L5, D-281)
+ *   /bff/auth/landlord/line         LIFF id token → `/v1/auth/operator/identity` (provider `line`) → the landlord's
+ *                                   operator cookies + the tenant of the session (L5 5.3, D-251, D-255)
  *
  * Rules: allow-list (`/v1/resident`, `/v1/auth/resident`; `/v1/technician`, `/v1/auth/technician` with the
  * technician flag; `/v1/prospect`, `/v1/auth/prospect` and the public listing reads `/v1/public/listings` for prospects,
- * L5) — `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
+ * L5; the landlord's quick actions `LANDLORD_ROUTES` with the landlord session and its `X-Tenant-Id`, L5 5.3) — the
+ * rest of `/v1/owner`, `/v1/staff`, `/v1/admin`, `/v1/device` and everything else 404; bearer from the
  * httpOnly cookie, refreshed before it expires and **once** on a 401, rotated cookies always written back; tokens
  * in auth responses become cookies and never reach the browser; same-origin + `x-getproperty-csrf: 1` on every
  * non-GET; request bodies capped per route, matching the API's own limits (`BODY_LIMITS`: inline slip images and
@@ -76,6 +80,7 @@ export const STREAM_TOKEN_COOKIES: Record<SessionKind, string> = {
   resident: "__Host-gp_sst",
   technician: "__Host-gp_tsst",
   prospect: "__Host-gp_psst",
+  landlord: "__Host-gp_lsst",
 };
 const REALTIME_AUTH = /^\/v1\/(resident|technician)\/realtime\/auth$/;
 
@@ -176,10 +181,31 @@ const TECHNICIAN = /^\/v1\/technician(\/|$)/;
 const AUTH_TECHNICIAN = /^\/v1\/auth\/technician\//;
 const PROSPECT = /^\/v1\/prospect(\/|$)/;
 const AUTH_PROSPECT = /^\/v1\/auth\/prospect\//;
+/**
+ * The landlord's quick actions in LINE (L5 5.3, D-251): exactly these operator calls, nothing else of `/v1/owner` —
+ * the rest of the console stays in getproperty-web.
+ */
+export const LANDLORD_ROUTES: readonly { method: string; pattern: RegExp }[] = [
+  { method: "GET", pattern: /^\/v1\/owner\/me$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/leads$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/leads\/[0-9a-f-]{36}$/ },
+  { method: "POST", pattern: /^\/v1\/owner\/leads\/[0-9a-f-]{36}\/messages$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/listing-viewings$/ },
+  { method: "POST", pattern: /^\/v1\/owner\/listing-viewings\/[0-9a-f-]{36}\/actions\/(confirm|decline)$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/payments$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/invoices$/ },
+  { method: "POST", pattern: /^\/v1\/owner\/invoices\/[0-9a-f-]{36}\/actions\/send-reminder$/ },
+  { method: "GET", pattern: /^\/v1\/owner\/leases$/ },
+];
+
+export function landlordRouteAllowed(method: string, path: string): boolean {
+  return LANDLORD_ROUTES.some((route) => route.method === method && route.pattern.test(path));
+}
+
 /** Anonymous reads of a published listing and its free viewing times (no session, no personal data). */
 const PUBLIC_LISTINGS = /^\/v1\/public\/listings\/[a-z0-9-]+(\/viewing-slots)?$/;
 
-export function routeFor(pathname: string, technicianEnabled: boolean): Route | null {
+export function routeFor(pathname: string, technicianEnabled: boolean, method = "GET"): Route | null {
   const path = safePath(pathname);
   if (!path) return null;
   if (path === "/auth/line") return { type: "exchange", path: "/v1/auth/resident/line", kind: "resident" };
@@ -187,6 +213,11 @@ export function routeFor(pathname: string, technicianEnabled: boolean): Route | 
     return technicianEnabled ? { type: "exchange", path: "/v1/auth/technician/line", kind: "technician" } : null;
   }
   if (path === "/auth/prospect/line") return { type: "exchange", path: "/v1/auth/prospect/line", kind: "prospect" };
+  if (path === "/auth/landlord/line") return { type: "exchange", path: "/v1/auth/operator/identity", kind: "landlord" };
+  if (path === "/auth/landlord/refresh") return { type: "refresh", kind: "landlord" };
+  if (/^\/v1\/owner\//.test(path)) {
+    return landlordRouteAllowed(method, path) ? { type: "proxy", path, kind: "landlord", auth: true } : null;
+  }
   if (path === "/auth/logout") return { type: "logout" };
   if (path === "/auth/refresh") return { type: "refresh", kind: "resident" };
   if (path === "/auth/technician/refresh") return technicianEnabled ? { type: "refresh", kind: "technician" } : null;
@@ -306,6 +337,29 @@ function isTokenPair(value: unknown): value is TokenPairLike & { subject?: unkno
   );
 }
 
+/** `{ idToken }` from the app → `{ provider: "line", idToken }` for `/v1/auth/operator/identity`. */
+export function landlordExchangeBody(body: ArrayBuffer | undefined): string | null {
+  if (!body) return null;
+  try {
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(body));
+    const idToken = parsed && typeof parsed === "object" ? (parsed as { idToken?: unknown }).idToken : undefined;
+    return typeof idToken === "string" && idToken ? JSON.stringify({ provider: "line", idToken }) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The first `tenant:<uuid>` scope of an operator subject (a landlord has one organisation). */
+export function tenantOf(subject: unknown): string | null {
+  const scopes = subject && typeof subject === "object" ? (subject as { scopes?: unknown }).scopes : undefined;
+  if (!Array.isArray(scopes)) return null;
+  for (const scope of scopes) {
+    const match = typeof scope === "string" ? /^tenant:([0-9a-f-]{36})$/.exec(scope) : null;
+    if (match) return match[1]!;
+  }
+  return null;
+}
+
 /** What the browser learns about a new session: who, not the tokens. */
 function sessionView(pair: TokenPairLike & { subject?: unknown }) {
   return { subject: pair.subject ?? null, accessTokenExpiresAt: pair.accessTokenExpiresAt };
@@ -322,7 +376,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
     const url = new URL(request.url);
     const rawPath = url.pathname.replace(/^\/bff/, "") || "/";
 
-    const route = routeFor(rawPath, cfg.technicianEnabled);
+    const route = routeFor(rawPath, cfg.technicianEnabled, request.method);
     if (!route) return problem(404, "bff.not_allowed", "This path is not available to the resident app", requestId);
 
     // Logout ends sessions: a state change, so POST with the CSRF checks below — never a GET a link can trigger.
@@ -370,7 +424,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
     // ── logout: end every sign-in this browser holds, whatever the API answers ──────────────────
     if (route.type === "logout") {
       const cookies: CookieToSet[] = [];
-      for (const kind of ["resident", "technician", "prospect"] as const) {
+      for (const kind of ["resident", "technician", "prospect", "landlord"] as const) {
         const refreshToken = jar.get(SESSION_COOKIES[kind].refresh);
         if (refreshToken) {
           const logoutHeaders = new Headers(headers);
@@ -383,6 +437,7 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
         }
         cookies.push(...clearedCookies(kind), { name: STREAM_TOKEN_COOKIES[kind], value: "", maxAge: 0 });
       }
+      cookies.push({ name: LANDLORD_TENANT_COOKIE, value: "", maxAge: 0 });
       return new Response(null, { status: 204, headers: downstreamHeaders(new Response(), requestId, cookies) });
     }
 
@@ -407,7 +462,15 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
 
     // ── id-token exchange: the response's tokens become cookies ───────────────────────────────
     if (route.type === "exchange" || (route.type === "proxy" && !route.auth)) {
-      const response = await call(route.path + url.search, { method: request.method, headers, body });
+      let sent: ArrayBuffer | string | undefined = body;
+      if (route.type === "exchange" && route.kind === "landlord") {
+        // The app sends `{ idToken }` for every audience; the operator exchange names the provider (D-255).
+        const parsed = landlordExchangeBody(body);
+        if (!parsed) return problem(422, "validation.failed", "idToken is required", requestId);
+        sent = parsed;
+        headers.set("content-type", "application/json");
+      }
+      const response = await call(route.path + url.search, { method: request.method, headers, body: sent });
       if (!response) return unavailable();
       if (!response.ok || !(response.headers.get("content-type") ?? "").includes("json")) {
         return new Response(response.body, {
@@ -422,7 +485,13 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
           headers: downstreamHeaders(response, requestId, []),
         });
       }
-      const out = downstreamHeaders(response, requestId, sessionCookies(route.kind, payload, now()));
+      const issued = sessionCookies(route.kind, payload, now());
+      if (route.kind === "landlord") {
+        const tenantId = tenantOf(payload.subject);
+        if (!tenantId) return problem(403, "auth.forbidden", "No organisation on this sign-in", requestId);
+        issued.push({ name: LANDLORD_TENANT_COOKIE, value: tenantId, maxAge: 400 * 24 * 3600 });
+      }
+      const out = downstreamHeaders(response, requestId, issued);
       out.set("content-type", "application/json");
       return new Response(JSON.stringify(sessionView(payload)), { status: response.status, headers: out });
     }
@@ -467,9 +536,11 @@ export function createBffHandler(config: BffConfig | (() => BffConfig)) {
       }
     }
 
+    const tenantId = route.kind === "landlord" ? jar.get(LANDLORD_TENANT_COOKIE) : undefined;
     const send = () => {
       const h = new Headers(headers);
       if (access) h.set("authorization", `Bearer ${access}`);
+      if (tenantId) h.set("x-tenant-id", tenantId);
       return call(route.path + search, { method: request.method, headers: h, body });
     };
 
