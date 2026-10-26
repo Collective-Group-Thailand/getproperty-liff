@@ -2,6 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { expectAxeClean, expectNoHorizontalScroll, fakeLiff, seedSession, subject } from "./support";
 
+/** A tiny PNG (1×1): a photo of my own for the report (D-266). */
+const PHOTO = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64",
+);
+
 /**
  * L3 3.1 / 3.2 — the lease viewer, the e-signature (read to the end → draw or upload → SMS code → signed with the
  * document hash), building rules acknowledgement and the 30-day move-out notice, on the contract mocks at 360 × 780.
@@ -234,8 +240,17 @@ test.describe("move-in report (L5 5.2, D-253)", () => {
     await page.mouse.move(box.x + 90, box.y + 100, { steps: 5 });
     await page.mouse.move(box.x + 160, box.y + 50, { steps: 5 });
     await page.mouse.up();
+    // D-266: what I see differently goes with my signature — a note and a photo of my own
+    const sign = page.getByTestId("inspection-countersign");
+    await sign.getByTestId("inspection-note").fill("ผนังห้องนอนมีรอยขีดอยู่ก่อนแล้ว");
+    await sign.getByTestId("camera-file").setInputFiles([{ name: "wall.png", mimeType: "image/png", buffer: PHOTO }]);
+    await sign.getByTestId("camera-done").click();
+    await expect(page.getByTestId("inspection-note-photos").getByRole("listitem")).toHaveCount(1);
+    await expectAxeClean(page);
     await page.getByTestId("inspection-countersign-send").click();
     await expect(page.getByTestId("inspection-page")).toHaveAttribute("data-status", "signed");
+    await expect(page.getByTestId("inspection-resident-note")).toContainText("ผนังห้องนอนมีรอยขีดอยู่ก่อนแล้ว");
+    await expect(page.getByTestId("inspection-resident-note").getByRole("img")).toHaveCount(1);
     await expect(page.getByTestId("inspection-countersign")).toHaveCount(0);
     await expect(page.getByTestId("inspection-page")).toContainText("คุณและผู้ให้เช่าลงนามบันทึกนี้แล้ว");
   });

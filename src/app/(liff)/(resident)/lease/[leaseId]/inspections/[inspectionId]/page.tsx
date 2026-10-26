@@ -75,6 +75,29 @@ export default async function InspectionPage({
             {report.notes}
           </Callout>
         ) : null}
+        {report.residentNote || report.residentPhotoUrls.length ? (
+          <Callout tone="neutral" title={t("yourNote")}>
+            <div className="flex flex-col gap-3" data-testid="inspection-resident-note">
+              {report.residentNote ? <p className="m-0">{report.residentNote}</p> : null}
+              {report.residentPhotoUrls.length ? (
+                <ul className="grid grid-cols-3 gap-2" role="list">
+                  {report.residentPhotoUrls.map((url, index) => (
+                    <li key={url}>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- a signed object-storage link */}
+                      <img
+                        src={url}
+                        alt={t("yourPhotoAlt", { n: index + 1 })}
+                        width={96}
+                        height={96}
+                        className="rounded-control border-border aspect-square w-full border object-cover"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </Callout>
+        ) : null}
         {report.canCountersign ? <InspectionCountersign inspectionId={report.id} /> : null}
       </div>
     </ResidentShell>

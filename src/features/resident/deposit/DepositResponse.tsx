@@ -49,11 +49,12 @@ export function DepositResponse({
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("choose");
   const [reason, setReason] = useState("");
+  const [acceptNote, setAcceptNote] = useState("");
   const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [reasonMissing, setReasonMissing] = useState(false);
-  const accept = useIdempotentAttempt<null>();
+  const accept = useIdempotentAttempt<Schemas["ResidentAcceptDto"]>();
   const dispute = useIdempotentAttempt<Schemas["ResidentDisputeDto"]>();
   /** Photo (its preview URL) → uploaded file id, so a second attempt does not upload it again. */
   const uploaded = useRef(new Map<string, string>());
@@ -85,6 +86,16 @@ export function DepositResponse({
           {t("acceptTitle")}
         </h2>
         <p className="mt-2">{refund ? t("acceptBody", { amount: refund }) : t("acceptBodyNoAmount")}</p>
+        <Field label={t("note")} hint={t("noteHint")} className="mt-4">
+          <Textarea
+            name="note"
+            rows={3}
+            maxLength={1000}
+            value={acceptNote}
+            onChange={(event) => setAcceptNote(event.target.value)}
+            data-testid="deposit-accept-note"
+          />
+        </Field>
         {error ? <ProblemCallout error={error} /> : null}
         <div className="mt-4 flex flex-col gap-2">
           <Button
@@ -95,10 +106,12 @@ export function DepositResponse({
             data-testid="deposit-accept-submit"
             onClick={() =>
               void run(accept, async () => {
-                const { key } = await accept.prepare({ depositId, answer: "accept" }, () => null);
+                const note = acceptNote.trim() || null;
+                const { key, body } = await accept.prepare({ depositId, answer: "accept", note }, () => ({ note }));
                 unwrap(
                   await browserApi.POST("/v1/resident/deposits/{depositId}/actions/accept", {
                     params: { path: { depositId }, header: { "Idempotency-Key": key } },
+                    body,
                   }),
                 );
               })

@@ -18,7 +18,7 @@ const TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 export interface MockUpload {
   fileId: string;
   userId: string;
-  purpose: "deposit_dispute" | "service_request" | "work_order";
+  purpose: "deposit_dispute" | "service_request" | "work_order" | "inspection_note";
   /** The deposit, unit or work order the photo belongs to. */
   ref: string;
   role: "before" | "after" | null;
@@ -119,6 +119,7 @@ export const uploadHandlers: HttpHandler[] = [
       purpose?: unknown;
       depositId?: unknown;
       unitId?: unknown;
+      inspectionId?: unknown;
       contentType?: unknown;
       sizeBytes?: unknown;
       sha256?: unknown;
@@ -136,6 +137,11 @@ export const uploadHandlers: HttpHandler[] = [
       if (!auth.account.units.some((u) => u.unitId === body.unitId)) return problem(op, "http.not_found");
       const answer = presign(auth.account.userId, fields, "service_request", String(body.unitId), null, "resident");
       return HttpResponse.json({ ...answer, purpose: "service_request" }, { status: 201 });
+    }
+    if (body?.purpose === "inspection_note" && typeof body.inspectionId === "string") {
+      // D-266: a photo for a report I am about to countersign (the countersign handler checks it is mine)
+      const answer = presign(auth.account.userId, fields, "inspection_note", body.inspectionId, null, "resident");
+      return HttpResponse.json({ ...answer, purpose: "inspection_note" }, { status: 201 });
     }
     return problem(op, "validation.failed");
   }),

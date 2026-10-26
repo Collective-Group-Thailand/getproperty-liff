@@ -58,6 +58,8 @@
     "photos": "待发送的照片",
     "photoAlt": "第 {index} 张照片",
     "removePhoto": "删除第 {index} 张照片",
-    "disputeSubmit": "提交异议"
+    "disputeSubmit": "提交异议",
+    "note": "给房东的留言（可选）",
+    "noteHint": "将与您的确认一起保存"
   }
 }

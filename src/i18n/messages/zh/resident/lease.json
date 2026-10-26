@@ -266,7 +266,16 @@
       "title": "签署记录",
       "lead": "签名确认房屋状况与本记录一致",
       "send": "签署此记录",
-      "done": "已签署——已通过 LINE 通知房东"
-    }
+      "done": "已签署——已通过 LINE 通知房东",
+      "note": "您看到的不同之处（可选）",
+      "noteHint": "例如原本就有的划痕。房东会在记录中看到这段说明和照片",
+      "addPhoto": "添加照片",
+      "photoHint": "最多 {max} 张",
+      "photos": "要发送的照片",
+      "photoAlt": "第 {index} 张照片",
+      "removePhoto": "删除第 {index} 张照片"
+    },
+    "yourNote": "您签名时添加的内容",
+    "yourPhotoAlt": "您的照片 {n}"
   }
 }

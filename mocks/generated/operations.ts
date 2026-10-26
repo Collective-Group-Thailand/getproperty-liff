@@ -6080,6 +6080,19 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       },
       {
         status: 422,
+        code: "listing.bank_account_in_message",
+        example: {
+          code: "listing.bank_account_in_message",
+          detail:
+            "เพื่อป้องกันมิจฉาชีพ ห้ามส่งเลขบัญชีในแชตประกาศ การจองและเงินเข้าอยู่ชำระผ่าน getproperty เท่านั้น ลบเลขบัญชีแล้วส่งใหม่",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "ส่งเลขบัญชีธนาคารในข้อความไม่ได้",
+          type: "https://errors.getproperty.co/listing.bank_account_in_message",
+        },
+      },
+      {
+        status: 422,
         code: "validation.failed",
         example: {
           code: "validation.failed",
@@ -16002,6 +16015,19 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       },
       {
         status: 422,
+        code: "listing.bank_account_in_message",
+        example: {
+          code: "listing.bank_account_in_message",
+          detail:
+            "เพื่อป้องกันมิจฉาชีพ ห้ามส่งเลขบัญชีในแชตประกาศ การจองและเงินเข้าอยู่ชำระผ่าน getproperty เท่านั้น ลบเลขบัญชีแล้วส่งใหม่",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "ส่งเลขบัญชีธนาคารในข้อความไม่ได้",
+          type: "https://errors.getproperty.co/listing.bank_account_in_message",
+        },
+      },
+      {
+        status: 422,
         code: "validation.failed",
         example: {
           code: "validation.failed",
@@ -16160,6 +16186,19 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 409,
           title: "ข้อมูลขัดแย้ง",
           type: "https://errors.getproperty.co/http.conflict",
+        },
+      },
+      {
+        status: 422,
+        code: "listing.bank_account_in_message",
+        example: {
+          code: "listing.bank_account_in_message",
+          detail:
+            "เพื่อป้องกันมิจฉาชีพ ห้ามส่งเลขบัญชีในแชตประกาศ การจองและเงินเข้าอยู่ชำระผ่าน getproperty เท่านั้น ลบเลขบัญชีแล้วส่งใหม่",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "ส่งเลขบัญชีธนาคารในข้อความไม่ได้",
+          type: "https://errors.getproperty.co/listing.bank_account_in_message",
         },
       },
       {
@@ -16370,6 +16409,19 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 409,
           title: "มีคนจองเวลานี้แล้ว",
           type: "https://errors.getproperty.co/listing.viewing_slot_taken",
+        },
+      },
+      {
+        status: 422,
+        code: "listing.bank_account_in_message",
+        example: {
+          code: "listing.bank_account_in_message",
+          detail:
+            "เพื่อป้องกันมิจฉาชีพ ห้ามส่งเลขบัญชีในแชตประกาศ การจองและเงินเข้าอยู่ชำระผ่าน getproperty เท่านั้น ลบเลขบัญชีแล้วส่งใหม่",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 422,
+          title: "ส่งเลขบัญชีธนาคารในข้อความไม่ได้",
+          type: "https://errors.getproperty.co/listing.bank_account_in_message",
         },
       },
       {
@@ -18891,6 +18943,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
             refundAmount: null,
             refundMethod: null,
             refundedAt: null,
+            residentNote: null,
             residentResponse: null,
             statementNumber: null,
             status: "proposed",
@@ -19022,6 +19075,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           refundAmount: null,
           refundMethod: null,
           refundedAt: null,
+          residentNote: null,
           residentResponse: null,
           statementNumber: null,
           status: "proposed",
@@ -19177,6 +19231,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           refundAmount: null,
           refundMethod: null,
           refundedAt: null,
+          residentNote: "รับทราบค่าทำความสะอาดครับ",
           residentResponse: "accepted",
           statementNumber: null,
           status: "agreed",
@@ -19404,6 +19459,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           refundAmount: null,
           refundMethod: null,
           refundedAt: null,
+          residentNote: null,
           residentResponse: "disputed",
           statementNumber: null,
           status: "disputed",
@@ -20489,6 +20545,8 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           ownerSigned: true,
           reportNumber: "INS-2569-00012",
           reportUrl: "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+          residentNote: null,
+          residentPhotoUrls: [],
           residentSigned: false,
           status: "completed",
           type: "move_in",
@@ -20602,6 +20660,8 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         ownerSigned: true,
         reportNumber: "INS-2569-00012",
         reportUrl: "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+        residentNote: null,
+        residentPhotoUrls: [],
         residentSigned: false,
         status: "completed",
         type: "move_in",
@@ -20726,6 +20786,8 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
         ownerSigned: true,
         reportNumber: "INS-2569-00012",
         reportUrl: "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+        residentNote: "ผนังห้องนอนมีรอยขีดอยู่ก่อนแล้ว (ดูรูป)",
+        residentPhotoUrls: ["https://storage.example.com/note.jpg?X-Amz-Signature=abc"],
         residentSigned: true,
         status: "signed",
         type: "move_in",
@@ -28325,6 +28387,18 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
           status: 409,
           title: "ทำรายการนี้ไม่ได้ในสถานะเงินประกันปัจจุบัน",
           type: "https://errors.getproperty.co/deposit.invalid_state",
+        },
+      },
+      {
+        status: 409,
+        code: "inspection.invalid_state",
+        example: {
+          code: "inspection.invalid_state",
+          detail: "การตรวจห้องอยู่ในสถานะที่ทำรายการนี้ไม่ได้ ({status})",
+          requestId: "6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e",
+          status: 409,
+          title: "ทำรายการนี้ไม่ได้ในสถานะการตรวจห้องปัจจุบัน",
+          type: "https://errors.getproperty.co/inspection.invalid_state",
         },
       },
       {

@@ -56,8 +56,11 @@ test.describe("deposit settlement (D-023)", () => {
     await page.goto("/deposit");
     await page.getByTestId("deposit-accept").click();
     await expect(page.getByTestId("deposit-accept-confirm")).toContainText("฿3,349.50");
+    await page.getByTestId("deposit-accept-note").fill("ขอบคุณที่คืนเงินเร็วครับ");
     await expectAxeClean(page);
+    const accepted = page.waitForRequest((r) => r.method() === "POST" && r.url().includes("/actions/accept"));
     await page.getByTestId("deposit-accept-submit").click();
+    expect((await accepted).postDataJSON()).toEqual({ note: "ขอบคุณที่คืนเงินเร็วครับ" });
     await expect(page.getByTestId("settlement")).toContainText("ยอดคืนที่ตกลง");
     await expect(page.getByTestId("deposit-respond")).toHaveCount(0);
   });

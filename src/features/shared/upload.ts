@@ -7,7 +7,9 @@ import { compressImage } from "@/ui/lib/image";
 
 /** What a resident photo is for, and the row it belongs to (the API checks both, D-203, B5.1). */
 export type ResidentUploadTarget =
-  { purpose: "deposit_dispute"; depositId: string } | { purpose: "service_request"; unitId: string };
+  | { purpose: "deposit_dispute"; depositId: string }
+  | { purpose: "service_request"; unitId: string }
+  | { purpose: "inspection_note"; inspectionId: string };
 
 const UPLOAD_TYPES: readonly UploadContentType[] = ["image/jpeg", "image/png", "image/webp"];
 
