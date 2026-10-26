@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { ContactPanel } from "@/features/prospect/ContactPanel";
 import { ListingSummary } from "@/features/prospect/ListingSummary";
+import { ListingUtilityCard } from "@/features/prospect/ListingUtilityCard";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { serverApi } from "@/lib/api/server";
 import { problemFromParsed } from "@/lib/api/problem";
@@ -71,6 +72,7 @@ export default async function RentListingPage({
   return (
     <div className="flex flex-col gap-5 py-5" data-testid="prospect-rent">
       <ListingSummary listing={listing} />
+      {listing.utility ? <ListingUtilityCard utility={listing.utility} /> : null}
       {panel}
       <Callout tone="warning">{t("safety")}</Callout>
     </div>

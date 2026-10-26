@@ -27,6 +27,10 @@ test.describe("prospects (D-252, D-281)", () => {
     await expect(page).toHaveURL(new RegExp(`${LISTING}$`));
     expect(await sessionCookieNames(context)).toEqual(["__Host-gp_pat", "__Host-gp_prt"]);
     await expect(page.getByTestId("prospect-listing")).toContainText("คอนโด 1 ห้องนอน");
+    // D-265: the real utility cost before asking — rates from the API and the average of real bills
+    await expect(page.getByTestId("prospect-utility")).toContainText("฿7.00 ต่อหน่วย");
+    await expect(page.getByTestId("prospect-utility")).toContainText("ขั้นต่ำ ฿100.00 ต่อเดือน");
+    await expect(page.getByTestId("prospect-utility-average")).toContainText("฿1,240.50");
     await expect(page.getByRole("navigation", { name: "เมนูด่วน" })).toHaveCount(0);
     await expectAxeClean(page);
     await expectNoHorizontalScroll(page);

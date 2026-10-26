@@ -109,5 +109,25 @@
     "reason": "The owner says: {reason}",
     "history": "Earlier viewings",
     "close": "Close"
+  },
+  "utility": {
+    "title": "Utility costs, as billed",
+    "electricity": "Electricity",
+    "water": "Water",
+    "per": {
+      "kwh": "per kWh",
+      "m3": "per m³"
+    },
+    "tier": "Units {from}–{to}",
+    "tierFrom": "From unit {from}",
+    "minimum": "Minimum {amount} a month",
+    "notSet": "Not stated by the owner",
+    "perMonth": "a month",
+    "fixed": {
+      "common_fee": "Common fee",
+      "service": "Service charge",
+      "fund": "Sinking fund"
+    },
+    "average": "{count, plural, one {Average water + electricity, last # month (real bills)} other {Average water + electricity, last # months (real bills)}}"
   }
 }

@@ -332,6 +332,7 @@ export const OPERATIONS = [
     path: "/v1/public/listings/{slug}/viewing-slots",
     idempotent: false,
   },
+  { operationId: "public.listings.areas", method: "GET", path: "/v1/public/listings/areas", idempotent: false },
   { operationId: "public.listings.sitemap", method: "GET", path: "/v1/public/listings/sitemap", idempotent: false },
   {
     operationId: "resident.access.credentials",
