@@ -18,7 +18,7 @@ export type Namespace = "shared" | "resident" | "technician" | "prospect" | "lan
 type Messages = Record<string, unknown>;
 
 export const MESSAGE_FILES = {
-  shared: ["brand", "common", "errors", "shell", "status"],
+  shared: ["brand", "common", "errors", "shell", "status", "verification"],
   resident: [
     "auth",
     "consent",

@@ -9,6 +9,7 @@ import { EmptyState } from "@/ui/components/EmptyState";
 import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 import { IconInbox } from "@/ui/icons/glyphs/inbox";
+import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import { liveViewing, sortEnquiries, type Enquiry } from "./model";
 
@@ -45,7 +46,14 @@ async function Item({ enquiry, locale }: { enquiry: Enquiry; locale: Locale }) {
 }
 
 /** My enquiries (L5 5.1 §2): the conversations still going first, then the ones the owner closed. */
-export async function EnquiryList({ enquiries }: { enquiries: Enquiry[] }) {
+export async function EnquiryList({
+  enquiries,
+  identityVerified = null,
+}: {
+  enquiries: Enquiry[];
+  /** D-267: whether I verified my identity (null when it could not be read). */
+  identityVerified?: boolean | null;
+}) {
   const [t, current] = await Promise.all([getTranslations("prospect.rent.mine"), getLocale()]);
   const locale = isLocale(current) ? current : "th";
   const { open, closed } = sortEnquiries(enquiries);
@@ -55,6 +63,21 @@ export async function EnquiryList({ enquiries }: { enquiries: Enquiry[] }) {
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>
       </div>
+      {identityVerified === null ? null : (
+        <Link
+          href="/rent/verification"
+          className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
+          data-testid="enquiries-verification"
+          data-verified={identityVerified || undefined}
+        >
+          <Icon icon={IconShield} className={identityVerified ? "text-primary shrink-0" : "text-muted shrink-0"} />
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="font-medium">{identityVerified ? t("verified") : t("verify")}</span>
+            <span className="text-muted text-sm">{identityVerified ? t("verifiedHint") : t("verifyHint")}</span>
+          </span>
+          <Icon icon={IconChevronRight} className="text-muted shrink-0" />
+        </Link>
+      )}
       {enquiries.length === 0 ? <EmptyState icon={IconInbox} title={t("empty")} description={t("emptyHint")} /> : null}
       {[
         { key: "open", list: open, label: t("open") },

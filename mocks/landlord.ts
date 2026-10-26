@@ -54,7 +54,7 @@ function seedDay(): LandlordDay {
     ...example<Schemas["OwnerLeadDto"]>("owner.leads.get"),
     id,
     listing,
-    prospect: { name, phone: null, partyId: `${id.slice(0, -3)}f01`, lineLinked: true },
+    prospect: { name, phone: null, partyId: `${id.slice(0, -3)}f01`, lineLinked: true, identityVerified: awaiting },
     state: awaiting ? "new" : "contacted",
     awaitingReply: awaiting,
     lastMessage: awaiting ? "ยังว่างไหมครับ อยากดูห้องเสาร์นี้" : "ได้ค่ะ แล้วพบกันนะคะ",

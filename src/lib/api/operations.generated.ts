@@ -260,6 +260,18 @@ export const OPERATIONS = [
     path: "/v1/owner/me/identities/{identityId}",
     idempotent: false,
   },
+  {
+    operationId: "owner.identityVerification.get",
+    method: "GET",
+    path: "/v1/owner/me/identity-verification",
+    idempotent: false,
+  },
+  {
+    operationId: "owner.identityVerification.start",
+    method: "POST",
+    path: "/v1/owner/me/identity-verification",
+    idempotent: false,
+  },
   { operationId: "owner.me.setPassword", method: "PUT", path: "/v1/owner/me/password", idempotent: false },
   { operationId: "owner.me.enableTotp", method: "POST", path: "/v1/owner/me/totp/enable", idempotent: false },
   { operationId: "owner.me.setupTotp", method: "POST", path: "/v1/owner/me/totp/setup", idempotent: false },
@@ -305,6 +317,18 @@ export const OPERATIONS = [
     idempotent: false,
   },
   { operationId: "prospect.me.get", method: "GET", path: "/v1/prospect/me", idempotent: false },
+  {
+    operationId: "prospect.identityVerification.get",
+    method: "GET",
+    path: "/v1/prospect/me/identity-verification",
+    idempotent: false,
+  },
+  {
+    operationId: "prospect.identityVerification.start",
+    method: "POST",
+    path: "/v1/prospect/me/identity-verification",
+    idempotent: false,
+  },
   { operationId: "prospect.system.ping", method: "GET", path: "/v1/prospect/ping", idempotent: false },
   {
     operationId: "prospect.viewings.cancel",
@@ -546,6 +570,18 @@ export const OPERATIONS = [
     operationId: "resident.identities.unlink",
     method: "DELETE",
     path: "/v1/resident/me/identities/{identityId}",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.identityVerification.get",
+    method: "GET",
+    path: "/v1/resident/me/identity-verification",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.identityVerification.start",
+    method: "POST",
+    path: "/v1/resident/me/identity-verification",
     idempotent: false,
   },
   {

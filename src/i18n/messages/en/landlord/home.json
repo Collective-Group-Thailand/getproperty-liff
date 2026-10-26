@@ -21,7 +21,8 @@
     "empty": "All answered",
     "open": "Reply",
     "moveIn": "Moves in {date}",
-    "awaiting": "Waiting since {date}"
+    "awaiting": "Waiting since {date}",
+    "identityVerified": "Identity verified"
   },
   "viewings": {
     "title": "Viewings to confirm",

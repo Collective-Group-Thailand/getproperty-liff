@@ -21,7 +21,8 @@
     "empty": "ตอบครบแล้ว",
     "open": "ตอบ",
     "moveIn": "เข้าอยู่ {date}",
-    "awaiting": "รอคำตอบตั้งแต่ {date}"
+    "awaiting": "รอคำตอบตั้งแต่ {date}",
+    "identityVerified": "ยืนยันตัวตนแล้ว"
   },
   "viewings": {
     "title": "นัดดูห้องรอยืนยัน",

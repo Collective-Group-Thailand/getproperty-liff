@@ -80,7 +80,11 @@
     "viewing": "Viewing {date}",
     "you": "You: {text}",
     "noMessage": "Asked for a viewing",
-    "back": "My enquiries"
+    "back": "My enquiries",
+    "verify": "Verify my identity",
+    "verifyHint": "Owners see “Identity verified” on your enquiries",
+    "verified": "Identity verified",
+    "verifiedHint": "Owners see the badge on your enquiries"
   },
   "detail": {
     "sent": "Sent. The owner replies in LINE.",
