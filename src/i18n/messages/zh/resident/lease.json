@@ -239,5 +239,34 @@
         "other": "其他"
       }
     }
+  },
+  "inspections": {
+    "title": "房屋检查记录",
+    "back": "返回租约",
+    "type": {
+      "move_in": "入住检查",
+      "move_out": "退房检查"
+    },
+    "unit": "房间 {unit}",
+    "pdf": "打开记录 (PDF)",
+    "notes": "房东备注",
+    "signedBoth": "您和房东都已签署此记录，退还押金时作为凭证",
+    "pleaseCheckTitle": "签名前请检查",
+    "pleaseCheck": "请查看每一项及照片。如有不符，请在签名前联系房东",
+    "photos": "{item} 的照片",
+    "photoAlt": "{item} 第 {n} 张照片",
+    "condition": {
+      "good": "良好",
+      "fair": "一般",
+      "damaged": "损坏",
+      "missing": "缺失",
+      "not_applicable": "本房间无此项"
+    },
+    "countersign": {
+      "title": "签署记录",
+      "lead": "签名确认房屋状况与本记录一致",
+      "send": "签署此记录",
+      "done": "已签署——已通过 LINE 通知房东"
+    }
   }
 }

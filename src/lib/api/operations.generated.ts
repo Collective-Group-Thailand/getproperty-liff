@@ -421,6 +421,19 @@ export const OPERATIONS = [
     path: "/v1/resident/facility-bookings/{bookingId}/actions/cancel",
     idempotent: false,
   },
+  { operationId: "resident.inspections.list", method: "GET", path: "/v1/resident/inspections", idempotent: false },
+  {
+    operationId: "resident.inspections.get",
+    method: "GET",
+    path: "/v1/resident/inspections/{inspectionId}",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.inspections.countersign",
+    method: "POST",
+    path: "/v1/resident/inspections/{inspectionId}/actions/countersign",
+    idempotent: true,
+  },
   {
     operationId: "resident.invitations.preview",
     method: "GET",
@@ -757,6 +770,7 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/deposits/{depositId}/actions/accept",
   "POST /v1/resident/deposits/{depositId}/actions/dispute",
   "POST /v1/resident/facility-bookings",
+  "POST /v1/resident/inspections/{inspectionId}/actions/countersign",
   "POST /v1/resident/invitations/{code}/accept",
   "POST /v1/resident/invoices/{invoiceId}/slips",
   "POST /v1/resident/leases/{leaseId}/notice",

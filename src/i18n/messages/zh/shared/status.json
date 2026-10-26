@@ -119,5 +119,9 @@
     "requested": "等待中",
     "issued": "已开具",
     "declined": "已拒绝"
+  },
+  "inspection": {
+    "completed": "等待您签名",
+    "signed": "双方已签"
   }
 }

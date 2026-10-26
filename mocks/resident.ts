@@ -585,6 +585,46 @@ export const residentHandlers: HttpHandler[] = [
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
     });
   }),
+
+  // ── move-in report (L5 5.2, D-253): the landlord completed it without me; I countersign once ──
+  http.get(mswPath("/v1/resident/inspections"), ({ request }) => {
+    const op = "resident.inspections.list";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const leaseId = new URL(request.url).searchParams.get("leaseId");
+    return HttpResponse.json(
+      inspectionsOf(auth.account.userId, residenceOf(auth.account)).filter((i) => !leaseId || i.leaseId === leaseId),
+    );
+  }),
+
+  http.get(mswPath("/v1/resident/inspections/:inspectionId"), ({ request, params }) => {
+    const op = "resident.inspections.get";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = inspectionsOf(auth.account.userId, residenceOf(auth.account)).find(
+      (i) => i.id === params.inspectionId,
+    );
+    return found ? HttpResponse.json(found) : problem(op, "http.not_found");
+  }),
+
+  http.post(mswPath("/v1/resident/inspections/:inspectionId/actions/countersign"), async ({ request, params }) => {
+    const op = "resident.inspections.countersign";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = inspectionsOf(auth.account.userId, residenceOf(auth.account)).find(
+      (i) => i.id === params.inspectionId,
+    );
+    if (!found) return problem(op, "http.not_found");
+    if (!found.canCountersign) return problem(op, "inspection.invalid_state");
+    const body = await json<{ signaturePng?: unknown }>(request);
+    if (typeof body?.signaturePng !== "string" || !body.signaturePng.startsWith(PNG_MAGIC)) {
+      return problem(op, "lease.signature_invalid");
+    }
+    countersigned.add(`${auth.account.userId}|${found.id}`);
+    return HttpResponse.json(
+      inspectionsOf(auth.account.userId, residenceOf(auth.account)).find((i) => i.id === found.id),
+    );
+  }),
 ];
 
 /** The deposit as the contract publishes it, with the move-in photos of each deducted item. */
@@ -596,4 +636,60 @@ export function depositView(deposit: Schemas["ResidentDepositDto"]) {
       beforeEvidenceUrls: BEFORE_PHOTOS.get(d.id) ?? [],
     })),
   };
+}
+
+/** On `globalThis` like the rest of the mock state: Next bundles the BFF and the pages separately. */
+const inspectionHolder = globalThis as typeof globalThis & { __gpMockCountersigned?: Set<string> };
+const countersigned = (inspectionHolder.__gpMockCountersigned ??= new Set<string>());
+
+/** The move-in report of each of my leases, completed by the landlord on the lease's first day. */
+function inspectionsOf(userId: string, residence: MockResidence): components["schemas"]["ResidentInspectionDto"][] {
+  return residence.leases.map(({ dto }) => {
+    const id = `${dto.id.slice(0, -4)}1e51`;
+    const signed = countersigned.has(`${userId}|${id}`);
+    return {
+      id,
+      leaseId: dto.id,
+      type: "move_in",
+      status: signed ? "signed" : "completed",
+      unitNo: dto.unitNo,
+      reportNumber: "INS-2569-00012",
+      completedAt: bangkokIso(Date.parse(`${dto.startDate}T10:00:00+07:00`)),
+      ownerSigned: true,
+      residentSigned: signed,
+      canCountersign: !signed,
+      notes: "ส่งมอบกุญแจ 2 ดอก คีย์การ์ด 1 ใบ",
+      reportUrl: `https://storage.example.com/inspections/${id}.pdf?X-Amz-Signature=mock`,
+      items: [
+        {
+          id: `${id.slice(0, -4)}a001`,
+          label: "ผนังและสี",
+          area: "ห้องนอน",
+          condition: "good",
+          notes: null,
+          photoUrls: ["https://storage.example.com/inspections/wall.jpg?X-Amz-Signature=mock"],
+          meterRegister: null,
+        },
+        {
+          id: `${id.slice(0, -4)}a002`,
+          label: "เตียงและที่นอน",
+          area: "ห้องนอน",
+          condition: "fair",
+          notes: "ผ้าคลุมเตียงมีรอยเปื้อนจาง ๆ",
+          photoUrls: [],
+          meterRegister: null,
+        },
+        {
+          id: `${id.slice(0, -4)}a003`,
+          label: "มิเตอร์ไฟฟ้า",
+          area: "มิเตอร์",
+          condition: "good",
+          notes: null,
+          photoUrls: [],
+          meterRegister: "1250.400",
+        },
+      ],
+      createdAt: bangkokIso(Date.parse(`${dto.startDate}T09:00:00+07:00`)),
+    };
+  });
 }

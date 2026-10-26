@@ -69,6 +69,7 @@ const MIB = 1024 * 1024;
 export const BODY_LIMITS: readonly { method: string; pattern: RegExp; bytes: number }[] = [
   { method: "POST", pattern: /^\/v1\/resident\/invoices\/[^/]+\/slips$/, bytes: 7 * MIB },
   { method: "POST", pattern: /^\/v1\/resident\/leases\/[^/]+\/sign$/, bytes: 1 * MIB },
+  { method: "POST", pattern: /^\/v1\/resident\/inspections\/[^/]+\/actions\/countersign$/, bytes: 1 * MIB },
 ];
 
 export function bodyLimitFor(method: string, path: string, fallback: number = DEFAULT_MAX_BODY_BYTES): number {

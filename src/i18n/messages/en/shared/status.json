@@ -119,5 +119,9 @@
     "requested": "Waiting",
     "issued": "Issued",
     "declined": "Declined"
+  },
+  "inspection": {
+    "completed": "Waiting for your signature",
+    "signed": "Signed by both"
   }
 }

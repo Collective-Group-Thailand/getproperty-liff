@@ -119,5 +119,9 @@
     "requested": "รอเจ้าของ",
     "issued": "ออกแล้ว",
     "declined": "ออกให้ไม่ได้"
+  },
+  "inspection": {
+    "completed": "รอคุณลงนาม",
+    "signed": "ลงนามครบ"
   }
 }
