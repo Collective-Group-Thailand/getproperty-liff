@@ -11308,6 +11308,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/resident/inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Move-in and move-out reports of my leases
+         * @description Completed reports, newest first (lines without photo links — open one for them). `completed` waits for my countersignature when the owner signed apart (L5 5.2, D-253).
+         *
+         *     Implements: D-253, D-023.
+         */
+        get: operations["resident.inspections.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/inspections/{inspectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One of my move-in / move-out reports
+         * @description Every line with its condition, notes and 5-minute photo links, and the report PDF; 404 outside my lease scopes (D-253, D-023).
+         *
+         *     Implements: D-253, D-023.
+         */
+        get: operations["resident.inspections.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/inspections/{inspectionId}/actions/countersign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Countersign the report
+         * @description I sign a report the owner completed without my signature (lessee or co-tenant, once): it becomes `signed` and the owner hears it in LINE. The report PDF keeps its number and content (L5 5.2, D-253).
+         *
+         *     Implements: D-253, D-023.
+         */
+        post: operations["resident.inspections.countersign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/resident/invitations/{code}": {
         parameters: {
             query?: never;
@@ -26736,6 +26802,13 @@ export interface components {
             /** @example 1 */
             version: number;
         };
+        ResidentCountersignDto: {
+            /**
+             * @description My drawn signature (PNG ≤ 200 KB, base64).
+             * @example iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+             */
+            signaturePng: string;
+        };
         ResidentDeductionDto: {
             /**
              * @description Deducted amount. Unit: THB, decimal string (D-046).
@@ -26875,6 +26948,83 @@ export interface components {
          * @enum {string}
          */
         ResidentEntitlement: "bills" | "usage" | "service_requests" | "lease" | "announcements" | "parcels" | "facilities" | "access";
+        ResidentInspectionDto: {
+            /**
+             * @description I may countersign now (lessee or co-tenant, not signed yet).
+             * @example true
+             */
+            canCountersign: boolean;
+            /**
+             * Format: date-time
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            completedAt: string | null;
+            /**
+             * Format: date-time
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            createdAt: string;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            items: components["schemas"]["ResidentInspectionItemDto"][];
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            leaseId: string;
+            /** @example null */
+            notes: string | null;
+            /** @example true */
+            ownerSigned: boolean;
+            /** @example INS-2569-00012 */
+            reportNumber: string | null;
+            /**
+             * @description 5-minute link to the report PDF.
+             * @example https://storage.example.com/report.pdf?X-Amz-Signature=abc
+             */
+            reportUrl: string | null;
+            /** @example false */
+            residentSigned: boolean;
+            /**
+             * @description `completed` = the owner signed; `signed` = I signed too.
+             * @example completed
+             */
+            status: components["schemas"]["InspectionStatus"];
+            /** @example move_in */
+            type: components["schemas"]["InspectionType"];
+            /** @example A-201 */
+            unitNo: string;
+        };
+        ResidentInspectionItemDto: {
+            /** @example ห้องนอน */
+            area: string | null;
+            /** @example good */
+            condition: components["schemas"]["ItemCondition"] | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @example ผนังห้องนอน */
+            label: string;
+            /**
+             * @description Meter register read at the inspection.
+             * @example null
+             */
+            meterRegister: string | null;
+            /** @example มีรอยขีดข่วนเล็กน้อยมุมขวา */
+            notes: string | null;
+            /**
+             * @description 5-minute links to the line’s photos.
+             * @example [
+             *       "https://storage.example.com/inspection.jpg?X-Amz-Signature=abc"
+             *     ]
+             */
+            photoUrls: string[];
+        };
         ResidentInvoiceDto: {
             /**
              * @description Amount due at issue. Unit: THB, decimal string (D-046).
@@ -107621,6 +107771,386 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.inspections.list": {
+        parameters: {
+            query?: {
+                /** @description Only this lease. */
+                leaseId?: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reports */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "canCountersign": true,
+                     *         "completedAt": "2026-11-01T00:15:00+07:00",
+                     *         "createdAt": "2026-11-01T00:15:00+07:00",
+                     *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "items": [
+                     *           {
+                     *             "area": "ห้องนอน",
+                     *             "condition": "good",
+                     *             "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *             "label": "ผนังห้องนอน",
+                     *             "meterRegister": null,
+                     *             "notes": null,
+                     *             "photoUrls": [
+                     *               "https://storage.example.com/inspection.jpg?X-Amz-Signature=abc"
+                     *             ]
+                     *           }
+                     *         ],
+                     *         "leaseId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "notes": null,
+                     *         "ownerSigned": true,
+                     *         "reportNumber": "INS-2569-00012",
+                     *         "reportUrl": "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+                     *         "residentSigned": false,
+                     *         "status": "completed",
+                     *         "type": "move_in",
+                     *         "unitNo": "A-201"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["ResidentInspectionDto"][];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.inspections.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                inspectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The report */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "canCountersign": true,
+                     *       "completedAt": "2026-11-01T00:15:00+07:00",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "items": [
+                     *         {
+                     *           "area": "ห้องนอน",
+                     *           "condition": "good",
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "label": "ผนังห้องนอน",
+                     *           "meterRegister": null,
+                     *           "notes": null,
+                     *           "photoUrls": [
+                     *             "https://storage.example.com/inspection.jpg?X-Amz-Signature=abc"
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "leaseId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "notes": null,
+                     *       "ownerSigned": true,
+                     *       "reportNumber": "INS-2569-00012",
+                     *       "reportUrl": "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+                     *       "residentSigned": false,
+                     *       "status": "completed",
+                     *       "type": "move_in",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ResidentInspectionDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.inspections.countersign": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Recommended client-generated uuid. When sent, a replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. Without it the request is not deduplicated. */
+                "Idempotency-Key"?: components["parameters"]["IdempotencyKeyOptional"];
+            };
+            path: {
+                inspectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResidentCountersignDto"];
+            };
+        };
+        responses: {
+            /** @description Countersigned */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "canCountersign": false,
+                     *       "completedAt": "2026-11-01T00:15:00+07:00",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "items": [
+                     *         {
+                     *           "area": "ห้องนอน",
+                     *           "condition": "good",
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "label": "ผนังห้องนอน",
+                     *           "meterRegister": null,
+                     *           "notes": null,
+                     *           "photoUrls": [
+                     *             "https://storage.example.com/inspection.jpg?X-Amz-Signature=abc"
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "leaseId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "notes": null,
+                     *       "ownerSigned": true,
+                     *       "reportNumber": "INS-2569-00012",
+                     *       "reportUrl": "https://storage.example.com/report.pdf?X-Amz-Signature=abc",
+                     *       "residentSigned": true,
+                     *       "status": "signed",
+                     *       "type": "move_in",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ResidentInspectionDto"];
+                };
+            };
+            /** @description Problem: `idempotency.key_invalid` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `lease.not_signer` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `inspection.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `lease.signature_invalid`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];

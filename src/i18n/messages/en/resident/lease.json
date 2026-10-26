@@ -239,5 +239,34 @@
         "other": "Other"
       }
     }
+  },
+  "inspections": {
+    "title": "Inspection reports",
+    "back": "Back to the lease",
+    "type": {
+      "move_in": "Move-in inspection",
+      "move_out": "Move-out inspection"
+    },
+    "unit": "Unit {unit}",
+    "pdf": "Open the report (PDF)",
+    "notes": "Notes from the landlord",
+    "signedBoth": "You and the landlord both signed this report. It is the evidence when the deposit is refunded",
+    "pleaseCheckTitle": "Check before you sign",
+    "pleaseCheck": "Look at every line and photo. If something is not right, message the landlord before signing",
+    "photos": "Photos of {item}",
+    "photoAlt": "{item}, photo {n}",
+    "condition": {
+      "good": "Good",
+      "fair": "Fair",
+      "damaged": "Damaged",
+      "missing": "Missing",
+      "not_applicable": "Not in this unit"
+    },
+    "countersign": {
+      "title": "Sign the report",
+      "lead": "Sign to confirm the unit is as this report says",
+      "send": "Sign this report",
+      "done": "Signed — the landlord was told in LINE"
+    }
   }
 }

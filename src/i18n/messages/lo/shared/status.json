@@ -119,5 +119,9 @@
     "requested": "ລໍຖ້າ",
     "issued": "ອອກແລ້ວ",
     "declined": "ປະຕິເສດ"
+  },
+  "inspection": {
+    "completed": "ລໍຖ້າລາຍເຊັນຂອງທ່ານ",
+    "signed": "ເຊັນຄົບແລ້ວ"
   }
 }

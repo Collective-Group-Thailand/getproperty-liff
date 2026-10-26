@@ -210,3 +210,33 @@ test.describe("rent payment certificate (B7.5, D-253)", () => {
     await expectAxeClean(page);
   });
 });
+
+test.describe("move-in report (L5 5.2, D-253)", () => {
+  test("from the lease: read every line and photo, then countersign once", async ({ page, context, baseURL }) => {
+    await seedSession(context, baseURL!, subject("inspection"));
+    await page.goto("/lease");
+    const list = page.getByTestId("lease-inspections");
+    await expect(list.getByTestId("lease-inspection")).toHaveAttribute("data-status", "completed");
+    await list.getByTestId("lease-inspection").click();
+    const view = page.getByTestId("inspection-page");
+    await expect(view.getByRole("heading", { level: 1 })).toHaveText("ตรวจสภาพห้องตอนเข้าอยู่");
+    await expect(view.getByTestId("inspection-line")).toHaveCount(3);
+    await expect(view).toContainText("ผ้าคลุมเตียงมีรอยเปื้อนจาง ๆ");
+    await expect(page.getByTestId("inspection-countersign-send")).toBeDisabled();
+    await expectNoHorizontalScroll(page);
+    await expectAxeClean(page);
+
+    const pad = page.getByTestId("signature-pad");
+    await pad.scrollIntoViewIfNeeded();
+    const box = (await pad.boundingBox())!;
+    await page.mouse.move(box.x + 30, box.y + 60);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 90, box.y + 100, { steps: 5 });
+    await page.mouse.move(box.x + 160, box.y + 50, { steps: 5 });
+    await page.mouse.up();
+    await page.getByTestId("inspection-countersign-send").click();
+    await expect(page.getByTestId("inspection-page")).toHaveAttribute("data-status", "signed");
+    await expect(page.getByTestId("inspection-countersign")).toHaveCount(0);
+    await expect(page.getByTestId("inspection-page")).toContainText("คุณและผู้ให้เช่าลงนามบันทึกนี้แล้ว");
+  });
+});

@@ -50,3 +50,17 @@ export async function loadCertificates(leaseId: string): Promise<Loaded<Schemas[
   });
   return data ? { data } : { error: problemFromParsed(response, error) };
 }
+
+export async function loadInspections(leaseId: string): Promise<Loaded<Schemas["ResidentInspectionDto"][]>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/inspections", { params: { query: { leaseId } } });
+  return data ? { data } : { error: problemFromParsed(response, error) };
+}
+
+export async function loadInspection(inspectionId: string): Promise<Loaded<Schemas["ResidentInspectionDto"]>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/inspections/{inspectionId}", {
+    params: { path: { inspectionId } },
+  });
+  return data ? { data } : { error: problemFromParsed(response, error) };
+}
