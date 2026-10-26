@@ -10,6 +10,7 @@ import { StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
+import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import type { LandlordToday } from "./data";
 import { SendReminder } from "./SendReminder";
@@ -76,7 +77,17 @@ export async function LandlordHome({
                 data-testid="landlord-lead"
               >
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium">{lead.prospect.name}</span>
+                  <span className="flex min-w-0 items-center gap-1">
+                    <span className="truncate font-medium">{lead.prospect.name}</span>
+                    {lead.prospect.identityVerified ? (
+                      <Icon
+                        icon={IconShield}
+                        className="text-primary shrink-0"
+                        label={t("leads.identityVerified")}
+                        data-testid="landlord-lead-identity"
+                      />
+                    ) : null}
+                  </span>
                   <span className="text-muted truncate text-sm">{lead.lastMessage ?? lead.listing.title}</span>
                   <span className="text-muted text-xs">
                     {t("leads.awaiting", { date: formatDateTime(lead.lastProspectAt, locale) })}

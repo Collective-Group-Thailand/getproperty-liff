@@ -118,5 +118,10 @@
     "sentTitle": "Request sent",
     "sentBody": "The building operator has been told and must answer by the due date shown in the list",
     "another": "Send another request"
+  },
+  "verification": {
+    "title": "Verify my identity",
+    "done": "Identity verified",
+    "hint": "Optional, with your ID card and a selfie"
   }
 }

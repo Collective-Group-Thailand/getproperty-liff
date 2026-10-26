@@ -16,9 +16,10 @@ export default async function ProfilePage() {
   const [actor, locale] = await Promise.all([getActor(), pageLocale()]);
   if (actor.status !== "signed-in") return null;
   const api = await serverApi();
-  const [preferences, documents] = await Promise.all([
+  const [preferences, documents, verification] = await Promise.all([
     api.GET("/v1/resident/me/notification-preferences"),
     api.GET("/v1/resident/documents"),
+    api.GET("/v1/resident/me/identity-verification"),
   ]);
   return (
     <ResidentShell active="me">
@@ -27,6 +28,7 @@ export default async function ProfilePage() {
         locale={locale}
         preferences={preferences.data?.items ?? null}
         documents={documents.data ?? null}
+        identityVerified={verification.data?.verified ?? null}
       />
     </ResidentShell>
   );

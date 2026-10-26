@@ -1,0 +1,40 @@
+{
+  "title": "Verify my identity",
+  "lead": {
+    "resident": "Optional. Verify once with your ID card and a selfie.",
+    "prospect": "Verify once. Owners see “Identity verified” on your enquiries."
+  },
+  "statusTitle": "Your status",
+  "verified": "Identity verified",
+  "pending": "Waiting for the result",
+  "notVerified": "Not verified",
+  "verifiedBody": {
+    "resident": "Verified on {date}.",
+    "prospect": "Verified on {date}. Owners see the badge on your enquiries."
+  },
+  "unavailableTitle": "Online identity verification is not offered yet",
+  "unavailableBody": "Once it is ready you can start here.",
+  "pendingBody": "Started. You can continue until {date}, then come back here for the result.",
+  "continue": "Continue verifying",
+  "refresh": "Check the result",
+  "rejectedTitle": "Not verified",
+  "rejectedNoReason": "Try again somewhere with good light.",
+  "expired": "Your last attempt ran out of time. You can start again.",
+  "start": "Verify my identity",
+  "startAgain": "Try again",
+  "steps": {
+    "card": {
+      "title": "Photograph your ID card",
+      "body": "On the licensed provider’s page, about 5 minutes."
+    },
+    "selfie": {
+      "title": "Take a selfie",
+      "body": "To confirm the card is yours."
+    },
+    "result": {
+      "title": "Get the result at once",
+      "body": "You come back here automatically."
+    }
+  },
+  "privacy": "We keep only the outcome — never your ID number, card photo or date of birth."
+}

@@ -1,0 +1,40 @@
+{
+  "title": "身份验证",
+  "lead": {
+    "resident": "非必需。使用身份证和自拍验证一次即可。",
+    "prospect": "只需验证一次。房东会在您的咨询上看到“已验证身份”。"
+  },
+  "statusTitle": "您的状态",
+  "verified": "已验证身份",
+  "pending": "等待结果",
+  "notVerified": "未验证",
+  "verifiedBody": {
+    "resident": "已于 {date} 验证。",
+    "prospect": "已于 {date} 验证。房东已在您的咨询上看到该标识。"
+  },
+  "unavailableTitle": "暂未开放在线身份验证",
+  "unavailableBody": "准备就绪后，您可以在此开始。",
+  "pendingBody": "已开始。您可以在 {date} 前继续，完成后回到这里查看结果。",
+  "continue": "继续验证",
+  "refresh": "查看结果",
+  "rejectedTitle": "验证未通过",
+  "rejectedNoReason": "请在光线充足的地方重试。",
+  "expired": "上次验证已超时，您可以重新开始。",
+  "start": "开始身份验证",
+  "startAgain": "重试",
+  "steps": {
+    "card": {
+      "title": "拍摄身份证",
+      "body": "在持牌服务商的页面上完成，约 5 分钟。"
+    },
+    "selfie": {
+      "title": "自拍",
+      "body": "确认证件属于您本人。"
+    },
+    "result": {
+      "title": "立即获知结果",
+      "body": "完成后会自动回到此页面。"
+    }
+  },
+  "privacy": "我们只保存验证结果，不保存证件号码、证件照片或出生日期。"
+}

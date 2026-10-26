@@ -16,7 +16,10 @@ export default async function EnquiriesPage() {
   const actor = await requireProspect({ path: "/rent/enquiries" });
   if (actor.status === "error") return <ProblemPage error={actor.error} />;
   const api = await serverApi("prospect");
-  const { data, error, response } = await api.GET("/v1/prospect/enquiries");
+  const [{ data, error, response }, verification] = await Promise.all([
+    api.GET("/v1/prospect/enquiries"),
+    api.GET("/v1/prospect/me/identity-verification"),
+  ]);
   if (!data) return <ProblemPage error={problemFromParsed(response, error)} />;
-  return <EnquiryList enquiries={data} />;
+  return <EnquiryList enquiries={data} identityVerified={verification.data?.verified ?? null} />;
 }

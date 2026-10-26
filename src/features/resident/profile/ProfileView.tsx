@@ -8,6 +8,8 @@ import type { ResidentMe } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
+import { Icon } from "@/ui/icons";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconShield } from "@/ui/icons/glyphs/shield";
 
@@ -26,11 +28,14 @@ export async function ProfileView({
   locale,
   preferences,
   documents,
+  identityVerified = null,
 }: {
   me: ResidentMe;
   locale: Locale;
   preferences: NotificationPreference[] | null;
   documents: ResidentDocument[] | null;
+  /** D-267: whether I verified my identity (null when it could not be read). */
+  identityVerified?: boolean | null;
 }) {
   const t = await getTranslations("resident.profile");
   return (
@@ -110,6 +115,21 @@ export async function ProfileView({
           </ul>
         )}
       </Card>
+
+      <Link
+        href="/profile/verification"
+        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-4"
+        data-testid="profile-verification"
+      >
+        <Icon icon={IconCheckCircle} className={identityVerified ? "text-primary shrink-0" : "text-muted shrink-0"} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-medium">{t("verification.title")}</span>
+          <span className="text-muted text-sm">
+            {identityVerified ? t("verification.done") : t("verification.hint")}
+          </span>
+        </span>
+        <Icon icon={IconForward} className="text-muted shrink-0" />
+      </Link>
 
       <Button asChild variant="secondary" size="lg" block iconStart={IconShield} iconEnd={IconForward}>
         <Link href="/profile/privacy" data-testid="profile-privacy">

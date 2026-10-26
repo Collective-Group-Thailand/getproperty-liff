@@ -12,6 +12,7 @@ import { findOperation, problem, problemResponse } from "./contract";
 import { billingHandlers } from "./billing";
 import { communityHandlers } from "./community";
 import { contractHandlers, exampleHandlers } from "./handlers";
+import { identityHandlers } from "./identity";
 import { landlordHandlers } from "./landlord";
 import { linkHandlers } from "./links";
 import { prospectHandlers } from "./prospect";
@@ -27,6 +28,7 @@ const handlers = [
   ...residentHandlers,
   ...linkHandlers,
   ...prospectHandlers,
+  ...identityHandlers,
   ...landlordHandlers,
   ...contractHandlers,
   ...exampleHandlers,
