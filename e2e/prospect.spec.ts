@@ -47,10 +47,13 @@ test.describe("prospects (D-252, D-281)", () => {
     await expectAxeClean(page);
 
     // Back on the listing: the open enquiry continues; booking needs no new consent.
-    await page.goto(`${LISTING}?mode=book`);
+    // Came back through the listing's Facebook-group share link (D-268): the request says so.
+    await page.goto(`${LISTING}?mode=book&ch=facebook_group`);
     await expect(page.getByTestId("prospect-consent")).toHaveCount(0);
     await page.getByTestId("slot-time").first().click();
+    const booked = page.waitForRequest((r) => r.method() === "POST" && r.url().includes("/viewings"));
     await page.getByTestId("prospect-submit").click();
+    expect((await booked).postDataJSON()).toMatchObject({ channel: "facebook_group" });
     await expect(page).toHaveURL(/\?done=booked$/);
     await expect(page.getByTestId("live-viewing")).toHaveAttribute("data-state", "requested");
     await expectAxeClean(page);

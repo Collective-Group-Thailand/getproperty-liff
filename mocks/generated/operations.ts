@@ -4734,6 +4734,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       example: [
         {
           awaitingReply: true,
+          channel: "facebook_group",
           createdAt: "2026-11-01T09:15:00+07:00",
           id: "3b241101-e2bb-4255-8caf-4136c566a962",
           lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -4890,6 +4891,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -5086,6 +5088,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -5294,6 +5297,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -5515,6 +5519,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       example: {
         lead: {
           awaitingReply: true,
+          channel: "facebook_group",
           createdAt: "2026-11-01T09:15:00+07:00",
           id: "3b241101-e2bb-4255-8caf-4136c566a962",
           lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -5902,6 +5907,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -12418,6 +12424,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -12638,6 +12645,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
@@ -12846,6 +12854,7 @@ export const GENERATED_OPERATIONS: GeneratedOperation[] = [
       contentType: "application/json",
       example: {
         awaitingReply: true,
+        channel: "facebook_group",
         createdAt: "2026-11-01T09:15:00+07:00",
         id: "3b241101-e2bb-4255-8caf-4136c566a962",
         lastMessage: "ห้องยังว่างไหมคะ อยากเข้าดูเสาร์นี้",
