@@ -7,6 +7,7 @@ import { ListingSummary } from "@/features/prospect/ListingSummary";
 import { ListingUtilityCard } from "@/features/prospect/ListingUtilityCard";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { serverApi } from "@/lib/api/server";
+import type { Schemas } from "@/lib/api/types";
 import { problemFromParsed } from "@/lib/api/problem";
 import { getProspect } from "@/lib/auth/actor";
 import { prospectSignInPath } from "@/lib/auth/redirects";
@@ -14,6 +15,8 @@ import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { IconChat } from "@/ui/icons/glyphs/chat";
+
+const CHANNELS: Schemas["ListingChannel"][] = ["line", "facebook_group", "facebook_marketplace", "qr", "link"];
 
 export async function generateMetadata() {
   const t = await getTranslations("prospect.rent.signIn");
@@ -42,7 +45,11 @@ export default async function RentListingPage({
   const listing = detail.data;
   const [t, actor] = await Promise.all([getTranslations("prospect.rent"), getProspect()]);
   const mode = query.mode === "book" ? "book" : "ask";
-  const here = `/rent/${slug}${mode === "book" ? "?mode=book" : ""}`;
+  // D-268: the share-kit channel of the short link the prospect followed (only the API's own values)
+  const ch = typeof query.ch === "string" ? query.ch : null;
+  const channel = CHANNELS.find((c) => c === ch) ?? null;
+  const back = new URLSearchParams({ ...(mode === "book" ? { mode } : {}), ...(channel ? { ch: channel } : {}) });
+  const here = `/rent/${slug}${back.size ? `?${back.toString()}` : ""}`;
 
   let panel: React.ReactNode;
   if (actor.status === "signed-in") {
@@ -52,7 +59,13 @@ export default async function RentListingPage({
     ]);
     const existing = mine.data?.find((e) => e.listing.slug === slug && e.open) ?? null;
     panel = (
-      <ContactPanel slug={slug} slots={slots.data?.slots ?? []} existingId={existing?.id ?? null} initialMode={mode} />
+      <ContactPanel
+        slug={slug}
+        slots={slots.data?.slots ?? []}
+        existingId={existing?.id ?? null}
+        initialMode={mode}
+        channel={channel}
+      />
     );
   } else {
     const href = prospectSignInPath(here, (await headers()).get("user-agent"));

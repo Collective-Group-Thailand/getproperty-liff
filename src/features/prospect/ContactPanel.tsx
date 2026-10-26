@@ -8,6 +8,7 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
+import type { Schemas } from "@/lib/api/types";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -40,17 +41,22 @@ function terms(form: { moveIn: string; term: string; occupants: string; national
  * the button — required, never pre-ticked; a follow-up in an open enquiry needs no new consent. Done → the
  * enquiry, where the owner's answer will appear.
  */
+type Channel = Schemas["ListingChannel"];
+
 export function ContactPanel({
   slug,
   slots,
   existingId,
   initialMode,
+  channel = null,
 }: {
   slug: string;
   slots: Slot[];
   /** My open enquiry about this listing, when there is one. */
   existingId: string | null;
   initialMode: Mode;
+  /** The share-kit channel the prospect came from (`?ch=` of the short link, D-268), recorded on a new enquiry. */
+  channel?: Channel | null;
 }) {
   const t = useTranslations("prospect.rent");
   const router = useRouter();
@@ -84,13 +90,13 @@ export function ContactPanel({
           ? unwrap(
               await browserApi.POST("/v1/prospect/listings/{slug}/enquiries", {
                 params,
-                body: { message: message.trim(), consent, ...terms(form) },
+                body: { message: message.trim(), consent, channel, ...terms(form) },
               }),
             )
           : unwrap(
               await browserApi.POST("/v1/prospect/listings/{slug}/viewings", {
                 params,
-                body: { startsAt: slot!, consent, note: note.trim() || null, ...terms(form) },
+                body: { startsAt: slot!, consent, note: note.trim() || null, channel, ...terms(form) },
               }),
             );
       leaving = true;
