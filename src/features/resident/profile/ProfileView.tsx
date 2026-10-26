@@ -11,6 +11,7 @@ import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconForward } from "@/ui/icons/glyphs/forward";
+import { IconReceipt } from "@/ui/icons/glyphs/receipt";
 import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import { DocumentButton } from "./DocumentButton";
@@ -115,6 +116,19 @@ export async function ProfileView({
           </ul>
         )}
       </Card>
+
+      <Link
+        href="/profile/rent-record"
+        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-4"
+        data-testid="profile-rent-record"
+      >
+        <Icon icon={IconReceipt} className="text-muted shrink-0" />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-medium">{t("rentRecord.title")}</span>
+          <span className="text-muted text-sm">{t("rentRecord.hint")}</span>
+        </span>
+        <Icon icon={IconForward} className="text-muted shrink-0" />
+      </Link>
 
       <Link
         href="/profile/verification"

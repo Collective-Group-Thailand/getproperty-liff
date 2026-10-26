@@ -16,6 +16,7 @@ import { identityHandlers } from "./identity";
 import { landlordHandlers } from "./landlord";
 import { linkHandlers } from "./links";
 import { prospectHandlers } from "./prospect";
+import { rentRecordHandlers } from "./rentRecord";
 import { residentHandlers } from "./resident";
 import { serviceHandlers } from "./service";
 import { uploadHandlers } from "./uploads";
@@ -29,6 +30,7 @@ const handlers = [
   ...linkHandlers,
   ...prospectHandlers,
   ...identityHandlers,
+  ...rentRecordHandlers,
   ...landlordHandlers,
   ...contractHandlers,
   ...exampleHandlers,

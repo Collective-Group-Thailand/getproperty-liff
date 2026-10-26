@@ -84,7 +84,9 @@
     "verify": "Verify my identity",
     "verifyHint": "Owners see “Identity verified” on your enquiries",
     "verified": "Identity verified",
-    "verifiedHint": "Owners see the badge on your enquiries"
+    "verifiedHint": "Owners see the badge on your enquiries",
+    "rentRecord": "My rent record",
+    "rentRecordHint": "Share it with an enquiry, or create a letter for an owner"
   },
   "detail": {
     "sent": "Sent. The owner replies in LINE.",

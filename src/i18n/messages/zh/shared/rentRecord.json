@@ -1,0 +1,49 @@
+{
+  "title": "租金缴付记录",
+  "lead": "根据 getproperty 确认的付款，显示您按时、逾期或仍欠款的月份。记录属于您，只有您选择时才会分享。",
+  "months": "{count} 个月",
+  "monthsLabel": "按月",
+  "status": {
+    "on_time": "按时",
+    "late": "逾期",
+    "outstanding": "欠款"
+  },
+  "empty": "还没有已确认的月份。通过 getproperty 支付的月份在到期日之后会显示在这里。",
+  "notConfirmed": "另有 {count} 个月以 getproperty 未确认的方式支付（例如现金），不计入。",
+  "footnote": "这些是付款事实，不是评分。不含金额，也不含以往房东的名字。",
+  "letter": {
+    "title": "附验证码的证明信",
+    "body": "不使用 getproperty 的新房东可以用 10 位验证码查看。有效期 90 天，您可以随时撤回。",
+    "create": "新建证明信",
+    "empty": "至少有 1 个月已确认后才能创建证明信。",
+    "once": "验证码只显示一次，请立即复制或发给房东。",
+    "copy": "复制验证码和链接",
+    "copied": "已复制",
+    "copyText": "我在 getproperty 的租金缴付记录 — 验证码 {code}，查看：{url}"
+  },
+  "shares": {
+    "title": "您分享的内容",
+    "empty": "尚未与任何人分享。",
+    "enquiry": "{listing} · {owner}",
+    "letter": "证明信，验证码末尾 {hint}",
+    "since": "分享于 {date}",
+    "until": "可查看至 {date}",
+    "stop": "停止分享",
+    "keep": "继续分享",
+    "stopTitle": "停止分享租金缴付记录？",
+    "stopBody": "房东将无法再看到您的记录，证明信中的验证码也会立即失效。",
+    "state": {
+      "live": "分享中",
+      "revoked": "已停止",
+      "expired": "已过期"
+    }
+  },
+  "enquiry": {
+    "title": "分享租金缴付记录",
+    "summary": "按时 {onTime} · 逾期 {late} · 欠款 {outstanding} 个月",
+    "consent": "我同意此房源的房东查看我的租金缴付记录（月份和状态，不含金额），直到我停止分享。",
+    "share": "分享给房东",
+    "shared": "房东可以看到您的租金缴付记录。",
+    "stop": "停止分享"
+  }
+}
