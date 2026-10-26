@@ -27,7 +27,7 @@ import {
 } from "./residence";
 import { UNIT_A, UNIT_B } from "./state";
 import { bangkokIso } from "./tokens";
-import { uploadedBy } from "./uploads";
+import { mockPhoto, uploadedBy } from "./uploads";
 
 type Schemas = components["schemas"];
 
@@ -406,7 +406,7 @@ export const residentHandlers: HttpHandler[] = [
     return deposit ? HttpResponse.json(depositView(deposit)) : problem(op, "http.not_found");
   }),
 
-  http.post(mswPath("/v1/resident/deposits/:depositId/actions/accept"), ({ request, params }) => {
+  http.post(mswPath("/v1/resident/deposits/:depositId/actions/accept"), async ({ request, params }) => {
     const op = "resident.deposits.accept";
     const auth = authenticate(request, "resident", op);
     if (auth instanceof Response) return auth;
@@ -416,10 +416,12 @@ export const residentHandlers: HttpHandler[] = [
     const deposit = residence.deposits.find((d) => d.id === params.depositId);
     if (!deposit) return problem(op, "http.not_found");
     if (!deposit.settlement || deposit.settlement.status !== "proposed") return problem(op, "deposit.invalid_state");
+    const body = await json<{ note?: unknown }>(request);
     deposit.settlement = {
       ...deposit.settlement,
       status: "agreed",
       residentResponse: "accepted",
+      residentNote: typeof body?.note === "string" && body.note.trim() ? body.note.trim().slice(0, 1000) : null,
       agreedRefund: deposit.settlement.proposedRefund,
     };
     deposit.nextActions = [];
@@ -616,11 +618,19 @@ export const residentHandlers: HttpHandler[] = [
     );
     if (!found) return problem(op, "http.not_found");
     if (!found.canCountersign) return problem(op, "inspection.invalid_state");
-    const body = await json<{ signaturePng?: unknown }>(request);
+    const body = await json<{ signaturePng?: unknown; note?: unknown; photoDocumentIds?: unknown }>(request);
     if (typeof body?.signaturePng !== "string" || !body.signaturePng.startsWith(PNG_MAGIC)) {
       return problem(op, "lease.signature_invalid");
     }
+    const photos = Array.isArray(body.photoDocumentIds) ? body.photoDocumentIds.map(String) : [];
+    if (photos.length > 6 || !uploadedBy(auth.account.userId, photos, "inspection_note", found.id)) {
+      return problem(op, "validation.failed");
+    }
     countersigned.add(`${auth.account.userId}|${found.id}`);
+    residentNotes.set(`${auth.account.userId}|${found.id}`, {
+      note: typeof body.note === "string" && body.note.trim() ? body.note.trim().slice(0, 1000) : null,
+      photos: photos.length,
+    });
     return HttpResponse.json(
       inspectionsOf(auth.account.userId, residenceOf(auth.account)).find((i) => i.id === found.id),
     );
@@ -641,12 +651,18 @@ export function depositView(deposit: Schemas["ResidentDepositDto"]) {
 /** On `globalThis` like the rest of the mock state: Next bundles the BFF and the pages separately. */
 const inspectionHolder = globalThis as typeof globalThis & { __gpMockCountersigned?: Set<string> };
 const countersigned = (inspectionHolder.__gpMockCountersigned ??= new Set<string>());
+const noteHolder = globalThis as typeof globalThis & {
+  __gpMockInspectionNotes?: Map<string, { note: string | null; photos: number }>;
+};
+/** What I added when countersigning (D-266): the note and how many photos. */
+const residentNotes = (noteHolder.__gpMockInspectionNotes ??= new Map());
 
 /** The move-in report of each of my leases, completed by the landlord on the lease's first day. */
 function inspectionsOf(userId: string, residence: MockResidence): components["schemas"]["ResidentInspectionDto"][] {
   return residence.leases.map(({ dto }) => {
     const id = `${dto.id.slice(0, -4)}1e51`;
     const signed = countersigned.has(`${userId}|${id}`);
+    const added = residentNotes.get(`${userId}|${id}`);
     return {
       id,
       leaseId: dto.id,
@@ -659,6 +675,8 @@ function inspectionsOf(userId: string, residence: MockResidence): components["sc
       residentSigned: signed,
       canCountersign: !signed,
       notes: "ส่งมอบกุญแจ 2 ดอก คีย์การ์ด 1 ใบ",
+      residentNote: added?.note ?? null,
+      residentPhotoUrls: Array.from({ length: added?.photos ?? 0 }, (_, n) => mockPhoto(`note ${n + 1}`, 30)),
       reportUrl: `https://storage.example.com/inspections/${id}.pdf?X-Amz-Signature=mock`,
       items: [
         {

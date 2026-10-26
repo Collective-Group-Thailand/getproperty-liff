@@ -58,6 +58,8 @@
     "photos": "Photos to send",
     "photoAlt": "Photo {index}",
     "removePhoto": "Remove photo {index}",
-    "disputeSubmit": "Send dispute"
+    "disputeSubmit": "Send dispute",
+    "note": "A note to the landlord (optional)",
+    "noteHint": "Kept with your acceptance"
   }
 }

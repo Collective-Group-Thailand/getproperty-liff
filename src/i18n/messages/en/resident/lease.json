@@ -266,7 +266,16 @@
       "title": "Sign the report",
       "lead": "Sign to confirm the unit is as this report says",
       "send": "Sign this report",
-      "done": "Signed — the landlord was told in LINE"
-    }
+      "done": "Signed — the landlord was told in LINE",
+      "note": "Anything you see differently (optional)",
+      "noteHint": "For example, a scratch that was already there. The landlord sees this note and the photos with the report",
+      "addPhoto": "Add photos",
+      "photoHint": "Up to {max} photos",
+      "photos": "Photos to send",
+      "photoAlt": "Photo {index}",
+      "removePhoto": "Remove photo {index}"
+    },
+    "yourNote": "What you added when signing",
+    "yourPhotoAlt": "Your photo {n}"
   }
 }
