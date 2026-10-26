@@ -305,6 +305,12 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "prospect.rentRecord.shareWithEnquiry",
+    method: "POST",
+    path: "/v1/prospect/enquiries/{leadId}/rent-record",
+    idempotent: false,
+  },
+  {
     operationId: "prospect.enquiries.create",
     method: "POST",
     path: "/v1/prospect/listings/{slug}/enquiries",
@@ -327,6 +333,19 @@ export const OPERATIONS = [
     operationId: "prospect.identityVerification.start",
     method: "POST",
     path: "/v1/prospect/me/identity-verification",
+    idempotent: false,
+  },
+  { operationId: "prospect.rentRecord.get", method: "GET", path: "/v1/prospect/me/rent-record", idempotent: false },
+  {
+    operationId: "prospect.rentRecord.createLetter",
+    method: "POST",
+    path: "/v1/prospect/me/rent-record/letters",
+    idempotent: false,
+  },
+  {
+    operationId: "prospect.rentRecord.revokeShare",
+    method: "POST",
+    path: "/v1/prospect/me/rent-record/shares/{shareId}/actions/revoke",
     idempotent: false,
   },
   { operationId: "prospect.system.ping", method: "GET", path: "/v1/prospect/ping", idempotent: false },
@@ -597,6 +616,19 @@ export const OPERATIONS = [
     idempotent: false,
   },
   { operationId: "resident.privacy.get", method: "GET", path: "/v1/resident/me/privacy", idempotent: false },
+  { operationId: "resident.rentRecord.get", method: "GET", path: "/v1/resident/me/rent-record", idempotent: false },
+  {
+    operationId: "resident.rentRecord.createLetter",
+    method: "POST",
+    path: "/v1/resident/me/rent-record/letters",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.rentRecord.revokeShare",
+    method: "POST",
+    path: "/v1/resident/me/rent-record/shares/{shareId}/actions/revoke",
+    idempotent: false,
+  },
   {
     operationId: "resident.messagingLinks.get",
     method: "GET",

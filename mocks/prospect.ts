@@ -263,3 +263,8 @@ export const prospectHandlers: HttpHandler[] = [
     return HttpResponse.json(found.enquiry);
   }),
 ];
+
+/** One of a prospect's enquiries (the rent record mock shares with it, D-256). */
+export function enquiryOf(userId: string, leadId: string): Enquiry | undefined {
+  return (byUser.get(userId) ?? []).find((e) => e.id === leadId);
+}

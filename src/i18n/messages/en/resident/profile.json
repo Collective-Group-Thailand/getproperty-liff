@@ -123,5 +123,9 @@
     "title": "Verify my identity",
     "done": "Identity verified",
     "hint": "Optional, with your ID card and a selfie"
+  },
+  "rentRecord": {
+    "title": "Rent record",
+    "hint": "Share it with a new landlord when you choose"
   }
 }

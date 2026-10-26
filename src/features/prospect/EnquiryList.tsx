@@ -10,6 +10,7 @@ import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 import { IconInbox } from "@/ui/icons/glyphs/inbox";
 import { IconShield } from "@/ui/icons/glyphs/shield";
+import { IconReceipt } from "@/ui/icons/glyphs/receipt";
 
 import { liveViewing, sortEnquiries, type Enquiry } from "./model";
 
@@ -78,6 +79,18 @@ export async function EnquiryList({
           <Icon icon={IconChevronRight} className="text-muted shrink-0" />
         </Link>
       )}
+      <Link
+        href="/rent/rent-record"
+        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
+        data-testid="enquiries-rent-record"
+      >
+        <Icon icon={IconReceipt} className="text-muted shrink-0" />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-medium">{t("rentRecord")}</span>
+          <span className="text-muted text-sm">{t("rentRecordHint")}</span>
+        </span>
+        <Icon icon={IconChevronRight} className="text-muted shrink-0" />
+      </Link>
       {enquiries.length === 0 ? <EmptyState icon={IconInbox} title={t("empty")} description={t("emptyHint")} /> : null}
       {[
         { key: "open", list: open, label: t("open") },

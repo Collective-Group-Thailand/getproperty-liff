@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { directionsUrl } from "@/features/prospect/model";
 import { EnquiryThread } from "@/features/prospect/EnquiryThread";
+import { RentRecordSharePanel } from "@/features/prospect/RentRecordSharePanel";
 import { ViewingPanel } from "@/features/prospect/ViewingPanel";
 import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
@@ -38,6 +39,7 @@ export default async function EnquiryPage({
     return <ProblemPage error={problemFromParsed(result.response, result.error)} />;
   }
   const enquiry = result.data;
+  const rentRecord = (await api.GET("/v1/prospect/me/rent-record")).data;
   const listing = enquiry.listing.available
     ? (await api.GET("/v1/public/listings/{slug}", { params: { path: { slug: enquiry.listing.slug } } })).data
     : undefined;
@@ -63,6 +65,13 @@ export default async function EnquiryPage({
       {!enquiry.open ? <Callout tone="info">{t("detail.closed")}</Callout> : null}
       {enquiry.open ? (
         <ViewingPanel enquiry={enquiry} directions={listing ? directionsUrl(listing.address, listing.geo) : null} />
+      ) : null}
+      {rentRecord && enquiry.open ? (
+        <RentRecordSharePanel
+          leadId={enquiry.id}
+          record={rentRecord.record}
+          share={rentRecord.shares.find((s) => s.lead?.id === enquiry.id && s.state === "live") ?? null}
+        />
       ) : null}
       <EnquiryThread enquiry={enquiry} />
     </div>

@@ -1,0 +1,49 @@
+{
+  "title": "Rent record",
+  "lead": "The months you paid on time, late or still owe, from payments getproperty confirmed. It is yours, shared only when you choose.",
+  "months": "{count, plural, one {# month} other {# months}}",
+  "monthsLabel": "By month",
+  "status": {
+    "on_time": "On time",
+    "late": "Late",
+    "outstanding": "Outstanding"
+  },
+  "empty": "No confirmed month yet. Months paid through getproperty appear here once their due date has passed.",
+  "notConfirmed": "{count, plural, one {# more month was} other {# more months were}} paid in a way getproperty did not confirm (cash, for example) and are not counted.",
+  "footnote": "Facts from payments, not a score. No amounts, no names of past landlords.",
+  "letter": {
+    "title": "Letter with a verification code",
+    "body": "A new landlord who does not use getproperty checks it with a 10-character code. Valid for 90 days; you can withdraw it any time.",
+    "create": "Create a new letter",
+    "empty": "You can create a letter once at least one month is confirmed.",
+    "once": "This code is shown only once. Copy it or send it to the landlord now.",
+    "copy": "Copy the code and link",
+    "copied": "Copied",
+    "copyText": "My rent record on getproperty — code {code}, check it at {url}"
+  },
+  "shares": {
+    "title": "What you shared",
+    "empty": "Not shared with anyone yet.",
+    "enquiry": "{listing} · {owner}",
+    "letter": "Letter, code ending {hint}",
+    "since": "Shared on {date}",
+    "until": "Can be checked until {date}",
+    "stop": "Stop sharing",
+    "keep": "Keep sharing",
+    "stopTitle": "Stop sharing your rent record?",
+    "stopBody": "The owner will no longer see your record, and the letter code stops working at once.",
+    "state": {
+      "live": "Shared",
+      "revoked": "Stopped",
+      "expired": "Expired"
+    }
+  },
+  "enquiry": {
+    "title": "Share your rent record",
+    "summary": "On time {onTime} · late {late} · outstanding {outstanding} months",
+    "consent": "I agree that the owner of this listing sees my rent record (months and their status, no amounts) until I stop sharing.",
+    "share": "Share with the owner",
+    "shared": "The owner can see your rent record.",
+    "stop": "Stop sharing"
+  }
+}
