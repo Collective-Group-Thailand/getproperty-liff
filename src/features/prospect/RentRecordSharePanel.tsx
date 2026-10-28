@@ -8,9 +8,9 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { Schemas } from "@/lib/api/types";
+import { LazyCheckbox, WhenNear } from "@/features/shared/WhenNear";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
-import { Checkbox } from "@/ui/components/Checkbox";
 import { Icon } from "@/ui/icons";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 
@@ -89,12 +89,15 @@ export function RentRecordSharePanel({
         </>
       ) : (
         <>
-          <Checkbox
-            checked={agree}
-            onCheckedChange={(value) => setAgree(value === true)}
-            label={t("consent")}
-            data-testid="enquiry-rent-record-consent"
-          />
+          {/* D-179: the Radix checkbox loads as the panel comes near the screen (enquiry page ≤ 180 KB, GL2). */}
+          <WhenNear testId="enquiry-rent-record-consent-slot">
+            <LazyCheckbox
+              checked={agree}
+              onCheckedChange={(value) => setAgree(value === true)}
+              label={t("consent")}
+              data-testid="enquiry-rent-record-consent"
+            />
+          </WhenNear>
           <Button
             block
             disabled={!agree}

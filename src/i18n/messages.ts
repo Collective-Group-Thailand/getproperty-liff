@@ -39,8 +39,11 @@ export const MESSAGE_FILES = {
     "usage",
   ],
   technician: ["auth", "workOrders"],
-  /** L5 (D-252): people asking about a listing — Thai and English first, the other languages fall back to English. */
-  prospect: ["rent"],
+  /**
+   * L5 (D-252): people asking about a listing — `rent` Thai and English first (the other languages fall back to
+   * English); `selfViewing` (GL2, D-295) complete in all six languages.
+   */
+  prospect: ["rent", "selfViewing"],
   /** L5 5.3 (D-251): a landlord's quick actions — Thai and English; the other languages fall back to English. */
   landlord: ["home"],
 } as const satisfies Record<Namespace, readonly string[]>;

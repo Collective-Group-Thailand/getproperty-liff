@@ -62,6 +62,7 @@ export default async function RentListingPage({
       <ContactPanel
         slug={slug}
         slots={slots.data?.slots ?? []}
+        selfViewing={slots.data?.selfViewing ?? false}
         existingId={existing?.id ?? null}
         initialMode={mode}
         channel={channel}

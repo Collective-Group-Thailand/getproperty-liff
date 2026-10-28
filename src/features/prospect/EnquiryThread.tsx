@@ -1,54 +1,22 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { WhenNear } from "@/features/shared/WhenNear";
 import { formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import { browserApi, unwrap } from "@/lib/api/browser";
-import { toApiError, type ApiError } from "@/lib/api/problem";
-import { Button } from "@/ui/components/Button";
-import { Field } from "@/ui/components/Field";
-import { Textarea } from "@/ui/components/Input";
 import { cn } from "@/ui/lib/cn";
+import { lazyWarm } from "@/ui/lib/lazy";
 
 import type { Enquiry } from "./model";
 
-const MAX = 1000;
+/** The write box sits at the end of the page: loaded as it comes near the screen (D-179, GL2). */
+const EnquiryWrite = lazyWarm(() => import("./EnquiryWrite").then((m) => m.EnquiryWrite));
 
 /** The conversation with the owner (L5 5.1): theirs on the left, mine on the right, a box to write while it is open. */
 export function EnquiryThread({ enquiry }: { enquiry: Enquiry }) {
   const t = useTranslations("prospect.rent.detail");
   const locale = useLocale() as Locale;
-  const router = useRouter();
-  const [draft, setDraft] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-
-  async function send(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const body = draft.trim();
-    if (!body) return;
-    setBusy(true);
-    setError(null);
-    try {
-      unwrap(
-        await browserApi.POST("/v1/prospect/enquiries/{leadId}/messages", {
-          params: { path: { leadId: enquiry.id } },
-          body: { body },
-        }),
-      );
-      setDraft("");
-      router.refresh();
-    } catch (caught) {
-      setError(toApiError(caught));
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <section aria-labelledby="enquiry-thread" className="flex flex-col gap-3" data-testid="enquiry-thread">
       <h2 id="enquiry-thread" className="font-semibold">
@@ -82,15 +50,9 @@ export function EnquiryThread({ enquiry }: { enquiry: Enquiry }) {
         })}
       </ol>
       {enquiry.open ? (
-        <form className="flex flex-col gap-2" onSubmit={send} data-testid="enquiry-write">
-          <Field label={t("write")}>
-            <Textarea rows={3} maxLength={MAX} value={draft} onChange={(event) => setDraft(event.target.value)} />
-          </Field>
-          {error ? <ProblemCallout error={error} /> : null}
-          <Button type="submit" size="lg" block loading={busy} disabled={!draft.trim()} data-testid="enquiry-send">
-            {t("send")}
-          </Button>
-        </form>
+        <WhenNear fallbackClassName="h-40 w-full" testId="enquiry-write-slot">
+          <EnquiryWrite leadId={enquiry.id} />
+        </WhenNear>
       ) : null}
     </section>
   );

@@ -208,6 +208,8 @@ export function sessionById(sid: string): MockSession | undefined {
 export const SEED_REFRESH_PREFIX = "mock-rt.seed.";
 /** The same for a technician (`lighthouse/technician.json`): `mock-rt.seed-technician.<LINE sub>`. */
 export const SEED_TECHNICIAN_REFRESH_PREFIX = "mock-rt.seed-technician.";
+/** The same for a prospect (`lighthouse/prospect.json`, GL2): `mock-rt.seed-prospect.<LINE sub>`. */
+export const SEED_PROSPECT_REFRESH_PREFIX = "mock-rt.seed-prospect.";
 
 /** Single-use rotation like the API (D-163): a rotated token revokes the whole session. */
 export function rotate(refreshToken: string): { session: MockSession } | { error: "invalid" | "reused" } {
@@ -215,6 +217,11 @@ export function rotate(refreshToken: string): { session: MockSession } | { error
     const sub = refreshToken.slice(SEED_TECHNICIAN_REFRESH_PREFIX.length);
     const account = accountFor(`line:${sub}`, { displayName: "ช่างสมชาย", phone: null, lineLinked: true });
     return rotate(openSession("technician", account.userId).refreshToken);
+  }
+  if (refreshToken.startsWith(SEED_PROSPECT_REFRESH_PREFIX)) {
+    const sub = refreshToken.slice(SEED_PROSPECT_REFRESH_PREFIX.length);
+    const account = accountFor(`line:${sub}`, { displayName: "Daniel", phone: null, lineLinked: true });
+    return rotate(openSession("prospect", account.userId).refreshToken);
   }
   if (refreshToken.startsWith(SEED_REFRESH_PREFIX)) {
     const sub = refreshToken.slice(SEED_REFRESH_PREFIX.length);

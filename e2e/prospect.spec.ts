@@ -39,6 +39,8 @@ test.describe("prospects (D-252, D-281)", () => {
     await page.getByTestId("prospect-message").fill("ห้องยังว่างไหมคะ รับสัตว์เลี้ยงไหม");
     await page.getByTestId("prospect-submit").click();
     await expect(page.getByTestId("prospect-contact")).toContainText("โปรดให้ความยินยอมก่อนส่ง");
+    // D-179: the checkbox loads as it comes near the screen
+    await page.getByTestId("prospect-consent-slot").scrollIntoViewIfNeeded();
     await page.getByTestId("prospect-consent").click();
     await page.getByTestId("prospect-submit").click();
     await expect(page).toHaveURL(/\/rent\/enquiries\/[0-9a-f-]+\?done=sent$/);
@@ -79,6 +81,8 @@ test.describe("prospects (D-252, D-281)", () => {
     await expect(page.getByTestId("prospect-contact")).toBeVisible();
     await forceProblems(context, baseURL!, { "prospect.viewings.request": "listing.viewing_slot_taken" });
     await page.getByTestId("slot-time").first().click();
+    // D-179: the checkbox loads as it comes near the screen
+    await page.getByTestId("prospect-consent-slot").scrollIntoViewIfNeeded();
     await page.getByTestId("prospect-consent").click();
     await page.getByTestId("prospect-submit").click();
     await expect(page.getByTestId("prospect-contact")).toContainText(/เพิ่งมีคนจอง|someone|booked/i);

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { directionsUrl } from "@/features/prospect/model";
 import { EnquiryThread } from "@/features/prospect/EnquiryThread";
-import { RentRecordSharePanel } from "@/features/prospect/RentRecordSharePanel";
+import { LazyRentRecordSharePanel } from "@/features/prospect/LazyRentRecordSharePanel";
 import { ViewingPanel } from "@/features/prospect/ViewingPanel";
 import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
@@ -43,8 +43,15 @@ export default async function EnquiryPage({
   const listing = enquiry.listing.available
     ? (await api.GET("/v1/public/listings/{slug}", { params: { path: { slug: enquiry.listing.slug } } })).data
     : undefined;
-  const t = await getTranslations("prospect.rent");
-  const done = query.done === "sent" ? t("detail.sent") : query.done === "booked" ? t("detail.booked") : null;
+  const [t, sv] = await Promise.all([getTranslations("prospect.rent"), getTranslations("prospect.selfViewing")]);
+  const done =
+    query.done === "sent"
+      ? t("detail.sent")
+      : query.done === "booked"
+        ? t("detail.booked")
+        : query.done === "left"
+          ? sv("panel.left")
+          : null;
   return (
     <div className="flex flex-col gap-5 py-5" data-testid="enquiry">
       <BackLink href="/rent/enquiries">{t("mine.back")}</BackLink>
@@ -67,7 +74,7 @@ export default async function EnquiryPage({
         <ViewingPanel enquiry={enquiry} directions={listing ? directionsUrl(listing.address, listing.geo) : null} />
       ) : null}
       {rentRecord && enquiry.open ? (
-        <RentRecordSharePanel
+        <LazyRentRecordSharePanel
           leadId={enquiry.id}
           record={rentRecord.record}
           share={rentRecord.shares.find((s) => s.lead?.id === enquiry.id && s.state === "live") ?? null}

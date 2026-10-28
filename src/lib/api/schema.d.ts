@@ -7552,6 +7552,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/listing-viewings/{viewingId}/access-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Self-viewing entry log
+         * @description The door-code window of a confirmed self viewing: state, entry (app or lock log) and exit, incident and its work order, the visitor codes on the unit lock and building doors, and their door events. Never the code itself. Visible only to the listing tenant (owner or agency); each read is audited (D-295, D-025). A viewing without a self-viewing window, or of another tenant, is a 404.
+         *
+         *     Implements: D-295, D-289, D-025.
+         */
+        get: operations["owner.listingViewings.accessLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/listing-viewings/{viewingId}/actions/complete": {
         parameters: {
             query?: never;
@@ -7585,9 +7607,9 @@ export interface paths {
         put?: never;
         /**
          * Confirm a viewing
-         * @description Confirms a requested viewing that has not started; the prospect is told in LINE and both sides are reminded `listing.viewing.reminder_hours_before` (D-252).
+         * @description Confirms a requested viewing that has not started; the prospect is told in LINE and both sides are reminded `listing.viewing.reminder_hours_before` (D-252). Confirming a **self** viewing (G7, D-295) opens its door-code window: one PIN as visitor codes on the unit lock and the building doors (created at the lock vendor after the commit), valid `viewing.self.code_early_minutes` before to `viewing.self.code_minutes` after the start — re-checked first: still vacant (`viewing.unit_occupied`), lock and setting (`viewing.self_unavailable`), no overlapping window of the prospect (`viewing.access_overlap`).
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-295.
          */
         post: operations["owner.listingViewings.confirm"];
         delete?: never;
@@ -7612,6 +7634,28 @@ export interface paths {
          *     Implements: D-252.
          */
         post: operations["owner.listingViewings.decline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/listing-viewings/{viewingId}/actions/end-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End a self viewing’s door codes now
+         * @description Revokes the visitor codes of a self viewing at once (unit lock and building doors) with a reason, and closes its window (`cancelled`). Resident codes are never touched (D-295, D-071).
+         *
+         *     Implements: D-295, D-071.
+         */
+        post: operations["owner.listingViewings.endAccess"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7794,9 +7838,9 @@ export interface paths {
         get?: never;
         /**
          * Set viewing availability
-         * @description Weekly windows (Asia/Bangkok) and date exceptions in which viewings can be booked (D-252, B7.3).
+         * @description Weekly windows (Asia/Bangkok) and date exceptions in which viewings can be booked (D-252, B7.3). A weekly window with `mode: self` offers self-viewing slots (G7, D-295): verified prospects enter alone with a door code valid `viewing.self.code_minutes` around the slot — only for a vacant unit with an active unit lock of this tenant and while `viewing.self.enabled` (O-024). Date exceptions are accompanied-only.
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-295.
          */
         put: operations["owner.listings.setAvailability"];
         post?: never;
@@ -11867,9 +11911,9 @@ export interface paths {
         put?: never;
         /**
          * Book a viewing
-         * @description Requests a free slot of the listing’s availability (`GET /v1/public/listings/{slug}/viewing-slots`; notice and horizon are settings) — the owner confirms or declines. Opens the enquiry when there is none (same consent rule as asking). One live viewing per enquiry (`listing.viewing_exists`: change its time instead); a slot taken a moment ago answers `listing.viewing_slot_taken` (D-252).
+         * @description Requests a free slot of the listing’s availability (`GET /v1/public/listings/{slug}/viewing-slots`; notice and horizon are settings) — the owner confirms or declines. Opens the enquiry when there is none (same consent rule as asking). One live viewing per enquiry (`listing.viewing_exists`: change its time instead); a slot taken a moment ago answers `listing.viewing_slot_taken` (D-252). `mode: self` (G7, D-295) books a self-viewing slot: the listing must offer it (`viewing.self_unavailable` with the reason, `viewing.unit_occupied`), I must have a verified identity and phone and accept the visitor terms in force (`viewing.requirements_missing` with what is missing, `viewing.terms_outdated`), and no other self viewing of mine may overlap its code window (`viewing.access_overlap`).
          *
-         *     Implements: D-252, D-025.
+         *     Implements: D-252, D-025, D-295.
          */
         post: operations["prospect.viewings.request"];
         delete?: never;
@@ -11922,6 +11966,50 @@ export interface paths {
          *     Implements: D-267.
          */
         post: operations["prospect.identityVerification.start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/me/phone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify my phone
+         * @description Checks the SMS code; the phone becomes my account’s verified phone (a later phone sign-in opens this same account). `auth.identity_in_use` when another account already has the number — sign in with it instead (D-295, D-255).
+         *
+         *     Implements: D-295, D-255.
+         */
+        post: operations["prospect.phone.verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/me/phone/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a code to verify my phone
+         * @description Sends an SMS code (purpose `phone_verify`) bound to my account — self-viewing needs a verified phone (D-295); a LINE sign-in has none. Rate limits as for every OTP.
+         *
+         *     Implements: D-295, D-255.
+         */
+        post: operations["prospect.phone.requestCode"];
         delete?: never;
         options?: never;
         head?: never;
@@ -11994,6 +12082,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/prospect/me/self-viewing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What I need for self-viewing
+         * @description Whether self-viewing is on (`viewing.self.enabled`, off until the insurance partner and visitor terms are settled — O-024), whether my identity (e-KYC, D-267) and phone are verified, the visitor terms in force (draft, pending legal review) and the door-code window rules (D-295).
+         *
+         *     Implements: D-295, D-289, D-267.
+         */
+        get: operations["prospect.selfViewing.status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/prospect/ping": {
         parameters: {
             query?: never;
@@ -12016,6 +12126,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/prospect/viewings/{viewingId}/access-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My door code
+         * @description The keypad code of my confirmed self viewing — **only inside its window** (`viewing.self.code_early_minutes` before to `viewing.self.code_minutes` after the slot start; `viewing.code_not_available` with the window otherwise), only while the unit is vacant (`viewing.unit_occupied`) and while no other self viewing of mine is open inside a unit (`viewing.access_open_elsewhere`). `Cache-Control: no-store`; fetch it on tap, never store it. Each reveal is audited (D-295, D-148).
+         *
+         *     Implements: D-295, D-289, D-070.
+         */
+        get: operations["prospect.selfViewing.accessCode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/viewings/{viewingId}/actions/arrive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * I have arrived
+         * @description Inside the code window: records my entry (also recorded when the lock log shows my code opened the door); the owner and staff are alerted at once (D-295). Repeating it changes nothing.
+         *
+         *     Implements: D-295.
+         */
+        post: operations["prospect.selfViewing.arrive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/prospect/viewings/{viewingId}/actions/cancel": {
         parameters: {
             query?: never;
@@ -12027,11 +12181,55 @@ export interface paths {
         put?: never;
         /**
          * Cancel my viewing
-         * @description Cancels a requested or confirmed viewing that has not started; the owner is told (D-252).
+         * @description Cancels a requested or confirmed viewing that has not started; the owner is told (D-252). A self viewing’s door codes are revoked at once (D-295).
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-295.
          */
         post: operations["prospect.viewings.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/viewings/{viewingId}/actions/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * I have left
+         * @description Ends my self viewing: the door codes are revoked at once (unit lock and building doors), the viewing is completed and my enquiry becomes `viewed` (D-295).
+         *
+         *     Implements: D-295, D-070.
+         */
+        post: operations["prospect.selfViewing.leave"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/viewings/{viewingId}/actions/report-incident": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a problem at the unit
+         * @description Once per self viewing, from the window start to the end of that Bangkok day: what is wrong (damage, a door that does not lock, someone inside). A high-priority inspection work order is opened on the unit and the owner and staff are alerted at once (D-295, D-072).
+         *
+         *     Implements: D-295, D-072.
+         */
+        post: operations["prospect.selfViewing.reportIncident"];
         delete?: never;
         options?: never;
         head?: never;
@@ -12049,9 +12247,9 @@ export interface paths {
         put?: never;
         /**
          * Change my viewing time
-         * @description Moves a requested or confirmed viewing to another free slot in one step: the old one is cancelled and points to the new request, which the owner confirms again (D-252).
+         * @description Moves a requested or confirmed viewing to another free slot in one step: the old one is cancelled and points to the new request, which the owner confirms again (D-252). A self viewing stays a self viewing: the new slot must be a self slot and the checks of booking apply again; the old door-code window closes at once (D-295).
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-295.
          */
         post: operations["prospect.viewings.reschedule"];
         delete?: never;
@@ -12179,9 +12377,9 @@ export interface paths {
         };
         /**
          * Free viewing times
-         * @description Free slots of a published listing’s viewing availability from `from` (`YYYY-MM-DD`, default today in Bangkok) for `days` days (default 14), leaving out times already requested or confirmed and those inside `listing.viewing.min_notice_hours` or beyond `listing.viewing.horizon_days` (D-252). No personal data.
+         * @description Free slots of a published listing’s viewing availability from `from` (`YYYY-MM-DD`, default today in Bangkok) for `days` days (default 14), leaving out times already requested or confirmed and those inside `listing.viewing.min_notice_hours` or beyond `listing.viewing.horizon_days` (D-252). Each slot has a `mode`; `self` slots (G7, D-295) appear only while the listing can offer self-viewing (`viewing.self.enabled`, an active unit lock of the listing tenant, the unit vacant) and need a verified prospect. No personal data.
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-295.
          */
         get: operations["public.listings.viewingSlots"];
         put?: never;
@@ -22116,6 +22314,13 @@ export interface components {
             /** @example ขอสิทธิ์เข้าถึงจากทีมซัพพอร์ต */
             title: string | null;
         };
+        IncidentReportDto: {
+            /**
+             * @description What is wrong at the unit (damage, a door that does not lock, someone inside).
+             * @example ก๊อกน้ำในห้องน้ำรั่ว น้ำนองพื้น
+             */
+            note: string;
+        };
         IncomeExpenseItemDto: {
             /**
              * @description The owner’s share of the receipts. Unit: THB, decimal string (D-046).
@@ -23647,6 +23852,11 @@ export interface components {
             state: components["schemas"]["OwnerLeadState"];
         };
         LeadViewingDto: {
+            /**
+             * @description G7: the door-code window once the owner confirmed a self viewing (null otherwise).
+             * @example null
+             */
+            access: components["schemas"]["ViewingAccessSummaryDto"] | null;
             /** @example null */
             cancelledBy: components["schemas"]["ListingLeadAuthor"] | null;
             /**
@@ -23659,6 +23869,11 @@ export interface components {
              * @example 3b241101-e2bb-4255-8caf-4136c566a962
              */
             id: string;
+            /**
+             * @description G7 (D-295): accompanied, or self-viewing with a time-boxed door code.
+             * @example accompanied
+             */
+            mode: components["schemas"]["ViewingMode"];
             /** @example จะมากับแฟนค่ะ */
             note: string | null;
             /**
@@ -27293,6 +27508,11 @@ export interface components {
         };
         OwnerViewingDto: {
             /**
+             * @description G7 (D-295): the door-code window of a confirmed self viewing (entry / exit / incident).
+             * @example null
+             */
+            access: components["schemas"]["ViewingAccessSummaryDto"] | null;
+            /**
              * Format: date-time
              * @example 2026-11-07T10:30:00+07:00
              */
@@ -27308,6 +27528,8 @@ export interface components {
              */
             leadId: string;
             listing: components["schemas"]["OwnerViewingListingDto"];
+            /** @example accompanied */
+            mode: components["schemas"]["ViewingMode"];
             /** @example สมศรี ใจดี */
             prospectName: string;
             /**
@@ -28852,6 +29074,18 @@ export interface components {
              */
             code: string;
             /**
+             * Format: date-time
+             * @description `viewing.code_not_available` only (G7): when the door code starts to work
+             * @example 2026-11-07T09:55:00+07:00
+             */
+            codeValidFrom?: string;
+            /**
+             * Format: date-time
+             * @description `viewing.code_not_available` only (G7): when the door code stops working
+             * @example 2026-11-07T10:30:00+07:00
+             */
+            codeValidTo?: string;
+            /**
              * @description Localised by `Accept-Language` (`th` default, `en`).
              * @example ค่าไฟฟ้าต่อหน่วยสูงกว่าอัตราของการไฟฟ้า ไม่สามารถออกบิลได้
              */
@@ -28890,6 +29124,14 @@ export interface components {
              * @example 1
              */
             legalTextVersion?: number;
+            /**
+             * @description `viewing.requirements_missing` only (G7, D-295): what the prospect still has to do before a self viewing — `identity` (e-KYC), `phone` (verified phone), `terms` (visitor terms)
+             * @example [
+             *       "identity",
+             *       "phone"
+             *     ]
+             */
+            missingRequirements?: string[];
             /** @example 6f1c2d8e-2c7b-4d0e-9d1c-3f1a2b3c4d5e */
             requestId: string;
             /**
@@ -28897,6 +29139,11 @@ export interface components {
              * @example compliance.tariff_cap
              */
             ruleId?: string;
+            /**
+             * @description `viewing.self_unavailable` only (G7, D-295): `disabled` (setting off, O-024), `no_lock` (no active unit lock with an adapter), `not_operated` (agency listing — the lock is the owner tenant’s, O-031)
+             * @example no_lock
+             */
+            selfViewingReason?: string;
             /**
              * @description `compliance.acknowledgement_required` only: the values shown in the warning (D-021a)
              * @example {
@@ -28918,6 +29165,11 @@ export interface components {
             title: string;
             /** @example https://errors.getproperty.co/compliance.tariff_cap */
             type: string;
+            /**
+             * @description `viewing.terms_outdated` only (G7): the visitor-terms version in force
+             * @example 2
+             */
+            visitorTermsVersion?: number;
         };
         ProblemFieldError: {
             /**
@@ -29060,6 +29312,15 @@ export interface components {
              */
             upcomingViewings: number;
             user: components["schemas"]["MeUserDto"];
+        };
+        ProspectPhoneDto: {
+            /**
+             * @description My verified phone, masked.
+             * @example 08•-•••-1234
+             */
+            phoneMasked: string;
+            /** @example true */
+            phoneVerified: boolean;
         };
         ProviderCredentialDto: {
             /**
@@ -32190,6 +32451,53 @@ export interface components {
         SearchHitType: "building" | "unit" | "party" | "lease" | "device" | "invoice";
         SearchResultDto: {
             data: components["schemas"]["SearchHitDto"][];
+        };
+        SelfViewingLockDto: {
+            /** @example ประตูห้อง A-102 */
+            name: string;
+            /**
+             * @description The vendor confirmed the code on this lock.
+             * @example true
+             */
+            ready: boolean;
+            /** @example unit */
+            scope: components["schemas"]["LockScope"];
+        };
+        SelfViewingStatusDto: {
+            /**
+             * @description `viewing.self.code_minutes` (platform default).
+             * @example 30
+             */
+            codeMinutes: number;
+            /**
+             * @description `viewing.self.code_early_minutes` (platform default).
+             * @example 5
+             */
+            earlyMinutes: number;
+            /**
+             * @description Self-viewing is switched on platform-wide (`viewing.self.enabled`; a tenant may differ).
+             * @example true
+             */
+            enabled: boolean;
+            /**
+             * @description My identity is verified (e-KYC, D-267).
+             * @example true
+             */
+            identityVerified: boolean;
+            /**
+             * @description What I still need before booking a self viewing: `identity`, `phone`; `terms` is always listed — accept the terms below with each booking.
+             * @example [
+             *       "phone",
+             *       "terms"
+             *     ]
+             */
+            missing: string[];
+            /**
+             * @description My account has a verified phone.
+             * @example false
+             */
+            phoneVerified: boolean;
+            visitorTerms: components["schemas"]["VisitorTermsDto"];
         };
         /** @enum {string} */
         SeriesBucket: "15m" | "1h" | "1d";
@@ -36258,6 +36566,131 @@ export interface components {
             evidenceKind: components["schemas"]["OwnershipEvidence"];
             note?: string | null;
         };
+        ViewingAccessCodeDto: {
+            /**
+             * @description The keypad code (same on the unit lock and the building doors).
+             * @example 482913
+             */
+            doorCode: string;
+            locks: components["schemas"]["SelfViewingLockDto"][];
+            /**
+             * Format: date-time
+             * @example 2026-11-07T09:55:00+07:00
+             */
+            validFrom: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-07T10:30:00+07:00
+             */
+            validTo: string;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            viewingId: string;
+        };
+        ViewingAccessCredentialDto: {
+            /** @example ประตูห้อง A-102 */
+            lockName: string;
+            /** @example unit */
+            lockScope: components["schemas"]["LockScope"];
+            /** @example active */
+            status: components["schemas"]["CredentialStatus"];
+            /**
+             * Format: date-time
+             * @example 2026-11-07T09:55:00+07:00
+             */
+            validFrom: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-07T10:30:00+07:00
+             */
+            validTo: string | null;
+        };
+        ViewingAccessEventDto: {
+            /** @example ประตูห้อง A-102 */
+            lockName: string;
+            /** @example success */
+            result: components["schemas"]["AccessResult"];
+            /** @example pin */
+            source: components["schemas"]["AccessSource"];
+            /**
+             * Format: date-time
+             * @example 2026-11-07T10:01:00+07:00
+             */
+            time: string;
+        };
+        ViewingAccessLogDto: {
+            access: components["schemas"]["ViewingAccessSummaryDto"];
+            /** @description The visitor codes (unit lock + building doors). */
+            credentials: components["schemas"]["ViewingAccessCredentialDto"][];
+            /** @description Door events of those codes (lock log), oldest first. */
+            events: components["schemas"]["ViewingAccessEventDto"][];
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            viewingId: string;
+        };
+        /** @enum {string} */
+        ViewingAccessState: "issued" | "entered" | "exited" | "expired" | "no_show" | "cancelled";
+        ViewingAccessSummaryDto: {
+            /**
+             * Format: date-time
+             * @example null
+             */
+            closedAt: string | null;
+            /**
+             * @description Why the window closed.
+             * @example null
+             */
+            closeReason: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            enteredAt: string | null;
+            /**
+             * @description `prospect` (confirmed in the app) or `lock_log` (a successful unlock with the code).
+             * @example null
+             */
+            enteredSource: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            exitedAt: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            incidentAt: string | null;
+            /**
+             * @description What the visitor reported.
+             * @example null
+             */
+            incidentNote: string | null;
+            /** @example issued */
+            state: components["schemas"]["ViewingAccessState"];
+            /**
+             * Format: date-time
+             * @description The code opens the door from (slot start − `viewing.self.code_early_minutes`).
+             * @example 2026-11-07T09:55:00+07:00
+             */
+            validFrom: string;
+            /**
+             * Format: date-time
+             * @description The code stops working (slot start + `viewing.self.code_minutes`).
+             * @example 2026-11-07T10:30:00+07:00
+             */
+            validTo: string;
+            /**
+             * Format: uuid
+             * @description The work order opened for the incident.
+             * @example null
+             */
+            workOrderId: string | null;
+        };
         ViewingCancelDto: {
             /** @example ได้ห้องแล้วค่ะ */
             reason?: string | null;
@@ -36270,6 +36703,15 @@ export interface components {
             /** @example ไม่สะดวกช่วงเช้า ขอเป็นบ่ายได้ไหมคะ */
             reason: string;
         };
+        ViewingEndAccessDto: {
+            /** @example ผู้เข้าชมโทรแจ้งว่าออกจากห้องแล้ว */
+            reason: string;
+        };
+        /**
+         * @description G7 (D-295): `self` = a self-viewing window — verified prospects enter alone with a time-boxed door code (vacant units with a lock, when `viewing.self.enabled`); `accompanied` (default) = someone shows the unit. Date exceptions are accompanied-only.
+         * @enum {string}
+         */
+        ViewingMode: "accompanied" | "self";
         /** @enum {string} */
         ViewingOutcome: "completed" | "no_show";
         ViewingRequestDto: {
@@ -36285,6 +36727,11 @@ export interface components {
             consent: boolean;
             /** @description A message to the owner. */
             message?: string | null;
+            /**
+             * @description G7 (D-295): `self` books a self-viewing slot — needs a verified identity (e-KYC), a verified phone and `visitorTermsVersion` (the terms of `GET /v1/prospect/me/self-viewing`). Default accompanied.
+             * @example accompanied
+             */
+            mode?: components["schemas"]["ViewingMode"];
             /**
              * Format: date
              * @example 2026-12-01
@@ -36307,6 +36754,11 @@ export interface components {
             startsAt: string;
             /** @example 12 */
             termMonths?: number | null;
+            /**
+             * @description G7: the visitor-terms version I accepted (required for `mode: self`).
+             * @example null
+             */
+            visitorTermsVersion?: number | null;
         };
         ViewingRescheduleDto: {
             /**
@@ -36323,12 +36775,22 @@ export interface components {
              */
             endsAt: string;
             /**
+             * @description G7 (D-295): `self` slots need a verified prospect (e-KYC + phone + visitor terms).
+             * @example accompanied
+             */
+            mode: components["schemas"]["ViewingMode"];
+            /**
              * Format: date-time
              * @example 2026-11-07T10:00:00+07:00
              */
             startsAt: string;
         };
         ViewingSlotsDto: {
+            /**
+             * @description G7 (D-295): the listing offers self-viewing slots now (setting on, own unit lock, vacant).
+             * @example false
+             */
+            selfViewing: boolean;
             /** @example 30 */
             slotMinutes: number;
             /** @description Free slots in time order (Asia/Bangkok offsets). */
@@ -36360,6 +36822,17 @@ export interface components {
              * @example 24
              */
             maxHours: number;
+        };
+        VisitorTermsDto: {
+            /** @example Draft visitor terms (pending legal review): … */
+            en: string;
+            /** @example ร่างเงื่อนไขผู้เข้าชม (รอตรวจทางกฎหมาย): … */
+            th: string;
+            /**
+             * @description Send it back as `visitorTermsVersion` when booking.
+             * @example 1
+             */
+            version: number;
         };
         /**
          * @description When the resident prefers the visit (LIFF #24).
@@ -36415,6 +36888,11 @@ export interface components {
         WeeklySlotDto: {
             /** @example 10:00 */
             from: string;
+            /**
+             * @description G7 (D-295): `self` = a self-viewing window — verified prospects enter alone with a time-boxed door code (vacant units with a lock, when `viewing.self.enabled`); `accompanied` (default) = someone shows the unit. Date exceptions are accompanied-only.
+             * @example accompanied
+             */
+            mode?: components["schemas"]["ViewingMode"];
             /** @example 16:00 */
             to: string;
             /**
@@ -80723,9 +81201,11 @@ export interface operations {
                      *           "unitId": "3b241101-e2bb-4255-8caf-4136c566a962"
                      *         },
                      *         "nextViewing": {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -80865,9 +81345,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -80907,9 +81389,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -81055,9 +81539,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -81097,9 +81583,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -81245,9 +81733,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -81287,9 +81777,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -81446,9 +81938,11 @@ export interface operations {
                      *         "moveInDate": "2026-12-01",
                      *         "nationality": null,
                      *         "nextViewing": {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -81488,9 +81982,11 @@ export interface operations {
                      *         "version": 2,
                      *         "viewings": [
                      *           {
+                     *             "access": null,
                      *             "cancelledBy": null,
                      *             "endsAt": "2026-11-07T10:30:00+07:00",
                      *             "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *             "mode": "accompanied",
                      *             "note": null,
                      *             "reason": null,
                      *             "rescheduledTo": null,
@@ -81648,9 +82144,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -81690,9 +82188,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -86545,6 +87045,7 @@ export interface operations {
                     /**
                      * @example [
                      *       {
+                     *         "access": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
                      *         "leadId": "3b241101-e2bb-4255-8caf-4136c566a962",
@@ -86553,6 +87054,7 @@ export interface operations {
                      *           "slug": "condo-1br-0193f2a4b1",
                      *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
                      *         },
+                     *         "mode": "accompanied",
                      *         "prospectName": "สมศรี ใจดี",
                      *         "startsAt": "2026-11-07T10:00:00+07:00",
                      *         "state": "confirmed"
@@ -86584,6 +87086,143 @@ export interface operations {
             };
             /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
             403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.listingViewings.accessLog": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entry log */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "access": {
+                     *         "closeReason": null,
+                     *         "closedAt": null,
+                     *         "enteredAt": "2026-11-07T10:01:00+07:00",
+                     *         "enteredSource": "lock_log",
+                     *         "exitedAt": null,
+                     *         "incidentAt": null,
+                     *         "incidentNote": null,
+                     *         "state": "entered",
+                     *         "validFrom": "2026-11-07T09:55:00+07:00",
+                     *         "validTo": "2026-11-07T10:30:00+07:00",
+                     *         "workOrderId": null
+                     *       },
+                     *       "credentials": [
+                     *         {
+                     *           "lockName": "ประตูห้อง A-102",
+                     *           "lockScope": "unit",
+                     *           "status": "active",
+                     *           "validFrom": "2026-11-07T09:55:00+07:00",
+                     *           "validTo": "2026-11-07T10:30:00+07:00"
+                     *         }
+                     *       ],
+                     *       "events": [
+                     *         {
+                     *           "lockName": "ประตูห้อง A-102",
+                     *           "result": "success",
+                     *           "source": "pin",
+                     *           "time": "2026-11-07T10:01:00+07:00"
+                     *         }
+                     *       ],
+                     *       "viewingId": "3b241101-e2bb-4255-8caf-4136c566a962"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessLogDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -86685,9 +87324,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -86727,9 +87368,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -86881,9 +87524,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -86923,9 +87568,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -86978,7 +87625,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Problem: `listing.viewing_invalid_state` */
+            /** @description Problem: `listing.viewing_invalid_state`, `viewing.access_overlap`, `viewing.self_unavailable`, `viewing.unit_occupied` */
             409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -87081,9 +87728,11 @@ export interface operations {
                      *       "moveInDate": "2026-12-01",
                      *       "nationality": null,
                      *       "nextViewing": {
+                     *         "access": null,
                      *         "cancelledBy": null,
                      *         "endsAt": "2026-11-07T10:30:00+07:00",
                      *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "mode": "accompanied",
                      *         "note": null,
                      *         "reason": null,
                      *         "rescheduledTo": null,
@@ -87123,9 +87772,11 @@ export interface operations {
                      *       "version": 2,
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -87189,6 +87840,140 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.listingViewings.endAccess": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ViewingEndAccessDto"];
+            };
+        };
+        responses: {
+            /** @description Ended */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "closeReason": "ended by the owner: ผู้เข้าชมโทรแจ้งว่าออกจากห้องแล้ว",
+                     *       "closedAt": "2026-11-07T10:10:00+07:00",
+                     *       "enteredAt": null,
+                     *       "enteredSource": null,
+                     *       "exitedAt": null,
+                     *       "incidentAt": null,
+                     *       "incidentNote": null,
+                     *       "state": "cancelled",
+                     *       "validFrom": "2026-11-07T09:55:00+07:00",
+                     *       "validTo": "2026-11-07T10:30:00+07:00",
+                     *       "workOrderId": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessSummaryDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `viewing.access_invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -116637,9 +117422,11 @@ export interface operations {
                      *         "updatedAt": "2026-11-01T09:15:00+07:00",
                      *         "viewings": [
                      *           {
+                     *             "access": null,
                      *             "cancelledBy": null,
                      *             "endsAt": "2026-11-07T10:30:00+07:00",
                      *             "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *             "mode": "accompanied",
                      *             "note": null,
                      *             "reason": null,
                      *             "rescheduledTo": null,
@@ -116760,9 +117547,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -116896,9 +117685,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -117168,9 +117959,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -117324,9 +118117,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -117379,7 +118174,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Problem: `http.conflict`, `listing.viewing_exists`, `listing.viewing_slot_taken` */
+            /** @description Problem: `http.conflict`, `listing.viewing_exists`, `listing.viewing_slot_taken`, `viewing.access_overlap`, `viewing.self_unavailable`, `viewing.unit_occupied` */
             409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -117389,7 +118184,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Problem: `listing.bank_account_in_message`, `listing.consent_required`, `listing.viewing_slot_unavailable`, `validation.failed` */
+            /** @description Problem: `listing.bank_account_in_message`, `listing.consent_required`, `listing.viewing_slot_unavailable`, `validation.failed`, `viewing.requirements_missing`, `viewing.terms_outdated` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -117724,6 +118519,223 @@ export interface operations {
             };
         };
     };
+    "prospect.phone.verify": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtpVerifyDto"];
+            };
+        };
+        responses: {
+            /** @description Verified */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "phoneMasked": "+66•••••1234",
+                     *       "phoneVerified": true
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ProspectPhoneDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.otp_expired`, `auth.otp_invalid`, `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.identity_in_use` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.otp_attempts_exceeded`, `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.phone.requestCode": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtpRequestDto"];
+            };
+        };
+        responses: {
+            /** @description Code sent */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "challengeId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "expiresAt": "2026-11-01T00:20:00+07:00",
+                     *       "resendAvailableAt": "2026-11-01T00:16:00+07:00"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OtpChallengeDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.otp_rate_limited`, `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `provider.unavailable` */
+            503: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "prospect.rentRecord.get": {
         parameters: {
             query?: never;
@@ -118030,6 +119042,102 @@ export interface operations {
             };
         };
     };
+    "prospect.selfViewing.status": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Status */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "codeMinutes": 30,
+                     *       "earlyMinutes": 5,
+                     *       "enabled": true,
+                     *       "identityVerified": true,
+                     *       "missing": [
+                     *         "phone",
+                     *         "terms"
+                     *       ],
+                     *       "phoneVerified": false,
+                     *       "visitorTerms": {
+                     *         "en": "Draft visitor terms (pending legal review): I will view the unit only during my booked time …",
+                     *         "th": "ร่างเงื่อนไขผู้เข้าชม (รอตรวจทางกฎหมาย): ฉันจะเข้าชมห้องเฉพาะช่วงเวลาที่นัดไว้ …",
+                     *         "version": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SelfViewingStatusDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "prospect.system.ping": {
         parameters: {
             query?: never;
@@ -118074,6 +119182,254 @@ export interface operations {
             };
             /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
             403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.selfViewing.accessCode": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Door code */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "doorCode": "482913",
+                     *       "locks": [
+                     *         {
+                     *           "name": "ประตูห้อง A-102",
+                     *           "ready": true,
+                     *           "scope": "unit"
+                     *         },
+                     *         {
+                     *           "name": "ประตูหน้าอาคาร",
+                     *           "ready": true,
+                     *           "scope": "building_door"
+                     *         }
+                     *       ],
+                     *       "validFrom": "2026-11-07T09:55:00+07:00",
+                     *       "validTo": "2026-11-07T10:30:00+07:00",
+                     *       "viewingId": "3b241101-e2bb-4255-8caf-4136c566a962"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessCodeDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `viewing.access_open_elsewhere`, `viewing.code_not_available`, `viewing.unit_occupied` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.selfViewing.arrive": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entered */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "closeReason": null,
+                     *       "closedAt": null,
+                     *       "enteredAt": "2026-11-07T10:01:00+07:00",
+                     *       "enteredSource": "prospect",
+                     *       "exitedAt": null,
+                     *       "incidentAt": null,
+                     *       "incidentNote": null,
+                     *       "state": "entered",
+                     *       "validFrom": "2026-11-07T09:55:00+07:00",
+                     *       "validTo": "2026-11-07T10:30:00+07:00",
+                     *       "workOrderId": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessSummaryDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `viewing.access_invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -118163,9 +119519,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -118261,6 +119619,266 @@ export interface operations {
             };
         };
     };
+    "prospect.selfViewing.leave": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Left */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "closeReason": "left",
+                     *       "closedAt": "2026-11-07T10:20:00+07:00",
+                     *       "enteredAt": "2026-11-07T10:01:00+07:00",
+                     *       "enteredSource": "lock_log",
+                     *       "exitedAt": "2026-11-07T10:20:00+07:00",
+                     *       "incidentAt": null,
+                     *       "incidentNote": null,
+                     *       "state": "exited",
+                     *       "validFrom": "2026-11-07T09:55:00+07:00",
+                     *       "validTo": "2026-11-07T10:30:00+07:00",
+                     *       "workOrderId": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessSummaryDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `viewing.access_invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.selfViewing.reportIncident": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                viewingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IncidentReportDto"];
+            };
+        };
+        responses: {
+            /** @description Reported */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "closeReason": null,
+                     *       "closedAt": null,
+                     *       "enteredAt": "2026-11-07T10:01:00+07:00",
+                     *       "enteredSource": "prospect",
+                     *       "exitedAt": null,
+                     *       "incidentAt": "2026-11-07T10:05:00+07:00",
+                     *       "incidentNote": "ก๊อกน้ำในห้องน้ำรั่ว น้ำนองพื้น",
+                     *       "state": "entered",
+                     *       "validFrom": "2026-11-07T09:55:00+07:00",
+                     *       "validTo": "2026-11-07T10:30:00+07:00",
+                     *       "workOrderId": "3b241101-e2bb-4255-8caf-4136c566a962"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ViewingAccessSummaryDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `viewing.access_invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "prospect.viewings.reschedule": {
         parameters: {
             query?: never;
@@ -118319,9 +119937,11 @@ export interface operations {
                      *       "updatedAt": "2026-11-01T09:15:00+07:00",
                      *       "viewings": [
                      *         {
+                     *           "access": null,
                      *           "cancelledBy": null,
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
                      *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "mode": "accompanied",
                      *           "note": null,
                      *           "reason": null,
                      *           "rescheduledTo": null,
@@ -118374,7 +119994,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Problem: `listing.viewing_invalid_state`, `listing.viewing_slot_taken` */
+            /** @description Problem: `listing.viewing_invalid_state`, `listing.viewing_slot_taken`, `viewing.access_overlap`, `viewing.self_unavailable`, `viewing.unit_occupied` */
             409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -118384,7 +120004,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Problem: `listing.viewing_slot_unavailable`, `validation.failed` */
+            /** @description Problem: `listing.viewing_slot_unavailable`, `validation.failed`, `viewing.requirements_missing`, `viewing.terms_outdated` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -119006,11 +120626,18 @@ export interface operations {
                 content: {
                     /**
                      * @example {
+                     *       "selfViewing": true,
                      *       "slotMinutes": 30,
                      *       "slots": [
                      *         {
                      *           "endsAt": "2026-11-07T10:30:00+07:00",
+                     *           "mode": "accompanied",
                      *           "startsAt": "2026-11-07T10:00:00+07:00"
+                     *         },
+                     *         {
+                     *           "endsAt": "2026-11-08T09:30:00+07:00",
+                     *           "mode": "self",
+                     *           "startsAt": "2026-11-08T09:00:00+07:00"
                      *         }
                      *       ]
                      *     }
