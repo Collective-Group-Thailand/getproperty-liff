@@ -32,7 +32,9 @@
     "line": "LINE",
     "sms": "SMS",
     "save": "Save",
-    "saved": "Notification settings saved"
+    "saved": "Notification settings saved",
+    "edit": "Change notification settings",
+    "off": "Off"
   },
   "documents": {
     "title": "My documents",

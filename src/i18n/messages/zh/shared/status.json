@@ -123,5 +123,18 @@
   "inspection": {
     "completed": "等待您签名",
     "signed": "双方已签"
+  },
+  "contract": {
+    "draft": "草稿",
+    "pending_signature": "待签署",
+    "signed": "已签署",
+    "cancelled": "已取消"
+  },
+  "renewal": {
+    "offered": "等待您答复",
+    "accepted": "已接受",
+    "declined": "已拒绝",
+    "expired": "已过期",
+    "withdrawn": "已撤回"
   }
 }

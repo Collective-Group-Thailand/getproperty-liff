@@ -302,6 +302,20 @@ describe("Lighthouse URLs of mock leases", () => {
     expect(urls).toContain(`http://localhost:3400/invoices/${currentInvoiceId("line:Ulighthouse-resident")}`);
   });
 
+  it("match the GL3 contract, offer and lease ids (lighthouse/resident-contracts.json)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { mockLeaseId } = await import("./residence");
+    const urls = (
+      JSON.parse(readFileSync(new URL("../lighthouse/resident-contracts.json", import.meta.url), "utf8")) as {
+        ci: { collect: { url: string[] } };
+      }
+    ).ci.collect.url;
+    const lease = mockLeaseId("line:Ulighthouse-contracts-renewal", 0);
+    expect(urls).toContain(`http://localhost:3400/contracts/${lease.slice(0, -4)}c1a1/sign`);
+    expect(urls).toContain(`http://localhost:3400/renewals/${lease.slice(0, -4)}e0f1`);
+    expect(urls).toContain(`http://localhost:3400/lease/${lease}`);
+  });
+
   it("match the seeded request, facility and work-order ids (lighthouse/resident-r2.json, technician.json)", async () => {
     const { readFileSync } = await import("node:fs");
     const read = (set: string) =>
@@ -752,5 +766,74 @@ describe("api 0428349 — LIFF #29–#31 (F8, D-228)", () => {
     expect(await heard(otherMe.user.id, () => other.call("POST", "/v1/resident/__mock/link-requests/confirm"))).toEqual(
       ["party.link_changed"],
     );
+  });
+});
+
+describe("contract library documents and renewal offers (GL3, D-294)", () => {
+  const PNG = "iVBORw0KGgo" + "A".repeat(100);
+
+  it("lists the addendum to sign, signs it with the OTP and the PDF hash, and refuses a changed document", async () => {
+    const b = browser();
+    await b.signIn("Umock-contracts-gl3a");
+    const list = await b.call("GET", "/v1/resident/contracts");
+    const contracts = (list.body as { data: { id: string; kind: string; state: string; nextActions: string[] }[] })
+      .data;
+    const addendum = contracts.find((c) => c.kind === "addendum")!;
+    expect(addendum).toMatchObject({ state: "pending_signature", nextActions: ["sign", "download"] });
+    expect(contracts.find((c) => c.kind === "reservation")).toMatchObject({ state: "signed" });
+    const path = `/v1/resident/contracts/${addendum.id}`;
+    const document = (await b.call("GET", `${path}/document`)).body as { sha256: string };
+    const otp = (await b.call("POST", `${path}/signature/otp`, { language: "th" })).body as { challengeId: string };
+    const sign = (sha: string, key: string) =>
+      b.call(
+        "POST",
+        `${path}/sign`,
+        { challengeId: otp.challengeId, code: SIGNATURE_OTP, contractSha256: sha, signaturePng: PNG },
+        { "idempotency-key": key },
+      );
+    expect((await sign("0".repeat(64), crypto.randomUUID())).body).toMatchObject({ code: "contract.changed" });
+    const signed = await sign(document.sha256, crypto.randomUUID());
+    expect(signed.status).toBe(200);
+    expect(signed.body).toMatchObject({ state: "signed", nextActions: ["download"] });
+  });
+
+  it("accepts an offer into a renewal lease to sign; declining records the notice to the end date", async () => {
+    const accepting = browser();
+    await accepting.signIn("Umock-renewal-gl3b");
+    const [offer] = ((await accepting.call("GET", "/v1/resident/renewal-offers")).body as { data: { id: string }[] })
+      .data;
+    const accepted = await accepting.call(
+      "POST",
+      `/v1/resident/renewal-offers/${offer!.id}/actions/accept`,
+      undefined,
+      {
+        "idempotency-key": crypto.randomUUID(),
+      },
+    );
+    expect(accepted.body).toMatchObject({ state: "accepted" });
+    const lease = await accepting.call("GET", `/v1/resident/leases/${String(accepted.body!.newLeaseId)}`);
+    expect(lease.body).toMatchObject({ status: "pending_signature", rent: "15500.00" });
+
+    const declining = browser();
+    await declining.signIn("Umock-renewal-gl3c");
+    const [open] = (
+      (await declining.call("GET", "/v1/resident/renewal-offers")).body as {
+        data: { id: string; leaseId: string }[];
+      }
+    ).data;
+    const declined = await declining.call(
+      "POST",
+      `/v1/resident/renewal-offers/${open!.id}/actions/decline`,
+      { reason: "ย้ายงาน" },
+      { "idempotency-key": crypto.randomUUID() },
+    );
+    expect(declined.body).toMatchObject({ state: "declined", declineReason: "ย้ายงาน" });
+    const after = (await declining.call("GET", `/v1/resident/leases/${open!.leaseId}`)).body as {
+      status: string;
+      endDate: string;
+      notice: { effectiveDate: string };
+    };
+    expect(after.status).toBe("notice_given");
+    expect(after.notice.effectiveDate).toBe(after.endDate);
   });
 });

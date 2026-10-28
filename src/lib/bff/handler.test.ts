@@ -500,6 +500,19 @@ describe("body limits per route (review H1, the API's own limits)", () => {
     expect(calls).toHaveLength(1);
   });
 
+  it("lets a 200 KB signature PNG through to POST /v1/resident/contracts/{id}/sign too (GL3, D-294)", async () => {
+    const { handler, calls } = setup(() => json({ id: "c1" }));
+    const response = await handler(
+      req("/v1/resident/contracts/c1/sign", {
+        method: "POST",
+        body: JSON.stringify({ challengeId: "c", code: "123456", signaturePng: "A".repeat(273 * 1024) }),
+        cookies: { "__Host-gp_at": freshAccess },
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(calls).toHaveLength(1);
+  });
+
   it("keeps the 256 KiB default everywhere else", async () => {
     const { handler, upstream } = setup(() => json({}));
     const response = await handler(

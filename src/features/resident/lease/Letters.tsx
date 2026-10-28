@@ -4,9 +4,11 @@ import Link from "next/link";
 import { formatDate, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import type { Schemas } from "@/lib/api/types";
+import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
+import { IconForward } from "@/ui/icons/glyphs/forward";
 
 type Notice = Schemas["LeaseNoticeDto"];
 
@@ -59,14 +61,18 @@ export async function LetterView({
   tenantName,
   locale,
   documentButton,
+  renewalOfferId,
 }: {
   leaseId: string;
   notice: Notice;
   tenantName: string;
   locale: Locale;
   documentButton: React.ReactNode;
+  /** GL3 (D-294): the offer this `renewal_offer` letter belongs to — answered in the app. */
+  renewalOfferId?: string;
 }) {
   const t = await getTranslations("resident.lease.letters");
+  const contracts = await getTranslations("resident.contracts.renewal");
   const date = (value: string) => formatDate(value, locale);
   const money = (value: string) => formatTHB(value, locale);
   return (
@@ -109,6 +115,13 @@ export async function LetterView({
           </p>
         ) : null}
       </Card>
+      {renewalOfferId ? (
+        <Button asChild size="lg" block iconEnd={IconForward}>
+          <Link href={`/renewals/${renewalOfferId}`} data-testid="letter-renewal-offer">
+            {contracts("fromLetter")}
+          </Link>
+        </Button>
+      ) : null}
       {documentButton}
       <p className="text-muted text-sm">{t(`after.${notice.kind}`)}</p>
       {notice.kind === "late_payment" ? (

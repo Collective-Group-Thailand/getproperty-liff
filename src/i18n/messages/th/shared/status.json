@@ -123,5 +123,18 @@
   "inspection": {
     "completed": "รอคุณลงนาม",
     "signed": "ลงนามครบ"
+  },
+  "contract": {
+    "draft": "ร่าง",
+    "pending_signature": "รอลงนาม",
+    "signed": "ลงนามแล้ว",
+    "cancelled": "ยกเลิกแล้ว"
+  },
+  "renewal": {
+    "offered": "รอคุณตอบ",
+    "accepted": "ตอบรับแล้ว",
+    "declined": "ปฏิเสธแล้ว",
+    "expired": "หมดอายุ",
+    "withdrawn": "ถอนข้อเสนอแล้ว"
   }
 }

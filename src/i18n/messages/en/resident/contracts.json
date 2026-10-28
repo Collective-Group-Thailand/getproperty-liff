@@ -1,0 +1,197 @@
+{
+  "back": {
+    "home": "Home",
+    "list": "Contracts and offers",
+    "lease": "Lease",
+    "document": "Document"
+  },
+  "kind": {
+    "reservation": "Reservation agreement",
+    "brokerage_mandate": "Brokerage agreement",
+    "co_broke": "Co-brokerage agreement",
+    "addendum": "Lease addendum"
+  },
+  "list": {
+    "title": "Contracts and offers",
+    "lead": "Documents to sign, documents you signed, and offers to renew your lease",
+    "emptyTitle": "Nothing here yet",
+    "emptyBody": "When your landlord sends you a document to sign or an offer to renew, it appears here",
+    "openOffers": "Offers to renew",
+    "toSign": "Waiting for your signature",
+    "others": "Your documents",
+    "pastOffers": "Earlier offers",
+    "yourSignature": "Sign now",
+    "number": "No. {number}",
+    "sentOn": "sent {date}"
+  },
+  "legal": {
+    "pendingTitle": "Draft — legal review still pending",
+    "pendingBody": "This document is made from a sample in getproperty's contract library. A lawyer has not reviewed this version yet. Read it carefully and ask your landlord if anything is unclear.",
+    "reviewedTitle": "Template reviewed by legal counsel",
+    "reviewedBody": "Legal counsel reviewed the template version this document uses. It is still not legal advice for your situation."
+  },
+  "terms": {
+    "fee": "Reservation fee",
+    "rent": "Monthly rent",
+    "perMonth": "{amount} / month",
+    "moveInDate": "Move-in date",
+    "expiresOn": "Held until",
+    "effectiveDate": "Applies from",
+    "refundTerms": "Refund terms",
+    "clauses": "Added clauses",
+    "note": "Further terms"
+  },
+  "signers": {
+    "title": "Who signs",
+    "signed": "signed {date}",
+    "notSigned": "not signed yet",
+    "role": {
+      "lessor": "Landlord",
+      "lessee": "Lessee",
+      "co_tenant": "Co-resident",
+      "prospect": "Future resident",
+      "owner": "Owner",
+      "agency": "Agency",
+      "co_agency": "Partner agency"
+    }
+  },
+  "detail": {
+    "open": "Open the document (PDF)",
+    "openSigned": "Open the signed document (PDF)",
+    "signTitle": "Your signature is needed",
+    "signBody": "Read the document and sign it here with a code sent to your phone",
+    "signCta": "Read and sign",
+    "waitingTitle": "Waiting for the other signatures",
+    "waitingBody": "You have signed. The document is complete when everyone has signed — you will get a LINE message",
+    "signedTitle": "Signed by everyone",
+    "signedBody": "The signed copy is kept as evidence. Open it any time below",
+    "termsTitle": "What it says",
+    "pdfBinding": "This is a summary. The full document (PDF) is the binding text"
+  },
+  "sign": {
+    "pageTitle": "Sign the document",
+    "progress": "Step {step} of {total}",
+    "back": "Back",
+    "unavailableTitle": "Nothing to sign",
+    "unavailableBody": "This document cannot be signed right now. Contact your landlord",
+    "alreadySigned": "You have already signed this document",
+    "read": {
+      "title": "Read the document",
+      "lead": "Scroll to the end before you sign. The full document (PDF) is the binding text",
+      "region": "Document to read",
+      "binding": "The PDF holds every clause and is what you sign; its fingerprint is kept with your signature",
+      "end": "End of the summary",
+      "openPdf": "Read the full document (PDF)",
+      "scrollHint": "Scroll the document above to the end to continue",
+      "confirm": "I have read the whole document and agree to it",
+      "next": "Continue to signature"
+    },
+    "draw": {
+      "title": "Your signature",
+      "lead": "Sign inside the box with your finger",
+      "label": "Your signature",
+      "placeholder": "Sign here",
+      "clear": "Clear",
+      "undo": "Undo",
+      "upload": "Use a photo of my signature",
+      "tooLarge": "This picture is too large. Draw your signature or choose a smaller photo",
+      "uploadHint": "Can't draw? Use a photo or scan of your signature instead",
+      "next": "Continue"
+    },
+    "otp": {
+      "title": "Confirm with the SMS code",
+      "lead": "We sent a 6-digit code to {phone}",
+      "sending": "Sending a code to your phone…",
+      "digit": "Digit {index}",
+      "wrong": "{count, plural, =0 {Wrong code. No tries left — ask for a new code} one {Wrong code. # try left} other {Wrong code. # tries left}}",
+      "submit": "Sign the document",
+      "resend": "Send a new code",
+      "resendIn": "Send a new code in {seconds} s"
+    },
+    "done": {
+      "title": "Document signed",
+      "completeTitle": "Signed by everyone",
+      "completeBody": "The document is complete. The signed copy is kept as evidence",
+      "waitingTitle": "Signed — waiting for the others",
+      "waitingBody": "The document is complete when everyone has signed. You will get a LINE message",
+      "hashTitle": "Document fingerprint",
+      "hashBody": "The SHA-256 of the exact document you signed, kept as evidence",
+      "back": "Back to the document"
+    }
+  },
+  "renewal": {
+    "title": "Offer to renew your lease",
+    "subtitle": "Unit {unit} · {building} · managed by {operator}",
+    "lead": "Your landlord offers to renew your lease on these terms. Answer here before the date shown.",
+    "termsTitle": "The offer",
+    "offeredRent": "New monthly rent",
+    "currentRent": "Current rent",
+    "perMonth": "{amount} / month",
+    "months": "New term",
+    "monthsValue": "{months, plural, one {# month} other {# months}}",
+    "startDate": "New lease starts",
+    "currentEnd": "Current lease ends",
+    "respondBy": "Answer by",
+    "message": "Message from your landlord",
+    "letter": "Read the landlord's letter",
+    "termsSentence": "{amount} a month for {months, plural, one {# month} other {# months}} from {start}",
+    "cardTitle": "Offer to renew",
+    "cardTerms": "{amount} / month · {months, plural, one {# month} other {# months}} from {start}",
+    "answerBy": "Answer by {date}",
+    "leaseTitle": "Your landlord offers to renew",
+    "leaseBody": "{amount} a month for {months, plural, one {# month} other {# months}}. Answer by {date}.",
+    "leaseCta": "See the offer",
+    "fromLetter": "Answer the offer in the app",
+    "accept": {
+      "cta": "Accept and renew",
+      "title": "Renew your lease?",
+      "body": "{terms}. The new lease comes to you to read and sign right away.",
+      "confirm": "Accept",
+      "cancel": "Not now"
+    },
+    "decline": {
+      "cta": "Decline the offer",
+      "title": "Decline the offer",
+      "consequence": "If you decline, your lease ends on {end}. When 30 days or more are left, your answer is recorded as your notice to move out on that date, and the move-out inspection and deposit refund follow. With fewer days left, the lease simply ends on that date.",
+      "consequenceNoDate": "If you decline, your lease ends on its end date. When 30 days or more are left, your answer is recorded as your notice to move out on that date, and the move-out inspection and deposit refund follow.",
+      "reason": "Reason (optional)",
+      "reasonHint": "Your landlord sees this",
+      "confirm": "Decline and give notice",
+      "keep": "Keep the offer"
+    },
+    "accepted": {
+      "title": "You accepted the offer",
+      "body": "Accepted on {date}. Read and sign the new lease to complete the renewal; your deposit carries over.",
+      "bodyNoDate": "Read and sign the new lease to complete the renewal; your deposit carries over.",
+      "signCta": "Read and sign the new lease"
+    },
+    "declined": {
+      "title": "You declined the offer",
+      "notice": "Your notice is recorded: you move out on {date}. Your landlord will contact you about the move-out inspection and your deposit.",
+      "ends": "Your lease ends on {date}.",
+      "noLease": "Your landlord has been told.",
+      "reason": "Your reason: {reason}",
+      "toLease": "See the lease"
+    },
+    "expired": {
+      "title": "This offer has expired",
+      "body": "The date to answer has passed. Contact your landlord if you still want to renew."
+    },
+    "withdrawn": {
+      "title": "Your landlord withdrew this offer",
+      "body": "Nothing changes on your current lease. Contact your landlord with any questions."
+    }
+  },
+  "lease": {
+    "title": "Documents on this lease",
+    "all": "All my contracts and offers"
+  },
+  "home": {
+    "renewalTitle": "Your landlord offers to renew your lease",
+    "renewalBody": "{amount} a month for {months, plural, one {# month} other {# months}} — answer by {date}",
+    "renewalCta": "See the offer",
+    "signTitle": "Documents waiting for your signature",
+    "signBody": "{count, plural, one {# document to read and sign} other {# documents to read and sign}}",
+    "signCta": "Read and sign"
+  }
+}

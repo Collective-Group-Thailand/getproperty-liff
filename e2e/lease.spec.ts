@@ -124,6 +124,8 @@ test.describe("lease and e-signature (D-062)", () => {
     await page.goto("/lease");
     const form = page.getByTestId("rules-form");
     await expect(form.getByTestId("rules-submit")).toBeDisabled();
+    // The rules sit below the lease terms; their checkbox loads as the resident scrolls to them (D-179 budget, GL3).
+    await form.scrollIntoViewIfNeeded();
     await form.getByRole("checkbox", { name: "ฉันอ่านระเบียบอาคารแล้ว" }).click();
     await form.getByTestId("rules-submit").click();
     await expect(page.getByTestId("rules-acknowledged")).toBeVisible();

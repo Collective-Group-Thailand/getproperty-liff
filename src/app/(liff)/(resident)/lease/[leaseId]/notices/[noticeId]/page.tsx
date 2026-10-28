@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { loadRenewalOffers } from "@/features/resident/contracts/data";
 import { loadLease, loadNotices, pageLocale } from "@/features/resident/lease/data";
 import { LetterView } from "@/features/resident/lease/Letters";
 import { NoticeDocumentButton } from "@/features/resident/lease/NoticeDocumentButton";
@@ -24,6 +25,11 @@ export default async function LetterPage({ params }: { params: Promise<{ leaseId
   ]);
   const error = lease.error ?? notices.error;
   const notice = notices.data?.find((candidate) => candidate.id === noticeId);
+  // GL3 (D-294): a renewal-offer letter leads to the offer, answered in the app. Optional — a failure hides the button.
+  const offer =
+    notice?.kind === "renewal_offer"
+      ? (await loadRenewalOffers()).data?.find((candidate) => candidate.noticeId === notice.id)
+      : undefined;
   if (!error && !notice) notFound();
   return (
     <ResidentShell active={null}>
@@ -37,6 +43,7 @@ export default async function LetterPage({ params }: { params: Promise<{ leaseId
           tenantName={lease.data.tenantName}
           locale={locale}
           documentButton={<NoticeDocumentButton leaseId={leaseId} noticeId={notice.id} />}
+          renewalOfferId={offer?.id}
         />
       )}
     </ResidentShell>

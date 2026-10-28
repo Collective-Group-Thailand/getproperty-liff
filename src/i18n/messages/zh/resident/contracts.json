@@ -1,0 +1,197 @@
+{
+  "back": {
+    "home": "首页",
+    "list": "合同与续约",
+    "lease": "租约",
+    "document": "文件"
+  },
+  "kind": {
+    "reservation": "订房协议",
+    "brokerage_mandate": "中介委托协议",
+    "co_broke": "联合中介协议",
+    "addendum": "租约补充协议"
+  },
+  "list": {
+    "title": "合同与续约",
+    "lead": "待签署的文件、已签署的文件以及续租邀约",
+    "emptyTitle": "暂无内容",
+    "emptyBody": "房东发送待签文件或续租邀约后，会显示在这里",
+    "openOffers": "续租邀约",
+    "toSign": "等待您签署",
+    "others": "您的文件",
+    "pastOffers": "以往邀约",
+    "yourSignature": "立即签署",
+    "number": "编号 {number}",
+    "sentOn": "发送于 {date}"
+  },
+  "legal": {
+    "pendingTitle": "草稿——尚待法律审核",
+    "pendingBody": "本文件根据 getproperty 合同库中的范本制作，此版本尚未经律师审核。请仔细阅读，如有疑问请询问房东。",
+    "reviewedTitle": "范本已经法律顾问审核",
+    "reviewedBody": "法律顾问已审核本文件所用的范本版本，但这仍不构成针对您个人情况的法律意见。"
+  },
+  "terms": {
+    "fee": "订金",
+    "rent": "月租金",
+    "perMonth": "{amount} / 月",
+    "moveInDate": "入住日期",
+    "expiresOn": "保留至",
+    "effectiveDate": "生效日期",
+    "refundTerms": "退款条款",
+    "clauses": "新增条款",
+    "note": "其他条款"
+  },
+  "signers": {
+    "title": "签署人",
+    "signed": "已于 {date} 签署",
+    "notSigned": "尚未签署",
+    "role": {
+      "lessor": "出租人",
+      "lessee": "承租人",
+      "co_tenant": "共同居住人",
+      "prospect": "准租客",
+      "owner": "业主",
+      "agency": "中介",
+      "co_agency": "合作中介"
+    }
+  },
+  "detail": {
+    "open": "打开文件（PDF）",
+    "openSigned": "打开已签署文件（PDF）",
+    "signTitle": "需要您的签名",
+    "signBody": "在此阅读文件，并用发送到您手机的验证码签署",
+    "signCta": "阅读并签署",
+    "waitingTitle": "等待其他人签署",
+    "waitingBody": "您已签署。所有人签署后文件即完成——您会收到 LINE 消息",
+    "signedTitle": "所有人已签署",
+    "signedBody": "已签署的副本作为证据保存，可随时在下方打开",
+    "termsTitle": "主要内容",
+    "pdfBinding": "以上为摘要，完整文件（PDF）为具有约束力的文本"
+  },
+  "sign": {
+    "pageTitle": "签署文件",
+    "unavailableTitle": "没有需要签署的文件",
+    "unavailableBody": "目前无法签署此文件，请联系房东",
+    "alreadySigned": "您已签署此文件",
+    "read": {
+      "title": "阅读文件",
+      "lead": "签署前请滚动到文件末尾。完整文件（PDF）为具有约束力的文本",
+      "region": "需要阅读的文件",
+      "binding": "PDF 包含全部条款，即您签署的文本；其指纹与您的签名一起保存",
+      "end": "摘要结束",
+      "openPdf": "阅读完整文件（PDF）",
+      "scrollHint": "请将上方文件滚动到底部以继续",
+      "confirm": "我已阅读全部文件并同意",
+      "next": "继续签名"
+    },
+    "otp": {
+      "title": "用短信验证码确认",
+      "lead": "我们已向 {phone} 发送 6 位验证码",
+      "sending": "正在向您的手机发送验证码…",
+      "digit": "第 {index} 位",
+      "wrong": "{count, plural, =0 {验证码错误，已无剩余次数——请重新获取验证码} other {验证码错误，还剩 # 次}}",
+      "submit": "签署文件",
+      "resend": "重新发送验证码",
+      "resendIn": "{seconds} 秒后可重新发送"
+    },
+    "done": {
+      "title": "文件已签署",
+      "completeTitle": "所有人已签署",
+      "completeBody": "文件已完成，已签署的副本作为证据保存",
+      "waitingTitle": "已签署——等待其他人",
+      "waitingBody": "所有人签署后文件即完成，您会收到 LINE 消息",
+      "hashTitle": "文件指纹",
+      "hashBody": "您所签署文件的 SHA-256 值，作为证据保存",
+      "back": "返回文件"
+    },
+    "progress": "第 {step} 步，共 {total} 步",
+    "back": "返回",
+    "draw": {
+      "title": "您的签名",
+      "lead": "用手指在框内签名",
+      "label": "您的签名",
+      "placeholder": "在此签名",
+      "clear": "清除",
+      "undo": "撤销",
+      "upload": "使用我的签名照片",
+      "tooLarge": "图片太大。请手写签名或选择更小的照片",
+      "uploadHint": "无法手写？改用签名的照片或扫描件",
+      "next": "继续"
+    }
+  },
+  "renewal": {
+    "title": "续租邀约",
+    "subtitle": "房间 {unit} · {building} · 由 {operator} 管理",
+    "lead": "房东按以下条件邀请您续租。请在规定日期前在此答复。",
+    "termsTitle": "邀约内容",
+    "offeredRent": "新月租金",
+    "currentRent": "当前租金",
+    "perMonth": "{amount} / 月",
+    "months": "新租期",
+    "monthsValue": "{months} 个月",
+    "startDate": "新租约开始",
+    "currentEnd": "当前租约结束",
+    "respondBy": "答复截止",
+    "message": "房东留言",
+    "letter": "阅读房东的信函",
+    "termsSentence": "自 {start} 起每月 {amount}，为期 {months} 个月",
+    "cardTitle": "续租邀约",
+    "cardTerms": "{amount} / 月 · {months} 个月，自 {start} 起",
+    "answerBy": "请于 {date} 前答复",
+    "leaseTitle": "房东邀请您续租",
+    "leaseBody": "每月 {amount}，为期 {months} 个月。请于 {date} 前答复。",
+    "leaseCta": "查看邀约",
+    "fromLetter": "在应用中答复邀约",
+    "accept": {
+      "cta": "接受并续租",
+      "title": "续租吗？",
+      "body": "{terms}。新租约会立即发送给您阅读并签署。",
+      "confirm": "接受",
+      "cancel": "暂不"
+    },
+    "decline": {
+      "cta": "拒绝邀约",
+      "title": "拒绝邀约",
+      "consequence": "如果拒绝，您的租约将于 {end} 结束。若剩余 30 天或以上，您的答复将记录为在该日搬出的通知，随后进行退房检查和押金退还；若不足 30 天，租约将在该日正常结束。",
+      "consequenceNoDate": "如果拒绝，您的租约将在约定的结束日期结束。若剩余 30 天或以上，您的答复将记录为在该日搬出的通知，随后进行退房检查和押金退还。",
+      "reason": "原因（可选）",
+      "reasonHint": "房东可以看到此内容",
+      "confirm": "拒绝并通知搬出",
+      "keep": "保留邀约"
+    },
+    "accepted": {
+      "title": "您已接受邀约",
+      "body": "已于 {date} 接受。请阅读并签署新租约以完成续租；押金将转入新租约。",
+      "bodyNoDate": "请阅读并签署新租约以完成续租；押金将转入新租约。",
+      "signCta": "阅读并签署新租约"
+    },
+    "declined": {
+      "title": "您已拒绝邀约",
+      "notice": "已记录您的搬出通知：您将于 {date} 搬出。房东会就退房检查和押金与您联系。",
+      "ends": "您的租约于 {date} 结束。",
+      "noLease": "已通知房东。",
+      "reason": "您的原因：{reason}",
+      "toLease": "查看租约"
+    },
+    "expired": {
+      "title": "此邀约已过期",
+      "body": "答复日期已过。如仍想续租，请联系房东。"
+    },
+    "withdrawn": {
+      "title": "房东已撤回此邀约",
+      "body": "您当前的租约不变。如有疑问请联系房东。"
+    }
+  },
+  "lease": {
+    "title": "此租约的文件",
+    "all": "我的全部合同与邀约"
+  },
+  "home": {
+    "renewalTitle": "房东邀请您续租",
+    "renewalBody": "每月 {amount}，为期 {months} 个月——请于 {date} 前答复",
+    "renewalCta": "查看邀约",
+    "signTitle": "等待您签署的文件",
+    "signBody": "{count, plural, other {# 份文件待阅读和签署}}",
+    "signCta": "阅读并签署"
+  }
+}

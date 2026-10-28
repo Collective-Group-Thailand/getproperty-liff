@@ -7,9 +7,9 @@ import { useState } from "react";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { LazyCheckbox, WhenNear } from "@/features/shared/WhenNear";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
-import { Checkbox } from "@/ui/components/Checkbox";
 
 /**
  * Building rules acknowledgement (L3 3.1 §3): the resident ticks that they read the rules above and confirms —
@@ -56,7 +56,10 @@ export function RulesAcknowledge({ leaseId, acknowledgedOn }: { leaseId: string;
       }}
     >
       <Callout tone="neutral">{t("lead")}</Callout>
-      <Checkbox label={t("checkbox")} checked={read} onCheckedChange={(checked) => setRead(checked === true)} />
+      {/* Below the lease terms: the checkbox loads as the form comes near (the page is at its budget, D-179). */}
+      <WhenNear>
+        <LazyCheckbox label={t("checkbox")} checked={read} onCheckedChange={(checked) => setRead(checked === true)} />
+      </WhenNear>
       {error ? <ProblemCallout error={error} /> : null}
       <Button type="submit" size="lg" block disabled={!read} loading={busy} data-testid="rules-submit">
         {t("submit")}

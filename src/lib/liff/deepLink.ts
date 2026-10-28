@@ -33,6 +33,10 @@ export const DEEP_LINK_ROOTS = [
   "rent",
   // L5 5.3: a landlord's quick actions (`/landlord`, `/landlord/leads/<id>`), D-251.
   "landlord",
+  // GL3 (D-294): a document of the contract library to sign (`/contracts/<id>`, the API's LINE message) and an offer
+  // to renew (`/renewals/<id>`).
+  "contracts",
+  "renewals",
   // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
   "link",
   "consent",

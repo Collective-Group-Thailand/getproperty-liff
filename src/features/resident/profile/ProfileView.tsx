@@ -16,7 +16,6 @@ import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import { DocumentButton } from "./DocumentButton";
 import { LanguagePreference } from "./LanguagePreference";
-import { NotificationPreferences } from "./NotificationPreferences";
 import { SignOutButton } from "./SignOutButton";
 
 /**
@@ -86,7 +85,27 @@ export async function ProfileView({
           {t("notifications.title")}
         </h2>
         {preferences ? (
-          <NotificationPreferences initial={preferences} />
+          <>
+            {/* A summary here; the form is its own page (/profile has no budget headroom, D-179, GL3). */}
+            <ul className="flex flex-col gap-2" role="list" data-testid="profile-notifications-summary">
+              {preferences.map((item) => {
+                const on = [item.line ? t("notifications.line") : null, item.sms ? t("notifications.sms") : null]
+                  .filter(Boolean)
+                  .join(" · ");
+                return (
+                  <li key={item.topic} className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span>{t(`notifications.topic.${item.topic}`)}</span>
+                    <span className="text-muted text-sm">{on || t("notifications.off")}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <Button asChild variant="secondary" size="lg" block iconEnd={IconForward} className="mt-3">
+              <Link href="/profile/notifications" data-testid="profile-notifications-edit">
+                {t("notifications.edit")}
+              </Link>
+            </Button>
+          </>
         ) : (
           <Callout tone="neutral">{t("notifications.unavailable")}</Callout>
         )}

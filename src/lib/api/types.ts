@@ -125,3 +125,11 @@ export type VisitorPolicy = Schemas["VisitorPolicyDto"];
 export type VisitorCodeCreate = Schemas["ResidentVisitorCodeCreateDto"];
 export type IssuedCredential = Schemas["IssuedCredentialDto"];
 export type RevealedCredentials = Schemas["RevealedCredentialsDto"];
+
+// GL3 — signable documents of the contract library and renewal offers (api G3, D-294).
+export type ResidentContract = Schemas["ContractDto"];
+export type ContractKind = Schemas["SignableContractKind"];
+export type ContractSignerRole = Schemas["ContractSignerRole"];
+export type ContractDisclaimer = Schemas["DisclaimerDto"];
+export type LegalReviewState = Schemas["LegalReviewState"];
+export type RenewalOffer = Schemas["RenewalOfferDto"];

@@ -69,6 +69,8 @@ const MIB = 1024 * 1024;
 export const BODY_LIMITS: readonly { method: string; pattern: RegExp; bytes: number }[] = [
   { method: "POST", pattern: /^\/v1\/resident\/invoices\/[^/]+\/slips$/, bytes: 7 * MIB },
   { method: "POST", pattern: /^\/v1\/resident\/leases\/[^/]+\/sign$/, bytes: 1 * MIB },
+  // GL3 (D-294): a document of the contract library signed with the same evidence as a lease.
+  { method: "POST", pattern: /^\/v1\/resident\/contracts\/[^/]+\/sign$/, bytes: 1 * MIB },
   { method: "POST", pattern: /^\/v1\/resident\/inspections\/[^/]+\/actions\/countersign$/, bytes: 1 * MIB },
 ];
 

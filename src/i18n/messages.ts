@@ -22,6 +22,7 @@ export const MESSAGE_FILES = {
   resident: [
     "auth",
     "consent",
+    "contracts",
     "deposit",
     "home",
     "invoices",

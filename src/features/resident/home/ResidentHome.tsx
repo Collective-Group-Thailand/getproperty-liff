@@ -135,6 +135,7 @@ export async function ResidentHome({
   notifications,
   today,
   vapidKey,
+  contracts,
 }: {
   me: ResidentMe;
   unit: ResidentUnit | null;
@@ -144,6 +145,8 @@ export async function ResidentHome({
   notifications: InboxItem[];
   today: string;
   vapidKey?: string;
+  /** GL3: documents to sign and an open offer to renew (`HomeContracts`), rendered by the page. */
+  contracts?: React.ReactNode;
 }) {
   const t = await getTranslations("resident.home");
   const root = await getTranslations();
@@ -186,6 +189,8 @@ export async function ResidentHome({
           </div>
         </Card>
       ) : null}
+
+      {contracts}
 
       {unit ? (
         <>

@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
+import { loadContracts, loadRenewalOffers } from "@/features/resident/contracts/data";
+import { LeaseContracts } from "@/features/resident/contracts/LeaseContracts";
 import { loadInspections, loadLease, loadNotices, pageLocale } from "@/features/resident/lease/data";
 import { InspectionList } from "@/features/resident/lease/Inspections";
 import { CERTIFICATE_LEASE_STATES, CertificateLink } from "@/features/resident/lease/Certificates";
@@ -15,16 +17,22 @@ export async function generateMetadata() {
   return { title: t("list.title") };
 }
 
-/** One lease (B2.3): terms, parties, the document, building rules, notice and the deposit link. */
+/**
+ * One lease (B2.3): terms, parties, the document, building rules, notice and the deposit link; the open offer to renew
+ * and the documents of the contract library on it (GL3).
+ */
 export default async function LeasePage({ params }: { params: Promise<{ leaseId: string }> }) {
   const { leaseId } = await params;
-  const [t, locale, lease, deposits, notices, inspections] = await Promise.all([
+  const [t, locale, lease, deposits, notices, inspections, contracts, offers] = await Promise.all([
     getTranslations("resident.lease"),
     pageLocale(),
     loadLease(leaseId),
     serverApi().then((api) => api.GET("/v1/resident/deposits")),
     loadNotices(leaseId),
     loadInspections(leaseId),
+    // GL3: optional on this page — a failure leaves the section out (the documents have their own page).
+    loadContracts(),
+    loadRenewalOffers(),
   ]);
   const depositId = deposits.data?.find((d) => d.leaseId === leaseId)?.id;
   return (
@@ -35,6 +43,12 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
       ) : (
         <>
           <LeaseView lease={lease.data} locale={locale} depositId={depositId} />
+          <LeaseContracts
+            leaseId={leaseId}
+            contracts={contracts.data ?? []}
+            offers={offers.data ?? []}
+            locale={locale}
+          />
           {notices.data ? <LetterList leaseId={leaseId} notices={notices.data} locale={locale} /> : null}
           {inspections.data ? (
             <InspectionList leaseId={leaseId} inspections={inspections.data} locale={locale} />

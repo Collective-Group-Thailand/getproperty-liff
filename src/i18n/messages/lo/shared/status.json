@@ -123,5 +123,18 @@
   "inspection": {
     "completed": "ລໍຖ້າລາຍເຊັນຂອງທ່ານ",
     "signed": "ເຊັນຄົບແລ້ວ"
+  },
+  "contract": {
+    "draft": "ຮ່າງ",
+    "pending_signature": "ລໍຖ້າລົງນາມ",
+    "signed": "ລົງນາມແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ"
+  },
+  "renewal": {
+    "offered": "ລໍຖ້າທ່ານຕອບ",
+    "accepted": "ຮັບແລ້ວ",
+    "declined": "ປະຕິເສດແລ້ວ",
+    "expired": "ໝົດອາຍຸ",
+    "withdrawn": "ຖອນແລ້ວ"
   }
 }

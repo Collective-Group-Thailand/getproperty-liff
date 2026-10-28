@@ -32,7 +32,9 @@
     "line": "LINE",
     "sms": "短信",
     "save": "保存",
-    "saved": "通知设置已保存"
+    "saved": "通知设置已保存",
+    "edit": "更改通知设置",
+    "off": "关闭"
   },
   "documents": {
     "title": "我的文件",

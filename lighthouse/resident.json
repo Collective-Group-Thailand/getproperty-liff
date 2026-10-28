@@ -14,7 +14,8 @@
         "http://localhost:3400/deposit",
         "http://localhost:3400/usage",
         "http://localhost:3400/profile",
-        "http://localhost:3400/profile/privacy"
+        "http://localhost:3400/profile/privacy",
+        "http://localhost:3400/profile/notifications"
       ],
       "numberOfRuns": 3,
       "settings": {
