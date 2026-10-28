@@ -9,6 +9,7 @@ import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
+import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconReceipt } from "@/ui/icons/glyphs/receipt";
@@ -29,6 +30,7 @@ export async function ProfileView({
   preferences,
   documents,
   identityVerified = null,
+  recommendations = null,
 }: {
   me: ResidentMe;
   locale: Locale;
@@ -36,8 +38,11 @@ export async function ProfileView({
   documents: ResidentDocument[] | null;
   /** D-267: whether I verified my identity (null when it could not be read). */
   identityVerified?: boolean | null;
+  /** GL1 (D-300): whether I receive recommended places (null when it could not be read). */
+  recommendations?: "on" | "off" | "outdated" | null;
 }) {
   const t = await getTranslations("resident.profile");
+  const rec = await getTranslations("recommendations.entry");
   return (
     <div className="flex flex-col gap-4 py-5" data-testid="profile">
       <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
@@ -159,6 +164,22 @@ export async function ProfileView({
           <span className="font-medium">{t("verification.title")}</span>
           <span className="text-muted text-sm">
             {identityVerified ? t("verification.done") : t("verification.hint")}
+          </span>
+        </span>
+        <Icon icon={IconForward} className="text-muted shrink-0" />
+      </Link>
+
+      <Link
+        href="/recommendations"
+        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-4"
+        data-testid="profile-recommendations"
+        data-state={recommendations ?? undefined}
+      >
+        <Icon icon={IconBell} className={recommendations === "on" ? "text-primary shrink-0" : "text-muted shrink-0"} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-medium">{rec("title")}</span>
+          <span className="text-muted text-sm">
+            {recommendations === "on" ? rec("on") : recommendations === null ? rec("unknown") : rec("off")}
           </span>
         </span>
         <Icon icon={IconForward} className="text-muted shrink-0" />

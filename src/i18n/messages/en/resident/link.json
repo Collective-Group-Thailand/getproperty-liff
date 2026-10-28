@@ -51,6 +51,21 @@
     "invalid": {
       "title": "This link can’t be used",
       "body": "Open the link from your landlord’s LINE chat again, or send anything there to get a new one"
+    },
+    "prospect": {
+      "title": "Get messages through the agent’s LINE",
+      "lead": "{name} has its own LINE Official Account. Link it to get its messages about your enquiries there",
+      "gains": {
+        "replies": "Replies to your questions about a place",
+        "viewings": "Confirmations and changes of your viewings"
+      },
+      "done": {
+        "body": "From now on, messages about your enquiries come from {name}",
+        "home": "Back to my enquiries"
+      },
+      "taken": {
+        "body": "The LINE account that follows {name} is linked to someone else. Ask {name} to fix it"
+      }
     }
   }
 }

@@ -283,3 +283,19 @@ the phone OTP form loads only for a prospect without a verified phone; the door-
 |---|---|---|---|
 | `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` (self viewing, window open) | 176.5, 175.3, 179.6 KB | 180 KB |
 | other sets | as in the GL3 table | unchanged (±0.1 KB) | 180 KB |
+
+### GL1 recommended places (2026-10-29, `pnpm lhci recommendations resident` in the sandbox with `CHROME_PATH` = Playwright Chromium; both sets pass)
+
+New set `lighthouse/recommendations.json` (resident and prospect cookies together: `/recommendations` renders for
+the resident, `/rent/recommendations` for the prospect; subjects `adsseen` have a sent history). The screen is
+server-rendered (status, consent text, limits, history); only the one-tap withdraw is client code on the first load,
+and the preferences form (inputs, area search, the Radix consent checkbox) loads as it comes near the screen
+(`LazyPreferencesForm` + `WhenNear`). The profile row and the enquiries card are server markup (no script). The G4 /
+G5 / G8 contract growth did not move the resident pages.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `recommendations` | `/recommendations`, `/recommendations/history`, `/rent/recommendations`, `/rent/enquiries` | 172.8, 172.8, 172.8, 169.2 KB | 180 KB |
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 172.7, 172.6, 175.0, 174.9, 173.7, 175.8, 176.6, 179.6, 175.7 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy`, `/profile/notifications` | 175.4, 175.8, 178.7 KB | 180 KB |
+| other sets | not re-run (no shared code changed for them) | as in the GL2 table | 180 KB |

@@ -13,6 +13,7 @@ import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
 import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconCalendar } from "@/ui/icons/glyphs/calendar";
 import { IconChat } from "@/ui/icons/glyphs/chat";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconLink } from "@/ui/icons/glyphs/link";
@@ -30,24 +31,38 @@ const ENDED: Record<string, "used" | "expired" | "taken"> = {
 /**
  * One tap to receive an operator's messages through its own LINE OA (D-254). The resident sees who asks (the
  * operator and the OA's name and picture) and what moves there; a used or expired link says what to do instead.
- * Nothing is linked by opening the page (`POST /v1/resident/messaging-links/{token}/actions/confirm`).
+ * Nothing is linked by opening the page (`POST /v1/resident/messaging-links/{token}/actions/confirm`). A prospect (an
+ * estate agency's OA, G4) confirms through `/v1/prospect/messaging-links/{token}/actions/confirm` and goes back to
+ * their enquiries.
  */
-export function OaLinkConfirm({ token, link }: { token: string; link: Link }) {
+export function OaLinkConfirm({
+  token,
+  link,
+  audience = "resident",
+}: {
+  token: string;
+  link: Link;
+  audience?: "resident" | "prospect";
+}) {
   const t = useTranslations("resident.link.oa");
   const router = useRouter();
   const [state, setState] = useState<Link["state"] | "linked" | "taken">(link.state);
   const [error, setError] = useState<ApiError | null>(null);
   const [busy, setBusy] = useState(false);
   const oaName = link.botName ?? link.tenantName;
+  // A prospect reads about enquiries and viewings, not bills and repairs (G4: an estate agency's OA).
+  const copy = (key: "title" | "lead" | "done.body" | "done.home" | "taken.body") =>
+    audience === "prospect" ? `prospect.${key}` : key;
 
   async function confirm() {
     setError(null);
     setBusy(true);
     try {
+      const params = { params: { path: { token } } };
       unwrap(
-        await browserApi.POST("/v1/resident/messaging-links/{token}/actions/confirm", {
-          params: { path: { token } },
-        }),
+        audience === "prospect"
+          ? await browserApi.POST("/v1/prospect/messaging-links/{token}/actions/confirm", params)
+          : await browserApi.POST("/v1/resident/messaging-links/{token}/actions/confirm", params),
       );
       setState("linked");
     } catch (caught) {
@@ -82,7 +97,7 @@ export function OaLinkConfirm({ token, link }: { token: string; link: Link }) {
     return (
       <div className="flex flex-col gap-5 py-6" data-testid="oa-link-done">
         <Callout tone="success" title={t("done.title")}>
-          {t("done.body", { name: oaName })}
+          {t(copy("done.body"), { name: oaName })}
         </Callout>
         {header}
         <Button
@@ -90,12 +105,12 @@ export function OaLinkConfirm({ token, link }: { token: string; link: Link }) {
           block
           iconEnd={IconForward}
           onClick={() => {
-            router.replace("/");
+            router.replace(audience === "prospect" ? "/rent/enquiries" : "/");
             router.refresh();
           }}
           data-testid="oa-link-home"
         >
-          {t("done.home")}
+          {t(copy("done.home"))}
         </Button>
       </div>
     );
@@ -105,24 +120,30 @@ export function OaLinkConfirm({ token, link }: { token: string; link: Link }) {
     return (
       <div className="flex flex-col gap-5 py-6" data-testid="oa-link-ended" data-state={state}>
         <Callout tone="warning" title={t(`${state}.title`)}>
-          {t(`${state}.body`, { name: oaName })}
+          {t(state === "taken" ? copy("taken.body") : `${state}.body`, { name: oaName })}
         </Callout>
         {header}
       </div>
     );
   }
 
-  const gains = [
-    { icon: IconBill, text: t("gains.bills") },
-    { icon: IconWrench, text: t("gains.repairs") },
-    { icon: IconChat, text: t("gains.news") },
-  ];
+  const gains =
+    audience === "prospect"
+      ? [
+          { icon: IconChat, text: t("prospect.gains.replies") },
+          { icon: IconCalendar, text: t("prospect.gains.viewings") },
+        ]
+      : [
+          { icon: IconBill, text: t("gains.bills") },
+          { icon: IconWrench, text: t("gains.repairs") },
+          { icon: IconChat, text: t("gains.news") },
+        ];
 
   return (
-    <div className="flex flex-col gap-5 py-6" data-testid="oa-link">
+    <div className="flex flex-col gap-5 py-6" data-testid="oa-link" data-audience={audience}>
       <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted">{t("lead", { name: link.tenantName })}</p>
+        <h1 className="font-display text-2xl font-semibold">{t(copy("title"))}</h1>
+        <p className="text-muted">{t(copy("lead"), { name: link.tenantName })}</p>
       </div>
       {header}
       <ul className="flex flex-col gap-3" role="list" aria-label={t("gains.label")}>

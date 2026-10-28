@@ -65,28 +65,30 @@ export const linkHandlers: HttpHandler[] = [
 
   // ── an operator's own LINE OA (D-254): the OA replied with `/link/oa?t=…`; the resident confirms here ──
   // Mock tokens: `mock-oa-valid…` can be used once, `mock-oa-expired…`, `mock-oa-used…`, `mock-oa-taken…` (the OA
-  // user is already someone else's); anything else is unknown.
-  http.get(mswPath("/v1/resident/messaging-links/:token"), ({ request, params }) => {
-    const op = "resident.messagingLinks.get";
-    const auth = authenticate(request, "resident", op);
-    if (auth instanceof Response) return auth;
-    const link = oaLink(auth.account.userId, String(params.token));
-    return link ? HttpResponse.json(link) : problem(op, "messaging.link_invalid");
-  }),
+  // user is already someone else's); anything else is unknown. G4: prospects link an agency's OA the same way.
+  ...(["resident", "prospect"] as const).flatMap((audience) => [
+    http.get(mswPath(`/v1/${audience}/messaging-links/:token`), ({ request, params }) => {
+      const op = `${audience}.messagingLinks.get`;
+      const auth = authenticate(request, audience, op);
+      if (auth instanceof Response) return auth;
+      const link = oaLink(auth.account.userId, String(params.token));
+      return link ? HttpResponse.json(link) : problem(op, "messaging.link_invalid");
+    }),
 
-  http.post(mswPath("/v1/resident/messaging-links/:token/actions/confirm"), ({ request, params }) => {
-    const op = "resident.messagingLinks.confirm";
-    const auth = authenticate(request, "resident", op);
-    if (auth instanceof Response) return auth;
-    const token = String(params.token);
-    const link = oaLink(auth.account.userId, token);
-    if (!link) return problem(op, "messaging.link_invalid");
-    if (link.state === "used") return problem(op, "messaging.link_used");
-    if (link.state === "expired") return problem(op, "messaging.link_expired");
-    if (token.startsWith("mock-oa-taken")) return problem(op, "messaging.line_user_taken");
-    usedOaLinks.add(`${auth.account.userId}|${token}`);
-    return HttpResponse.json({ ...link, state: "used" });
-  }),
+    http.post(mswPath(`/v1/${audience}/messaging-links/:token/actions/confirm`), ({ request, params }) => {
+      const op = `${audience}.messagingLinks.confirm`;
+      const auth = authenticate(request, audience, op);
+      if (auth instanceof Response) return auth;
+      const token = String(params.token);
+      const link = oaLink(auth.account.userId, token);
+      if (!link) return problem(op, "messaging.link_invalid");
+      if (link.state === "used") return problem(op, "messaging.link_used");
+      if (link.state === "expired") return problem(op, "messaging.link_expired");
+      if (token.startsWith("mock-oa-taken")) return problem(op, "messaging.line_user_taken");
+      usedOaLinks.add(`${auth.account.userId}|${token}`);
+      return HttpResponse.json({ ...link, state: "used" });
+    }),
+  ]),
 ];
 
 /** On `globalThis` like the rest of the mock state: Next bundles the BFF and the pages separately. */
