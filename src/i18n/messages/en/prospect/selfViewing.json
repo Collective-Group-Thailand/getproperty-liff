@@ -1,0 +1,113 @@
+{
+  "title": "View on your own",
+  "back": "Listing",
+  "lead": "Visit at a time that suits you, without waiting for the owner. You open the door with a code that works only around your booked time.",
+  "existing": "Your enquiry about this place",
+  "backToBooking": "Back to self-viewing",
+  "unavailable": {
+    "title": "Self-viewing is not offered here",
+    "platform": "Viewing a room on your own is not available yet. Book a time and the owner or their agent will show you the room.",
+    "listing": "This place has no self-viewing times right now. Book a time and the owner or their agent will show you the room.",
+    "action": "Book a viewing with the owner"
+  },
+  "offer": {
+    "title": "Prefer to view on your own?",
+    "body": "This place has times you can visit alone with a door code. Verify your identity and phone once.",
+    "action": "See self-viewing times"
+  },
+  "book": {
+    "identity": {
+      "title": "Verify your identity",
+      "done": "Identity verified",
+      "body": "A licensed provider checks your ID card and a selfie. Only the result is kept.",
+      "action": "Verify my identity"
+    },
+    "phone": {
+      "title": "Confirm your phone",
+      "done": "Phone confirmed",
+      "body": "The owner can reach you during the visit. We send a 6-digit code by SMS."
+    },
+    "time": {
+      "title": "Pick a time",
+      "none": "No self-viewing times in the next two weeks. Check again later or book a viewing with the owner.",
+      "window": "Your door code works from {early} minutes before your time until {minutes} minutes after it."
+    },
+    "terms": {
+      "title": "Visitor terms",
+      "draft": "Draft",
+      "version": "Version {version}",
+      "english": "The terms are shown in English, as the landlord's platform publishes them.",
+      "accept": "I have read and accept the visitor terms (version {version})"
+    },
+    "termsChanged": {
+      "title": "The visitor terms have changed",
+      "body": "Please read the new version and accept it again before booking."
+    },
+    "requirementsChanged": "Something is still missing before you can view on your own. Check the steps above.",
+    "submit": "Request self-viewing on {time}",
+    "pick": "Pick a time",
+    "hint": {
+      "steps": "Finish steps 1 and 2 first.",
+      "owner": "The owner confirms your time. The door code then appears in your enquiry, never in a message."
+    }
+  },
+  "phone": {
+    "label": "Mobile number",
+    "hint": "We send a 6-digit code by SMS",
+    "invalid": "Enter a 10-digit Thai mobile number",
+    "send": "Send a code by SMS",
+    "sentTo": "Code sent to {phone}",
+    "digit": "Digit {index}",
+    "wrong": "Wrong code. {count, plural, =0 {Ask for a new one.} one {# try left.} other {# tries left.}}",
+    "verify": "Confirm my phone",
+    "change": "Change number",
+    "resend": "Send a new code"
+  },
+  "panel": {
+    "mode": {
+      "self": "Self-viewing",
+      "accompanied": "Shown by the owner"
+    },
+    "waiting": "The owner confirms your time first. Your door code then appears here shortly before your visit.",
+    "host": {
+      "label": "Shown by",
+      "body": "Message them here if you are running late or cannot find the place.",
+      "message": "Message {name}"
+    },
+    "left": "Thanks for visiting. The door code no longer works."
+  },
+  "access": {
+    "window": "Door code works {from}–{to}",
+    "codeTitle": "Your door code",
+    "lockReady": "Ready",
+    "lockSyncing": "Being set up",
+    "codeUntil": "Works on the unit and building doors until {to}. Do not share it.",
+    "hide": "Hide code",
+    "beforeTitle": "Not yet",
+    "before": "Your door code appears here from {from}.",
+    "show": "Show my door code",
+    "showHint": "Shown only when you tap, and only during your time. Each time is recorded for safety.",
+    "over": "Your time is over. The door code no longer works.",
+    "arrive": "I'm inside",
+    "entered": "You went in at {time}",
+    "enteredLock": "The door was opened with your code at {time}",
+    "leave": "I've left and closed the door",
+    "notYetTitle": "The code is not available now",
+    "notYet": "It works from {from} until {to}.",
+    "reported": {
+      "title": "Problem reported",
+      "body": "Sent at {time}. The owner has been alerted."
+    },
+    "report": "Report a problem",
+    "leaveTitle": "Finish your visit?",
+    "leaveBody": "Check that the door is closed. The code stops working at once and cannot be used again.",
+    "leaveConfirm": "Finish visit",
+    "leaveCancel": "Not yet",
+    "reportTitle": "Report a problem",
+    "close": "Close",
+    "reportSend": "Send to the owner",
+    "reportBody": "Tell the owner what is wrong — damage, a door that does not lock, someone inside. They are alerted at once.",
+    "reportLabel": "What is wrong?",
+    "reportPlaceholder": "For example: the bathroom tap is leaking"
+  }
+}

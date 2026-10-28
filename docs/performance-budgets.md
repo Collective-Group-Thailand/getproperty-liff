@@ -269,3 +269,17 @@ Fixes: the lease rules checkbox and the technician cost-line form and photo pick
 | `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 176.9, 179.5 KB | 180 KB |
 | `technician` | `/technician`, `/technician/work-orders/<id>` | 170.6, 176.6 KB | 180 KB |
 | `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 175.8, 173.3, 177.0, 169.2 KB | 180 KB |
+
+### GL2 self-viewing for prospects (2026-10-28, `pnpm lhci` in the sandbox with `CHROME_PATH` = Playwright Chromium; every set passes)
+
+New set `lighthouse/prospect.json` (the prospect pages had no set): first measured at 182.2 (listing, book mode),
+183.1 (self-viewing booking) and 188.2 KB (enquiry with an open door-code window). Fixes: the Radix checkbox of the
+consent, the visitor terms and the rent-record share loads near the screen (`LazyCheckbox` + `WhenNear`); the
+rent-record share panel and the enquiry write box load near the screen; the reschedule picker loads with its sheet;
+the phone OTP form loads only for a prospect without a verified phone; the door-code panel paints a light view
+(`AccessView`) and loads its actions (dialogs, attempts, the code fetch) on the first tap.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` (self viewing, window open) | 176.5, 175.3, 179.6 KB | 180 KB |
+| other sets | as in the GL3 table | unchanged (±0.1 KB) | 180 KB |

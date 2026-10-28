@@ -99,6 +99,8 @@ function seedDay(): LandlordDay {
       startsAt: bangkokIso(now + 48 * HOUR),
       endsAt: bangkokIso(now + 48.5 * HOUR),
       state: "requested",
+      mode: "accompanied",
+      access: null,
       note: null,
       reason: null,
       rescheduledTo: null,

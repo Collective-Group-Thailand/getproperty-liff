@@ -19,6 +19,7 @@ import { SERVICE_REQUEST_STATUS } from "./serviceRequest";
 import { SETTLEMENT_STATUS } from "./settlement";
 import { SLIP_STATUS } from "./slip";
 import { VIEWING_STATUS } from "./viewing";
+import { VIEWING_ACCESS_STATUS } from "./viewingAccess";
 import { WORK_ORDER_STATUS } from "./workOrder";
 
 const MAPS = {
@@ -41,6 +42,7 @@ const MAPS = {
   inspection: INSPECTION_STATUS,
   contract: CONTRACT_STATUS,
   renewal: RENEWAL_STATUS,
+  viewingAccess: VIEWING_ACCESS_STATUS,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {

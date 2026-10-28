@@ -1,0 +1,55 @@
+{
+  "extends": "./shared.json",
+  "$comment": "GL2 self-viewing for prospects (D-295): a listing in book mode with the self-viewing offer, the self-viewing booking page (steps, self slots, visitor terms) and the enquiry of a confirmed self viewing whose door-code window is open (the access panel loads lazily). Mock prospect `selfview` (verified, self-viewing on through gp_mock). Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/rent/condo-1br-a1b2c3d4e5?mode=book",
+        "http://localhost:3400/rent/condo-1br-a1b2c3d4e5/self-viewing",
+        "http://localhost:3400/rent/enquiries/ccc3b798-fa3b-4ca5-84ef-e5cd630b6b46"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_prt=mock-rt.seed-prospect.Ulighthouse-prospect-selfview; gp_mock=viewing.self%3Don"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

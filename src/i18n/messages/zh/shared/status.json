@@ -136,5 +136,13 @@
     "declined": "已拒绝",
     "expired": "已过期",
     "withdrawn": "已撤回"
+  },
+  "viewingAccess": {
+    "issued": "密码已备好，按预约时间使用",
+    "entered": "已在房内",
+    "exited": "已离开",
+    "expired": "密码已过期",
+    "no_show": "未到访",
+    "cancelled": "密码已关闭"
   }
 }

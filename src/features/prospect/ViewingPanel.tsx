@@ -2,29 +2,42 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { VIEWING_STATUS } from "@/domain/status/viewing";
+import { VIEWING_ACCESS_STATUS } from "@/domain/status/viewingAccess";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDateTime, formatTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import { openExternal } from "@/lib/liff/client";
-import { StatusBadge } from "@/ui/components/Badge";
+import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { LazyAlertDialog, LazySheet } from "@/ui/components/overlays";
 import { Spinner } from "@/ui/components/Spinner";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
+import { IconChat } from "@/ui/icons/glyphs/chat";
 import { IconExternal } from "@/ui/icons/glyphs/external";
+import { IconKey } from "@/ui/icons/glyphs/key";
+import { IconResident } from "@/ui/icons/glyphs/resident";
 
 import { liveViewing, type Enquiry, type Slot } from "./model";
-import { SlotPicker } from "./SlotPicker";
+import { LazySelfViewingAccess } from "./selfViewing/LazySelfViewingAccess";
+import { slotsOfMode } from "./selfViewing/model";
+import { lazyWarm } from "@/ui/lib/lazy";
+
+/** The picker is only needed in the change-time sheet: loaded with it (D-179, GL2). */
+const SlotPicker = lazyWarm(() => import("./SlotPicker").then((m) => m.SlotPicker));
 
 /**
  * The viewing of an enquiry (L5 5.1 §2): when, whether the owner confirmed, and what I can do before it — change the
  * time (a sheet with the free times, one tap to move), cancel, or open the way there in the maps app. Earlier
  * viewings (declined, moved, done) stay listed below, quietly.
+ *
+ * GL2 (D-295): a self viewing shows its door-code window and, once the owner confirmed, the door-code panel (loaded
+ * lazily); an accompanied one shows who shows the room and how to reach them (the conversation below — the API gives
+ * prospects no phone or LINE id of the owner, contract request #35). Moving a viewing keeps its mode.
  */
 export function ViewingPanel({
   enquiry,
@@ -35,6 +48,7 @@ export function ViewingPanel({
   directions: string | null;
 }) {
   const t = useTranslations("prospect.rent.viewing");
+  const sv = useTranslations("prospect.selfViewing.panel");
   const root = useTranslations();
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -57,7 +71,7 @@ export function ViewingPanel({
           params: { path: { slug: enquiry.listing.slug }, query: { days: 14 } },
         }),
       );
-      setSlots(body.slots);
+      setSlots(live ? slotsOfMode(body.slots, live.mode) : body.slots);
     } catch (caught) {
       setSlots([]);
       setError(toApiError(caught));
@@ -95,20 +109,49 @@ export function ViewingPanel({
             <span className="text-lg font-semibold">{formatDateTime(live.startsAt, locale)}</span>
             <StatusBadge status={VIEWING_STATUS[live.state]} label={root(VIEWING_STATUS[live.state].labelKey)} />
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              size="lg"
-              iconStart={IconCalendar}
-              onClick={() => void openMove()}
-              data-testid="viewing-reschedule"
-            >
-              {t("reschedule")}
-            </Button>
-            <Button variant="secondary" size="lg" onClick={() => setCancelling(true)} data-testid="viewing-cancel">
-              {t("cancel")}
-            </Button>
+          <div className="flex flex-wrap items-center gap-2" data-testid="viewing-mode" data-mode={live.mode}>
+            <Badge tone="neutral" icon={live.mode === "self" ? IconKey : IconResident}>
+              {sv(`mode.${live.mode}`)}
+            </Badge>
           </div>
+          {live.mode === "self" ? (
+            live.state === "confirmed" && live.access ? (
+              <LazySelfViewingAccess viewing={{ ...live, access: live.access }} />
+            ) : (
+              <p className="text-muted text-sm" data-testid="self-waiting">
+                {sv("waiting")}
+              </p>
+            )
+          ) : (
+            <div className="border-border flex flex-col gap-2 border-t pt-3" data-testid="viewing-host">
+              <p className="text-sm">
+                <span className="text-muted">{sv("host.label")} </span>
+                <span className="font-medium">{enquiry.listing.ownerName}</span>
+              </p>
+              <p className="text-muted text-sm">{sv("host.body")}</p>
+              <Button asChild variant="secondary" size="lg" block iconStart={IconChat}>
+                <a href="#enquiry-thread" data-testid="viewing-host-message">
+                  {sv("host.message", { name: enquiry.listing.ownerName })}
+                </a>
+              </Button>
+            </div>
+          )}
+          {live.access?.state === "entered" ? null : (
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                size="lg"
+                iconStart={IconCalendar}
+                onClick={() => void openMove()}
+                data-testid="viewing-reschedule"
+              >
+                {t("reschedule")}
+              </Button>
+              <Button variant="secondary" size="lg" onClick={() => setCancelling(true)} data-testid="viewing-cancel">
+                {t("cancel")}
+              </Button>
+            </div>
+          )}
           {directions ? (
             <Button
               variant="ghost"
@@ -140,6 +183,16 @@ export function ViewingPanel({
                     size="sm"
                   />
                 </span>
+                {v.access ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-muted">{sv(`mode.${v.mode}`)}</span>
+                    <StatusBadge
+                      status={VIEWING_ACCESS_STATUS[v.access.state]}
+                      label={root(VIEWING_ACCESS_STATUS[v.access.state].labelKey)}
+                      size="sm"
+                    />
+                  </span>
+                ) : null}
                 {v.state === "declined" && v.reason ? (
                   <span className="text-muted">{t("reason", { reason: v.reason })}</span>
                 ) : null}
@@ -189,7 +242,9 @@ export function ViewingPanel({
             <p className="text-muted text-sm">{root("prospect.rent.book.noSlots")}</p>
           ) : null}
           {slots && slots.length ? (
-            <SlotPicker slots={slots} value={picked} onChange={setPicked} testId="reschedule-slots" />
+            <Suspense fallback={<Spinner label={t("rescheduleTitle")} />}>
+              <SlotPicker slots={slots} value={picked} onChange={setPicked} testId="reschedule-slots" />
+            </Suspense>
           ) : null}
           {error ? <ProblemCallout error={error} /> : null}
         </div>

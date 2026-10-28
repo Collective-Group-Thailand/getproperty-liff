@@ -837,3 +837,159 @@ describe("contract library documents and renewal offers (GL3, D-294)", () => {
     expect(after.notice.effectiveDate).toBe(after.endDate);
   });
 });
+
+describe("self-viewing for prospects (GL2, api G7, D-295)", () => {
+  /** A prospect's browser through the BFF; `scenario` is the `gp_mock` cookie (sent upstream as `x-gp-mock`). */
+  function prospect(initial: string) {
+    let scenario = initial;
+    const jar = new Map<string, string>();
+    const bff = createBffHandler({
+      apiBaseUrl: API,
+      upstream: handleMockRequest,
+      technicianEnabled: false,
+      appOrigin: APP,
+      upstreamHeaders: (): Record<string, string> => (scenario ? { "x-gp-mock": scenario } : {}),
+    });
+    const call = async (method: string, path: string, body?: unknown, headers: Record<string, string> = {}) => {
+      const h = new Headers(headers);
+      h.set("cookie", [...jar].map(([k, v]) => `${k}=${v}`).join("; "));
+      if (method !== "GET") {
+        h.set("origin", APP);
+        h.set("x-getproperty-csrf", "1");
+        h.set("content-type", "application/json");
+      }
+      const response = await bff(
+        new Request(`${APP}/bff${path}`, {
+          method,
+          headers: h,
+          body: body === undefined ? undefined : JSON.stringify(body),
+        }),
+      );
+      for (const line of response.headers.getSetCookie()) {
+        const [pair] = line.split(";");
+        jar.set(pair!.slice(0, pair!.indexOf("=")), decodeURIComponent(pair!.slice(pair!.indexOf("=") + 1)));
+      }
+      const text = await response.text();
+      return {
+        status: response.status,
+        cache: response.headers.get("cache-control"),
+        body: text ? (JSON.parse(text) as Record<string, unknown>) : null,
+      };
+    };
+    return {
+      call,
+      scenario: (next: string) => {
+        scenario = next;
+      },
+      signIn: (sub: string) => call("POST", "/auth/prospect/line", { idToken: fakeLineIdToken({ sub, name: "Nok" }) }),
+    };
+  }
+  const SLUG = "condo-1br-a1b2c3d4e5";
+  const key = () => ({ "idempotency-key": crypto.randomUUID() });
+
+  it("is off by default: no self slots, booking a self slot is refused with the reason", async () => {
+    const p = prospect("");
+    await p.signIn("Umock-gl2-off");
+    const slots = await p.call("GET", `/v1/public/listings/${SLUG}/viewing-slots`);
+    expect(slots.body).toMatchObject({ selfViewing: false });
+    expect((slots.body!.slots as { mode: string }[]).every((s) => s.mode === "accompanied")).toBe(true);
+    expect((await p.call("GET", "/v1/prospect/me/self-viewing")).body).toMatchObject({ enabled: false });
+    const refused = await p.call("POST", `/v1/prospect/listings/${SLUG}/viewings`, {
+      startsAt: (slots.body!.slots as { startsAt: string }[])[0]!.startsAt,
+      mode: "self",
+      consent: true,
+      visitorTermsVersion: 1,
+    });
+    expect(refused.body).toMatchObject({ code: "viewing.self_unavailable", selfViewingReason: "disabled" });
+  });
+
+  it("checks identity, phone and terms, and keeps the code back before its window", async () => {
+    const p = prospect("viewing.self=on");
+    await p.signIn("Umock-gl2-on");
+    const slots = (await p.call("GET", `/v1/public/listings/${SLUG}/viewing-slots`)).body!;
+    const self = (slots.slots as { startsAt: string; mode: string }[]).filter((s) => s.mode === "self");
+    expect(slots.selfViewing).toBe(true);
+    expect(self.length).toBeGreaterThan(0);
+    const book = (version: number | null) =>
+      p.call("POST", `/v1/prospect/listings/${SLUG}/viewings`, {
+        startsAt: self[0]!.startsAt,
+        mode: "self",
+        consent: true,
+        visitorTermsVersion: version,
+      });
+    expect((await book(1)).body).toMatchObject({
+      code: "viewing.requirements_missing",
+      missingRequirements: ["identity", "phone"],
+    });
+
+    // identity (fake e-KYC, the provider's decision through `ekyc.decide`) and phone (SMS code)
+    await p.call("POST", "/v1/prospect/me/identity-verification", {});
+    p.scenario("viewing.self=on;ekyc.decide=approved");
+    await p.call("GET", "/v1/prospect/me/identity-verification");
+    p.scenario("viewing.self=on");
+    const otp = (await p.call("POST", "/v1/prospect/me/phone/otp", { phone: "0810001234" })).body!;
+    expect(
+      (await p.call("POST", "/v1/prospect/me/phone", { challengeId: otp.challengeId, code: "000000" })).body,
+    ).toMatchObject({ code: "auth.otp_invalid" });
+    expect(
+      (await p.call("POST", "/v1/prospect/me/phone", { challengeId: otp.challengeId, code: "123456" })).body,
+    ).toMatchObject({ phoneVerified: true });
+    expect((await p.call("GET", "/v1/prospect/me/self-viewing")).body).toMatchObject({
+      enabled: true,
+      identityVerified: true,
+      phoneVerified: true,
+      missing: ["terms"],
+    });
+
+    const bookAgain = (version: number) =>
+      p.call("POST", `/v1/prospect/listings/${SLUG}/viewings`, {
+        startsAt: self[0]!.startsAt,
+        mode: "self",
+        consent: true,
+        visitorTermsVersion: version,
+      });
+    expect((await bookAgain(2)).body).toMatchObject({ code: "viewing.terms_outdated", visitorTermsVersion: 1 });
+    const booked = await bookAgain(1);
+    expect(booked.status, JSON.stringify(booked.body)).toBe(201);
+    const enquiry = booked.body as { viewings: { id: string; mode: string; access: unknown }[] };
+    const viewing = enquiry.viewings[0]!;
+    expect(viewing).toMatchObject({ mode: "self", access: null });
+
+    // owner confirms for the slot (tomorrow): the code is not available yet
+    await p.call("POST", `/v1/prospect/__mock/viewings/${viewing.id}/confirm`, { window: "slot" });
+    const early = await p.call("GET", `/v1/prospect/viewings/${viewing.id}/access-code`);
+    expect(early.body).toMatchObject({ code: "viewing.code_not_available" });
+    expect(typeof early.body!.codeValidFrom).toBe("string");
+    expect(early.cache).toBe("no-store");
+  });
+
+  it("a confirmed self viewing open now: code no-store, arrive, incident once, leave", async () => {
+    const p = prospect("viewing.self=on");
+    await p.signIn("Umock-selfview-now");
+    const enquiry = (await p.call("GET", "/v1/prospect/enquiries")).body as unknown as {
+      id: string;
+      viewings: { id: string; state: string; mode: string; access: { state: string } }[];
+    }[];
+    // subject word `selfview`: verified and a confirmed self viewing with its window open now
+    const viewing = enquiry[0]!.viewings[0]!;
+    expect(viewing).toMatchObject({ state: "confirmed", mode: "self", access: { state: "issued" } });
+    const base = `/v1/prospect/viewings/${viewing.id}`;
+    const code = await p.call("GET", `${base}/access-code`);
+    expect(code.status).toBe(200);
+    expect(code.cache).toBe("no-store");
+    expect(code.body!.doorCode).toMatch(/^\d{6}$/);
+    expect((await p.call("POST", `${base}/actions/arrive`, undefined, key())).body).toMatchObject({
+      state: "entered",
+      enteredSource: "prospect",
+    });
+    expect((await p.call("POST", `${base}/actions/report-incident`, { note: "ok" }, key())).status).toBe(422);
+    expect(
+      (await p.call("POST", `${base}/actions/report-incident`, { note: "ก๊อกน้ำรั่ว" }, key())).body,
+    ).toMatchObject({ incidentNote: "ก๊อกน้ำรั่ว" });
+    expect((await p.call("POST", `${base}/actions/report-incident`, { note: "อีกครั้ง" }, key())).body).toMatchObject({
+      code: "viewing.access_invalid_state",
+    });
+    expect((await p.call("POST", `${base}/actions/leave`, undefined, key())).body).toMatchObject({ state: "exited" });
+    expect((await p.call("GET", `${base}/access-code`)).body).toMatchObject({ code: "http.not_found" });
+  });
+});

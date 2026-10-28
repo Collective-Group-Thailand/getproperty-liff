@@ -84,3 +84,24 @@ function handlers(audience: Audience): HttpHandler[] {
 }
 
 export const identityHandlers: HttpHandler[] = [...handlers("resident"), ...handlers("prospect")];
+
+/** Whether the login has an approved attempt (self-viewing requirements, GL2 / D-295). */
+export function identityVerifiedOf(userId: string): boolean {
+  return (byUser.get(userId) ?? []).some((a) => a.state === "approved");
+}
+
+/** Seeds an approved attempt (mock accounts that start verified, e.g. the Lighthouse self-viewing prospect). */
+export function seedIdentityVerified(userId: string): void {
+  if (identityVerifiedOf(userId)) return;
+  const attempts = byUser.get(userId) ?? [];
+  byUser.set(userId, attempts);
+  const at = new Date(Date.now() - 86_400_000).toISOString();
+  attempts.unshift({
+    id: crypto.randomUUID(),
+    state: "approved",
+    verificationUrl: null,
+    failureReason: null,
+    createdAt: at,
+    expiresAt: at,
+  });
+}

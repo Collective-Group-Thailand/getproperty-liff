@@ -1,0 +1,113 @@
+{
+  "title": "自助看房",
+  "back": "房源",
+  "lead": "选择方便的时间看房，无需等待房东。门锁密码只在您预约的时间前后有效。",
+  "existing": "您关于此房源的咨询",
+  "backToBooking": "返回自助看房",
+  "unavailable": {
+    "title": "此房源暂不提供自助看房",
+    "platform": "自助看房服务尚未开放。请预约时间，由房东或其代理带您看房。",
+    "listing": "此房源目前没有自助看房时间。请预约时间，由房东或其代理带您看房。",
+    "action": "预约房东带看"
+  },
+  "offer": {
+    "title": "想自己看房？",
+    "body": "此房源有可凭门锁密码独自看房的时段。只需验证一次身份和手机号。",
+    "action": "查看自助看房时间"
+  },
+  "book": {
+    "identity": {
+      "title": "验证身份",
+      "done": "身份已验证",
+      "body": "持牌服务商会核对您的身份证件和自拍照，我们只保存验证结果。",
+      "action": "验证我的身份"
+    },
+    "phone": {
+      "title": "确认手机号",
+      "done": "手机号已确认",
+      "body": "便于房东在看房期间联系您。我们会通过短信发送6位验证码。"
+    },
+    "time": {
+      "title": "选择时间",
+      "none": "未来两周没有自助看房时间。请稍后再看，或预约房东带看。",
+      "window": "门锁密码从预约时间前{early}分钟起，到预约时间后{minutes}分钟内有效。"
+    },
+    "terms": {
+      "title": "访客条款",
+      "draft": "草案",
+      "version": "第{version}版",
+      "english": "条款按平台发布的英文原文显示。",
+      "accept": "我已阅读并接受访客条款（第{version}版）"
+    },
+    "termsChanged": {
+      "title": "访客条款已更新",
+      "body": "请阅读新版本，并在预约前重新接受。"
+    },
+    "requirementsChanged": "自助看房前还缺少某些步骤，请查看上方的步骤。",
+    "submit": "申请自助看房：{time}",
+    "pick": "选择时间",
+    "hint": {
+      "steps": "请先完成第1步和第2步。",
+      "owner": "房东会先确认时间，之后门锁密码将显示在您的咨询页面中，绝不会通过消息发送。"
+    }
+  },
+  "phone": {
+    "label": "手机号码",
+    "hint": "我们会通过短信发送6位验证码",
+    "invalid": "请输入10位泰国手机号码",
+    "send": "通过短信发送验证码",
+    "sentTo": "验证码已发送至 {phone}",
+    "digit": "第{index}位",
+    "wrong": "验证码错误。{count, plural, =0 {请重新获取。} other {还可尝试#次。}}",
+    "verify": "确认手机号",
+    "change": "更换号码",
+    "resend": "重新发送验证码"
+  },
+  "panel": {
+    "mode": {
+      "self": "自助看房",
+      "accompanied": "房东带看"
+    },
+    "waiting": "房东会先确认时间，之后门锁密码将在看房前不久显示在这里。",
+    "host": {
+      "label": "带看人",
+      "body": "如果您会迟到或找不到地方，请在这里发消息。",
+      "message": "给{name}发消息"
+    },
+    "left": "感谢看房，门锁密码已失效。"
+  },
+  "access": {
+    "window": "门锁密码有效时间 {from}–{to}",
+    "codeTitle": "您的门锁密码",
+    "lockReady": "可用",
+    "lockSyncing": "设置中",
+    "codeUntil": "可用于房门和楼门，有效至{to}。请勿转告他人。",
+    "hide": "隐藏密码",
+    "beforeTitle": "时间未到",
+    "before": "门锁密码将从{from}起显示在这里。",
+    "show": "显示门锁密码",
+    "showHint": "仅在您点击时、且仅在预约时间内显示。每次显示都会出于安全原因被记录。",
+    "over": "预约时间已过，门锁密码已失效。",
+    "arrive": "我已进入房间",
+    "entered": "您于{time}进入",
+    "enteredLock": "房门于{time}用您的密码打开",
+    "leave": "我已离开并关好门",
+    "notYetTitle": "密码现在不可用",
+    "notYet": "有效时间为{from}至{to}。",
+    "reported": {
+      "title": "问题已报告",
+      "body": "已于{time}发送，房东已收到通知。"
+    },
+    "report": "报告问题",
+    "leaveTitle": "结束看房？",
+    "leaveBody": "请确认门已关好。密码会立即失效，无法再次使用。",
+    "leaveConfirm": "结束看房",
+    "leaveCancel": "暂不",
+    "reportTitle": "报告问题",
+    "close": "关闭",
+    "reportSend": "发送给房东",
+    "reportBody": "告诉房东出了什么问题——物品损坏、门锁不上、房内有人等。房东会立即收到通知。",
+    "reportLabel": "出了什么问题？",
+    "reportPlaceholder": "例如：浴室水龙头漏水"
+  }
+}

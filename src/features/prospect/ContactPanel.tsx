@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { LazyCheckbox, WhenNear } from "@/features/shared/WhenNear";
 import { formatTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
@@ -12,13 +13,15 @@ import type { Schemas } from "@/lib/api/types";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
-import { Checkbox } from "@/ui/components/Checkbox";
+import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
 import { Input, Textarea } from "@/ui/components/Input";
 import { NativeSelect } from "@/ui/components/NativeSelect";
 import { SegmentedControl } from "@/ui/components/SegmentedControl";
+import { IconKey } from "@/ui/icons/glyphs/key";
 
 import type { Slot } from "./model";
+import { slotsOfMode } from "./selfViewing/model";
 import { SlotPicker } from "./SlotPicker";
 
 type Mode = "ask" | "book";
@@ -49,9 +52,12 @@ export function ContactPanel({
   existingId,
   initialMode,
   channel = null,
+  selfViewing = false,
 }: {
   slug: string;
   slots: Slot[];
+  /** GL2 (D-295): the listing offers self-viewing times now — offered as their own page. */
+  selfViewing?: boolean;
   /** My open enquiry about this listing, when there is one. */
   existingId: string | null;
   initialMode: Mode;
@@ -59,7 +65,11 @@ export function ContactPanel({
   channel?: Channel | null;
 }) {
   const t = useTranslations("prospect.rent");
+  const sv = useTranslations("prospect.selfViewing.offer");
   const router = useRouter();
+  // Self slots are booked on their own page (identity, phone, visitor terms); this picker shows accompanied ones.
+  const accompanied = slotsOfMode(slots, "accompanied");
+  const selfSlots = selfViewing && slotsOfMode(slots, "self").length > 0;
   const locale = useLocale() as Locale;
   const [mode, setMode] = useState<Mode>(initialMode);
   const [message, setMessage] = useState("");
@@ -114,7 +124,7 @@ export function ContactPanel({
   }
 
   const set = (key: keyof typeof form) => (value: string) => setForm((current) => ({ ...current, [key]: value }));
-  const picked = slots.find((s) => s.startsAt === slot);
+  const picked = accompanied.find((s) => s.startsAt === slot);
 
   return (
     <form className="flex flex-col gap-5" onSubmit={submit} noValidate data-testid="prospect-contact">
@@ -155,11 +165,11 @@ export function ContactPanel({
             data-testid="prospect-message"
           />
         </Field>
-      ) : slots.length === 0 ? (
+      ) : accompanied.length === 0 ? (
         <Callout tone="info">{t("book.noSlots")}</Callout>
       ) : (
         <>
-          <SlotPicker slots={slots} value={slot} onChange={setSlot} />
+          <SlotPicker slots={accompanied} value={slot} onChange={setSlot} />
           <Field label={t("book.note")}>
             <Textarea
               rows={2}
@@ -171,6 +181,18 @@ export function ContactPanel({
           </Field>
         </>
       )}
+
+      {mode === "book" && selfSlots ? (
+        <Card as="section" padding="md" className="flex flex-col gap-2" data-testid="self-offer">
+          <h2 className="flex items-center gap-2 font-semibold">{sv("title")}</h2>
+          <p className="text-muted text-sm">{sv("body")}</p>
+          <Button asChild variant="secondary" size="lg" block iconStart={IconKey}>
+            <a href={`/rent/${slug}/self-viewing`} data-testid="self-offer-open">
+              {sv("action")}
+            </a>
+          </Button>
+        </Card>
+      ) : null}
 
       {needsConsent ? (
         <details className="border-border rounded-card group border p-3" data-testid="prospect-details">
@@ -213,17 +235,20 @@ export function ContactPanel({
 
       {needsConsent ? (
         <div className="flex flex-col gap-1">
-          <Checkbox
-            label={t("consent.label")}
-            description={t("consent.hint")}
-            checked={consent}
-            onCheckedChange={(checked) => {
-              setConsent(checked === true);
-              setConsentMissing(false);
-            }}
-            required
-            data-testid="prospect-consent"
-          />
+          {/* D-179: the Radix checkbox loads as the consent comes near the screen (listing page ≤ 180 KB, GL2). */}
+          <WhenNear fallbackClassName="h-16 w-full" testId="prospect-consent-slot">
+            <LazyCheckbox
+              label={t("consent.label")}
+              description={t("consent.hint")}
+              checked={consent}
+              onCheckedChange={(checked) => {
+                setConsent(checked === true);
+                setConsentMissing(false);
+              }}
+              required
+              data-testid="prospect-consent"
+            />
+          </WhenNear>
           {consentMissing ? (
             <Callout tone="danger">
               <span role="alert">{t("consent.required")}</span>

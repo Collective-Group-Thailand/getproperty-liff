@@ -45,13 +45,19 @@ test.describe("rent record (D-256)", () => {
     await fakeLiff(context, baseURL!, { sub: subject("prospect", "record"), name: "Ploy" });
     await page.goto(`/liff?liff.state=${encodeURIComponent(LISTING)}`);
     await page.getByTestId("prospect-message").fill("สนใจห้องนี้ค่ะ");
+    // D-179: the checkbox loads as it comes near the screen
+    await page.getByTestId("prospect-consent-slot").scrollIntoViewIfNeeded();
     await page.getByTestId("prospect-consent").click();
     await page.getByTestId("prospect-submit").click();
     await expect(page).toHaveURL(/\/rent\/enquiries\/[0-9a-f-]+\?done=sent$/);
 
+    // D-179: the share panel loads as it comes near the screen
+    await page.getByTestId("enquiry-rent-record-slot").scrollIntoViewIfNeeded();
     const panel = page.getByTestId("enquiry-rent-record");
     await expect(panel).toContainText("ตรงเวลา 10");
     await expect(panel.getByTestId("enquiry-rent-record-share")).toBeDisabled();
+    // D-179: the checkbox loads as it comes near the screen
+    await panel.getByTestId("enquiry-rent-record-consent-slot").scrollIntoViewIfNeeded();
     await panel.getByTestId("enquiry-rent-record-consent").click();
     await panel.getByTestId("enquiry-rent-record-share").click();
     await expect(panel).toHaveAttribute("data-shared", "true");

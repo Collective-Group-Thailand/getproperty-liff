@@ -21,6 +21,11 @@ describe("service worker cache policy (app shell only)", () => {
     expect(cacheDecision(at("/_next/static/x.js", "https://evil.example"), SELF, "no-cors")).toBe("network-only");
     expect(cacheDecision(at("/manifest.webmanifest"), SELF, "same-origin")).toBe("network-only");
   });
+
+  it("never caches a self-viewing door code (GL2, D-295)", () => {
+    expect(cacheDecision(at("/bff/v1/prospect/viewings/1/access-code"), SELF, "cors")).toBe("network-only");
+    expect(cacheDecision(at("/bff/v1/prospect/viewings/1/access-code"), SELF, "same-origin")).toBe("network-only");
+  });
 });
 
 describe("web push", () => {
