@@ -82,6 +82,10 @@ test.describe("profile and privacy (D-025, D-064)", () => {
   test("notification preferences: locked topics stay on; others save", async ({ page, context, baseURL }) => {
     await seedSession(context, baseURL!, subject("notify"));
     await page.goto("/profile");
+    await expect(page.getByTestId("profile-notifications-summary")).toContainText("บิลและการชำระเงิน");
+    // The form is its own page since GL3 (/profile has no budget headroom, D-179).
+    await page.getByTestId("profile-notifications-edit").click();
+    await expect(page).toHaveURL(/\/profile\/notifications$/);
     const prefs = page.getByTestId("notification-preferences");
     const billing = prefs.getByRole("group", { name: "บิลและการชำระเงิน" });
     await expect(billing.getByRole("checkbox", { name: "SMS" })).toBeDisabled();

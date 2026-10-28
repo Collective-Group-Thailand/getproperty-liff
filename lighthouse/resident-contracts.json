@@ -1,0 +1,57 @@
+{
+  "extends": "./shared.json",
+  "$comment": "GL3 contracts and renewals (D-294): my contracts and offers, a document of the contract library, its e-signature (pad and OTP load on demand) and an offer to renew (decision dialog lazy), on the mock account with an addendum to sign and an open offer. Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/contracts",
+        "http://localhost:3400/contracts/b3621580-2198-4907-813d-da02fc9bc1a1",
+        "http://localhost:3400/contracts/b3621580-2198-4907-813d-da02fc9bc1a1/sign",
+        "http://localhost:3400/renewals/b3621580-2198-4907-813d-da02fc9be0f1",
+        "http://localhost:3400/lease/b3621580-2198-4907-813d-da02fc9bd522"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-contracts-renewal"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,3 +1,6 @@
+import { loadContracts, loadRenewalOffers } from "@/features/resident/contracts/data";
+import { HomeContracts } from "@/features/resident/contracts/HomeContracts";
+import { pageLocale } from "@/features/resident/lease/data";
 import { loadOpenInvoices } from "@/features/resident/invoices/data";
 import { bangkokToday } from "@/features/resident/invoices/model";
 import { ResidentHome } from "@/features/resident/home/ResidentHome";
@@ -16,15 +19,19 @@ async function latestNotifications(): Promise<InboxItem[]> {
 
 /**
  * Resident home, from `/v1/resident/me` (the `(resident)` layout has already checked session and consent), my open
- * invoices and the latest notifications, loaded in parallel.
+ * invoices, the latest notifications and (GL3) documents to sign and offers to renew, loaded in parallel.
  */
 export default async function HomePage() {
   const actor = await getActor();
   if (actor.status !== "signed-in") return null;
   const billing = actor.entitlements.has("bills") && actor.unit !== null;
-  const [open, notifications] = await Promise.all([
+  const [open, notifications, contracts, offers, locale] = await Promise.all([
     billing ? loadOpenInvoices() : Promise.resolve({ data: [] }),
     actor.unit ? latestNotifications().catch(() => []) : Promise.resolve([]),
+    // GL3: documents to sign and offers to renew — extra, so a failure leaves the cards out.
+    loadContracts().catch(() => ({ data: [] })),
+    loadRenewalOffers().catch(() => ({ data: [] })),
+    pageLocale(),
   ]);
   return (
     <ResidentShell active="home">
@@ -36,6 +43,7 @@ export default async function HomePage() {
         notifications={notifications}
         today={bangkokToday()}
         vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        contracts={<HomeContracts contracts={contracts.data ?? []} offers={offers.data ?? []} locale={locale} />}
       />
     </ResidentShell>
   );

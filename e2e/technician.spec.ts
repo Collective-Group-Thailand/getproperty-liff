@@ -22,6 +22,8 @@ import {
  */
 
 async function addPhotos(page: Page, role: "before" | "after", count: number) {
+  // The pickers load as the technician scrolls to them (D-179 budget, GL3).
+  await page.getByTestId(`wo-photos-slot-${role}`).scrollIntoViewIfNeeded();
   const section = page.getByTestId(`wo-photos-${role}`);
   await section.getByTestId(`wo-picker-${role}-add`).click();
   await section.locator('input[type="file"]').setInputFiles(
@@ -80,6 +82,8 @@ test.describe("technician app (D-072, D-210)", () => {
     await expect(page.getByTestId("wo-complete")).toHaveCount(0);
     await page.getByTestId("wo-resume").click();
 
+    // The cost form loads as the technician scrolls to it (D-179 budget, GL3).
+    await page.getByTestId("cost-form-slot").scrollIntoViewIfNeeded();
     const costs = page.getByTestId("cost-form");
     await costs.getByTestId("cost-submit").click();
     await expect(costs.getByText("โปรดระบุรายการ")).toBeVisible();

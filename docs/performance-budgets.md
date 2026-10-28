@@ -251,3 +251,21 @@ preloaded), `next/image` with `sizes` for meter photos, no layout shift from fon
   server-rendering the reader and loading later steps on demand).
 - **L2 (2026-10-17)** — four more URLs (home on real data, invoices, an invoice, receipts), all under 180 KB; the
   pay sheet measured on demand (46 KB, budget 50 KB in e2e).
+
+### GL3 contracts & renewals (2026-10-28, `pnpm lhci` in the sandbox with `CHROME_PATH` = Playwright Chromium; every set passes)
+
+Measured at HEAD before GL3: `/lease/<id>` **180.8 KB** (over); after the G0–G3 contract adoption (the generated
+idempotent-operation list ships in a shared chunk) `/profile` reached 181.4 KB and the technician work order 181.1 KB.
+Fixes: the lease rules checkbox and the technician cost-line form and photo pickers load as they come near the screen
+(`src/features/shared/WhenNear.tsx`, Radix checkbox ≈ 8 KB gz); the notification preferences form moved to
+`/profile/notifications` (the profile shows a summary). New set `lighthouse/resident-contracts.json`.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident-contracts` | `/contracts`, `/contracts/<id>`, `/contracts/<id>/sign`, `/renewals/<id>`, `/lease/<id>` | 171.2, 173.8, 176.9, 175.6, 175.7 KB | 180 KB |
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 172.7, 172.6, 174.9, 174.8, 173.7, 175.7, 176.5, 179.5, 175.6 KB | 180 KB |
+| `resident` | `/profile`, `/profile/privacy`, `/profile/notifications` | 175.3, 175.7, 178.6 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>`, `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 171.2, 178.2, 176.7, 172.2, 171.2, 173.8, 176.3, 178.4, 172.8, 178.2 KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 176.9, 179.5 KB | 180 KB |
+| `technician` | `/technician`, `/technician/work-orders/<id>` | 170.6, 176.6 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 175.8, 173.3, 177.0, 169.2 KB | 180 KB |

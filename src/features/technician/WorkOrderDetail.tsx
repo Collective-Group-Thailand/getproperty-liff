@@ -12,11 +12,11 @@ import { DescriptionList } from "@/ui/components/DescriptionList";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { SimpleTable } from "@/ui/components/SimpleTable";
 
-import { CostLineForm } from "./CostLineForm";
+import { LazyCostLineForm } from "./LazyCostLineForm";
 import { DoorCodes } from "./DoorCodes";
 import { canAddPhotos, fieldActions, type WorkOrder } from "./model";
 import { WorkOrderActions } from "./WorkOrderActions";
-import { WorkOrderPhotos } from "./WorkOrderPhotos";
+import { LazyWorkOrderPhotos } from "./LazyWorkOrderPhotos";
 
 /**
  * One work order for its technician (L4 4.4 §2, A4.3): the place (unit, building), the visit window, the problem
@@ -146,7 +146,7 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
             {t(`photos.${role}`)}
           </h2>
           {uploaded(role, t(`photos.${role}`))}
-          {open ? <WorkOrderPhotos workOrderId={workOrder.id} role={role} /> : null}
+          {open ? <LazyWorkOrderPhotos workOrderId={workOrder.id} role={role} /> : null}
         </Card>
       ))}
 
@@ -194,7 +194,7 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
         ) : (
           <p className="text-muted text-sm">{t("costs.empty")}</p>
         )}
-        {open ? <CostLineForm workOrderId={workOrder.id} /> : null}
+        {open ? <LazyCostLineForm workOrderId={workOrder.id} /> : null}
       </Card>
 
       {finished ? (

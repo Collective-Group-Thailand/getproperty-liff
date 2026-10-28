@@ -11,6 +11,7 @@ import { getResponse } from "msw";
 import { findOperation, problem, problemResponse } from "./contract";
 import { billingHandlers } from "./billing";
 import { communityHandlers } from "./community";
+import { libraryContractHandlers } from "./contracts";
 import { contractHandlers, exampleHandlers } from "./handlers";
 import { identityHandlers } from "./identity";
 import { landlordHandlers } from "./landlord";
@@ -31,6 +32,7 @@ const handlers = [
   ...prospectHandlers,
   ...identityHandlers,
   ...rentRecordHandlers,
+  ...libraryContractHandlers,
   ...landlordHandlers,
   ...contractHandlers,
   ...exampleHandlers,

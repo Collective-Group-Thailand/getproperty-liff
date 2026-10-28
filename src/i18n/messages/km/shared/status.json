@@ -123,5 +123,18 @@
   "inspection": {
     "completed": "កំពុងរង់ចាំហត្ថលេខារបស់អ្នក",
     "signed": "បានចុះហត្ថលេខាទាំងពីរ"
+  },
+  "contract": {
+    "draft": "សេចក្តីព្រាង",
+    "pending_signature": "រង់ចាំហត្ថលេខា",
+    "signed": "បានចុះហត្ថលេខា",
+    "cancelled": "បានលុបចោល"
+  },
+  "renewal": {
+    "offered": "រង់ចាំចម្លើយរបស់អ្នក",
+    "accepted": "បានទទួលយក",
+    "declined": "បានបដិសេធ",
+    "expired": "ផុតកំណត់",
+    "withdrawn": "បានដកវិញ"
   }
 }

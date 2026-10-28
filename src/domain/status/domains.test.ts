@@ -4,6 +4,7 @@ import { loadMessages } from "@/i18n/messages";
 import { ICONS } from "@/ui/icons/registry";
 
 import { BOOKING_STATUS } from "./booking";
+import { CONTRACT_STATUS, RENEWAL_STATUS } from "./contract";
 import { ACCESS_RESULT, CREDENTIAL_STATUS } from "./credential";
 import { DEPOSIT_STATUS } from "./deposit";
 import { DSR_STATE } from "./dsr";
@@ -38,6 +39,8 @@ const MAPS = {
   accessResult: ACCESS_RESULT,
   rentCertificate: RENT_CERTIFICATE_STATE,
   inspection: INSPECTION_STATUS,
+  contract: CONTRACT_STATUS,
+  renewal: RENEWAL_STATUS,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {

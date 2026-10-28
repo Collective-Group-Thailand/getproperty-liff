@@ -123,5 +123,18 @@
   "inspection": {
     "completed": "Waiting for your signature",
     "signed": "Signed by both"
+  },
+  "contract": {
+    "draft": "Draft",
+    "pending_signature": "Waiting for signatures",
+    "signed": "Signed",
+    "cancelled": "Cancelled"
+  },
+  "renewal": {
+    "offered": "Waiting for your answer",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "withdrawn": "Withdrawn"
   }
 }
