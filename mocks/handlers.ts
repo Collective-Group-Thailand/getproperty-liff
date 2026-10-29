@@ -414,6 +414,18 @@ export const contractHandlers: HttpHandler[] = [
     );
   }),
 
+  // Mock-only control (never in the contract, never in a real build): the platform publishes a new version of an
+  // optional purpose's text — an earlier agreement stays on file and the screens ask again (D-025, review G M3).
+  http.post(mswPath("/v1/resident/__mock/consents/:purposeKey/publish"), ({ request, params }) => {
+    const op = "resident.consents.list";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const consent = auth.account.consents.find((c) => c.key === params.purposeKey);
+    if (!consent) return problem(op, "http.not_found");
+    consent.version += 1;
+    return HttpResponse.json(purposesFor(auth.account, languageOf(request)));
+  }),
+
   http.post(mswPath("/v1/resident/realtime/auth"), ({ request }) => {
     const auth = authenticate(request, "resident", "resident.realtime.auth");
     if (auth instanceof Response) return auth;

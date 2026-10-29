@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { ProblemPage } from "@/features/shared/ProblemNotice";
+import { historyPath } from "@/features/shared/recommendations/model";
 import { RecommendationsHistoryPage } from "@/features/shared/recommendations/pages";
 import { requireProspect } from "@/lib/auth/guards";
 
@@ -15,7 +16,8 @@ export default async function ProspectRecommendationsHistoryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const actor = await requireProspect({ path: "/rent/recommendations/history" });
+  const params = await searchParams;
+  const actor = await requireProspect({ path: historyPath("prospect", params.page) });
   if (actor.status === "error") return <ProblemPage error={actor.error} />;
-  return <RecommendationsHistoryPage audience="prospect" searchParams={await searchParams} />;
+  return <RecommendationsHistoryPage audience="prospect" searchParams={params} />;
 }

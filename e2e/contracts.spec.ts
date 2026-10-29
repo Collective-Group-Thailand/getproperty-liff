@@ -55,6 +55,23 @@ async function drawSignature(page: Page) {
   await expect(pad).toHaveAttribute("data-empty", "false");
 }
 
+/** The office edits the document waiting for signatures (mock-only control): new clause text, new sha256. */
+async function officeChanges(page: Page, contractId: string) {
+  const origin = new URL(page.url()).origin;
+  const response = await page.request.post(`/bff/v1/resident/__mock/contracts/${contractId}/change`, {
+    headers: { "x-getproperty-csrf": "1", origin },
+  });
+  expect(response.status()).toBe(200);
+}
+
+async function readToTheEnd(page: Page) {
+  await expect(page.getByTestId("sign-flow")).toHaveAttribute("data-reader", "current");
+  await page.getByTestId("sign-reader").evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  await page.getByRole("checkbox", { name: "ฉันอ่านเอกสารทั้งหมดแล้วและตกลงตามเอกสาร" }).click();
+  await page.getByTestId("sign-read-next").click();
+  await expect(page.getByTestId("sign-flow")).toHaveAttribute("data-step", "draw");
+}
+
 const DISCLAIMER_TH = "ตัวอย่างสัญญาเพื่ออำนวยความสะดวก ไม่ใช่คำแนะนำทางกฎหมาย";
 const DISCLAIMER_EN = "A sample contract provided for convenience; not legal advice.";
 
@@ -108,6 +125,76 @@ test.describe("contracts and renewals (GL3, D-294)", () => {
     await expect(page.getByTestId("contracts-to-sign")).toHaveCount(0);
     await expect(page.getByTestId("contracts-others").getByTestId("contract-card")).toHaveCount(2);
     await expectAxeClean(page);
+  });
+
+  test("the office changes the document while I sign: I read the new text, draw again and sign its hash (review G)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("contracts", "changed"));
+    await page.goto("/contracts");
+    await page.getByTestId("contracts-to-sign").getByTestId("contract-card").click();
+    await page.getByTestId("contract-sign").click();
+    await expect(page).toHaveURL(/\/contracts\/[0-9a-f-]{36}\/sign$/);
+    const contractId = /contracts\/([0-9a-f-]{36})\/sign/.exec(page.url())![1]!;
+    const reader = page.getByTestId("sign-reader");
+    await expect(reader).toContainText("ช่อง B-12 ค่าบริการตามใบแจ้งหนี้");
+    await expect(reader).not.toContainText("แก้ไขครั้งที่");
+
+    await readToTheEnd(page);
+    await drawSignature(page);
+    await page.getByTestId("sign-draw-next").click();
+    await expect(page.getByTestId("sign-otp-lead")).toContainText("08•-•••-1234");
+
+    await officeChanges(page, contractId);
+    await page.getByRole("textbox", { name: "หลักที่ 1" }).fill("123456");
+
+    // Refused for the old hash: back to reading, and the reader now shows the changed clause (the page rendered again).
+    await expect(page.getByTestId("sign-flow")).toHaveAttribute("data-step", "read");
+    await expect(reader).toContainText("(แก้ไขครั้งที่ 1)");
+    await expect(page.getByTestId("sign-flow")).toHaveAttribute("data-reader", "current");
+    await expectAxeClean(page);
+    await readToTheEnd(page);
+    // The drawing for the old version is gone: the pad is empty and there is no way on without a new one.
+    await expect(page.getByTestId("signature-pad")).toHaveAttribute("data-empty", "true");
+    await expect(page.getByTestId("sign-draw-next")).toBeDisabled();
+    await drawSignature(page);
+    await page.getByTestId("sign-draw-next").click();
+    await expect(page.getByTestId("sign-otp-lead")).toContainText("08•-•••-1234");
+    await page.getByRole("textbox", { name: "หลักที่ 1" }).fill("123456");
+    await expect(page.getByTestId("sign-done")).toContainText("ลงนามครบทุกคนแล้ว");
+    await expect(page.getByTestId("sign-hash")).toHaveText(/0001$/);
+  });
+
+  test("changed between the page and the document fetch: the reader is rendered again before I can go on", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("contracts", "race"));
+    await page.goto("/contracts");
+    await page.getByTestId("contracts-to-sign").getByTestId("contract-card").click();
+    await expect(page.getByTestId("contract-detail")).toBeVisible();
+    const contractId = /contracts\/([0-9a-f-]{36})/.exec(page.url())![1]!;
+    // The office's edit lands after the sign page was rendered and before its document request is answered.
+    let edited = false;
+    await page.route(`**/bff/v1/resident/contracts/${contractId}/document`, async (route) => {
+      if (!edited) {
+        edited = true;
+        await officeChanges(page, contractId);
+      }
+      await route.continue();
+    });
+    await page.getByTestId("contract-sign").click();
+    await expect(page.getByTestId("sign-updated")).toBeVisible();
+    await expect(page.getByTestId("sign-reader")).toContainText("(แก้ไขครั้งที่ 1)");
+    await readToTheEnd(page);
+    await drawSignature(page);
+    await page.getByTestId("sign-draw-next").click();
+    await page.getByRole("textbox", { name: "หลักที่ 1" }).fill("123456");
+    await expect(page.getByTestId("sign-done")).toContainText("ลงนามครบทุกคนแล้ว");
+    await expect(page.getByTestId("sign-hash")).toHaveText(/0001$/);
   });
 
   test("accepting an offer to renew leads to the renewal lease to sign", async ({ page, context, baseURL }) => {

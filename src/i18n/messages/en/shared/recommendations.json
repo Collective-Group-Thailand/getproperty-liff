@@ -12,7 +12,8 @@
     },
     "outdated": {
       "title": "The text you agreed to has changed",
-      "body": "There is a new version ({version}). Nothing is sent until you read it and agree again below."
+      "body": "There is a new version ({version}). Nothing is sent until you read it and agree again below.",
+      "stopHint": "Don’t want them any more? Stop in one tap — your earlier agreement and preferences are no longer used."
     },
     "stop": "Stop recommended places",
     "stopHint": "One tap. Nothing more is sent from now on."

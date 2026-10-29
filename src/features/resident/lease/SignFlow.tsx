@@ -24,6 +24,7 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
       namespace="resident.lease.sign"
       reader={reader}
       changedCode="lease.contract_changed"
+      alreadySignedCode="lease.already_signed"
       loadDocument={async () =>
         unwrap(await browserApi.GET("/v1/resident/leases/{leaseId}/contract", { params: { path } }))
       }

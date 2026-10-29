@@ -7,6 +7,7 @@ import {
   draftProblems,
   fieldOf,
   hasOlder,
+  historyPath,
   markdownBlocks,
   matchAreas,
   pageFrom,
@@ -161,5 +162,18 @@ describe("recommendations model (GL1, D-300)", () => {
     expect(pageFrom(["x"])).toBe(1);
     expect(hasOlder({ page: 1, perPage: 20, total: 21 }, 1)).toBe(true);
     expect(hasOlder({ page: 2, perPage: 20, total: 21 }, 2)).toBe(false);
+  });
+});
+
+describe("historyPath (review G, L4)", () => {
+  it("keeps a valid page across the redirect and the sign-in return", () => {
+    expect(historyPath("prospect", "2")).toBe("/rent/recommendations/history?page=2");
+    expect(historyPath("resident", ["3"])).toBe("/recommendations/history?page=3");
+  });
+  it("drops the first page and anything that is not a page number", () => {
+    expect(historyPath("prospect", "1")).toBe("/rent/recommendations/history");
+    expect(historyPath("prospect", "x")).toBe("/rent/recommendations/history");
+    expect(historyPath("prospect", "2&next=//evil")).toBe("/rent/recommendations/history");
+    expect(historyPath("prospect", undefined)).toBe("/rent/recommendations/history");
   });
 });

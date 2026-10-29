@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
+import { historyPath } from "@/features/shared/recommendations/model";
 import { RecommendationsHistoryPage } from "@/features/shared/recommendations/pages";
 import { getActor } from "@/lib/auth/actor";
 
@@ -27,7 +28,7 @@ export default async function ResidentRecommendationsHistoryPage({
       </ResidentShell>
     );
   }
-  if (actor.status !== "signed-in") redirect("/rent/recommendations/history");
+  if (actor.status !== "signed-in") redirect(historyPath("prospect", params.page));
   return (
     <ResidentShell active="me">
       <RecommendationsHistoryPage audience="resident" searchParams={params} />

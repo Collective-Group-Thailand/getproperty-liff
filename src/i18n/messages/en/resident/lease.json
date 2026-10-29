@@ -92,7 +92,8 @@
       "openPdf": "Read the full lease (PDF)",
       "scrollHint": "Scroll the lease above to the end to continue",
       "confirm": "I have read the whole lease and agree to it",
-      "next": "Continue to signature"
+      "next": "Continue to signature",
+      "updated": "The lease was updated just now. The current version is shown above — read it again before you sign."
     },
     "draw": {
       "title": "Your signature",

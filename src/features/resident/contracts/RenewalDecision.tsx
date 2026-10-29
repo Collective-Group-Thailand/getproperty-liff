@@ -52,6 +52,15 @@ export function RenewalDecision({
   const declineAttempt = useIdempotentAttempt<{ reason: string | null }>();
   const path = { offerId };
 
+  // The offer was withdrawn, expired or answered meanwhile (`renewal.invalid_state`): the page loads it again and shows
+  // it as it is now — without the answers that no longer apply (review G, L3).
+  function settle(problem: ApiError) {
+    if (problem.code !== "renewal.invalid_state") return;
+    setConfirmAccept(false);
+    setDeclining(false);
+    router.refresh();
+  }
+
   async function accept() {
     setBusy("accept");
     setError(null);
@@ -70,6 +79,7 @@ export function RenewalDecision({
       acceptAttempt.failed(problem);
       setConfirmAccept(false);
       setError(problem);
+      settle(problem);
     } finally {
       setBusy(null);
     }
@@ -95,6 +105,7 @@ export function RenewalDecision({
       const problem = toApiError(caught);
       declineAttempt.failed(problem);
       setError(problem);
+      settle(problem);
     } finally {
       setBusy(null);
     }

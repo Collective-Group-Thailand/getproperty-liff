@@ -102,8 +102,11 @@ test.describe("self-viewing (GL2, D-295)", () => {
     await page.getByTestId("verification-start").click();
     await expect(page).toHaveURL(/^https:\/\/ekyc\.example\.test\//);
     await forceProblems(context, baseURL!, { "viewing.self": "on", "ekyc.decide": "approved" });
-    await page.goto(`${baseURL}/rent/verification?next=${encodeURIComponent(BOOKING)}`);
+    // The provider sends everyone back to the API's fixed page — no `next` (review G, L5): the booking is remembered.
+    await page.goto(`${baseURL}/rent/verification`);
     await expect(page.getByTestId("verification")).toHaveAttribute("data-state", "verified");
+    await expect(page.getByTestId("back-link")).toHaveAttribute("href", BOOKING);
+    await expect(page.getByTestId("back-link")).toHaveText(text("th", "backToBooking"));
     await page.getByTestId("back-link").click();
     await expect(page.getByTestId("self-step-identity")).toHaveAttribute("data-done", "true");
 

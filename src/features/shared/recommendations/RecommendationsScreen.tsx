@@ -98,7 +98,8 @@ export async function RecommendationsScreen({
             </p>
           </div>
         </div>
-        {state === "on" ? <WithdrawButton audience={audience} /> : null}
+        {/* D-025 / D-300 (1): stopping is as easy as agreeing — whenever an agreement is on file, in any version. */}
+        {state !== "off" ? <WithdrawButton audience={audience} outdated={state === "outdated"} /> : null}
       </Card>
 
       <ConsentText consent={data.consent} locale={locale} />

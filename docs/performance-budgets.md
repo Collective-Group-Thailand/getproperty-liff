@@ -328,3 +328,20 @@ first tap.
 | `recommendations` | `/recommendations`, `/recommendations/history`, `/rent/recommendations`, `/rent/enquiries` | 173.7, 173.7, 173.7, 170.2 KB | 180 KB |
 | `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` (re-run) | 175.9–179.4 (the fake LIFF's redirect lands in some runs), 173.3, 177.1, 169.2 KB | 180 KB |
 | `resident-sign`, `technician` | `/lease/<id>/sign`; `/technician`, a work order | 177.9; 171.6, 177.6 KB | 180 KB |
+
+### G-review fixes (2026-10-29, `pnpm lhci resident-sign resident-contracts recommendations relocation-reviews relocation-reviews-forms prospect`, sandbox, `CHROME_PATH` = Playwright Chromium; all pass)
+
+The sets whose pages changed. A first cut dropped the door code with `flushSync` from `react-dom`: that one import
+regrouped the shared framework chunks of every page (two chunks became three, +0.9 KB transfer; the review form went
+to 180.0 KB) — measured against a build of `82e5110` and bisected. The panel now hides the code's box synchronously
+(`hidden` on the element) instead, and the shared chunks are those of `82e5110` again.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident-sign` | `/lease/<id>/sign` | 177.5 KB | 180 KB |
+| `resident-contracts` | `/contracts`, `/contracts/<id>`, `…/sign`, `/renewals/<id>`, `/lease/<id>` | 171.3, 173.9, 177.5, 175.7, 175.8 KB | 180 KB |
+| `recommendations` | `/recommendations`, `/recommendations/history`, `/rent/recommendations`, `/rent/enquiries` | 172.8, 172.8, 172.8, 169.2 KB | 180 KB |
+| `relocation-reviews` | `/relocation`, `/relocation/<offer>`, `/lease/<id>/review` (published), `/lease/<id>` | 174.8, 179.0, 174.3, 175.8 KB | 180 KB |
+| `relocation-reviews-forms` | `/relocation` (off: consent), `/lease/<id>/review` (form) | 174.8, 179.1 KB | 180 KB |
+| `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` | 176.6, 175.4, 178.8 KB | 180 KB |
+
