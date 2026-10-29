@@ -193,6 +193,31 @@ describe("M4 — the move-out notice", () => {
     expect(await screen.findByTestId("notice-done")).toBeInTheDocument();
     expect(sent(1).method).toBe("GET");
   });
+
+  it("the done screen and its relocation prompt survive the refresh that no longer offers give-notice", async () => {
+    net.fetch.mockImplementationOnce(async () => json(recorded));
+    const view = wrap(<NoticeForm lease={lease} earliest="2026-12-31" locale="en" />);
+    fireEvent.click(screen.getByTestId("notice-review"));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("notice-submit"));
+    });
+    expect(await screen.findByTestId("notice-done")).toBeInTheDocument();
+    // What the refreshed page sends: the same component, now with the "unavailable" view.
+    view.rerender(
+      <NextIntlClientProvider locale="en" messages={messages} timeZone="Asia/Bangkok">
+        <NoticeForm lease={lease} earliest={null} locale="en" unavailable={<p data-testid="notice-unavailable" />} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByTestId("notice-done")).toBeInTheDocument();
+    expect(screen.getByTestId("relocation-prompt-open")).toBeInTheDocument();
+    expect(screen.queryByTestId("notice-unavailable")).toBeNull();
+  });
+
+  it("without a notice of its own, a lease that offers no give-notice shows the unavailable view", () => {
+    wrap(<NoticeForm lease={lease} earliest={null} locale="en" unavailable={<p data-testid="notice-unavailable" />} />);
+    expect(screen.getByTestId("notice-unavailable")).toBeInTheDocument();
+    expect(screen.queryByTestId("notice-form")).toBeNull();
+  });
 });
 
 describe("L3 — the link is on file even when the session rotation after it fails", () => {

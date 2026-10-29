@@ -201,11 +201,7 @@ export function ReviewForm({
             data-testid="review-consent"
           />
         </WhenNear>
-        {invalid.has("consent") ? (
-          <Callout tone="danger">
-            <span role="alert">{t("consent.required")}</span>
-          </Callout>
-        ) : null}
+        {invalid.has("consent") ? <Callout tone="danger">{t("consent.required")}</Callout> : null}
       </div>
 
       {notice ? (

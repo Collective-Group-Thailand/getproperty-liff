@@ -249,11 +249,7 @@ export function ContactPanel({
               data-testid="prospect-consent"
             />
           </WhenNear>
-          {consentMissing ? (
-            <Callout tone="danger">
-              <span role="alert">{t("consent.required")}</span>
-            </Callout>
-          ) : null}
+          {consentMissing ? <Callout tone="danger">{t("consent.required")}</Callout> : null}
         </div>
       ) : null}
 

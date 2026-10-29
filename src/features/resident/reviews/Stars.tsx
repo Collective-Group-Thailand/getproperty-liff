@@ -1,24 +1,11 @@
+import { Icon } from "@/ui/icons";
+import { IconStar } from "@/ui/icons/glyphs/star";
 import { cn } from "@/ui/lib/cn";
 
-/** A five-point star drawn for the rating (getproperty's own shape; the curated icon set has none). */
+/** One rating star: the curated `star` glyph (synced from getproperty-web), filled when it counts. */
 export function StarShape({ filled, className }: { filled: boolean; className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="24"
-      height="24"
-      aria-hidden="true"
-      focusable="false"
-      className={cn(filled ? "text-primary" : "text-muted", className)}
-    >
-      <path
-        d="M12 2.8l2.73 5.8 6.33.78-4.67 4.36 1.2 6.26L12 16.9l-5.59 3.1 1.2-6.26-4.67-4.36 6.33-.78z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Icon icon={IconStar} size={24} className={cn(filled ? "text-primary fill-current" : "text-muted", className)} />
   );
 }
 

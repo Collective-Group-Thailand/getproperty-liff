@@ -67,11 +67,7 @@ export function RelocationConsentForm({ version, language }: { version: number; 
           data-testid="relocation-consent-box"
         />
       </WhenNear>
-      {missing ? (
-        <Callout tone="danger">
-          <span role="alert">{t("required")}</span>
-        </Callout>
-      ) : null}
+      {missing ? <Callout tone="danger">{t("required")}</Callout> : null}
       {error ? <ProblemCallout error={error} /> : null}
       <Button type="submit" size="lg" block loading={busy} data-testid="relocation-consent-submit">
         {t("submit")}

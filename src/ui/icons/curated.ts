@@ -1,4 +1,4 @@
-// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
+// copied from getproperty-web@c3a5aa7 until collective-shared exists (D-155)
 /**
  * The curated icon set (design-system.md §2): our name for an icon's *meaning* → the Lucide glyph
  * drawn for it. Zones never import from `lucide-react`; `pnpm icons` turns this map into
@@ -123,6 +123,9 @@ export const CURATED_ICONS = {
   book: "book-open",
   globe: "globe",
   percent: "percent",
+  // G9 (D-301): verified reviews, AI listing drafts
+  star: "star",
+  sparkles: "sparkles",
   // theme & language
   "theme-system": "monitor",
   "theme-light": "sun",

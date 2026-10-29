@@ -10,7 +10,14 @@ export const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 export async function expectAxeClean(page: Page) {
   // A refresh in flight (router.refresh after a mutation) may stream the head again: wait for the title.
-  await expect.poll(() => page.title()).not.toBe("");
+  // `router.replace` + `router.refresh` stream it twice, so the title must stay set across two reads.
+  await expect
+    .poll(async () => {
+      const first = await page.title();
+      await page.waitForTimeout(300);
+      return first !== "" && (await page.title()) !== "";
+    })
+    .toBe(true);
   // A toast still fading in is read as low contrast (its colours are blended with the page): let it settle.
   await page
     .waitForFunction(
