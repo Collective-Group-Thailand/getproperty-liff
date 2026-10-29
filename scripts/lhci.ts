@@ -9,6 +9,7 @@
  *   pnpm lhci                 every set
  *   pnpm lhci resident        named sets only
  *   LHCI_PORT=3401 pnpm lhci  another port, when 3400 is taken
+ *   LHCI_SHARD=2/3 pnpm lhci  the second of three shards — CI runs the shards in parallel (sets balanced by URL count)
  *
  * Needs a prior `NEXT_PUBLIC_LIFF_MOCK=1 pnpm build` (the flag is inlined at build time). Not part of
  * `pnpm test`; CI runs it in its own job from L1.
@@ -59,6 +60,38 @@ if (configs.length === 0) {
   process.exit(1);
 }
 
+/**
+ * `LHCI_SHARD=i/n`: only the sets of shard i. Sets go, largest first, to the shard with the fewest URLs so far — the
+ * same split on every runner, and a new set lands in some shard without anyone listing it.
+ */
+function shardOf(names: string[]): string[] {
+  const shard = process.env.LHCI_SHARD;
+  if (!shard) return names;
+  const match = /^(\d+)\/(\d+)$/.exec(shard);
+  const index = Number(match?.[1]);
+  const total = Number(match?.[2]);
+  if (!match || total < 1 || index < 1 || index > total) {
+    console.error(`LHCI_SHARD must look like 2/3, not ${shard}.`);
+    process.exit(1);
+  }
+  const urls = (name: string) =>
+    (JSON.parse(readFileSync(join(ROOT, `lighthouse/${name}.json`), "utf8")) as { ci: { collect: { url: string[] } } })
+      .ci.collect.url.length;
+  const bins = Array.from({ length: total }, () => ({ urls: 0, names: [] as string[] }));
+  for (const name of [...names].sort((a, b) => urls(b) - urls(a) || a.localeCompare(b))) {
+    const bin = bins.reduce((least, candidate) => (candidate.urls < least.urls ? candidate : least));
+    bin.urls += urls(name);
+    bin.names.push(name);
+  }
+  return bins[index - 1].names;
+}
+
+const sharded = shardOf(configs);
+if (sharded.length === 0) {
+  console.info(`Shard ${process.env.LHCI_SHARD} has no URL set.`);
+  process.exit(0);
+}
+
 /** The set's config with its URLs on `LHCI_PORT`, written beside the original and removed afterwards. */
 function configFor(name: string): { path: string; cleanup: () => void } {
   if (PORT === 3400) return { path: `lighthouse/${name}.json`, cleanup: () => undefined };
@@ -103,7 +136,7 @@ async function main(): Promise<void> {
 
   try {
     await waitForServer();
-    for (const name of configs) {
+    for (const name of sharded) {
       console.info(`\n── lighthouse: ${name} ──`);
       const config = configFor(name);
       // Chrome refuses to sandbox as root (containers, CI images): only then is the sandbox switched off.
