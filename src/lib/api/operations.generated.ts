@@ -505,6 +505,12 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "public.listings.reviews",
+    method: "GET",
+    path: "/v1/public/listings/{slug}/reviews",
+    idempotent: false,
+  },
+  {
     operationId: "public.listings.viewingSlots",
     method: "GET",
     path: "/v1/public/listings/{slug}/viewing-slots",
@@ -724,6 +730,24 @@ export const OPERATIONS = [
     operationId: "resident.leases.rentCertificateDocument",
     method: "GET",
     path: "/v1/resident/leases/{leaseId}/rent-certificates/{certificateId}/document",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.reviews.get",
+    method: "GET",
+    path: "/v1/resident/leases/{leaseId}/review",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.reviews.submit",
+    method: "POST",
+    path: "/v1/resident/leases/{leaseId}/review",
+    idempotent: true,
+  },
+  {
+    operationId: "resident.reviews.withdraw",
+    method: "POST",
+    path: "/v1/resident/leases/{leaseId}/review/actions/withdraw",
     idempotent: false,
   },
   {
@@ -1077,6 +1101,7 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/invitations/{code}/accept",
   "POST /v1/resident/invoices/{invoiceId}/slips",
   "POST /v1/resident/leases/{leaseId}/notice",
+  "POST /v1/resident/leases/{leaseId}/review",
   "POST /v1/resident/leases/{leaseId}/rules/acknowledge",
   "POST /v1/resident/leases/{leaseId}/sign",
   "POST /v1/resident/link",

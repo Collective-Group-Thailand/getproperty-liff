@@ -37,6 +37,8 @@ export const DEEP_LINK_ROOTS = [
   // to renew (`/renewals/<id>`).
   "contracts",
   "renewals",
+  // GL4 (D-299): a relocation offer after a move-out notice (`/relocation/<id>`, the API's LINE message).
+  "relocation",
   // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
   "link",
   "consent",

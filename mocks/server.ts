@@ -18,8 +18,10 @@ import { landlordHandlers } from "./landlord";
 import { linkHandlers } from "./links";
 import { prospectHandlers } from "./prospect";
 import { recommendationHandlers } from "./recommendations";
+import { relocationHandlers } from "./relocation";
 import { rentRecordHandlers } from "./rentRecord";
 import { residentHandlers } from "./resident";
+import { reviewHandlers } from "./reviews";
 import { serviceHandlers } from "./service";
 import { uploadHandlers } from "./uploads";
 
@@ -36,6 +38,8 @@ const handlers = [
   ...identityHandlers,
   ...rentRecordHandlers,
   ...libraryContractHandlers,
+  ...relocationHandlers,
+  ...reviewHandlers,
   ...landlordHandlers,
   ...contractHandlers,
   ...exampleHandlers,

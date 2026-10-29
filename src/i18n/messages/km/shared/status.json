@@ -144,5 +144,18 @@
     "expired": "លេខកូដផុតកំណត់",
     "no_show": "មិនបានមកមើល",
     "cancelled": "លេខកូដត្រូវបានបិទ"
+  },
+  "review": {
+    "pending_moderation": "កំពុងរង់ចាំការពិនិត្យ",
+    "published": "បានផ្សាយ",
+    "rejected": "មិនបានផ្សាយ",
+    "hidden": "បានលាក់",
+    "withdrawn": "បានដកចេញ"
+  },
+  "relocation": {
+    "open": "កំពុងស្វែងរក",
+    "dismissed": "បានបិទ",
+    "withdrawn": "បានបញ្ឈប់",
+    "closed": "បានបញ្ចប់"
   }
 }

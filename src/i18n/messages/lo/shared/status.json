@@ -144,5 +144,18 @@
     "expired": "ລະຫັດໝົດເວລາ",
     "no_show": "ບໍ່ໄດ້ເຂົ້າຊົມ",
     "cancelled": "ປິດລະຫັດແລ້ວ"
+  },
+  "review": {
+    "pending_moderation": "ລໍຖ້າການກວດສອບ",
+    "published": "ເຜີຍແຜ່ແລ້ວ",
+    "rejected": "ບໍ່ໄດ້ເຜີຍແຜ່",
+    "hidden": "ຖືກເຊື່ອງ",
+    "withdrawn": "ຖອນແລ້ວ"
+  },
+  "relocation": {
+    "open": "ກຳລັງຊອກຫາ",
+    "dismissed": "ປິດແລ້ວ",
+    "withdrawn": "ຢຸດແລ້ວ",
+    "closed": "ສິ້ນສຸດແລ້ວ"
   }
 }

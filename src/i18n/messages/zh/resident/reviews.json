@@ -1,0 +1,123 @@
+{
+  "metaTitle": "评价这栋楼",
+  "title": "评价 {building}",
+  "lead": "告诉别人住在这里的感受。只有真正住过的人才能评价，且不会显示您的姓名。",
+  "back": "返回租约",
+  "tenure": "您在这里住了 {from} – {to}",
+  "tenureNow": "您自 {from} 起住在这里",
+  "sent": {
+    "title": "谢谢——评价已发送",
+    "body": "getproperty 团队会在发布前审核。您可以在这里查看状态。"
+  },
+  "tooEarly": {
+    "title": "暂时还不能评价",
+    "body": "您可以从 {date} 起评价这栋楼——在住满规定时间后，或搬出后。",
+    "bodyNoDate": "在住满规定时间后，或搬出后，即可评价这栋楼。"
+  },
+  "unavailable": {
+    "not_started": {
+      "title": "此租约无法评价",
+      "body": "只有在此租约下住过的人才能评价这栋楼。"
+    },
+    "window_closed": {
+      "title": "评价时间已过",
+      "body": "搬出后可评价的时间已经过了。"
+    },
+    "too_early": {
+      "title": "暂时还不能评价",
+      "body": "稍后即可评价这栋楼。"
+    }
+  },
+  "consent": {
+    "heading": "发布您的评价",
+    "version": "第 {version} 版",
+    "english": "此文本仅有泰文和英文版本，因此以英文显示。"
+  },
+  "noConsent": {
+    "title": "目前无法评价",
+    "body": "请稍后再试。"
+  },
+  "form": {
+    "rating": {
+      "label": "您的评分",
+      "value": "{count, plural, other {# 星}}",
+      "hint": "点击星星评分",
+      "required": "请选择 1 到 5 星",
+      "word": {
+        "1": "1 — 差",
+        "2": "2 — 低于预期",
+        "3": "3 — 一般",
+        "4": "4 — 好",
+        "5": "5 — 非常好"
+      }
+    },
+    "body": {
+      "label": "您的评价",
+      "hint": "{count} / {max} 字",
+      "placeholder": "例如：楼里干净，电梯快，物业回复及时；傍晚停车位少",
+      "length": "请写 {min} 到 {max} 个字",
+      "personal": "请删除联系方式或账户信息：电话号码、电子邮件、LINE ID、链接、银行账号或身份证号。"
+    },
+    "rules": {
+      "title": "只写与这栋楼有关的内容",
+      "body": "不要写电话号码、电子邮件、LINE ID、链接、银行账号或身份证号——无论是您的还是他人的。评价在发布前会经过审核。"
+    },
+    "consent": {
+      "label": "我同意按以上文本发布我的评价（第 {version} 版）",
+      "hint": "可选。不同意则不会发布。",
+      "required": "请勾选以发布您的评价。"
+    },
+    "consentChanged": "文本刚刚更新。请重新阅读并勾选。",
+    "notEligible": "您暂时还不能评价这栋楼。",
+    "notEligibleFrom": "您可以从 {date} 起评价这栋楼。",
+    "submit": "发送评价",
+    "moderation": "getproperty 团队会在发布前审核评价。"
+  },
+  "mine": {
+    "title": "我的评价",
+    "rating": "{count, plural, other {5 星中的 # 星}}",
+    "erased": "撤回评价时，文字已被删除。",
+    "meta": "{tenure} · {date} 发送",
+    "tenure": "在此居住 {from} – {to}",
+    "tenureNow": "自 {from} 起在此居住",
+    "reply": "楼主的回复",
+    "pending": {
+      "title": "等待 getproperty 团队审核",
+      "body": "您的评价在发布前会经过审核，目前其他人还看不到。"
+    },
+    "published": {
+      "title": "已发布",
+      "body": "您的评价已显示在这栋楼的房源上，标注“已验证租户”，不显示您的姓名或房号。"
+    },
+    "rejected": {
+      "title": "未发布",
+      "body": "getproperty 团队未发布此评价。",
+      "reason": "getproperty 团队未发布此评价：{reason}"
+    },
+    "hidden": {
+      "title": "已隐藏",
+      "body": "getproperty 团队隐藏了此评价。",
+      "reason": "getproperty 团队隐藏了此评价：{reason}"
+    },
+    "withdrawn": {
+      "title": "已撤回",
+      "body": "您已撤回此评价。此租约不能再次评价。"
+    }
+  },
+  "withdraw": {
+    "cta": "撤回我的评价",
+    "title": "撤回您的评价？",
+    "body": "文字会立即删除，评价也不再计入这栋楼的评分。您将不能再次评价此租约。",
+    "confirm": "永久撤回",
+    "cancel": "保留"
+  },
+  "entry": {
+    "title": "评价这栋楼",
+    "write": "您在这里住的时间已足够评价，且不会显示您的姓名。",
+    "writeCta": "写评价",
+    "wait": "住满规定时间后即可评价这栋楼。",
+    "waitFrom": "您可以从 {date} 起评价这栋楼。",
+    "mine": "您对这栋楼的评价。",
+    "mineCta": "查看我的评价"
+  }
+}

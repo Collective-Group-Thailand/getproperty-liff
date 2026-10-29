@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
@@ -12,7 +12,7 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { useCameraLabels } from "@/features/shared/useCameraLabels";
 import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { Button } from "@/ui/components/Button";
-import { CameraCapture } from "@/ui/components/CameraCapture";
+import type { CameraCaptureProps } from "@/ui/components/CameraCapture";
 import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
 import { Textarea } from "@/ui/components/Input";
@@ -21,8 +21,15 @@ import { IconBack } from "@/ui/icons/glyphs/back";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconClose } from "@/ui/icons/glyphs/close";
 import { IconFlag } from "@/ui/icons/glyphs/flag";
+import { Skeleton } from "@/ui/components/Skeleton";
+import { lazyWarm } from "@/ui/lib/lazy";
 
 const MAX_PHOTOS = 6;
+
+/** The camera is needed only to dispute: loaded when the dispute form opens (D-179; `/deposit` stays ≤ 180 KB). */
+const CameraCapture = lazyWarm<CameraCaptureProps>(() =>
+  import("@/ui/components/CameraCapture").then((module) => module.CameraCapture),
+);
 
 type Mode = "choose" | "accept" | "dispute";
 
@@ -178,21 +185,23 @@ export function DepositResponse({
             data-testid="deposit-dispute-reason"
           />
         </Field>
-        <CameraCapture
-          label={t("addPhoto")}
-          hint={t("photoHint", { max: MAX_PHOTOS })}
-          labels={cameraLabels}
-          multiple
-          maxShots={Math.max(1, MAX_PHOTOS - photos.length)}
-          guide="none"
-          fileBaseName="dispute"
-          disabled={photos.length >= MAX_PHOTOS || busy}
-          onCapture={(files) => {
-            setPhotos((current) =>
-              [...current, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))].slice(0, MAX_PHOTOS),
-            );
-          }}
-        />
+        <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+          <CameraCapture
+            label={t("addPhoto")}
+            hint={t("photoHint", { max: MAX_PHOTOS })}
+            labels={cameraLabels}
+            multiple
+            maxShots={Math.max(1, MAX_PHOTOS - photos.length)}
+            guide="none"
+            fileBaseName="dispute"
+            disabled={photos.length >= MAX_PHOTOS || busy}
+            onCapture={(files) => {
+              setPhotos((current) =>
+                [...current, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))].slice(0, MAX_PHOTOS),
+              );
+            }}
+          />
+        </Suspense>
         {photos.length ? (
           <ul className="grid grid-cols-3 gap-2" role="list" aria-label={t("photos")} data-testid="deposit-photos">
             {photos.map((photo, index) => (

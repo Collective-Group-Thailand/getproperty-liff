@@ -1,0 +1,181 @@
+{
+  "title": "Find your next place",
+  "lead": "When you move out, getproperty can show vacant places where you are moving to — only if you turn it on.",
+  "back": {
+    "home": "Home",
+    "relocation": "Find your next place"
+  },
+  "footnote": "Your current landlord does not see where you are moving to. You can also change this in",
+  "privacyLink": "Privacy and consent",
+  "status": {
+    "title": "Relocation help is on",
+    "since": "On since {date} (text version {version})",
+    "onShort": "On",
+    "privacy": "We use only the destination and budget you give us, and your rent record goes to a new landlord only when you send it.",
+    "stop": "Stop relocation help",
+    "onTitle": "Relocation help is on",
+    "onBody": "When you give notice on a lease, an offer appears here and in LINE. Tell us where you are moving to and see places there.",
+    "stoppedTitle": "Relocation help stopped",
+    "stoppedBody": "Open offers are closed and the destinations you gave are erased. Nothing else changes."
+  },
+  "consent": {
+    "title": "Turn on relocation help",
+    "changedTitle": "The text has changed — please read it again",
+    "lead": "Optional. Saying no changes nothing about your lease or any other service.",
+    "heading": "Consent text from getproperty",
+    "version": "Version {version}",
+    "english": "This text is available in Thai and English only, so it is shown in English.",
+    "agree": "I agree to the text above (version {version})",
+    "agreeHint": "You can stop at any time, in one tap.",
+    "required": "Tick the box to turn relocation help on.",
+    "submit": "Turn on relocation help"
+  },
+  "unavailable": {
+    "title": "Not available at the moment",
+    "body": "Relocation help is not offered right now. Please try again later."
+  },
+  "offers": {
+    "title": "My moves",
+    "unit": "Moving out of {unit}",
+    "moveOut": "{landlord} · moving out {date}",
+    "destination": "{count, plural, =0 {No places there yet} one {# place there} other {# places there}}",
+    "destinationBudget": "{count, plural, =0 {No places there yet} one {# place there} other {# places there}} · up to {budget}",
+    "whereTo": "Tell us where you are moving to",
+    "emptyTitle": "No moves yet",
+    "emptyOnBody": "An offer appears here when you or your landlord give notice on a lease.",
+    "emptyOffBody": "Turn on relocation help to get offers after a move-out notice.",
+    "preparingTitle": "Preparing your offer",
+    "preparingBody": "Your lease has a move-out notice. Your offer appears here in a moment — open this page again shortly."
+  },
+  "offer": {
+    "metaTitle": "My move",
+    "title": "Where are you moving to?",
+    "leaving": "Leaving {unit} with {landlord} on {date}",
+    "leavingNoDate": "Leaving {unit} with {landlord}",
+    "missingTitle": "Offer not found",
+    "missingBody": "It may have closed. Your other moves are on the relocation page.",
+    "offTitle": "Relocation help is off",
+    "offBody": "Turn it on again to see places where you are moving to.",
+    "offCta": "Turn on relocation help",
+    "closed": {
+      "dismissed": {
+        "title": "You closed this offer",
+        "body": "Its destination was erased. No more places are shown for this move."
+      },
+      "withdrawn": {
+        "title": "Relocation help was stopped",
+        "body": "This offer closed and its destination was erased."
+      },
+      "closed": {
+        "title": "This move has ended",
+        "body": "Offers close after the lease ends. Its destination was erased."
+      }
+    },
+    "footnote": "Places come from public listings on getproperty. Your current landlord does not see this page."
+  },
+  "destination": {
+    "title": "Destination and budget",
+    "lead": "Pick an area or station, or type a province for places outside the list.",
+    "current": "Looking in {place}",
+    "currentBudget": "Looking in {place}, up to {budget} a month",
+    "privacy": "Used only to show you places. Erased when this offer closes or you stop.",
+    "mode": {
+      "label": "How to choose",
+      "area": "Area or station",
+      "place": "Province"
+    },
+    "areasUnavailable": "The list of areas could not be loaded. Type a province instead.",
+    "area": {
+      "label": "Area or station",
+      "search": "Search an area or station",
+      "hint": "For example Ari, Chatuchak, On Nut",
+      "change": "Search to choose another one",
+      "required": "Choose an area or station",
+      "station": "Station",
+      "district": "District",
+      "noMatch": "Nothing matches \"{query}\". Try another name, or choose by province."
+    },
+    "place": {
+      "label": "Province and district",
+      "province": "Province",
+      "provinceHint": "For example เชียงใหม่ (in Thai, as on listings)",
+      "district": "District (optional)",
+      "districtHint": "For example เมืองเชียงใหม่",
+      "required": "Type a province",
+      "invalid": "Check the district"
+    },
+    "budget": {
+      "label": "Highest rent a month (baht, optional)",
+      "hint": "Only places up to this rent are shown",
+      "invalid": "Type an amount in baht, for example 12000"
+    },
+    "submit": "Show places",
+    "update": "Update",
+    "saved": "Saved. The places below are updated."
+  },
+  "listings": {
+    "title": "{count, plural, =0 {Places there} one {# place there} other {# places there}}",
+    "lead": "Ask an owner directly from here.",
+    "leadRecord": "Ask an owner directly from here — and send your rent record with it if you want.",
+    "enquired": "{count, plural, one {You asked about # place from this offer} other {You asked about # places from this offer}}",
+    "emptyTitle": "No places there yet",
+    "emptyBody": "Try a nearby area or a higher budget. New listings appear here as they are published.",
+    "perMonth": "/month",
+    "size": "{size} m²",
+    "studio": "Studio",
+    "bedrooms": "{count, plural, one {# bedroom} other {# bedrooms}}",
+    "transit": "{name} · {distance} m",
+    "verifiedOwner": "Verified owner",
+    "verifiedVacant": "Verified vacant",
+    "noPhoto": "No photos yet",
+    "view": "View the listing"
+  },
+  "enquire": {
+    "open": "Ask the owner",
+    "title": "Ask the owner",
+    "to": "About: {title}",
+    "message": "Your message",
+    "messagePlaceholder": "For example: I am moving at the start of next month. Is the room still free?",
+    "moveIn": "Move-in date (optional)",
+    "moveInHint": "Helps the owner answer",
+    "share": {
+      "label": "Send my rent record with this message",
+      "hint": "The owner sees your confirmed months only: on time {onTime}, late {late}, unpaid {outstanding}. Not a score. You can stop sharing later.",
+      "none": "Your rent record has no confirmed month yet, so it cannot be sent."
+    },
+    "consent": {
+      "label": "I agree that the owner of this listing uses my name, messages and LINE to answer me and arrange a viewing",
+      "hint": "Used only for renting this place, under Thailand's Personal Data Protection Act.",
+      "required": "Please give your consent before sending"
+    },
+    "submit": "Send to the owner",
+    "submitWithRecord": "Send with my rent record",
+    "done": {
+      "title": "Sent to the owner",
+      "created": "The owner answers in LINE. Your conversation is in My enquiries.",
+      "followUp": "Added to your conversation with this owner.",
+      "recordShared": "Your rent record went with it. You can stop sharing in your rent record.",
+      "recordNotYet": "Your rent record was not sent: it has no confirmed month yet.",
+      "recordKept": "Your rent record was not sent.",
+      "open": "Open the conversation"
+    }
+  },
+  "dismiss": {
+    "cta": "No more places for this move",
+    "title": "Close this offer?",
+    "body": "We stop showing places for this move and erase its destination. Relocation help stays on for future moves.",
+    "confirm": "Close the offer",
+    "cancel": "Keep it"
+  },
+  "prompt": {
+    "title": "Moving out? Find your next place",
+    "body": "getproperty can show vacant places where you are moving to, and send your rent record to a new landlord when you ask. Your landlord does not see it.",
+    "cta": "Find a place"
+  },
+  "how": {
+    "title": "How it works",
+    "where": "When you or your landlord give notice, tell us where you are moving to and your budget. We show vacant places there from public listings.",
+    "private": "Your current landlord does not see where you are moving to, and the destination is erased when the move ends or you stop.",
+    "record": "Ask an owner from the list in one step — your rent record goes with it only if you tick it."
+  }
+}
