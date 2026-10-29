@@ -189,6 +189,12 @@ export function pageFrom(raw: string | string[] | undefined): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
 }
 
+/** The history page of an audience at a page (`?page=N` only past the first) — redirects and sign-in returns keep it. */
+export function historyPath(audience: RecommendationsAudience, raw: string | string[] | undefined): string {
+  const page = pageFrom(raw);
+  return `${basePath(audience)}/history${page > 1 ? `?page=${page}` : ""}`;
+}
+
 export function hasOlder(meta: Schemas["PageMeta"], page: number): boolean {
   return page * meta.perPage < meta.total;
 }

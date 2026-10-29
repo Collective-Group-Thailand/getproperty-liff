@@ -60,10 +60,17 @@ export function SelfViewingAccess({
     return () => window.clearInterval(timer);
   }, []);
 
-  // The code never outlives the moment: hidden page, page left, window over.
+  // The code never outlives the moment: hidden page, page left, window over. Its box is hidden at once, in the event
+  // itself — before React re-renders — so the app-switcher snapshot and the back-forward cache never show it (review
+  // G, L2; `hidden` on the element React removes next, rather than `flushSync`, whose `react-dom` import regroups the
+  // shared chunks of every page, D-179).
+  const codeBox = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!code) return;
-    const drop = () => setCode(null);
+    const drop = () => {
+      if (codeBox.current) codeBox.current.hidden = true;
+      setCode(null);
+    };
     const onVisibility = () => {
       if (document.visibilityState === "hidden") drop();
     };
@@ -76,6 +83,15 @@ export function SelfViewingAccess({
       window.clearTimeout(expiry);
     };
   }, [code]);
+
+  // The owner ended the access (or it is over) meanwhile: no code stays on screen, the page shows the viewing as it is.
+  function settle(problem: ApiError) {
+    if (problem.code !== "viewing.access_invalid_state") return;
+    setCode(null);
+    setLeaving(false);
+    setReporting(false);
+    router.refresh();
+  }
 
   async function showCode() {
     setBusy("code");
@@ -90,8 +106,10 @@ export function SelfViewingAccess({
         ),
       );
     } catch (caught) {
-      setError(toApiError(caught));
+      const problem = toApiError(caught);
+      setError(problem);
       setNow(Date.now());
+      settle(problem);
     } finally {
       setBusy(null);
     }
@@ -113,6 +131,7 @@ export function SelfViewingAccess({
       const problem = toApiError(caught);
       arriveAttempt.failed(problem);
       setError(problem);
+      settle(problem);
     } finally {
       setBusy(null);
     }
@@ -138,6 +157,7 @@ export function SelfViewingAccess({
       leaveAttempt.failed(problem);
       setLeaving(false);
       setError(problem);
+      settle(problem);
     } finally {
       setBusy(null);
     }
@@ -164,6 +184,7 @@ export function SelfViewingAccess({
       const problem = toApiError(caught);
       incidentAttempt.failed(problem);
       setError(problem);
+      settle(problem);
     } finally {
       setBusy(null);
     }
@@ -211,6 +232,7 @@ export function SelfViewingAccess({
         busy={busy === "report" || busy === "leave" ? null : busy}
         onAction={act}
         onHide={() => setCode(null)}
+        codeRef={codeBox}
         notice={notice}
       />
 

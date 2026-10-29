@@ -25,6 +25,8 @@ export function ContractSignFlow({ contract, reader }: { contract: ResidentContr
       namespace="resident.contracts.sign"
       reader={reader}
       changedCode="contract.changed"
+      alreadySignedCode="contract.already_signed"
+      renderedSha256={contract.sha256}
       loadDocument={async () =>
         unwrap(await browserApi.GET("/v1/resident/contracts/{contractId}/document", { params: { path } }))
       }

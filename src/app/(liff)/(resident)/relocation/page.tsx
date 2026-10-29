@@ -106,6 +106,25 @@ export default async function RelocationPage({
           </Card>
         ) : text ? (
           <>
+            {state === "outdated" ? (
+              // D-025: an earlier agreement is still on file — stopping never waits for the new text to be agreed.
+              <Card
+                as="section"
+                padding="md"
+                aria-labelledby="relocation-outdated-title"
+                data-testid="relocation-outdated"
+              >
+                <h2 id="relocation-outdated-title" className="font-semibold">
+                  {t("status.outdatedTitle")}
+                </h2>
+                <p className="text-muted mt-1 text-sm">
+                  {t("status.outdatedBody", { version: text.grantedVersion ?? text.version })}
+                </p>
+                <div className="mt-3">
+                  <RelocationStop version={text.version} language={language} />
+                </div>
+              </Card>
+            ) : null}
             <Card as="section" padding="md" aria-labelledby="relocation-how-title" data-testid="relocation-how">
               <h2 id="relocation-how-title" className="font-semibold">
                 {t("how.title")}

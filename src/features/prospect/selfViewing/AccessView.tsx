@@ -31,6 +31,7 @@ export function AccessView({
   onAction,
   onHide,
   notice,
+  codeRef,
 }: {
   access: AccessSummary;
   now: number;
@@ -40,6 +41,8 @@ export function AccessView({
   onHide?: () => void;
   /** A problem or "not available now" callout under the actions. */
   notice?: React.ReactNode;
+  /** The shown code's box — hidden synchronously by the panel when the page is hidden (review G, L2). */
+  codeRef?: React.Ref<HTMLDivElement>;
 }) {
   const t = useTranslations("prospect.selfViewing.access");
   const root = useTranslations();
@@ -62,7 +65,7 @@ export function AccessView({
 
       {open ? (
         code ? (
-          <div className="bg-primary-subtle rounded-card flex flex-col gap-3 p-4" data-testid="self-code">
+          <div ref={codeRef} className="bg-primary-subtle rounded-card flex flex-col gap-3 p-4" data-testid="self-code">
             <p className="text-sm font-medium">{t("codeTitle")}</p>
             <p
               className="font-mono text-4xl font-semibold tracking-[0.25em] tabular-nums"

@@ -9,6 +9,10 @@
  *   notice to the end date (D-219), with fewer the lease simply ends.
  *
  * Documented problems are forced with the `gp_mock` cookie (`resident.renewals.accept=compliance.acknowledgement_required`).
+ *
+ * Mock-only control (never in the contract, never in a real build): `POST /v1/resident/__mock/contracts/{id}/change`
+ * plays the office editing a document waiting for signatures — the first clause's text changes and so does the PDF's
+ * sha256 (`contract.changed` for a signature on the old one).
  */
 import { http, HttpResponse, type HttpHandler } from "msw";
 
@@ -213,7 +217,7 @@ export const libraryContractHandlers: HttpHandler[] = [
     return HttpResponse.json({
       documentId: derived(contract.id, "d0c1"),
       number: contract.number,
-      sha256: MOCK_DOCUMENT_SHA,
+      sha256: contract.sha256 ?? MOCK_DOCUMENT_SHA,
       signed: contract.state === "signed",
       url: `https://storage.example.com/contracts/${contract.id}.pdf?X-Amz-Signature=mock`,
       expiresAt: bangkokIso(Date.now() + 5 * 60_000),
@@ -256,7 +260,9 @@ export const libraryContractHandlers: HttpHandler[] = [
     const signer = mySigner(contract);
     if (contract.state !== "pending_signature") return problem(op, "contract.invalid_state");
     if (!signer) return problem(op, "contract.already_signed");
-    if (body.contractSha256?.toLowerCase() !== MOCK_DOCUMENT_SHA) return problem(op, "contract.changed");
+    if (body.contractSha256?.toLowerCase() !== (contract.sha256 ?? MOCK_DOCUMENT_SHA)) {
+      return problem(op, "contract.changed");
+    }
     const png = typeof body.signaturePng === "string" ? body.signaturePng : "";
     if (!png.startsWith(PNG_MAGIC) || png.length > Math.ceil((200 * 1024 * 4) / 3)) {
       return problem(op, "contract.signature_invalid");
@@ -278,6 +284,26 @@ export const libraryContractHandlers: HttpHandler[] = [
       nextActions: ["download"],
     } satisfies Partial<Contract>);
     return remember(state, replay.key, contract);
+  }),
+
+  http.post(mswPath("/v1/resident/__mock/contracts/:contractId/change"), ({ request, params }) => {
+    const auth = authenticate(request, "resident", "resident.contracts.get");
+    if (auth instanceof Response) return auth;
+    const contract = stateOf(auth.account).contracts.find((c) => c.id === params.contractId);
+    if (!contract) return problem("resident.contracts.get", "http.not_found");
+    const edits =
+      (contract.sha256 === MOCK_DOCUMENT_SHA ? 0 : Number.parseInt(contract.sha256?.slice(-4) ?? "0", 16)) + 1;
+    const clauses = contract.variables.clauses ?? [];
+    contract.variables = {
+      ...contract.variables,
+      clauses: clauses.map((clause, index) =>
+        index === 0
+          ? { ...clause, text: `${clause.text.replace(/ \(แก้ไขครั้งที่ \d+\)$/, "")} (แก้ไขครั้งที่ ${edits})` }
+          : clause,
+      ),
+    };
+    contract.sha256 = `${MOCK_DOCUMENT_SHA.slice(0, -4)}${edits.toString(16).padStart(4, "0")}`;
+    return HttpResponse.json(contract);
   }),
 
   // ── renewal offers (D-294) ───────────────────────────────────────────────────────────────────────

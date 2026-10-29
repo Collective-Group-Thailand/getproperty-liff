@@ -147,6 +147,44 @@ test.describe("recommended places (GL1, D-300)", () => {
     await expect(page.getByTestId("recommendations-areas")).toContainText("ไม่มีในรายชื่อแล้ว");
   });
 
+  test("while the agreement on file is for an earlier text, stopping takes one tap (review G, M3)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await seedSession(context, baseURL!, subject("recs", "outdated"));
+    await page.goto("/recommendations");
+    await openForm(page);
+    await page.getByTestId("recommendations-accept").click();
+    await page.getByTestId("recommendations-submit").click();
+    await expect(page.getByTestId("recommendations")).toHaveAttribute("data-state", "on");
+
+    await forceProblems(context, baseURL!, { "recommendations.version": "2" });
+    await page.goto("/recommendations");
+    await expect(page.getByTestId("recommendations")).toHaveAttribute("data-state", "outdated");
+    await expect(page.getByTestId("recommendations-status")).toContainText(text("th", "status.outdated.stopHint"));
+    await expectAxeClean(page);
+    await page.getByTestId("recommendations-withdraw").click();
+    await expect(page).toHaveURL(/\/recommendations\?stopped=1$/);
+    await expect(page.getByTestId("recommendations")).toHaveAttribute("data-state", "off");
+    await expect(page.getByTestId("recommendations-stopped")).toBeVisible();
+    await expect(page.getByTestId("recommendations-withdraw")).toHaveCount(0);
+  });
+
+  test("the history link keeps its page on the way to the prospect side (review G, L4)", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    // Nobody signed in: the prospect sign-in returns to the same page.
+    await page.goto("/recommendations/history?page=2");
+    await expect.poll(() => decodeURIComponent(page.url())).toContain("/rent/recommendations/history?page=2");
+
+    await seedProspect(context, baseURL!, subject("prospect", "adsseen", "page"));
+    await page.goto("/recommendations/history?page=2");
+    await expect(page).toHaveURL(/\/rent\/recommendations\/history\?page=2$/);
+  });
+
   test("what was sent: ad label, sponsor, a listing no longer public, paged", async ({ page, context, baseURL }) => {
     await seedProspect(context, baseURL!, subject("prospect", "adsseen"));
     await page.goto("/rent/recommendations");

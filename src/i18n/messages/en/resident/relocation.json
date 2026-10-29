@@ -16,7 +16,9 @@
     "onTitle": "Relocation help is on",
     "onBody": "When you give notice on a lease, an offer appears here and in LINE. Tell us where you are moving to and see places there.",
     "stoppedTitle": "Relocation help stopped",
-    "stoppedBody": "Open offers are closed and the destinations you gave are erased. Nothing else changes."
+    "stoppedBody": "Open offers are closed and the destinations you gave are erased. Nothing else changes.",
+    "outdatedTitle": "Paused: the text has changed",
+    "outdatedBody": "You agreed to version {version}. Relocation help is paused until you agree to the new text below. No longer want it? Stop now: open offers are closed and the destinations you gave are erased."
   },
   "consent": {
     "title": "Turn on relocation help",

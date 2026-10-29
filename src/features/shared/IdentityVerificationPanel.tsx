@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { rememberReturn } from "@/features/prospect/selfViewing/verificationReturn";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
@@ -37,10 +38,13 @@ export function IdentityVerificationPanel({
   audience,
   status,
   locale,
+  returnTo = null,
 }: {
   audience: VerificationAudience;
   status: Status;
   locale: Locale;
+  /** A booking to come back to after the provider (prospects, `?next=`): remembered in this tab before leaving. */
+  returnTo?: string | null;
 }) {
   const t = useTranslations("verification");
   const router = useRouter();
@@ -55,8 +59,10 @@ export function IdentityVerificationPanel({
     try {
       const next = await start(audience);
       const url = next.latest?.state === "pending" ? next.latest.verificationUrl : null;
-      if (url) window.location.assign(url);
-      else router.refresh();
+      if (url) {
+        if (returnTo) rememberReturn(returnTo);
+        window.location.assign(url);
+      } else router.refresh();
     } catch (caught) {
       setError(toApiError(caught));
       setBusy(false);
@@ -100,7 +106,13 @@ export function IdentityVerificationPanel({
           <>
             <p>{t("pendingBody", { date: formatDateTime(latest.expiresAt, locale) })}</p>
             <Button asChild size="lg" block iconStart={IconExternal}>
-              <a href={latest.verificationUrl} data-testid="verification-continue">
+              <a
+                href={latest.verificationUrl}
+                onClick={() => {
+                  if (returnTo) rememberReturn(returnTo);
+                }}
+                data-testid="verification-continue"
+              >
                 {t("continue")}
               </a>
             </Button>

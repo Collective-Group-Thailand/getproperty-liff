@@ -195,6 +195,39 @@ test.describe("relocation help after a move-out notice (GL4, D-299)", () => {
     );
     await expectAxeClean(page);
   });
+
+  test("a new text version: stop is there before agreeing again (review G, M3)", async ({ page, context, baseURL }) => {
+    await seedSession(context, baseURL!, subject("relocation", "outdated"));
+    await page.goto("/relocation");
+    await page.getByTestId("relocation-consent-slot").scrollIntoViewIfNeeded();
+    await page.getByTestId("relocation-consent-box").click();
+    await page.getByTestId("relocation-consent-submit").click();
+    await expect(page.getByTestId("relocation-page")).toHaveAttribute("data-on", "true");
+
+    // getproperty publishes version 2 (mock-only control); the version 1 agreement stays on file.
+    const origin = new URL(page.url()).origin;
+    const published = await page.request.post("/bff/v1/resident/__mock/consents/resident.relocation/publish", {
+      headers: { "x-getproperty-csrf": "1", origin },
+    });
+    expect(published.status()).toBe(200);
+    await page.goto("/relocation");
+    await expect(page.getByTestId("relocation-page")).toHaveAttribute("data-on", "false");
+    const outdated = page.getByTestId("relocation-outdated");
+    await expect(outdated).toContainText(text("th", "resident/relocation", "status.outdatedTitle"));
+    await expectNoHorizontalScroll(page);
+    await expectAxeClean(page);
+
+    await outdated.getByTestId("relocation-stop").click();
+    await expect(page).toHaveURL(/\/relocation\?stopped=1$/);
+    await expect(page.getByTestId("relocation-stopped")).toBeVisible();
+    await expect(page.getByTestId("relocation-outdated")).toHaveCount(0);
+    // The answer on file is now "no" to the current text.
+    const purposes = (await (await page.request.get("/bff/v1/resident/consents")).json()) as {
+      key: string;
+      granted: boolean | null;
+    }[];
+    expect(purposes.find((p) => p.key === "resident.relocation")?.granted).toBe(false);
+  });
 });
 
 test.describe("verified reviews of the building (GL4, D-301)", () => {

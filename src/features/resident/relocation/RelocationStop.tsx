@@ -12,8 +12,9 @@ import { Button } from "@/ui/components/Button";
 import { RELOCATION_PURPOSE } from "./model";
 
 /**
- * Stop in one tap (D-025: withdrawing is as easy as consenting) — `granted: false` for the version I agreed to. The
- * API closes my open offers and erases their destinations at once (D-299); nothing else changes.
+ * Stop in one tap (D-025: withdrawing is as easy as consenting) — `granted: false` for the current version of the
+ * text (also when the agreement on file is for an earlier one: an answer for that version would leave the state
+ * "outdated"). The API closes my open offers and erases their destinations at once (D-299); nothing else changes.
  */
 export function RelocationStop({ version, language }: { version: number; language: "th" | "en" }) {
   const t = useTranslations("resident.relocation.status");

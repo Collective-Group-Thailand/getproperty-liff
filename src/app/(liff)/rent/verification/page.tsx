@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { safeNext } from "@/features/prospect/selfViewing/model";
-import { BackLink } from "@/features/shared/BackLink";
+import { VerificationBackLink } from "@/features/prospect/selfViewing/VerificationBackLink";
 import { IdentityVerificationPanel } from "@/features/shared/IdentityVerificationPanel";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { isLocale } from "@/i18n/routing";
@@ -16,7 +16,8 @@ export async function generateMetadata() {
 
 /**
  * Verify my identity before I enquire (D-267, O-021): owners see the badge on my enquiries. Self-viewing (GL2,
- * D-295) sends people here with `?next=/rent/{slug}/self-viewing` — the back link then returns to that booking.
+ * D-295) sends people here with `?next=/rent/{slug}/self-viewing` — the back link then returns to that booking, also
+ * after the provider, whose return page (the API's) has no query: the panel remembers the booking in this tab.
  */
 export default async function ProspectVerificationPage({
   searchParams,
@@ -37,13 +38,19 @@ export default async function ProspectVerificationPage({
   const { data, error, response } = await api.GET("/v1/prospect/me/identity-verification");
   return (
     <div className="flex flex-col gap-2 py-3">
-      {next ? (
-        <BackLink href={next}>{sv("backToBooking")}</BackLink>
-      ) : (
-        <BackLink href="/rent/enquiries">{t("title")}</BackLink>
-      )}
+      <VerificationBackLink
+        next={next}
+        bookingLabel={sv("backToBooking")}
+        fallbackHref="/rent/enquiries"
+        fallbackLabel={t("title")}
+      />
       {data ? (
-        <IdentityVerificationPanel audience="prospect" status={data} locale={isLocale(current) ? current : "th"} />
+        <IdentityVerificationPanel
+          audience="prospect"
+          status={data}
+          locale={isLocale(current) ? current : "th"}
+          returnTo={next}
+        />
       ) : (
         <ProblemPage error={problemFromParsed(response, error)} />
       )}
