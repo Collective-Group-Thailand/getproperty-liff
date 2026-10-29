@@ -1,0 +1,181 @@
+{
+  "title": "寻找新住处",
+  "lead": "搬出时，getproperty 可以为您显示您要搬去地区的空房——仅在您自己开启后。",
+  "back": {
+    "home": "首页",
+    "relocation": "寻找新住处"
+  },
+  "footnote": "您现在的房东看不到您要搬去哪里。您也可以在此更改：",
+  "privacyLink": "隐私与同意",
+  "status": {
+    "title": "搬家助手已开启",
+    "since": "自 {date} 起开启（文本第 {version} 版）",
+    "onShort": "已开启",
+    "privacy": "我们只使用您填写的目的地和预算；只有在您自己发送时，租金记录才会发给新房东。",
+    "stop": "关闭搬家助手",
+    "onTitle": "搬家助手已开启",
+    "onBody": "当租约有搬出通知时，推荐会出现在这里和 LINE 中。告诉我们您要搬到哪里，即可查看那里的房源。",
+    "stoppedTitle": "搬家助手已关闭",
+    "stoppedBody": "进行中的推荐已关闭，您填写的目的地已删除。其他内容不受影响。"
+  },
+  "consent": {
+    "title": "开启搬家助手",
+    "changedTitle": "文本已更新——请重新阅读",
+    "lead": "可选。不开启不会影响您的租约或其他服务。",
+    "heading": "getproperty 的同意文本",
+    "version": "第 {version} 版",
+    "english": "此文本仅有泰文和英文版本，因此以英文显示。",
+    "agree": "我同意以上文本（第 {version} 版）",
+    "agreeHint": "随时可一键关闭。",
+    "required": "请勾选以开启搬家助手。",
+    "submit": "开启搬家助手"
+  },
+  "unavailable": {
+    "title": "暂时无法使用",
+    "body": "目前不提供搬家助手，请稍后再试。"
+  },
+  "offers": {
+    "title": "我的搬家",
+    "unit": "搬出 {unit}",
+    "moveOut": "{landlord} · {date} 搬出",
+    "destination": "{count, plural, =0 {那里暂无房源} other {那里有 # 套房源}}",
+    "destinationBudget": "{count, plural, =0 {那里暂无房源} other {那里有 # 套房源}} · 不超过 {budget}",
+    "whereTo": "告诉我们您要搬到哪里",
+    "emptyTitle": "暂无搬家记录",
+    "emptyOnBody": "当您或房东对租约发出搬出通知时，推荐会出现在这里。",
+    "emptyOffBody": "开启搬家助手，在搬出通知后获得房源推荐。",
+    "preparingTitle": "正在为您准备推荐",
+    "preparingBody": "您的租约已有搬出通知。推荐稍后会出现在这里——请稍后再打开此页面。"
+  },
+  "offer": {
+    "metaTitle": "我的搬家",
+    "title": "您要搬到哪里？",
+    "leaving": "{date} 搬出 {landlord} 的 {unit}",
+    "leavingNoDate": "搬出 {landlord} 的 {unit}",
+    "missingTitle": "找不到此推荐",
+    "missingBody": "它可能已关闭。其他搬家记录在搬家助手页面。",
+    "offTitle": "搬家助手已关闭",
+    "offBody": "重新开启即可查看您要搬去地区的房源。",
+    "offCta": "开启搬家助手",
+    "closed": {
+      "dismissed": {
+        "title": "您已关闭此推荐",
+        "body": "目的地已删除，此次搬家不再显示房源。"
+      },
+      "withdrawn": {
+        "title": "搬家助手已关闭",
+        "body": "此推荐已关闭，目的地已删除。"
+      },
+      "closed": {
+        "title": "此次搬家已结束",
+        "body": "租约结束后推荐会关闭，目的地已删除。"
+      }
+    },
+    "footnote": "房源来自 getproperty 上的公开房源。您现在的房东看不到此页面。"
+  },
+  "destination": {
+    "title": "目的地和预算",
+    "lead": "选择区域或车站，或输入不在列表中的府名。",
+    "current": "正在 {place} 寻找",
+    "currentBudget": "正在 {place} 寻找，每月不超过 {budget}",
+    "privacy": "仅用于为您显示房源；此推荐关闭或您关闭助手时会删除。",
+    "mode": {
+      "label": "选择方式",
+      "area": "区域或车站",
+      "place": "府"
+    },
+    "areasUnavailable": "无法加载区域列表，请改为输入府名。",
+    "area": {
+      "label": "区域或车站",
+      "search": "搜索区域或车站",
+      "hint": "例如 Ari、Chatuchak、On Nut",
+      "change": "搜索以选择其他地点",
+      "required": "请选择区域或车站",
+      "station": "车站",
+      "district": "区",
+      "noMatch": "没有与“{query}”匹配的结果。请换个名称，或按府选择。"
+    },
+    "place": {
+      "label": "府和县",
+      "province": "府",
+      "provinceHint": "例如 เชียงใหม่（请用泰文，与房源一致）",
+      "district": "县/区（可选）",
+      "districtHint": "例如 เมืองเชียงใหม่",
+      "required": "请输入府名",
+      "invalid": "请检查县/区名称"
+    },
+    "budget": {
+      "label": "每月最高租金（泰铢，可选）",
+      "hint": "只显示租金不超过此金额的房源",
+      "invalid": "请输入泰铢金额，例如 12000"
+    },
+    "submit": "显示房源",
+    "update": "更新",
+    "saved": "已保存，下方房源已更新。"
+  },
+  "listings": {
+    "title": "{count, plural, =0 {那里的房源} other {那里有 # 套房源}}",
+    "lead": "可直接在这里联系房东。",
+    "leadRecord": "可直接在这里联系房东——如愿意，也可一并发送您的租金记录。",
+    "enquired": "{count, plural, other {您已通过此推荐咨询了 # 套房源}}",
+    "emptyTitle": "那里暂无房源",
+    "emptyBody": "试试附近区域或提高预算。新发布的房源会出现在这里。",
+    "perMonth": "/月",
+    "size": "{size} 平方米",
+    "studio": "开间",
+    "bedrooms": "{count, plural, other {# 间卧室}}",
+    "transit": "{name} · {distance} 米",
+    "verifiedOwner": "已验证房东",
+    "verifiedVacant": "确认空置",
+    "noPhoto": "暂无照片",
+    "view": "查看房源"
+  },
+  "enquire": {
+    "open": "咨询房东",
+    "title": "咨询房东",
+    "to": "关于：{title}",
+    "message": "您的留言",
+    "messagePlaceholder": "例如：我下个月初搬家，房间还空着吗？",
+    "moveIn": "入住日期（可选）",
+    "moveInHint": "便于房东回复",
+    "share": {
+      "label": "随此留言发送我的租金记录",
+      "hint": "房东只能看到已确认的月份：按时 {onTime}、逾期 {late}、未付 {outstanding}。这不是评分，之后可随时停止分享。",
+      "none": "您的租金记录还没有已确认的月份，暂时无法发送。"
+    },
+    "consent": {
+      "label": "我同意此房源的房东使用我的姓名、留言和 LINE 回复我并安排看房",
+      "hint": "仅用于租赁此房源，依据泰国《个人数据保护法》。",
+      "required": "发送前请先同意"
+    },
+    "submit": "发送给房东",
+    "submitWithRecord": "连同租金记录一起发送",
+    "done": {
+      "title": "已发送给房东",
+      "created": "房东会通过 LINE 回复。对话在“我的咨询”中。",
+      "followUp": "已添加到您与该房东的对话中。",
+      "recordShared": "您的租金记录已一并发送。可在租金记录中停止分享。",
+      "recordNotYet": "租金记录未发送：还没有已确认的月份。",
+      "recordKept": "租金记录未发送。",
+      "open": "打开对话"
+    }
+  },
+  "dismiss": {
+    "cta": "此次搬家不再推荐房源",
+    "title": "关闭此推荐？",
+    "body": "我们将停止为此次搬家显示房源并删除目的地。搬家助手对以后的搬家仍然开启。",
+    "confirm": "关闭推荐",
+    "cancel": "保留"
+  },
+  "prompt": {
+    "title": "要搬出了吗？寻找新住处",
+    "body": "getproperty 可以显示您要搬去地区的空房，并在您要求时把租金记录发给新房东。现房东看不到这些。",
+    "cta": "查看网络内推荐房源"
+  },
+  "how": {
+    "title": "如何使用",
+    "where": "当您或房东发出搬出通知后，告诉我们您要搬去哪里和预算，我们会显示那里公开房源中的空房。",
+    "private": "您现在的房东看不到您要搬去哪里；搬家结束或您关闭助手时，目的地会被删除。",
+    "record": "一步即可咨询列表中的房东——只有您勾选时，租金记录才会一并发送。"
+  }
+}

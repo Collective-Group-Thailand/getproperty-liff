@@ -127,21 +127,34 @@ export const rentRecordHandlers: HttpHandler[] = [
     if (auth instanceof Response) return auth;
     const enquiry = enquiryOf(auth.account.userId, String(params.leadId));
     if (!enquiry) return problem(op, "http.not_found");
-    if (!hasRecord(request)) return problem(op, "rent_record.empty");
-    const shares = sharesOf(auth.account.userId);
-    const live = shares.find((s) => s.lead?.id === enquiry.id && s.state === "live");
-    if (live) return HttpResponse.json(live);
-    const share: Share = {
-      id: crypto.randomUUID(),
-      kind: "enquiry",
-      state: "live",
-      lead: { id: enquiry.id, listingTitle: enquiry.listing.titleTh, ownerName: enquiry.listing.ownerName },
-      codeHint: null,
-      expiresAt: null,
-      createdAt: new Date().toISOString(),
-      revokedAt: null,
-    };
-    shares.unshift(share);
-    return HttpResponse.json(share);
+    const share = shareWithEnquiry(auth.account.userId, enquiry, request);
+    return share ? HttpResponse.json(share) : problem(op, "rent_record.empty");
   }),
 ];
+
+/**
+ * Shares my record with one enquiry (D-256) — the live share when there is one; null without a confirmed month. Used
+ * by the enquiry's own action and by a relocation enquiry that asked for it (GL4, D-299).
+ */
+export function shareWithEnquiry(
+  userId: string,
+  enquiry: { id: string; listing: { titleTh: string; ownerName: string } },
+  request: Request,
+): Share | null {
+  if (!hasRecord(request)) return null;
+  const shares = sharesOf(userId);
+  const live = shares.find((s) => s.lead?.id === enquiry.id && s.state === "live");
+  if (live) return live;
+  const share: Share = {
+    id: crypto.randomUUID(),
+    kind: "enquiry",
+    state: "live",
+    lead: { id: enquiry.id, listingTitle: enquiry.listing.titleTh, ownerName: enquiry.listing.ownerName },
+    codeHint: null,
+    expiresAt: null,
+    createdAt: new Date().toISOString(),
+    revokedAt: null,
+  };
+  shares.unshift(share);
+  return share;
+}

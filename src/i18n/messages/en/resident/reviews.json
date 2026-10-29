@@ -1,0 +1,123 @@
+{
+  "metaTitle": "Review this building",
+  "title": "Review {building}",
+  "lead": "Tell others what living here is like. Only people who lived here can review, and your name is never shown.",
+  "back": "Back to the lease",
+  "tenure": "You lived here {from} – {to}",
+  "tenureNow": "You have lived here since {from}",
+  "sent": {
+    "title": "Thank you — your review was sent",
+    "body": "The getproperty team checks it before it is published. You will see its state here."
+  },
+  "tooEarly": {
+    "title": "Not yet",
+    "body": "You can review this building from {date} — once you have lived here long enough, or after you move out.",
+    "bodyNoDate": "You can review this building once you have lived here long enough, or after you move out."
+  },
+  "unavailable": {
+    "not_started": {
+      "title": "No review for this lease",
+      "body": "Only people who lived under this lease can review the building."
+    },
+    "window_closed": {
+      "title": "The time to review has passed",
+      "body": "The time to review after moving out has passed."
+    },
+    "too_early": {
+      "title": "Not yet",
+      "body": "You can review this building later."
+    }
+  },
+  "consent": {
+    "heading": "To publish your review",
+    "version": "Version {version}",
+    "english": "This text is available in Thai and English only, so it is shown in English."
+  },
+  "noConsent": {
+    "title": "Reviews are not available at the moment",
+    "body": "Please try again later."
+  },
+  "form": {
+    "rating": {
+      "label": "Your rating",
+      "value": "{count, plural, one {# star} other {# stars}}",
+      "hint": "Tap a star",
+      "required": "Choose a rating from 1 to 5 stars",
+      "word": {
+        "1": "1 — Poor",
+        "2": "2 — Below average",
+        "3": "3 — OK",
+        "4": "4 — Good",
+        "5": "5 — Excellent"
+      }
+    },
+    "body": {
+      "label": "Your review",
+      "hint": "{count} / {max} characters",
+      "placeholder": "For example: clean building, fast lift, the office answers quickly; not much parking in the evening",
+      "length": "Write between {min} and {max} characters",
+      "personal": "Please remove contact or account details: phone numbers, e-mail, LINE ids, links, bank accounts or ID numbers."
+    },
+    "rules": {
+      "title": "Keep it about the building",
+      "body": "No phone numbers, e-mail, LINE ids, links, bank accounts or ID numbers — of you or anyone else. Reviews are checked before they are published."
+    },
+    "consent": {
+      "label": "I agree to publish my review under the text above (version {version})",
+      "hint": "Optional. Without it, nothing is published.",
+      "required": "Tick the box to publish your review."
+    },
+    "consentChanged": "The text has just changed. Please read it again and tick the box.",
+    "notEligible": "You cannot review this building yet.",
+    "notEligibleFrom": "You can review this building from {date}.",
+    "submit": "Send my review",
+    "moderation": "The getproperty team checks reviews before they are published."
+  },
+  "mine": {
+    "title": "My review",
+    "rating": "{count, plural, one {# star out of 5} other {# stars out of 5}}",
+    "erased": "The text was erased when you withdrew the review.",
+    "meta": "{tenure} · sent {date}",
+    "tenure": "Lived here {from} – {to}",
+    "tenureNow": "Living here since {from}",
+    "reply": "Reply from the building owner",
+    "pending": {
+      "title": "Waiting for the getproperty team",
+      "body": "Your review is checked before it is published. Nobody else sees it yet."
+    },
+    "published": {
+      "title": "Published",
+      "body": "Your review is on this building's listings, marked as written by a verified resident, without your name or unit."
+    },
+    "rejected": {
+      "title": "Not published",
+      "body": "The getproperty team did not publish this review.",
+      "reason": "The getproperty team did not publish this review: {reason}"
+    },
+    "hidden": {
+      "title": "Hidden",
+      "body": "The getproperty team hid this review.",
+      "reason": "The getproperty team hid this review: {reason}"
+    },
+    "withdrawn": {
+      "title": "Withdrawn",
+      "body": "You withdrew this review. This lease cannot be reviewed again."
+    }
+  },
+  "withdraw": {
+    "cta": "Withdraw my review",
+    "title": "Withdraw your review?",
+    "body": "The text is erased at once and the review leaves the building's rating. You cannot review this lease again.",
+    "confirm": "Withdraw for good",
+    "cancel": "Keep it"
+  },
+  "entry": {
+    "title": "Review this building",
+    "write": "You lived here long enough to review it. Your name is never shown.",
+    "writeCta": "Write a review",
+    "wait": "You can review this building once you have lived here long enough.",
+    "waitFrom": "You can review this building from {date}.",
+    "mine": "Your review of this building.",
+    "mineCta": "Open my review"
+  }
+}

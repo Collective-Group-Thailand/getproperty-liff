@@ -144,5 +144,18 @@
     "expired": "Code expired",
     "no_show": "Not visited",
     "cancelled": "Code closed"
+  },
+  "review": {
+    "pending_moderation": "Waiting for review",
+    "published": "Published",
+    "rejected": "Not published",
+    "hidden": "Hidden",
+    "withdrawn": "Withdrawn"
+  },
+  "relocation": {
+    "open": "Looking",
+    "dismissed": "Closed",
+    "withdrawn": "Stopped",
+    "closed": "Ended"
   }
 }

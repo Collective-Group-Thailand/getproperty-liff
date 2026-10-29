@@ -72,6 +72,8 @@ describe("mock API through the BFF", () => {
     expect(purposes.map((p) => [p.key, p.required, p.granted])).toEqual([
       ["resident.service", true, null],
       ["resident.marketing", false, null],
+      ["resident.relocation", false, null],
+      ["review.publish", false, null],
     ]);
     const captured = await b.call("POST", "/v1/resident/consents", {
       language: "en",

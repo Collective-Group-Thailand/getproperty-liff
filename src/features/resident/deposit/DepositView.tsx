@@ -9,7 +9,7 @@ import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
 import { StatusBadge } from "@/ui/components/Badge";
 
-import { DepositResponse } from "./DepositResponse";
+import { LazyDepositResponse } from "./LazyDepositResponse";
 
 function Amount({ label, value, strong }: { label: React.ReactNode; value: string; strong?: boolean }) {
   return (
@@ -160,7 +160,7 @@ export async function DepositView({ deposit, locale }: { deposit: Deposit; local
           ) : null}
 
           {actions.has("accept") || actions.has("dispute") ? (
-            <DepositResponse
+            <LazyDepositResponse
               depositId={deposit.id}
               refund={settlement.proposedRefund ? money(settlement.proposedRefund) : null}
               canAccept={actions.has("accept")}

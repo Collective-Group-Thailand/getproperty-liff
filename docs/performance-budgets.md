@@ -299,3 +299,32 @@ G5 / G8 contract growth did not move the resident pages.
 | `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage` | 172.7, 172.6, 175.0, 174.9, 173.7, 175.8, 176.6, 179.6, 175.7 KB | 180 KB |
 | `resident` | `/profile`, `/profile/privacy`, `/profile/notifications` | 175.4, 175.8, 178.7 KB | 180 KB |
 | other sets | not re-run (no shared code changed for them) | as in the GL2 table | 180 KB |
+
+### GL4 relocation & reviews (2026-10-29, `pnpm lhci` — every set — in the sandbox with `CHROME_PATH` = Playwright Chromium; the trimmed sets re-run; all pass)
+
+New sets `lighthouse/relocation-reviews.json` (relocation help on with an open offer and listings, the offer page, a
+published review, the lease page — subject `relocating-moveout-reviewed`) and `lighthouse/relocation-reviews-forms.json`
+(relocation help off with the consent text and its box, the review form — subject `reviewer`). The pages are
+server-rendered; the destination form, the review form, the Radix consent checkboxes (loaded once on screen,
+`WhenNear margin="0px"`; a *how it works* card sits above the relocation consent), the enquiry sheet and the dismiss /
+withdraw dialogs load near the screen or on first use.
+
+The two new routes made Turbopack regroup the framework chunks (+~0.25 KB gz and one more request on every page,
+≈ +0.9 KB transfer): `/deposit` (proposed settlement) and the prospect enquiry page went over 180 KB. Trimmed:
+`DepositResponse` loads when it renders (`LazyDepositResponse`; a held deposit no longer carries it) and its camera
+only for a dispute; the prospect viewing panel's change-time sheet and cancel dialog (`ViewingChanges`) load on the
+first tap.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `relocation-reviews` | `/relocation`, `/relocation/<offer>`, `/lease/<id>/review` (published), `/lease/<id>` | 174.8, 179.0, 174.3, 175.8 KB | 180 KB |
+| `relocation-reviews-forms` | `/relocation` (off: consent), `/lease/<id>/review` (form) | 174.8, 179.0 KB | 180 KB |
+| `resident-moveout` | `/deposit` (proposed settlement) | 179.2 KB | 180 KB |
+| `resident` | `/deposit` (held) | 173.5 KB | 180 KB |
+| `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` | 176.6, 175.4, 178.7 KB | 180 KB |
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/usage`, `/profile`, `/profile/privacy`, `/profile/notifications` | 173.7, 173.5, 175.9, 175.8, 174.7, 176.7, 177.7, 176.6, 176.3, 176.7, 179.6 KB | 180 KB |
+| `resident-contracts` | `/contracts`, `/contracts/<id>`, `…/sign`, `/renewals/<id>`, `/lease/<id>` | 172.2, 174.8, 177.9, 176.6, 176.7 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>`, `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 172.2, 179.2, 177.7, 173.2, 172.2, 174.8, 177.3, 179.4, 173.8, 179.2 KB | 180 KB |
+| `recommendations` | `/recommendations`, `/recommendations/history`, `/rent/recommendations`, `/rent/enquiries` | 173.7, 173.7, 173.7, 170.2 KB | 180 KB |
+| `public` | `/liff`, `/auth`, `/auth/otp`, `/signed-out` (re-run) | 175.9–179.4 (the fake LIFF's redirect lands in some runs), 173.3, 177.1, 169.2 KB | 180 KB |
+| `resident-sign`, `technician` | `/lease/<id>/sign`; `/technician`, a work order | 177.9; 171.6, 177.6 KB | 180 KB |

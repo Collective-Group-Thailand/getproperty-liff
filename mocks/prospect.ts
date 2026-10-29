@@ -159,8 +159,66 @@ function seedSelfView(account: MockAccount): void {
   issueAccess(account.userId, viewing, "now");
 }
 
+/**
+ * GL4 (api G8, D-299): more public listings, shown to a leaving resident in the destination they gave
+ * (`mocks/relocation.ts`). Area = a slug of `MOCK_AREAS`; the first one is the listing of the mock above.
+ */
+export const NETWORK_LISTINGS: { slug: string; area: string; title: string; rent: string; district: string }[] = [
+  {
+    slug: MOCK_LISTING_SLUG,
+    area: "ari",
+    title: "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์ วิวเมือง",
+    rent: "15000.00",
+    district: "พญาไท",
+  },
+  {
+    slug: "room-studio-b7c8d9e0f1",
+    area: "ari",
+    title: "ห้องสตูดิโอ ซอยอารีย์ 4 เดินถึง BTS",
+    rent: "8500.00",
+    district: "พญาไท",
+  },
+  {
+    slug: "condo-2br-c1d2e3f4a5",
+    area: "chatuchak",
+    title: "คอนโด 2 ห้องนอน ใกล้ MRT จตุจักร",
+    rent: "22000.00",
+    district: "จตุจักร",
+  },
+  {
+    slug: "room-studio-d4e5f6a7b8",
+    area: "chatuchak",
+    title: "ห้องพักรายเดือน ใกล้ตลาดนัดจตุจักร",
+    rent: "7000.00",
+    district: "จตุจักร",
+  },
+];
+
+function networkDetail(slug: string): Schemas["PublicListingDetailDto"] | null {
+  const listing = NETWORK_LISTINGS.find((l) => l.slug === slug && l.slug !== MOCK_LISTING_SLUG);
+  if (!listing) return null;
+  const base = example<Schemas["PublicListingDetailDto"]>("public.listings.get");
+  return {
+    ...base,
+    slug,
+    title: listing.title,
+    rent: listing.rent,
+    ownerDisplayName: "วิภา ศรีสุข",
+    address: `${listing.district}, กรุงเทพมหานคร`,
+    district: listing.district,
+    province: "กรุงเทพมหานคร",
+    cover: null,
+    photos: [],
+  };
+}
+
+/** A public listing of the mock — the detail page's DTO; the summary is the same shape minus the detail fields. */
+export function publicListing(slug: string): Schemas["PublicListingDetailDto"] | null {
+  return detail(slug);
+}
+
 function detail(slug: string): Schemas["PublicListingDetailDto"] | null {
-  if (slug !== MOCK_LISTING_SLUG) return null;
+  if (slug !== MOCK_LISTING_SLUG) return networkDetail(slug);
   const base = example<Schemas["PublicListingDetailDto"]>("public.listings.get");
   return {
     ...base,
@@ -222,7 +280,7 @@ function enquiryFor(
       rent: listing.rent,
       district: listing.district,
       province: listing.province,
-      ownerName: OWNER,
+      ownerName: listing.ownerDisplayName,
       available: true,
     },
     open: true,
@@ -430,6 +488,21 @@ export const prospectHandlers: HttpHandler[] = [
   }),
   ...selfViewingHandlers(),
 ];
+
+/**
+ * GL4 (D-299): the enquiry a leaving resident sends from a relocation offer — the same prospect enquiry as from the
+ * listing page (same LINE login, B7.3), plus the message. `created` = a new enquiry, false = a message in the open one.
+ */
+export function enquireAsProspect(
+  userId: string,
+  slug: string,
+  input: { message: string; moveInDate: string | null },
+): { enquiry: Enquiry; created: boolean } | null {
+  if (!detail(slug)) return null;
+  const opened = enquiryFor(userId, slug, { moveInDate: input.moveInDate });
+  addMessage(opened.enquiry, "prospect", input.message);
+  return opened;
+}
 
 /** One of a prospect's enquiries (the rent record mock shares with it, D-256). */
 export function enquiryOf(userId: string, leadId: string): Enquiry | undefined {

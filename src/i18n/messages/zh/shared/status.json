@@ -144,5 +144,18 @@
     "expired": "密码已过期",
     "no_show": "未到访",
     "cancelled": "密码已关闭"
+  },
+  "review": {
+    "pending_moderation": "等待审核",
+    "published": "已发布",
+    "rejected": "未通过审核",
+    "hidden": "已隐藏",
+    "withdrawn": "已撤回"
+  },
+  "relocation": {
+    "open": "正在找房",
+    "dismissed": "已关闭",
+    "withdrawn": "已停止",
+    "closed": "已结束"
   }
 }

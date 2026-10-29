@@ -138,7 +138,7 @@ describe("M2 — one Idempotency-Key and one frozen body per logical action", ()
     wrap(<DepositResponse depositId="d1" refund="1000.00" canAccept canDispute />);
     fireEvent.click(screen.getByRole("button", { name: /dispute/i }));
     fireEvent.change(screen.getByTestId("deposit-dispute-reason"), { target: { value: "The wall was like this" } });
-    fireEvent.click(screen.getByTestId("capture"));
+    fireEvent.click(await screen.findByTestId("capture")); // the camera loads with the dispute form (GL4 budget)
     fireEvent.click(screen.getByTestId("deposit-dispute-submit"));
     expect(await screen.findByText("Can't connect")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("deposit-dispute-submit"));

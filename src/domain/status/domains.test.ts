@@ -6,6 +6,7 @@ import { ICONS } from "@/ui/icons/registry";
 import { BOOKING_STATUS } from "./booking";
 import { CONTRACT_STATUS, RENEWAL_STATUS } from "./contract";
 import { ACCESS_RESULT, CREDENTIAL_STATUS } from "./credential";
+import { RELOCATION_STATUS, REVIEW_STATUS } from "./growth";
 import { DEPOSIT_STATUS } from "./deposit";
 import { DSR_STATE } from "./dsr";
 import { INVOICE_STATUS } from "./invoice";
@@ -42,6 +43,8 @@ const MAPS = {
   inspection: INSPECTION_STATUS,
   contract: CONTRACT_STATUS,
   renewal: RENEWAL_STATUS,
+  review: REVIEW_STATUS,
+  relocation: RELOCATION_STATUS,
   viewingAccess: VIEWING_ACCESS_STATUS,
 };
 

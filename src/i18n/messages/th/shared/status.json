@@ -144,5 +144,18 @@
     "expired": "หมดเวลารหัส",
     "no_show": "ไม่ได้เข้าชม",
     "cancelled": "ปิดรหัสแล้ว"
+  },
+  "review": {
+    "pending_moderation": "รอทีมงานตรวจ",
+    "published": "เผยแพร่แล้ว",
+    "rejected": "ไม่ผ่านการตรวจ",
+    "hidden": "ถูกซ่อน",
+    "withdrawn": "ถอนแล้ว"
+  },
+  "relocation": {
+    "open": "กำลังหาห้อง",
+    "dismissed": "ปิดแล้ว",
+    "withdrawn": "หยุดแล้ว",
+    "closed": "สิ้นสุดแล้ว"
   }
 }

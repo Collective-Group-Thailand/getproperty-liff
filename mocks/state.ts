@@ -8,6 +8,7 @@
  *   …invitee…   no unit yet (accepts an invitation code) and consents unanswered
  *   …signer… / …moveout… / …manual…   lease, deposit and usage scenarios (`mocks/residence.ts`)
  *   …disabled…  the account is disabled (`auth.account_disabled`)
+ *   …relocating… relocation help (`resident.relocation`, GL4) already granted
  *
  * An SMS sign-in (`phone:<E.164>` / `tech-phone:<E.164>` accounts) links nothing by itself (D-226): the party the
  * office entered with that phone becomes a link request (`pendingUnits` / `technicianPending`) until the Owner
@@ -85,7 +86,7 @@ export const UNIT_B: Unit = {
   validFrom: "2026-10-01",
 };
 
-/** The two resident purposes getproperty-api seeds (`prisma/seed/data/privacy.ts`), version 1. */
+/** The resident purposes getproperty-api seeds (`prisma/seed/data/privacy.ts`), version 1. */
 export const PURPOSES = {
   "resident.service": {
     required: true,
@@ -102,6 +103,46 @@ export const PURPOSES = {
     required: false,
     th: { title: "ข่าวสารและข้อเสนอ", body: "รับข่าวสารและข้อเสนอจากผู้ให้เช่า (เลือกได้)" },
     en: { title: "News and offers", body: "Receive news and offers from the lessor (optional)." },
+  },
+  // G8 (D-299): Collective's own purpose — relocation offers after a move-out notice (the API's seeded draft text).
+  "resident.relocation": {
+    required: false,
+    th: {
+      title: "ช่วยหาที่อยู่ใหม่เมื่อย้ายออก",
+      body: "ร่าง ⚖ — เมื่อท่านแจ้งย้ายออก getproperty (Collective Group) จะแสดงห้องว่างในพื้นที่ที่ท่านบอกว่าจะย้ายไป ใช้เฉพาะพื้นที่ปลายทางและงบที่ท่านกรอก ไม่ส่งให้ผู้ให้เช่าปัจจุบัน และประวัติการจ่ายค่าเช่าจะส่งให้เจ้าของใหม่เฉพาะเมื่อท่านกดส่งเอง เลิกรับได้ทุกเมื่อ (ข้อมูลปลายทางถูกลบทันที)",
+    },
+    en: {
+      title: "Help finding my next home when I move out",
+      body: "Draft ⚖ — when you give notice, getproperty (Collective Group) shows vacant places in the area you say you are moving to, using only that destination and budget. Your current landlord does not see it, and your rent record goes to a new landlord only when you send it. Withdraw any time (the destination is erased at once).",
+    },
+  },
+  // G9 (D-301): asked with every review (`mocks/reviews.ts`); the API lists it with the other resident purposes.
+  "review.publish": {
+    required: false,
+    th: {
+      title: "เผยแพร่รีวิวอาคารของฉัน",
+      body: [
+        "ร่าง ⚖ — เลือกได้ ไม่มีผลต่อการเช่าหรือบริการอื่น",
+        "",
+        'getproperty (บริษัท Collective Group (Thailand) จำกัด ผู้ควบคุมข้อมูล) จะแสดงคะแนนและข้อความรีวิวของคุณต่อสาธารณะในหน้าประกาศของอาคารนี้ พร้อมป้าย "ผู้เช่าที่ยืนยันแล้ว" และช่วงเดือน-ปีที่คุณพักอยู่',
+        "",
+        "**ไม่แสดง** ชื่อ เลขห้อง เบอร์โทร หรือบัญชี LINE ของคุณ เจ้าของอาคารเห็นรีวิวแบบเดียวกับสาธารณะ ตอบกลับได้ แต่ลบรีวิวไม่ได้",
+        "",
+        "ทีมงาน getproperty ตรวจรีวิวก่อนเผยแพร่และซ่อนข้อความที่ไม่เหมาะสมได้ คุณถอนรีวิวได้ทุกเมื่อ (ข้อความจะถูกลบ)",
+      ].join("\n"),
+    },
+    en: {
+      title: "Publish my building review",
+      body: [
+        "Draft ⚖ — optional; saying no changes nothing about your lease or any other service.",
+        "",
+        'getproperty (Collective Group (Thailand) Co., Ltd., the data controller) shows your rating and review publicly on this building’s listing pages, labelled "Verified tenant", with the months and years you lived there.',
+        "",
+        "**Never shown:** your name, unit number, phone or LINE account. The building owner sees the review as the public does, may reply, but cannot delete it.",
+        "",
+        "The getproperty team checks reviews before they are published and may hide abusive ones. You can withdraw your review at any time (its text is deleted).",
+      ].join("\n"),
+    },
   },
 } as const;
 
@@ -168,6 +209,17 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
     pendingUnits: [],
     technicianPending: false,
   };
+  if (has("relocating")) {
+    // GL4: relocation help already on (Lighthouse `relocation-reviews`, e2e) — never the default (D-025).
+    Object.assign(
+      account.consents.find((c) => c.key === "resident.relocation")!,
+      {
+        granted: true,
+        grantedVersion: 1,
+        capturedAt: NOW,
+      },
+    );
+  }
   accounts.set(subject, account);
   return account;
 }

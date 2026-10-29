@@ -1,34 +1,30 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, type ComponentProps } from "react";
 
 import { VIEWING_STATUS } from "@/domain/status/viewing";
 import { VIEWING_ACCESS_STATUS } from "@/domain/status/viewingAccess";
-import { ProblemCallout } from "@/features/shared/ProblemNotice";
-import { formatDateTime, formatTime } from "@/i18n/format";
+import { formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import { browserApi, unwrap } from "@/lib/api/browser";
-import { toApiError, type ApiError } from "@/lib/api/problem";
 import { openExternal } from "@/lib/liff/client";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
-import { LazyAlertDialog, LazySheet } from "@/ui/components/overlays";
-import { Spinner } from "@/ui/components/Spinner";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
 import { IconChat } from "@/ui/icons/glyphs/chat";
 import { IconExternal } from "@/ui/icons/glyphs/external";
 import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconResident } from "@/ui/icons/glyphs/resident";
 
-import { liveViewing, type Enquiry, type Slot } from "./model";
+import { liveViewing, type Enquiry } from "./model";
+import type { ViewingChanges as ChangesImpl } from "./ViewingChanges";
 import { LazySelfViewingAccess } from "./selfViewing/LazySelfViewingAccess";
-import { slotsOfMode } from "./selfViewing/model";
 import { lazyWarm } from "@/ui/lib/lazy";
 
-/** The picker is only needed in the change-time sheet: loaded with it (D-179, GL2). */
-const SlotPicker = lazyWarm(() => import("./SlotPicker").then((m) => m.SlotPicker));
+/** Changing the time and cancelling load on the first tap (D-179). */
+const ViewingChanges = lazyWarm<ComponentProps<typeof ChangesImpl>>(() =>
+  import("./ViewingChanges").then((m) => m.ViewingChanges),
+);
 
 /**
  * The viewing of an enquiry (L5 5.1 §2): when, whether the owner confirmed, and what I can do before it — change the
@@ -51,48 +47,12 @@ export function ViewingPanel({
   const sv = useTranslations("prospect.selfViewing.panel");
   const root = useTranslations();
   const locale = useLocale() as Locale;
-  const router = useRouter();
   const live = liveViewing(enquiry);
   const past = enquiry.viewings.filter((v) => v.id !== live?.id);
   const [moving, setMoving] = useState(false);
-  const [slots, setSlots] = useState<Slot[] | null>(null);
-  const [picked, setPicked] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-
-  async function openMove() {
-    setMoving(true);
-    setPicked(null);
-    setError(null);
-    try {
-      const body = unwrap(
-        await browserApi.GET("/v1/public/listings/{slug}/viewing-slots", {
-          params: { path: { slug: enquiry.listing.slug }, query: { days: 14 } },
-        }),
-      );
-      setSlots(live ? slotsOfMode(body.slots, live.mode) : body.slots);
-    } catch (caught) {
-      setSlots([]);
-      setError(toApiError(caught));
-    }
-  }
-
-  async function act(run: () => Promise<unknown>, done: () => void) {
-    setBusy(true);
-    setError(null);
-    try {
-      await run();
-      done();
-      router.refresh();
-    } catch (caught) {
-      setError(toApiError(caught));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const path = live ? { params: { path: { viewingId: live.id } } } : null;
+  /** Keeps the change / cancel module mounted after its first use (the overlays close with their animation). */
+  const [changesWanted, setChangesWanted] = useState(false);
 
   return (
     <section aria-labelledby="enquiry-viewing" className="flex flex-col gap-3" data-testid="enquiry-viewing">
@@ -142,12 +102,23 @@ export function ViewingPanel({
                 variant="secondary"
                 size="lg"
                 iconStart={IconCalendar}
-                onClick={() => void openMove()}
+                onClick={() => {
+                  setChangesWanted(true);
+                  setMoving(true);
+                }}
                 data-testid="viewing-reschedule"
               >
                 {t("reschedule")}
               </Button>
-              <Button variant="secondary" size="lg" onClick={() => setCancelling(true)} data-testid="viewing-cancel">
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => {
+                  setChangesWanted(true);
+                  setCancelling(true);
+                }}
+                data-testid="viewing-cancel"
+              >
                 {t("cancel")}
               </Button>
             </div>
@@ -167,7 +138,6 @@ export function ViewingPanel({
       ) : (
         <p className="text-muted text-sm">{t("none")}</p>
       )}
-      {error && !moving && !cancelling ? <ProblemCallout error={error} /> : null}
 
       {past.length ? (
         <details className="text-sm">
@@ -202,76 +172,18 @@ export function ViewingPanel({
         </details>
       ) : null}
 
-      <LazySheet
-        open={moving}
-        onOpenChange={(open) => {
-          if (!busy) setMoving(open);
-        }}
-        title={t("rescheduleTitle")}
-        closeLabel={t("close")}
-        side="bottom"
-        footer={
-          <Button
-            size="lg"
-            block
-            loading={busy}
-            disabled={!picked}
-            data-testid="reschedule-confirm"
-            onClick={() =>
-              path &&
-              picked &&
-              void act(
-                async () =>
-                  unwrap(
-                    await browserApi.POST("/v1/prospect/viewings/{viewingId}/actions/reschedule", {
-                      ...path,
-                      body: { startsAt: picked },
-                    }),
-                  ),
-                () => setMoving(false),
-              )
-            }
-          >
-            {picked ? t("rescheduleConfirm", { time: formatTime(picked, locale) }) : root("prospect.rent.book.pick")}
-          </Button>
-        }
-      >
-        <div className="flex flex-col gap-3 px-5 pb-4">
-          {slots === null ? <Spinner label={t("rescheduleTitle")} /> : null}
-          {slots && slots.length === 0 ? (
-            <p className="text-muted text-sm">{root("prospect.rent.book.noSlots")}</p>
-          ) : null}
-          {slots && slots.length ? (
-            <Suspense fallback={<Spinner label={t("rescheduleTitle")} />}>
-              <SlotPicker slots={slots} value={picked} onChange={setPicked} testId="reschedule-slots" />
-            </Suspense>
-          ) : null}
-          {error ? <ProblemCallout error={error} /> : null}
-        </div>
-      </LazySheet>
-
-      <LazyAlertDialog
-        open={cancelling}
-        onOpenChange={(open) => {
-          if (!busy) setCancelling(open);
-        }}
-        title={live ? t("cancelTitle", { date: formatDateTime(live.startsAt, locale) }) : t("cancel")}
-        description={t("cancelBody")}
-        confirmLabel={t("cancel")}
-        cancelLabel={t("keep")}
-        tone="destructive"
-        loading={busy}
-        onConfirm={() =>
-          path &&
-          void act(
-            async () =>
-              unwrap(await browserApi.POST("/v1/prospect/viewings/{viewingId}/actions/cancel", { ...path, body: {} })),
-            () => setCancelling(false),
-          )
-        }
-      >
-        {error ? <ProblemCallout error={error} /> : null}
-      </LazyAlertDialog>
+      {moving || cancelling || changesWanted ? (
+        <Suspense fallback={null}>
+          <ViewingChanges
+            enquiry={enquiry}
+            live={live}
+            moving={moving}
+            cancelling={cancelling}
+            onCloseMove={() => setMoving(false)}
+            onCloseCancel={() => setCancelling(false)}
+          />
+        </Suspense>
+      ) : null}
     </section>
   );
 }

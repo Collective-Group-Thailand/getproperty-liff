@@ -11,6 +11,7 @@ import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ResidentLease } from "@/lib/api/types";
+import { RelocationPrompt } from "@/features/resident/relocation/RelocationPrompt";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -26,7 +27,8 @@ import { IconForward } from "@/ui/icons/glyphs/forward";
  * The 30-day move-out notice (D-020, ข้อ 4 (11)): a move-out date, a confirmation that restates the unit and the
  * date, then `POST …/notice`. The earliest date is the API's (`noticeEarliestDate`, null when it offers no notice) and is
  * never computed here; a date the API refuses comes back as `compliance.notice_period` and is shown with its legal
- * reference. The recorded notice is the document the API keeps (`notice.evidenceDocumentIds`).
+ * reference. The recorded notice is the document the API keeps (`notice.evidenceDocumentIds`). Once recorded, the way
+ * to relocation help (GL4, D-299) — nothing is shared unless the resident turns it on there.
  */
 export function NoticeForm({
   lease,
@@ -59,6 +61,7 @@ export function NoticeForm({
           })}
         </Callout>
         <p className="text-muted text-sm">{t("done.document")}</p>
+        <RelocationPrompt />
         <Button asChild size="lg" block iconEnd={IconForward}>
           <Link href={`/lease/${done.id}`}>{t("done.back")}</Link>
         </Button>
