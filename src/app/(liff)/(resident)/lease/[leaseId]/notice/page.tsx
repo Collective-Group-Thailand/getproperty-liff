@@ -29,18 +29,24 @@ export default async function NoticePage({ params }: { params: Promise<{ leaseId
   return (
     <ResidentShell active={null}>
       <BackLink href={`/lease/${l.id}`}>{t("back.lease")}</BackLink>
-      {l.nextActions.includes("give-notice") ? (
-        <NoticeForm lease={l} earliest={l.noticeEarliestDate} locale={locale} />
-      ) : (
-        <div className="flex flex-col gap-4 py-6" data-testid="notice-unavailable">
-          <Callout tone="info" title={t("noticeForm.unavailableTitle")}>
-            {l.notice ? t("noticeForm.alreadyGiven") : t("noticeForm.unavailableBody")}
-          </Callout>
-          <Button asChild size="lg" block>
-            <Link href={`/lease/${l.id}`}>{t("noticeForm.done.back")}</Link>
-          </Button>
-        </div>
-      )}
+      {/* Always the same component: its done screen must survive the refresh after the notice is recorded. */}
+      <NoticeForm
+        lease={l}
+        earliest={l.noticeEarliestDate}
+        locale={locale}
+        unavailable={
+          l.nextActions.includes("give-notice") ? undefined : (
+            <div className="flex flex-col gap-4 py-6" data-testid="notice-unavailable">
+              <Callout tone="info" title={t("noticeForm.unavailableTitle")}>
+                {l.notice ? t("noticeForm.alreadyGiven") : t("noticeForm.unavailableBody")}
+              </Callout>
+              <Button asChild size="lg" block>
+                <Link href={`/lease/${l.id}`}>{t("noticeForm.done.back")}</Link>
+              </Button>
+            </div>
+          )
+        }
+      />
     </ResidentShell>
   );
 }

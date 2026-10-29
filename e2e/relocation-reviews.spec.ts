@@ -229,7 +229,11 @@ test.describe("verified reviews of the building (GL4, D-301)", () => {
     const consent = page.getByTestId("review-consent");
     await expect(consent).toHaveAttribute("aria-checked", "false");
     await page.getByTestId("review-submit").click();
-    await expect(page.getByTestId("review-form").getByRole("alert")).toBeVisible();
+    // An empty form names each missing part: the rating and the publish consent (the body under its field).
+    const alerts = page.getByTestId("review-form").getByRole("alert");
+    await expect(alerts).toHaveCount(2);
+    await expect(alerts.filter({ hasText: text("th", "resident/reviews", "form.rating.required") })).toBeVisible();
+    await expect(alerts.filter({ hasText: text("th", "resident/reviews", "form.consent.required") })).toBeVisible();
 
     await page.getByTestId("review-rating-4").check({ force: true });
     await page.getByTestId("review-body").fill("ตึกสะอาด ลิฟต์เร็ว โทรหานิติฯ 081-234-5678 ได้เลย");
@@ -262,9 +266,10 @@ test.describe("verified reviews of the building (GL4, D-301)", () => {
     const leaseId = await firstLeaseId(page);
     await page.goto(`/lease/${leaseId}/review`);
     await page.getByTestId("review-form-slot").scrollIntoViewIfNeeded();
-    await page.getByTestId("review-consent-slot").scrollIntoViewIfNeeded();
     await page.getByTestId("review-rating-2").check({ force: true });
     await page.getByTestId("review-body").fill("ห้องข้างๆ เสียงดังทุกคืน แจ้งแล้วไม่มีใครมาดู");
+    // D-179: the box loads once its slot is on screen — scroll to it last, so the rating above does not scroll it away.
+    await page.getByTestId("review-consent-slot").scrollIntoViewIfNeeded();
     await page.getByTestId("review-consent").click();
     await page.getByTestId("review-submit").click();
     await moderate(page, leaseId, { decision: "reject", reason: "กล่าวถึงผู้พักอาศัยรายอื่น" });

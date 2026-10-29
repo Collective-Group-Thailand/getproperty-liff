@@ -54,7 +54,11 @@ test.describe("deposit settlement (D-023)", () => {
   test("accepts the proposed refund after a confirmation", async ({ page, context, baseURL }) => {
     await seedSession(context, baseURL!, subject("moveout"));
     await page.goto("/deposit");
-    await page.getByTestId("deposit-accept").click();
+    // A tap that lands before the page hydrates does nothing (the button is client state only): tap until it opens.
+    await expect(async () => {
+      await page.getByTestId("deposit-accept").click();
+      await expect(page.getByTestId("deposit-accept-confirm")).toBeVisible({ timeout: 1_000 });
+    }).toPass();
     await expect(page.getByTestId("deposit-accept-confirm")).toContainText("฿3,349.50");
     await page.getByTestId("deposit-accept-note").fill("ขอบคุณที่คืนเงินเร็วครับ");
     await expectAxeClean(page);

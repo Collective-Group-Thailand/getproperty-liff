@@ -57,7 +57,11 @@ test.describe("LIFF entry", () => {
     await expect(page).toHaveURL(/\/consent$/);
     const form = page.getByTestId("consent-form");
     await expect(form.getByRole("heading", { level: 1 })).toHaveText("การใช้ข้อมูลส่วนบุคคล");
-    await expect(form.locator("[data-purpose]")).toHaveCount(2);
+    // Every resident purpose the API lists: the service (required), marketing, and since G8/G9 relocation and review.
+    await expect(form.locator("[data-purpose]")).toHaveCount(4);
+    for (const key of ["resident.service", "resident.marketing", "resident.relocation", "review.publish"]) {
+      await expect(form.locator(`[data-purpose="${key}"]`)).toHaveCount(1);
+    }
     await expectAxeClean(page);
 
     await page.getByTestId("consent-submit").click();

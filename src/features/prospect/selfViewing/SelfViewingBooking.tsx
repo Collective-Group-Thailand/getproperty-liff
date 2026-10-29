@@ -157,7 +157,9 @@ export function SelfViewingBooking({
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={submit} noValidate data-testid="self-booking">
+    // Not a <form>: step 2 holds the phone form, and a form inside a form is dropped by the HTML parser — the phone
+    // number was then sent by a native GET into the URL. Only the booking button below is the booking's form.
+    <div className="flex flex-col gap-4" data-testid="self-booking">
       <Step
         n={1}
         title={t("identity.title")}
@@ -244,14 +246,14 @@ export function SelfViewingBooking({
       {notice === "requirements" ? <Callout tone="warning">{t("requirementsChanged")}</Callout> : null}
       {error ? <ProblemCallout error={error} /> : null}
 
-      <div className="flex flex-col gap-2">
+      <form className="flex flex-col gap-2" onSubmit={submit} noValidate>
         <Button type="submit" size="lg" block loading={busy} disabled={!canSubmit} data-testid="self-submit">
           {slot ? t("submit", { time: formatDateTime(slot, locale) }) : t("pick")}
         </Button>
         <p className="text-muted text-center text-sm" data-testid="self-submit-hint">
           {!ready ? t("hint.steps") : t("hint.owner")}
         </p>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

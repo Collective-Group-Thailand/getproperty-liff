@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { formatDate, formatTime } from "@/i18n/format";
+import { formatTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { cn } from "@/ui/lib/cn";
 
@@ -45,19 +45,28 @@ export function SlotPicker({
                 key={d}
                 type="button"
                 aria-pressed={selected}
-                aria-label={formatDate(noon, locale, { style: "long" })}
                 onClick={() => setDay(d)}
                 className={cn(
-                  "rounded-card flex min-h-16 w-16 shrink-0 flex-col items-center justify-center border text-sm whitespace-nowrap",
+                  "rounded-card relative flex min-h-16 w-16 shrink-0 flex-col items-center justify-center border text-sm whitespace-nowrap",
                   selected
                     ? "border-primary bg-primary-subtle text-primary-subtle-fg font-semibold"
                     : "border-border bg-surface",
                 )}
                 data-testid="slot-day"
               >
-                <span className="text-xs">{part({ weekday: "short" })}</span>
-                <span className="text-lg leading-tight font-semibold tabular-nums">{part({ day: "numeric" })}</span>
-                <span className="text-xs">{part({ month: "short" })}</span>
+                {/* WCAG 2.5.3: no aria-label over visible text — the full date is read, the short card is seen. */}
+                <span className="sr-only">
+                  {part({ weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                </span>
+                <span aria-hidden="true" className="text-xs">
+                  {part({ weekday: "short" })}
+                </span>
+                <span aria-hidden="true" className="text-lg leading-tight font-semibold tabular-nums">
+                  {part({ day: "numeric" })}
+                </span>
+                <span aria-hidden="true" className="text-xs">
+                  {part({ month: "short" })}
+                </span>
               </button>
             );
           })}

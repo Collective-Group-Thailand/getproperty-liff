@@ -34,10 +34,17 @@ export function NoticeForm({
   lease,
   earliest,
   locale,
+  unavailable,
 }: {
   lease: Pick<ResidentLease, "id" | "unitNo" | "buildingName">;
   earliest: string | null;
   locale: Locale;
+  /**
+   * Shown instead of the form when the API offers no `give-notice`. The page always renders this component, so the
+   * done screen (and its way to relocation help) survives the `router.refresh()` after the notice is recorded — the
+   * refreshed lease no longer offers `give-notice`, and swapping the component would drop the done state.
+   */
+  unavailable?: React.ReactNode;
 }) {
   const t = useTranslations("resident.lease.noticeForm");
   const router = useRouter();
@@ -71,6 +78,7 @@ export function NoticeForm({
       </div>
     );
   }
+  if (unavailable) return unavailable;
 
   /** After a refusal that may mean "already on file", the lease as the API has it — with the recorded notice. */
   async function recordedNotice(): Promise<ResidentLease | null> {
