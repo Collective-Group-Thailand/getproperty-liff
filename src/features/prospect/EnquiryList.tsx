@@ -7,6 +7,7 @@ import { isLocale, type Locale } from "@/i18n/routing";
 import { StatusBadge } from "@/ui/components/Badge";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { Icon } from "@/ui/icons";
+import { IconBell } from "@/ui/icons/glyphs/bell";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 import { IconInbox } from "@/ui/icons/glyphs/inbox";
 import { IconShield } from "@/ui/icons/glyphs/shield";
@@ -50,12 +51,19 @@ async function Item({ enquiry, locale }: { enquiry: Enquiry; locale: Locale }) {
 export async function EnquiryList({
   enquiries,
   identityVerified = null,
+  recommendations = null,
 }: {
   enquiries: Enquiry[];
   /** D-267: whether I verified my identity (null when it could not be read). */
   identityVerified?: boolean | null;
+  /** GL1 (D-300): whether I receive recommended places (null when it could not be read). */
+  recommendations?: "on" | "off" | "outdated" | null;
 }) {
-  const [t, current] = await Promise.all([getTranslations("prospect.rent.mine"), getLocale()]);
+  const [t, rec, current] = await Promise.all([
+    getTranslations("prospect.rent.mine"),
+    getTranslations("recommendations.entry"),
+    getLocale(),
+  ]);
   const locale = isLocale(current) ? current : "th";
   const { open, closed } = sortEnquiries(enquiries);
   return (
@@ -88,6 +96,21 @@ export async function EnquiryList({
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="font-medium">{t("rentRecord")}</span>
           <span className="text-muted text-sm">{t("rentRecordHint")}</span>
+        </span>
+        <Icon icon={IconChevronRight} className="text-muted shrink-0" />
+      </Link>
+      <Link
+        href="/rent/recommendations"
+        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
+        data-testid="enquiries-recommendations"
+        data-state={recommendations ?? undefined}
+      >
+        <Icon icon={IconBell} className={recommendations === "on" ? "text-primary shrink-0" : "text-muted shrink-0"} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-medium">{rec("title")}</span>
+          <span className="text-muted text-sm">
+            {recommendations === "on" ? rec("on") : recommendations === null ? rec("unknown") : rec("off")}
+          </span>
         </span>
         <Icon icon={IconChevronRight} className="text-muted shrink-0" />
       </Link>

@@ -17,6 +17,7 @@ import { identityHandlers } from "./identity";
 import { landlordHandlers } from "./landlord";
 import { linkHandlers } from "./links";
 import { prospectHandlers } from "./prospect";
+import { recommendationHandlers } from "./recommendations";
 import { rentRecordHandlers } from "./rentRecord";
 import { residentHandlers } from "./resident";
 import { serviceHandlers } from "./service";
@@ -29,6 +30,8 @@ const handlers = [
   ...communityHandlers,
   ...residentHandlers,
   ...linkHandlers,
+  // before the prospect handlers: `/v1/public/listings/areas` is not a listing slug
+  ...recommendationHandlers,
   ...prospectHandlers,
   ...identityHandlers,
   ...rentRecordHandlers,

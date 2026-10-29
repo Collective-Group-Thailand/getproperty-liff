@@ -39,3 +39,14 @@ export function sessionKindForPath(pathname: string): SessionKind {
   if (/^\/landlord(\/|$)/.test(pathname)) return "landlord";
   return /^\/rent(\/|$)/.test(pathname) ? "prospect" : "resident";
 }
+
+/**
+ * Pages open to more than one session kind (GL1, G4): `/link/oa` (a resident's landlord OA or a prospect's agency OA)
+ * and `/recommendations` (the sponsored message's link — the person may be signed in as either). Both sessions are
+ * renewed there, so the page can tell a prospect-only visitor from someone signed out.
+ */
+const SHARED = /^\/(link\/oa|recommendations)(\/|$)/;
+
+export function sessionKindsForPath(pathname: string): SessionKind[] {
+  return SHARED.test(pathname) ? ["resident", "prospect"] : [sessionKindForPath(pathname)];
+}

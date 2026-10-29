@@ -1,0 +1,115 @@
+{
+  "title": "Recommended places",
+  "lead": "Places to rent sent to you in LINE, picked from what you tell us here. Some of them are ads.",
+  "status": {
+    "on": {
+      "title": "You receive recommended places",
+      "body": "Since {date}. You can stop at any time."
+    },
+    "off": {
+      "title": "Recommended places are off",
+      "body": "Nothing is sent to you. To receive places, say what you are looking for and agree to the text below."
+    },
+    "outdated": {
+      "title": "The text you agreed to has changed",
+      "body": "There is a new version ({version}). Nothing is sent until you read it and agree again below."
+    },
+    "stop": "Stop recommended places",
+    "stopHint": "One tap. Nothing more is sent from now on."
+  },
+  "stopped": {
+    "title": "Stopped",
+    "body": "Nothing more will be sent. Your preferences are no longer used and are deleted as the text below says. You can turn recommendations on again at any time."
+  },
+  "saved": {
+    "title": "Saved",
+    "body": "We send places that fit what you chose, never during quiet hours."
+  },
+  "limits": {
+    "title": "How often",
+    "cap": "At most {count, plural, one {# sponsored message} other {# sponsored messages}} in any 7 days.",
+    "quiet": "Nothing during quiet hours: {start}–{end}, Bangkok time.",
+    "quietOwn": "Your quiet hours: {start}–{end}, Bangkok time."
+  },
+  "consent": {
+    "heading": "What you agree to",
+    "version": "Version {version}",
+    "english": "This text is shown in English, as getproperty publishes it.",
+    "accept": "I have read this and want to receive recommended places, including ads (version {version})",
+    "required": "Tick the box to receive recommended places.",
+    "changed": {
+      "title": "The text has just changed",
+      "body": "Please read the new version above and tick the box again. Nothing was saved."
+    }
+  },
+  "form": {
+    "title": "What you are looking for",
+    "lead": "Leave anything empty if it does not matter to you.",
+    "areas": {
+      "label": "Areas",
+      "hint": "Up to {max} districts or stations. None means anywhere.",
+      "search": "Search a district or station",
+      "noMatch": "No district or station matches “{query}”.",
+      "chosen": "Chosen areas",
+      "remove": "Remove {name}",
+      "full": "You have chosen {max} areas. Remove one to add another.",
+      "station": "Station",
+      "district": "District",
+      "unavailable": "The list of areas could not be loaded. Your chosen areas are kept.",
+      "invalid": "One of these areas is no longer listed. Remove it and save again."
+    },
+    "budget": {
+      "label": "Monthly rent",
+      "from": "From (baht)",
+      "to": "Up to (baht)",
+      "invalid": "Enter an amount in baht, for example 8000.",
+      "range": "Check the amounts: the upper one cannot be below the lower one."
+    },
+    "kinds": {
+      "label": "Kind of place",
+      "condo_unit": "Condo",
+      "room": "Room or apartment",
+      "house": "House",
+      "townhouse": "Townhouse"
+    },
+    "moveIn": {
+      "label": "When you want to move in",
+      "from": "From",
+      "to": "Until",
+      "invalid": "Check the dates: the end cannot be before the start."
+    },
+    "language": {
+      "label": "Language of the messages",
+      "hint": "Messages are written in Thai or English; other languages get English for now."
+    },
+    "quiet": {
+      "label": "Quiet hours",
+      "default": "Default ({start}–{end})",
+      "own": "My own hours",
+      "from": "From",
+      "to": "Until",
+      "invalid": "Enter both times, for example 22:00 and 07:00."
+    },
+    "check": "Some answers need a look. Check the fields marked above.",
+    "submitOn": "Save changes",
+    "submitOff": "Receive recommended places"
+  },
+  "history": {
+    "title": "What was sent to you",
+    "lead": "Every sponsored message, newest first.",
+    "empty": "Nothing has been sent to you yet.",
+    "sponsor": "Paid for by {name}",
+    "gone": "No longer listed",
+    "all": "See everything sent to you",
+    "pages": "Pages",
+    "newer": "Newer",
+    "older": "Older",
+    "unavailable": "What was sent to you could not be loaded right now."
+  },
+  "entry": {
+    "title": "Recommended places",
+    "on": "On. Choose areas, budget and quiet hours.",
+    "off": "Off. Get places that fit what you are looking for.",
+    "unknown": "Choose whether to receive places that fit you."
+  }
+}

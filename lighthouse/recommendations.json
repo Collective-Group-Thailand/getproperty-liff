@@ -1,0 +1,56 @@
+{
+  "extends": "./shared.json",
+  "$comment": "GL1 recommended places (D-300): the resident screen /recommendations (the sponsored LINE message's link) and its history, the prospect screen /rent/recommendations and my enquiries (with the new card). Mock resident and prospect `adsseen` (four sponsored messages sent). The preferences form loads as it comes near the screen. Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/recommendations",
+        "http://localhost:3400/recommendations/history",
+        "http://localhost:3400/rent/recommendations",
+        "http://localhost:3400/rent/enquiries"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-recs-adsseen; __Host-gp_prt=mock-rt.seed-prospect.Ulighthouse-prospect-recs-adsseen"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

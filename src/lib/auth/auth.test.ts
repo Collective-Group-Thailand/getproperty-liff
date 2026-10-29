@@ -13,7 +13,7 @@ import {
 import { entitlementsOf } from "./entitlements";
 import { consentPath, isLineInAppBrowser, signInPath } from "./redirects";
 import { refreshTokens, resetRefreshCacheForTesting } from "./refresh";
-import { renewBeforeRender, sessionKindForPath } from "./renew";
+import { renewBeforeRender, sessionKindForPath, sessionKindsForPath } from "./renew";
 import { RESCOPE_COOKIE, rescopePath, rescopeSession, scopesStale } from "./rescope";
 
 const NOW = Date.parse("2026-11-01T00:00:00+07:00");
@@ -108,6 +108,15 @@ describe("renewBeforeRender (proxy)", () => {
     expect(sessionKindForPath("/technician")).toBe("technician");
     expect(sessionKindForPath("/technicians")).toBe("resident");
     expect(sessionKindForPath("/")).toBe("resident");
+  });
+
+  it("renews both the resident and the prospect session on the shared pages (GL1, G4)", () => {
+    expect(sessionKindsForPath("/recommendations")).toEqual(["resident", "prospect"]);
+    expect(sessionKindsForPath("/recommendations/history")).toEqual(["resident", "prospect"]);
+    expect(sessionKindsForPath("/link/oa")).toEqual(["resident", "prospect"]);
+    expect(sessionKindsForPath("/link")).toEqual(["resident"]);
+    expect(sessionKindsForPath("/rent/recommendations")).toEqual(["prospect"]);
+    expect(sessionKindsForPath("/recommendationsx")).toEqual(["resident"]);
   });
 });
 

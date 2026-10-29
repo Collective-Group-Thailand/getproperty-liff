@@ -44,6 +44,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/broadcast/consent-texts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New recommendations consent text
+         * @description Publishes a new version of `platform.recommendations` (th + en; from now or later). Once in force every earlier grant counts as not granted: nobody gets sponsored messages until they consent again (D-300, D-025). Legal review ⚖ before publishing.
+         *
+         *     Implements: D-300, D-025.
+         */
+        post: operations["admin.broadcast.publishConsentText"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/broadcast/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sponsored broadcast settings
+         * @description The switch `broadcast.sponsored.enabled` (off until LINE Thailand confirms, O-023), weekly cap, quiet hours, listings per campaign, send window, lead attribution, retention, the consent text in force and how many people consent (aggregate) (D-300, D-291).
+         *
+         *     Implements: D-300, D-291.
+         */
+        get: operations["admin.broadcast.settings"];
+        /**
+         * Change sponsored broadcast settings
+         * @description Each given value becomes a new platform setting version from now (audited with the reason, never backdated; D-291). Switch it on only with LINE Thailand’s written confirmation (O-023) (D-300).
+         *
+         *     Implements: D-300, D-291.
+         */
+        put: operations["admin.broadcast.updateSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/buildings/{buildingId}/actions/change-operator": {
         parameters: {
             query?: never;
@@ -512,6 +562,50 @@ export interface paths {
          */
         put: operations["admin.featureFlags.update"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/fee-accruals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Success / co-broke fee accruals
+         * @description Fees accrued per deal (D-293) with their state: `uninvoiced` (waits for the monthly invoice of its month), `invoiced`, `disputed` (credit note waiting for approval), `credited` (D-297). Newest first.
+         *
+         *     Implements: D-287, D-293, D-297.
+         */
+        get: operations["admin.feeAccruals.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/fee-accruals/{accrualId}/actions/dispute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dispute a fee (request a credit note)
+         * @description Requests a platform credit note (maker, D-091) on the fee’s invoice for what the fee was charged incl. VAT (after a monthly cap, pro rata), never more than the unpaid part (money already paid is refunded by Finance outside the platform); linked to the accrual. Another platform user approves or rejects it (`/v1/admin/platform-invoices/credit-notes/{id}/actions/approve|reject`); a rejected dispute may be raised again. Not invoiced yet: `fee.not_invoiced`; a note waiting or issued: `fee.already_disputed`.
+         *
+         *     Implements: D-091, D-297.
+         */
+        post: operations["admin.feeAccruals.dispute"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1086,6 +1180,138 @@ export interface paths {
         get: operations["admin.me.get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Media service orders
+         * @description Verified photo / 360° orders of every tenant, newest first (D-297).
+         *
+         *     Implements: D-297.
+         */
+        get: operations["admin.mediaServices.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One media service order
+         * @description A media service order with its tenant, partner reference and deliverables (D-297).
+         *
+         *     Implements: D-297.
+         */
+        get: operations["admin.mediaServices.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders/{orderId}/actions/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel an order
+         * @description Cancels an open order with a reason (D-297). Money already paid comes back only through a platform credit note requested by Finance (D-091).
+         *
+         *     Implements: D-297, D-091.
+         */
+        post: operations["admin.mediaServices.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders/{orderId}/actions/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark an order delivered
+         * @description Finishes the uploads (object present with its size) and attaches the deliverables — documents of the ordering tenant in the order’s unit (`listing_photo` / `other`); the owner sees them on the order and may add them to the listing (D-297). Unknown or foreign document ids: 404.
+         *
+         *     Implements: D-297.
+         */
+        post: operations["admin.mediaServices.deliver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders/{orderId}/actions/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule the partner’s visit
+         * @description A requested (paid) order gets its visit and the partner’s reference; a scheduled one may be moved (D-297, O-032). Other states: `media_service.invalid_state`.
+         *
+         *     Implements: D-297.
+         */
+        post: operations["admin.mediaServices.schedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media-service-orders/{orderId}/deliverables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a deliverable
+         * @description Presigns one delivered file as a document of the ordering tenant (unit scope, kind `listing_photo` or `other`) — counted to that tenant’s storage (D-286; an optional upload over a full allowance is refused with `storage.allowance_exceeded`). Upload with the returned URL, then deliver. Only for a requested or scheduled order. Audited.
+         *
+         *     Implements: D-297, D-286.
+         */
+        post: operations["admin.mediaServices.presignDeliverable"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2018,6 +2244,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/rental-handoffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * getbuild rental handoffs
+         * @description Every handoff from `unit.transferred` with rental intent, newest first: refs, campaign, delivery to getbuild (attempts, last error), state (D-299, O-033).
+         *
+         *     Implements: D-299.
+         */
+        get: operations["admin.rentalHandoffs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/rental-handoffs/{handoffId}/actions/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend the invitation to getbuild
+         * @description A new single-use link goes to getbuild now (the previous one stops working) and the attempt counter restarts; with `GETBUILD_MODE=off` it waits for the job. Not invited any more: `handoff.invalid_state` (D-299).
+         *
+         *     Implements: D-299.
+         */
+        post: operations["admin.rentalHandoffs.resend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/settings": {
         parameters: {
             query?: never;
@@ -2100,6 +2370,50 @@ export interface paths {
          *     Implements: D-081, D-156.
          */
         post: operations["admin.siteSurveys.act"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sponsored-campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sponsored campaigns
+         * @description Every buyer’s campaigns, newest first, with state, schedule, price snapshot and aggregate counters — no recipient data (D-300).
+         *
+         *     Implements: D-300.
+         */
+        get: operations["admin.sponsoredCampaigns.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sponsored-campaigns/{campaignId}/actions/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject a sponsored campaign
+         * @description Stops a draft, scheduled or sending campaign (content or policy): messages not yet sent are cancelled and the campaign is not billed. Finished: `broadcast.invalid_state` (D-300).
+         *
+         *     Implements: D-300.
+         */
+        post: operations["admin.sponsoredCampaigns.reject"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4162,6 +4476,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/boost-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Boost products
+         * @description Listing boosts (7 / 30 days) and the building boost (one month) with the price before and incl. VAT of the price-plan version in force; `onSale: false` = no price yet (O-027, shown "ยังไม่เปิดขาย"); `free: true` = the building boost is free for this tenant (`boost.building.free`, D-297).
+         *
+         *     Implements: D-287, D-291, D-297.
+         */
+        get: operations["owner.boosts.products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/boosts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My boosts
+         * @description The tenant’s boosts, newest first, with their window and purchase invoice (D-297).
+         *
+         *     Implements: D-297.
+         */
+        get: operations["owner.boosts.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/boosts/{boostId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One of my boosts
+         * @description A boost of this tenant (D-297). Another tenant’s: 404.
+         *
+         *     Implements: D-297.
+         */
+        get: operations["owner.boosts.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/building-rules/{ruleId}/acknowledgements": {
         parameters: {
             query?: never;
@@ -4278,6 +4658,28 @@ export interface paths {
         get: operations["owner.unitBoard.get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/buildings/{buildingId}/boosts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Boost a building
+         * @description Buys a building boost (every public listing of this tenant in the building, one month) for a building the tenant owns or operates (D-297); free and active at once where `boost.building.free` is on for the tenant (one free boost in force at a time: `boost.already_active`). Otherwise as a listing boost. Another tenant’s building: 404.
+         *
+         *     Implements: D-287, D-297, D-250.
+         */
+        post: operations["owner.boosts.boostBuilding"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5978,6 +6380,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/employer-agreements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Employer agreements
+         * @description Employers paying their workers’ leases, newest first, with the workers’ payroll numbers and the open leases attached (D-299).
+         *
+         *     Implements: D-289, D-299.
+         */
+        get: operations["owner.employerAgreements.list"];
+        put?: never;
+        /**
+         * Record an employer agreement
+         * @description An employer (a party of this tenant) pays the leases of its workers (D-289 (4)): split rule (`per_occupant` / `per_unit`), payroll deduction percent, validity, optionally one building. Attach leases with `PUT /v1/owner/leases/{leaseId}/employer`. Another tenant’s party or building: 404 (D-299).
+         *
+         *     Implements: D-289, D-299.
+         */
+        post: operations["owner.employerAgreements.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/employer-agreements/{agreementId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One employer agreement
+         * @description An agreement of this tenant (404 otherwise, contract §8) (D-299).
+         *
+         *     Implements: D-299.
+         */
+        get: operations["owner.employerAgreements.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change or end an employer agreement
+         * @description Split rule, deduction percent, reference, end date — or `end: true`, which detaches its open leases (their next invoices go to the lessees again; issued invoices never change, D-040). Requires `If-Match`; an ended agreement: `employer.invalid_state` (D-299).
+         *
+         *     Implements: D-299, D-040.
+         */
+        patch: operations["owner.employerAgreements.update"];
+        trace?: never;
+    };
+    "/v1/owner/employer-agreements/{agreementId}/payroll-exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export the payroll deductions of a month
+         * @description Queues export `payroll_deduction` (`generic_csv`: employee no, worker, unit, invoice, share, deduction; UTF-8 with BOM) of the month’s statement; poll `GET /v1/owner/exports/{id}` for the link. The figures are for the employer’s payroll — whether it may deduct from wages is the employer’s responsibility (Labour Protection Act s.76, O-034) (D-299).
+         *
+         *     Implements: D-299, D-051.
+         */
+        post: operations["owner.employerAgreements.payrollExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/employer-agreements/{agreementId}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Employer statement of a month
+         * @description Invoices addressed to the employer for the agreement’s leases, issued in the Bangkok month (not void): totals, paid, due, and each invoice split between the people who stayed (`per_occupant`, equal shares, satang to the first) or on the lessee (`per_unit`), with each share’s payroll deduction (`deductPercent`) and what the employer carries (D-299).
+         *
+         *     Implements: D-299.
+         */
+        get: operations["owner.employerAgreements.statement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/employer-agreements/{agreementId}/workers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the workers’ payroll numbers
+         * @description Replaces the payroll numbers of the employer’s workers (parties of this tenant) used by the statement and the payroll export (D-299). A party of another tenant: 404.
+         *
+         *     Implements: D-299.
+         */
+        put: operations["owner.employerAgreements.setWorkers"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/etax/submissions": {
         parameters: {
             query?: never;
@@ -7308,6 +7832,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/leases/{leaseId}/employer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Attach a lease to an employer (or detach it)
+         * @description The lease’s next invoices are addressed to the employer of an active agreement (`payerPartyId`); `null` sends them to the lessee again. Issued invoices never change (D-040). Only open leases (draft … ending): `employer.invalid_state`; a lease outside the agreement’s building: `employer.building_mismatch`. Another tenant’s lease or agreement: 404 (D-299).
+         *
+         *     Implements: D-299, D-040.
+         */
+        put: operations["owner.employerAgreements.setLeaseEmployer"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/leases/{leaseId}/events": {
         parameters: {
             query?: never;
@@ -7850,6 +8396,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/listings/{listingId}/boosts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Boost a listing
+         * @description Buys a listing boost for a published listing of this tenant (D-297): a pending boost and a `purchase` platform invoice (line `boost`); it is active from the payment for its days, queued after a boost of the listing still in force. Not on sale: `boost.not_on_sale`; the same boost already waiting for payment: `boost.pending`; listing not public: `boost.listing_not_public`. Another tenant’s listing: 404.
+         *
+         *     Implements: D-287, D-297, D-250.
+         */
+        post: operations["owner.boosts.boostListing"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/listings/{listingId}/comparables": {
         parameters: {
             query?: never;
@@ -7933,11 +8501,55 @@ export interface paths {
         put?: never;
         /**
          * Share kit of a listing
-         * @description For a published listing: a short link per channel (LINE, Facebook group, Marketplace, QR, plain link — `<web>/s/{code}` → the listing with UTM; made on first use, then the same), captions in Thai and English per channel, clicks and enquiries per channel, and the 1080 × 1080 photo cards (th / en, PNG: cover photo, rent, title, area, facts, QR of the link, getproperty logo) — rendered again only when what they show changes (D-268). Nothing is posted anywhere (Facebook forbids automated posting): the owner copies and downloads; LINE opens its share picker. `listing.invalid_state` unless published.
+         * @description For a published listing: a short link per channel (LINE, Facebook group, Marketplace, QR, plain link — `<web>/s/{code}` → the listing with UTM; made on first use, then the same), captions in Thai and English per channel, clicks and enquiries per channel, and the 1080 × 1080 photo cards (th / en, PNG: cover photo, rent, title, area, facts, QR of the link, getproperty logo) — rendered again only when what they show changes (D-268) — plus the listing’s photos as an image bundle (G4). Nothing is posted into groups or Marketplace (D-288: groups are never automated; the owner copies and downloads; LINE opens its share picker) — automatic posts go only to the tenant’s own Facebook Page. An agency listing never claims "no agent fee". `listing.invalid_state` unless published.
          *
-         *     Implements: D-268.
+         *     Implements: D-268, D-288.
          */
         post: operations["owner.listings.shareKit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/listings/{listingId}/social-posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Facebook Page posts of a listing
+         * @description One entry per connected Page: queued (with what is about to happen), posted (link to the post), failed (why) or deleted (D-288). Another tenant’s listing: 404.
+         *
+         *     Implements: D-288, D-296.
+         */
+        get: operations["owner.listingSocialPosts.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/listings/{listingId}/social-posts/{postId}/actions/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Try a failed Page post again
+         * @description Queues what the listing needs now on its Page (publish, edit or delete) for a failed post on a verified Page; `social.post_invalid_state` otherwise. Another tenant’s post: 404 (D-288).
+         *
+         *     Implements: D-288.
+         */
+        post: operations["owner.listingSocialPosts.retry"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8514,6 +9126,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/media-service-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My media service orders
+         * @description Verified photo / 360° orders of this tenant, newest first, with state and invoice (D-297).
+         *
+         *     Implements: D-297.
+         */
+        get: operations["owner.mediaServices.list"];
+        put?: never;
+        /**
+         * Order a verified photo / 360° tour
+         * @description Orders a media service for one of the tenant’s listings (D-297): a `purchase` platform invoice (line `media_service`); the order is `requested` once paid and the platform books the partner (O-032). Not on sale: `media_service.not_on_sale`; an open order for the unit and service: `media_service.order_open`; a closed / rejected listing: `boost.listing_not_public`. Another tenant’s listing: 404.
+         *
+         *     Implements: D-287, D-297, D-250.
+         */
+        post: operations["owner.mediaServices.order"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/media-service-orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One media service order
+         * @description A media service order of this tenant with its deliverables (D-297). Another tenant’s: 404.
+         *
+         *     Implements: D-297.
+         */
+        get: operations["owner.mediaServices.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/media-service-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verified photo / 360° products
+         * @description The media services the platform offers with their price (before / incl. VAT); `onSale: false` = no price yet (O-027).
+         *
+         *     Implements: D-287, D-291, D-297.
+         */
+        get: operations["owner.mediaServices.products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/members": {
         parameters: {
             query?: never;
@@ -8564,6 +9248,28 @@ export interface paths {
         patch: operations["owner.members.update"];
         trace?: never;
     };
+    "/v1/owner/messaging/addons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * LINE OA integration fee
+         * @description The LINE OA integration add-on for this tenant type (G4, D-287, D-291): monthly and setup fee of the price-plan version in force (`onSale: false` = no price published — O-027 — connecting an own OA is free and nothing is charged), whether the setup fee was invoiced, and the fee invoices (`purchase` platform invoices; unpaid = nothing suspended, D-250). LINE bills message charges of an own OA to the operator directly (D-254).
+         *
+         *     Implements: D-287, D-291, D-254.
+         */
+        get: operations["owner.messagingAddons.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/messaging/channels": {
         parameters: {
             query?: never;
@@ -8581,9 +9287,9 @@ export interface paths {
         put?: never;
         /**
          * Connect my own LINE Official Account
-         * @description The Messaging API channel id, secret and access token (sealed with the tenant key, D-148), for the tenant or one building; replaces the one connected before. getproperty checks the token with LINE (`verified`, or `failing` with the reason) and answers the webhook URL to set in the LINE console. Messages then go out under the operator’s OA to residents who linked it — the others keep the shared OA until they do; LINE’s quota and charges are the operator’s (D-254).
+         * @description The Messaging API channel id, secret and access token (sealed with the tenant key, D-148), for the tenant or one building; replaces the one connected before. getproperty checks the token with LINE (`verified`, or `failing` with the reason) and answers the webhook URL to set in the LINE console (one URL per channel — each tenant’s webhook is checked with its own secret). Messages then go out under the operator’s OA to residents and prospects who linked it — the others keep the shared OA until they do; LINE’s quota and charges are the operator’s (D-254). G4 (D-287): while a priced LINE OA integration add-on is in force for the tenant type (agencies), send `acceptAddonVersionId` = that version (else 409 `messaging.addon_terms_required` with the prices); the setup fee is then invoiced once and the monthly fee each month (no price published = free, O-027).
          *
-         *     Implements: D-254, D-148.
+         *     Implements: D-254, D-148, D-287.
          */
         post: operations["owner.messagingChannels.connect"];
         delete?: never;
@@ -10000,6 +10706,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/rental-handoffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Units handed over from getbuild
+         * @description Handoffs this tenant claimed: the unit, its listing draft, the developer campaign, `listed` once the listing was published (D-299).
+         *
+         *     Implements: D-289, D-299.
+         */
+        get: operations["owner.rentalHandoffs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/rental-handoffs/actions/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim a getbuild rental handoff
+         * @description With the token of the invitation link, a **landlord** tenant (free, D-284; else `handoff.landlord_required`) adds the bought unit to its portfolio (ownership source `getbuild_transfer`) and gets a listing draft prefilled from getbuild’s facts, the rent typed here and the developer campaign tag — add photos and submit it as any listing. Used, declined or expired invitation (or claimed by another tenant): `handoff.invalid_state`; unknown token: 404. `address` is needed only when getbuild did not tell it (D-299).
+         *
+         *     Implements: D-289, D-299, D-284, D-252.
+         */
+        post: operations["owner.rentalHandoffs.claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/search": {
         parameters: {
             query?: never;
@@ -10508,6 +11258,238 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/owner/social-channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My Facebook Page
+         * @description The Facebook Page connected for automatic listing posts (G4, D-288): page, state, auto-post switch, last check. Never the token.
+         *
+         *     Implements: D-288, D-296.
+         */
+        get: operations["owner.socialChannels.list"];
+        put?: never;
+        /**
+         * Connect my Facebook Page
+         * @description Connects the tenant’s own Facebook Page with a Page access token (G4, D-288): checked with Facebook first — a refused token stores nothing (`facebook.page_refused`) — then sealed with the tenant key (D-148 / D-240) and never shown again; replaces the Page connected before. Published listings are then posted there automatically, edited when the rent changes and deleted when the unit is let or the listing stops being public. Facebook groups are never automated (the share kit stays for them). `facebook.unavailable` while the Meta app is not approved (O-029).
+         *
+         *     Implements: D-288, D-148, D-296.
+         */
+        post: operations["owner.socialChannels.connect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/social-channels/{channelId}/actions/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disconnect my Facebook Page
+         * @description Nothing more is posted on the Page; waiting posts are dropped; posts already there stay for the owner to manage on Facebook. Another tenant’s Page: 404 (D-288).
+         *
+         *     Implements: D-288.
+         */
+        post: operations["owner.socialChannels.revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/social-channels/{channelId}/actions/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check my Facebook Page again
+         * @description Asks Facebook for the Page with its token: `verified`, or `failing` with the reason (nothing is posted while failing). Another tenant’s Page: 404 (D-288).
+         *
+         *     Implements: D-288.
+         */
+        post: operations["owner.socialChannels.verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My sponsored campaigns
+         * @description This tenant’s campaigns, newest first, with their aggregate counters (D-300).
+         *
+         *     Implements: D-300.
+         */
+        get: operations["owner.sponsoredCampaigns.list"];
+        put?: never;
+        /**
+         * Draft a sponsored campaign
+         * @description A draft of my own published listings (1–`broadcast.sponsored.max_listings`) to a segment from the closed whitelist (areas, budget, unit kinds, move-in window, languages — no special-category data); the estimate is stored as the aggregate number (null below the minimum). Another tenant’s listing: 404 (D-300).
+         *
+         *     Implements: D-300, D-287.
+         */
+        post: operations["owner.sponsoredCampaigns.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/{campaignId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A sponsored campaign
+         * @description One of this tenant’s campaigns; another tenant’s: 404 (D-300).
+         *
+         *     Implements: D-300.
+         */
+        get: operations["owner.sponsoredCampaigns.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/{campaignId}/actions/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a sponsored campaign
+         * @description A draft or a scheduled campaign is cancelled (nothing sent, nothing billed); sending or finished: `broadcast.invalid_state` (D-300).
+         *
+         *     Implements: D-300.
+         */
+        post: operations["owner.sponsoredCampaigns.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/{campaignId}/actions/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule a sponsored campaign
+         * @description Commits to buy: the price per recipient, VAT rate and minimum of the price-plan version in force are snapshotted and the campaign starts at `scheduledAt` (now when empty). Switched off: `broadcast.sponsored_disabled` (O-023); no price: `broadcast.not_on_sale` (O-027); a listing no longer public: `broadcast.listing_not_public`; fewer people than the minimum: `broadcast.below_minimum`; not a draft: `broadcast.invalid_state`. Billed after sending for the delivered recipients only (D-300).
+         *
+         *     Implements: D-300, D-287, D-291.
+         */
+        post: operations["owner.sponsoredCampaigns.schedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/{campaignId}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Campaign report (aggregates only)
+         * @description Sent, opened (null — not available for a multicast), clicks on the campaign links and leads (enquiries on these listings by people who got it, within `broadcast.sponsored.attribution_days`) — numbers only, never a person; a person reaches me only by enquiring (D-300, D-025).
+         *
+         *     Implements: D-300, D-025.
+         */
+        get: operations["owner.sponsoredCampaigns.report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Estimate recipients and price
+         * @description How many people who consented to `platform.recommendations` and whose own preferences fit the segment and the listings would get it now — a number only, withheld (`estimated: null`, `belowMinimum: true`) below the minimum; with the price preview. Nothing is stored. Another tenant’s listing: 404; unpublished: `broadcast.listing_not_public` (D-300).
+         *
+         *     Implements: D-300, D-025.
+         */
+        post: operations["owner.sponsoredCampaigns.estimate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/owner/sponsored-campaigns/product": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sponsored broadcast: availability and price
+         * @description Whether sponsored broadcasts are switched on (`enabled`, O-023), the price per delivered recipient of the price-plan version in force (`onSale: false` = no price yet, O-027), the minimum recipients per campaign, the listings per campaign and the weekly cap per person (D-300).
+         *
+         *     Implements: D-300, D-287, D-291.
+         */
+        get: operations["owner.sponsoredCampaigns.product"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/owner/storage": {
         parameters: {
             query?: never;
@@ -10991,9 +11973,9 @@ export interface paths {
         };
         /**
          * TM30 notifications (export log)
-         * @description Every foreign occupant who moved in, with the 24-hour deadline (Immigration Act B.E. 2522 s.38, `tm30.notify_within_hours`), the data still missing for the Immigration Bureau, the upload file it went into and the recorded submission — the building’s export log (D-052, D-216).
+         * @description Every foreign occupant who moved in, with the 24-hour deadline (Immigration Act B.E. 2522 s.38, `tm30.notify_within_hours`), the data still missing for the Immigration Bureau, the upload file it went into and the recorded submission — the building’s export log (D-052, D-216). `employerAgreementId` narrows it to the foreign workers of an employer’s leases (G8, D-299).
          *
-         *     Implements: D-052, D-216.
+         *     Implements: D-052, D-216, D-299.
          */
         get: operations["owner.tm30.list"];
         put?: never;
@@ -12016,6 +12998,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/prospect/me/recommendations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recommended places: my consent and preferences
+         * @description My separate, optional consent `platform.recommendations` (Collective is the controller): the plain-language purpose with the profiling note in my language, `granted` true only after my explicit grant of the current version (never pre-ticked), my preferences while consented, the weekly cap and default quiet hours (D-300, D-025).
+         *
+         *     Implements: D-300, D-287, D-025.
+         */
+        get: operations["prospect.recommendations.get"];
+        /**
+         * Opt in and set what I want to hear about
+         * @description Sets what I want to hear about: areas, budget, unit kinds, move-in window, language and my own quiet hours — nothing else can be stored (no special-category data). `consentVersion` = I tick the box now (must be the current version, else `recommendations.consent_outdated`); without a valid grant: `recommendations.consent_required` (D-300).
+         *
+         *     Implements: D-300, D-025.
+         */
+        put: operations["prospect.recommendations.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/me/recommendations/actions/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stop recommended places
+         * @description One tap: records the withdrawal (`granted: false`), nothing more is sent from now on (pending messages are cancelled), and my preferences are deleted after `audience.preferences.keep_days_after_withdrawal` (unused meanwhile). Repeating it changes nothing (D-300, D-025).
+         *
+         *     Implements: D-300, D-025.
+         */
+        post: operations["prospect.recommendations.withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/me/recommendations/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What was sent to me
+         * @description Every sponsored message sent to me, newest first: when, who paid for it and which listings — labelled as an ad. Kept `broadcast.sponsored.delivery_keep_months` (D-300).
+         *
+         *     Implements: D-300, D-025.
+         */
+        get: operations["prospect.recommendations.history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/prospect/me/rent-record": {
         parameters: {
             query?: never;
@@ -12098,6 +13152,50 @@ export interface paths {
         get: operations["prospect.selfViewing.status"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/messaging-links/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Who asks me to link their LINE account
+         * @description The operator (e.g. an estate agency) and its LINE OA behind the link the OA replied with, and whether it can still be used (G4, D-254).
+         *
+         *     Implements: D-254, D-287.
+         */
+        get: operations["prospect.messagingLinks.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/prospect/messaging-links/{token}/actions/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link the operator’s LINE account to me
+         * @description My enquiry and viewing messages from this operator then come through its own OA (G4); the same OA user cannot be linked to another person (`messaging.line_user_taken`). Single use; expires after `messaging.link_token.ttl_minutes` (D-254).
+         *
+         *     Implements: D-254, D-287.
+         */
+        post: operations["prospect.messagingLinks.confirm"];
         delete?: never;
         options?: never;
         head?: never;
@@ -12302,6 +13400,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/handoffs/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview a rental handoff invitation
+         * @description What getbuild told getproperty about the unit the buyer bought (project, place, size, rooms) and the invitation’s state — the buyer’s first name only, no contact data (D-025). Unknown token: 404 (D-299).
+         *
+         *     Implements: D-289, D-299.
+         */
+        get: operations["public.handoffs.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/handoffs/{token}/actions/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline a rental handoff invitation
+         * @description The buyer does not want to rent the unit out through getproperty: the invitation closes (a repeated decline answers the same). Claimed or expired: `handoff.invalid_state`; unknown token: 404 (D-299).
+         *
+         *     Implements: D-299.
+         */
+        post: operations["public.handoffs.decline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/listings": {
         parameters: {
             query?: never;
@@ -12333,11 +13475,33 @@ export interface paths {
         };
         /**
          * One listing
-         * @description The public page of a listing (D-252): description, facilities, every photo in order, floor, map pin, the owner’s display name and verified flag. `404` when it is not (or no longer) public.
+         * @description The public page of a listing (D-252): description, facilities, every photo in order, floor, map pin, the owner’s display name and verified flag, the real utility cost (D-265), the verified-vacant badge, the Open Graph card URL and the schema.org JSON-LD (G4, D-296). `404` when it is not (or no longer) public.
          *
-         *     Implements: D-252.
+         *     Implements: D-252, D-265, D-296.
          */
         get: operations["public.listings.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/listings/{slug}/og-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Open Graph card of a listing
+         * @description The 1200 × 630 PNG previewed by Facebook, LINE and search engines for the listing page and for its Facebook Page posts (G4, D-296): cover photo, rent, title, place, facts, the verified badges and the getproperty logo. Rendered again only when what it shows changes (`ETag` = its content hash); cacheable for an hour. `404` when the listing is not public.
+         *
+         *     Implements: D-296, D-288.
+         */
+        get: operations["public.listings.ogImage"];
         put?: never;
         post?: never;
         delete?: never;
@@ -12555,9 +13719,9 @@ export interface paths {
         put?: never;
         /**
          * Open a share link
-         * @description A short link of a listing’s share kit was opened (`<web>/s/{code}`, D-268): counts the click and answers the listing to show and the UTM of its channel. `404` when the code is unknown or the listing is no longer public (the web then shows the search).
+         * @description A short link of a listing’s share kit was opened (`<web>/s/{code}`, D-268): counts the click and answers the listing to show and the UTM of its channel. G6: the link of a listing in a sponsored LINE campaign answers channel `line_sponsored` (clicks counted per campaign, never per person, D-300) — pass it on as the enquiry’s channel. `404` when the code is unknown or the listing is no longer public (the web then shows the search).
          *
-         *     Implements: D-268.
+         *     Implements: D-268, D-300.
          */
         post: operations["public.shareLinks.open"];
         delete?: never;
@@ -13940,6 +15104,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/resident/me/recommendations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recommended places: my consent and preferences
+         * @description My separate, optional consent `platform.recommendations` (Collective is the controller): the plain-language purpose with the profiling note in my language, `granted` true only after my explicit grant of the current version (never pre-ticked), my preferences while consented, the weekly cap and default quiet hours (D-300, D-025).
+         *
+         *     Implements: D-300, D-287, D-025.
+         */
+        get: operations["resident.recommendations.get"];
+        /**
+         * Opt in and set what I want to hear about
+         * @description Sets what I want to hear about: areas, budget, unit kinds, move-in window, language and my own quiet hours — nothing else can be stored (no special-category data). `consentVersion` = I tick the box now (must be the current version, else `recommendations.consent_outdated`); without a valid grant: `recommendations.consent_required` (D-300).
+         *
+         *     Implements: D-300, D-025.
+         */
+        put: operations["resident.recommendations.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/me/recommendations/actions/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stop recommended places
+         * @description One tap: records the withdrawal (`granted: false`), nothing more is sent from now on (pending messages are cancelled), and my preferences are deleted after `audience.preferences.keep_days_after_withdrawal` (unused meanwhile). Repeating it changes nothing (D-300, D-025).
+         *
+         *     Implements: D-300, D-025.
+         */
+        post: operations["resident.recommendations.withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/me/recommendations/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What was sent to me
+         * @description Every sponsored message sent to me, newest first: when, who paid for it and which listings — labelled as an ad. Kept `broadcast.sponsored.delivery_keep_months` (D-300).
+         *
+         *     Implements: D-300, D-025.
+         */
+        get: operations["resident.recommendations.history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/resident/me/rent-record": {
         parameters: {
             query?: never;
@@ -14285,6 +15521,94 @@ export interface paths {
          */
         get: operations["resident.receipts.document"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/relocation-offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Places where I am moving
+         * @description My relocation offers (one per lease under notice, only if I consented to `resident.relocation`), each with the public listings in its destination while it is open; `consented: false` when the consent is not (or no longer) granted — then nothing is matched and open offers close (D-299, D-025).
+         *
+         *     Implements: D-289, D-299, D-025.
+         */
+        get: operations["resident.relocationOffers.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/relocation-offers/{offerId}/actions/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Not interested
+         * @description Closes the offer and erases its destination; the consent stays as it is (withdraw it in my privacy settings). Closed already: `relocation.invalid_state` (D-299).
+         *
+         *     Implements: D-299.
+         */
+        post: operations["resident.relocationOffers.dismiss"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/relocation-offers/{offerId}/actions/enquire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enquire about a place (and send my rent record)
+         * @description Sends my message to the listing’s owner as a prospect enquiry (B7.3; consent `prospect.enquiry` of that owner) and — only when `shareRentRecord` — shares my rent record with that enquiry (B7.11); nothing travels otherwise. No consent `resident.relocation`: `relocation.consent_required`; offer closed: `relocation.invalid_state`; not mine: 404 (D-299, D-256).
+         *
+         *     Implements: D-299, D-256, D-252.
+         */
+        post: operations["resident.relocationOffers.enquire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resident/relocation-offers/{offerId}/destination": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Where I am moving
+         * @description An area slug, or a province (+ district), and a budget — used only to show me listings there; erased when the offer closes or I withdraw the consent. No consent: `relocation.consent_required`; offer closed: `relocation.invalid_state`; not mine: 404 (D-299).
+         *
+         *     Implements: D-299, D-025.
+         */
+        put: operations["resident.relocationOffers.setDestination"];
         post?: never;
         delete?: never;
         options?: never;
@@ -16845,6 +18169,50 @@ export interface components {
             /** @description Signed for 5 minutes; every download is audited. */
             url: string;
         };
+        AdminFeeAccrualDto: {
+            /**
+             * Format: date
+             * @example 2026-11-01
+             */
+            accruedOn: string;
+            /**
+             * @description Fee accrued (before VAT). Unit: THB, decimal string (D-046).
+             * @example 1500.00
+             */
+            amount: string;
+            /**
+             * @description Base of the percentage. Unit: THB, decimal string (D-046).
+             * @example 15000.00
+             */
+            baseAmount: string | null;
+            /** @example percent_of_amount */
+            billingUnit: components["schemas"]["FeeBillingUnit"];
+            /** @example false */
+            capped: boolean;
+            creditNote: components["schemas"]["FeeCreditNoteRefDto"] | null;
+            /** Format: uuid */
+            dealId: string;
+            /** Format: uuid */
+            id: string;
+            invoice: components["schemas"]["FeeInvoiceRefDto"] | null;
+            /** @example success_fee */
+            kind: components["schemas"]["FeeAccrualKind"];
+            /** Format: uuid */
+            leaseId: string;
+            /** @example 10.0000 */
+            rate: string;
+            /** @example invoiced */
+            state: components["schemas"]["FeeAccrualState"];
+            /**
+             * Format: uuid
+             * @description The paying agency tenant.
+             */
+            tenantId: string;
+            /** @example บริษัท ตัวอย่าง จำกัด */
+            tenantName: string;
+            /** @example A-201 */
+            unitNo: string;
+        };
         AdminFilePresignDto: {
             /** @example mea-tariff-2026-09.pdf */
             fileName: string;
@@ -16983,6 +18351,87 @@ export interface components {
             id: string;
             reason: components["schemas"]["ListingReportReason"];
         };
+        AdminMediaServiceOrderDto: {
+            /**
+             * Format: date-time
+             * @example null
+             */
+            cancelledAt: string | null;
+            /** @example null */
+            cancelReason: string | null;
+            /**
+             * Format: date-time
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            createdAt: string;
+            /**
+             * @description Delivered files: documents of this tenant in the unit’s scope (listing media, counted to the quota).
+             * @example []
+             */
+            deliverableDocumentIds: string[];
+            /**
+             * Format: date-time
+             * @example null
+             */
+            deliveredAt: string | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            listingId: string | null;
+            /** @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์ */
+            listingTitle: string | null;
+            /** @example บริการถ่ายภาพยืนยันห้องจริง */
+            name: string;
+            /** @example null */
+            note: string | null;
+            /** @example PARTNER-2026-0042 */
+            partnerRef: string | null;
+            /**
+             * @description Price incl. VAT (snapshot). Unit: THB, decimal string (D-046).
+             * @example 1605.00
+             */
+            price: string;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            requestedAt: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            scheduledAt: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            scheduledFor: string | null;
+            /** @example verified_photo */
+            service: components["schemas"]["MediaServiceKind"];
+            /** @example pending_payment */
+            state: components["schemas"]["MediaServiceState"];
+            /**
+             * Format: uuid
+             * @example 0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11
+             */
+            tenantId: string;
+            /** @example บริษัท ตัวอย่าง จำกัด */
+            tenantName: string;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            unitId: string;
+            /** @example A-201 */
+            unitNo: string;
+        };
         AdminMeDto: {
             /**
              * @example {
@@ -17017,6 +18466,95 @@ export interface components {
         };
         /** @enum {string} */
         AdminMenuKey: "tenants" | "listings" | "guides" | "platform_users" | "utility_tariffs" | "settings" | "feature_flags" | "devices" | "ota_releases" | "support_grants" | "subscriptions" | "notification_templates" | "outbox" | "ingest_dead_letters" | "data_subject_requests" | "integration_events" | "audit_log" | "ai_usage";
+        AdminRentalHandoffDto: {
+            /** @example bldg-a */
+            buildingRef: string;
+            /** @example getbuild:dev-campaign-2026 */
+            campaignTag: string;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description getbuild received the link.
+             */
+            deliveredAt: string | null;
+            /** @example 1 */
+            deliveryAttempts: number;
+            /**
+             * @description The developer tenant in getbuild.
+             * @example 0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11
+             */
+            developerRef: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: uuid */
+            id: string;
+            /** @example null */
+            lastDeliveryError: string | null;
+            /** Format: uuid */
+            listingId: string | null;
+            state: components["schemas"]["RentalHandoffState"];
+            /**
+             * Format: uuid
+             * @description The landlord tenant that claimed it.
+             */
+            tenantId: string | null;
+            /** Format: date */
+            transferDate: string;
+            /** @example u-101 */
+            unitRef: string;
+        };
+        AdminSponsoredCampaignDto: {
+            /**
+             * @description Clicks on the campaign’s links (aggregate).
+             * @example 0
+             */
+            clicks: number;
+            /** Format: date-time */
+            completedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * @description People it was delivered to (aggregate).
+             * @example 0
+             */
+            delivered: number;
+            /**
+             * @description Null below the minimum.
+             * @example 1000
+             */
+            estimated: number | null;
+            /** Format: uuid */
+            id: string;
+            /** @description The purchase invoice once sent. */
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            listings: components["schemas"]["SponsoredCampaignListingDto"][];
+            /** @example 1000 */
+            maxRecipients: number;
+            /** @example 500 */
+            minimumRecipients: number | null;
+            /** @example คอนโดอารีย์ ต้นเดือนธันวา */
+            name: string;
+            /**
+             * @description Snapshot at scheduling.
+             * @example 0.5000
+             */
+            pricePerRecipient: string | null;
+            /** @example null */
+            rejectReason: string | null;
+            /** Format: date-time */
+            scheduledAt: string | null;
+            segment: components["schemas"]["SponsoredSegmentOutDto"];
+            /** Format: date-time */
+            sendingStartedAt: string | null;
+            state: components["schemas"]["SponsoredCampaignState"];
+            /** Format: uuid */
+            tenantId: string;
+            /** @example มาลี มีสุข */
+            tenantName: string;
+            /** @example 0.0700 */
+            vatRate: string | null;
+        };
         AdminStorageOverviewDto: {
             data: components["schemas"]["AdminStorageTenantDto"][];
             totals: components["schemas"]["AdminStorageTotalsDto"];
@@ -17512,6 +19050,78 @@ export interface components {
             floorIds?: string[];
             /** @example [] */
             unitIds?: string[];
+        };
+        AudiencePreferencesDto: {
+            /**
+             * @example [
+             *       "ari"
+             *     ]
+             */
+            areas: string[];
+            /**
+             * @description Highest rent. Unit: THB, decimal string (D-046).
+             * @example 15000.00
+             */
+            budgetMax: string | null;
+            /**
+             * @description Lowest rent. Unit: THB, decimal string (D-046).
+             * @example 8000.00
+             */
+            budgetMin: string | null;
+            /** @example th */
+            language: string;
+            /** Format: date */
+            moveInFrom: string | null;
+            /** Format: date */
+            moveInTo: string | null;
+            quietHours: components["schemas"]["QuietHoursOutDto"] | null;
+            unitKinds: components["schemas"]["PortfolioUnitKind"][];
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AudiencePreferencesInputDto: {
+            /**
+             * @description Up to 10 area / station slugs of `GET /v1/public/listings/areas`; empty = anywhere.
+             * @example [
+             *       "ari",
+             *       "chatuchak"
+             *     ]
+             */
+            areas?: string[];
+            /**
+             * @description Highest monthly rent I look at. Unit: THB, decimal string (D-046).
+             * @example 15000
+             */
+            budgetMax?: string | null;
+            /**
+             * @description Lowest monthly rent I look at. Unit: THB, decimal string (D-046).
+             * @example 8000
+             */
+            budgetMin?: string | null;
+            /**
+             * @description Language of the messages (Thai, else English text is sent).
+             * @example th
+             */
+            language?: components["schemas"]["ResidentLanguage"];
+            /**
+             * Format: date
+             * @example 2026-12-01
+             */
+            moveInFrom?: string | null;
+            /**
+             * Format: date
+             * @example 2027-01-31
+             */
+            moveInTo?: string | null;
+            /** @description My own quiet hours; null = the platform default (`broadcast.sponsored.quiet_hours`). */
+            quietHours?: components["schemas"]["QuietHoursDto"] | null;
+            /**
+             * @description Empty = any kind.
+             * @example [
+             *       "condo_unit"
+             *     ]
+             */
+            unitKinds?: components["schemas"]["PortfolioUnitKind"][];
         };
         AuditEntryDto: {
             /** @example tenant.bank_account.changed */
@@ -18314,6 +19924,196 @@ export interface components {
         };
         /** @enum {string} */
         BookingStatus: "requested" | "confirmed" | "cancelled" | "no_show";
+        BoostDto: {
+            /**
+             * Format: uuid
+             * @example null
+             */
+            buildingId: string | null;
+            /**
+             * Format: date-time
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            createdAt: string;
+            /** @example 7 */
+            days: number | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            endsAt: string | null;
+            /** @example false */
+            free: boolean;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @description The purchase invoice (null when free). */
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            listingId: string | null;
+            /** @example condo-1br-ari-8f3k2 */
+            listingSlug: string | null;
+            /** @example null */
+            months: number | null;
+            /** @example โปรโมตประกาศ 7 วัน */
+            name: string;
+            /**
+             * @description Price paid incl. VAT (snapshot; 0.00 when free). Unit: THB, decimal string (D-046).
+             * @example 535.00
+             */
+            price: string;
+            /**
+             * Format: uuid
+             * @description The product (price plan).
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            productId: string;
+            /** @example boost_listing_7d */
+            productKey: string;
+            /**
+             * Format: date-time
+             * @description Set when paid; later than now when queued after an earlier boost of the same target.
+             * @example null
+             */
+            startsAt: string | null;
+            /** @example pending_payment */
+            state: components["schemas"]["StoragePackageState"];
+            /** @example listing */
+            target: components["schemas"]["BoostTarget"];
+            /**
+             * @description Listing title or building name.
+             * @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์
+             */
+            targetName: string;
+        };
+        BoostProductDto: {
+            /** @example THB */
+            currency: string;
+            /**
+             * @description Length in days (or `months`).
+             * @example 7
+             */
+            days: number | null;
+            /**
+             * @description A building boost that is free for this tenant (`boost.building.free`, D-297).
+             * @example false
+             */
+            free: boolean;
+            /**
+             * Format: uuid
+             * @description Product id (price plan) to buy.
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @example boost_listing_7d */
+            key: string;
+            /**
+             * @description Length in calendar months.
+             * @example null
+             */
+            months: number | null;
+            /** @example Listing boost, 7 days */
+            nameEn: string;
+            /** @example โปรโมตประกาศ 7 วัน */
+            nameTh: string;
+            /**
+             * @description Can be bought now (priced, or free for this tenant).
+             * @example false
+             */
+            onSale: boolean;
+            /**
+             * @description Price before VAT; null = not on sale (O-027). Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            price: string | null;
+            /** @example listing */
+            target: components["schemas"]["BoostTarget"];
+            /**
+             * @description Price incl. VAT; null = not on sale. Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            total: string | null;
+            /** @example 0.0700 */
+            vatRate: string;
+        };
+        BoostProductsDto: {
+            products: components["schemas"]["BoostProductDto"][];
+        };
+        BoostPurchaseDto: {
+            /**
+             * Format: uuid
+             * @description Boost product id (`GET /v1/owner/boost-products`).
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            productId: string;
+        };
+        BoostsDto: {
+            data: components["schemas"]["BoostDto"][];
+        };
+        /** @enum {string} */
+        BoostTarget: "listing" | "building";
+        BroadcastConsentTextCreateDto: {
+            /**
+             * Format: date-time
+             * @description From now when empty; never backdated.
+             */
+            effectiveFrom?: string | null;
+            en: components["schemas"]["ConsentTextDto"];
+            th: components["schemas"]["ConsentTextDto"];
+        };
+        BroadcastConsentTextDto: {
+            /** Format: date-time */
+            effectiveFrom: string;
+            en: components["schemas"]["ConsentTextDto"];
+            th: components["schemas"]["ConsentTextDto"];
+            /** @example 1 */
+            version: number;
+        };
+        BroadcastSettingsDto: {
+            /** @example 7 */
+            attributionDays: number;
+            /**
+             * @description People consenting at the current version (aggregate).
+             * @example 1240
+             */
+            consenting: number;
+            /** @description The `platform.recommendations` text in force (th / en). */
+            consentText: components["schemas"]["BroadcastConsentTextDto"] | null;
+            /** @example 12 */
+            deliveryKeepMonths: number;
+            /** @example false */
+            enabled: boolean;
+            /** @example 5 */
+            maxListings: number;
+            /** @example 2 */
+            maxPerWeek: number;
+            /** @example 30 */
+            preferencesKeepDays: number;
+            quietHours: components["schemas"]["QuietHoursWindowDto"];
+            /** @example 24 */
+            sendWindowHours: number;
+        };
+        BroadcastSettingsUpdateDto: {
+            attributionDays?: number;
+            deliveryKeepMonths?: number;
+            /** @description Only after LINE Thailand’s written confirmation (O-023). */
+            enabled?: boolean;
+            maxListings?: number;
+            maxPerWeek?: number;
+            preferencesKeepDays?: number;
+            quietHours?: components["schemas"]["QuietHoursWindowDto"];
+            /**
+             * @description Recorded on every changed setting version.
+             * @example LINE Thailand confirmed by e-mail 2026-11-10 (O-023)
+             */
+            reason: string;
+            sendWindowHours?: number;
+        };
         /**
          * @description How the current tenant sees the building: as operator, owner, or through a grant (D-152).
          * @enum {string}
@@ -18938,6 +20738,15 @@ export interface components {
             title: string;
             /** @example 1 */
             version: number;
+        };
+        ConsentTextDto: {
+            /**
+             * @description Markdown: purpose, data used, profiling note, how to stop.
+             * @example …
+             */
+            bodyMarkdown: string;
+            /** @example รับห้องแนะนำจาก getproperty (รวมโฆษณา) */
+            title: string;
         };
         /** @enum {string} */
         ConsumptionState: "processed" | "failed" | "dead";
@@ -20853,6 +22662,167 @@ export interface components {
             /** @example พี่สาว */
             relation: string;
         };
+        EmployerAgreementCreateDto: {
+            /**
+             * Format: uuid
+             * @description Only leases in this building may be attached; null = any building of the tenant.
+             * @example 5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c
+             */
+            buildingId?: string | null;
+            /**
+             * @description Share of each worker’s portion the employer recovers through payroll (0–100, decimal string; default 100). Whether the employer may deduct is its own responsibility (O-034).
+             * @example 100
+             */
+            deductPercent?: string;
+            /**
+             * Format: uuid
+             * @description The employer — a party of this tenant (usually a company), invoices are addressed to it.
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            employerPartyId: string;
+            /**
+             * @description The employer’s own reference.
+             * @example HR-2026-014
+             */
+            reference?: string | null;
+            /**
+             * @description `per_occupant`: each invoice split equally between the people staying under the lease; `per_unit`: the whole invoice on the lessee.
+             * @default per_occupant
+             */
+            splitRule: components["schemas"]["EmployerSplitRule"];
+            /**
+             * Format: date
+             * @example 2026-11-01
+             */
+            validFrom: string;
+            /**
+             * Format: date
+             * @example null
+             */
+            validTo?: string | null;
+        };
+        EmployerAgreementDto: {
+            /** Format: uuid */
+            buildingId: string | null;
+            /** @example หอพักตัวอย่าง */
+            buildingName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * @description Payroll deduction percent of each worker’s share.
+             * @example 100.00
+             */
+            deductPercent: string;
+            employer: components["schemas"]["EmployerPartyRefDto"];
+            /** Format: date-time */
+            endedAt: string | null;
+            /** Format: uuid */
+            id: string;
+            /** @description Open leases the employer pays. */
+            leaseIds: string[];
+            /** @example generic_csv */
+            payrollExportFormat: string;
+            /** @example HR-2026-014 */
+            reference: string | null;
+            splitRule: components["schemas"]["EmployerSplitRule"];
+            state: components["schemas"]["EmployerAgreementState"];
+            /** Format: date */
+            validFrom: string;
+            /** Format: date */
+            validTo: string | null;
+            /** @example 1 */
+            version: number;
+            workers: components["schemas"]["EmployerWorkerDto"][];
+        };
+        EmployerAgreementsDto: {
+            data: components["schemas"]["EmployerAgreementDto"][];
+        };
+        /** @enum {string} */
+        EmployerAgreementState: "active" | "ended";
+        EmployerAgreementUpdateDto: {
+            /** @example 50 */
+            deductPercent?: string;
+            /**
+             * @description Ends the agreement now: its open leases go back to their lessees for the next invoices (issued invoices never change).
+             * @example false
+             */
+            end?: boolean;
+            /** @example HR-2026-014 */
+            reference?: string | null;
+            splitRule?: components["schemas"]["EmployerSplitRule"];
+            /**
+             * Format: date
+             * @example 2027-10-31
+             */
+            validTo?: string | null;
+        };
+        EmployerPartyRefDto: {
+            /** @example บริษัท ตัวอย่าง จำกัด */
+            displayName: string;
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description `person` | `company`.
+             * @example company
+             */
+            type: string;
+        };
+        /** @enum {string} */
+        EmployerSplitRule: "per_occupant" | "per_unit";
+        EmployerStatementDto: {
+            /** Format: uuid */
+            agreementId: string;
+            /**
+             * @description Still due. Unit: THB, decimal string (D-046).
+             * @example 5000.00
+             */
+            balance: string;
+            /**
+             * @description Sum of the payroll deductions. Unit: THB, decimal string (D-046).
+             * @example 5000.00
+             */
+            deductions: string;
+            /** @example 100.00 */
+            deductPercent: string;
+            /** @example บริษัท ตัวอย่าง จำกัด */
+            employerName: string;
+            /**
+             * @description Carried by the employer (total − deductions). Unit: THB, decimal string (D-046).
+             * @example 0.00
+             */
+            employerPays: string;
+            lines: components["schemas"]["StatementLineDto"][];
+            /** @example 2026-11 */
+            month: string;
+            /**
+             * @description Paid so far. Unit: THB, decimal string (D-046).
+             * @example 0.00
+             */
+            paid: string;
+            splitRule: components["schemas"]["EmployerSplitRule"];
+            /**
+             * @description Sum of the invoices. Unit: THB, decimal string (D-046).
+             * @example 5000.00
+             */
+            total: string;
+        };
+        EmployerWorkerDto: {
+            /**
+             * @description The employer’s payroll number.
+             * @example E-0042
+             */
+            employeeNo: string;
+            /**
+             * Format: uuid
+             * @description A party of this tenant (the worker).
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            partyId: string;
+        };
+        EmployerWorkersDto: {
+            /** @description Replaces the whole list. */
+            workers: components["schemas"]["EmployerWorkerDto"][];
+        };
         EnquiryCreateDto: {
             /**
              * @description D-268: the share-kit channel the prospect came from (the `ch` of the short link). Kept on a new enquiry only.
@@ -21146,7 +23116,7 @@ export interface components {
             version: number;
         };
         /** @enum {string} */
-        ExportKind: "invoices_xlsx" | "payments_xlsx" | "arrears_xlsx" | "flowaccount_csv" | "peak_csv" | "vat_pp30" | "income_expense" | "document_archive_zip" | "readings_csv" | "tm30" | "units_xlsx" | "tax_annual_summary" | "loss_report_csv" | "etax_monthly_xlsx";
+        ExportKind: "invoices_xlsx" | "payments_xlsx" | "arrears_xlsx" | "flowaccount_csv" | "peak_csv" | "vat_pp30" | "income_expense" | "document_archive_zip" | "readings_csv" | "tm30" | "units_xlsx" | "tax_annual_summary" | "loss_report_csv" | "etax_monthly_xlsx" | "payroll_deduction";
         ExportParamsDto: {
             /**
              * Format: date
@@ -21159,6 +23129,11 @@ export interface components {
              * @description One building (required for Staff limited to buildings).
              */
             buildingId?: string;
+            /**
+             * Format: uuid
+             * @description The employer agreement of a `payroll_deduction` export (with `period`, G8 / D-299).
+             */
+            employerAgreementId?: string;
             /**
              * @description Bangkok month (YYYY-MM).
              * @example 2026-11
@@ -21303,7 +23278,36 @@ export interface components {
         /** @enum {string} */
         FeeAccrualKind: "success_fee" | "co_broke_fee";
         /** @enum {string} */
+        FeeAccrualState: "uninvoiced" | "invoiced" | "disputed" | "credited";
+        /** @enum {string} */
         FeeBillingUnit: "percent_of_amount" | "per_deal";
+        FeeCreditNoteRefDto: {
+            /**
+             * @description Credited amount incl. VAT. Unit: THB, decimal string (D-046).
+             * @example 1605.00
+             */
+            amount: string;
+            /** Format: uuid */
+            id: string;
+            /** @example null */
+            number: string | null;
+            /**
+             * @description Platform credit note status.
+             * @example requested
+             */
+            state: string;
+        };
+        FeeInvoiceRefDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example PIV-2026-00040 */
+            number: string;
+            /**
+             * @description Platform invoice status.
+             * @example issued
+             */
+            state: string;
+        };
         FileCompleteDto: {
             parts?: components["schemas"]["CompletedPartDto"][];
             /**
@@ -22045,6 +24049,25 @@ export interface components {
              * @example null
              */
             replacementDeviceId?: string | null;
+        };
+        HandoffFactsDto: {
+            /** @example 32.00 */
+            areaSqm: string | null;
+            /** @example 1 */
+            bathrooms: number | null;
+            /** @example 1 */
+            bedrooms: number | null;
+            /** @example จตุจักร */
+            district: string | null;
+            /** @example 12 */
+            floorLabel: string | null;
+            kind: components["schemas"]["PortfolioUnitKind"];
+            /** @example หอพักตัวอย่าง */
+            projectName: string | null;
+            /** @example กรุงเทพมหานคร */
+            province: string | null;
+            /** @example A-201 */
+            unitNo: string | null;
         };
         HealthIndicatorState: {
             /**
@@ -24164,6 +26187,27 @@ export interface components {
              */
             version: number;
         };
+        LeaseEmployerDto: {
+            /**
+             * Format: uuid
+             * @description An active employer agreement of this tenant; null detaches the lease (invoices go to the lessee again).
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            employerAgreementId: string | null;
+        };
+        LeaseEmployerResultDto: {
+            /** Format: uuid */
+            employerAgreementId: string | null;
+            /** Format: uuid */
+            leaseId: string;
+            /**
+             * Format: uuid
+             * @description The party the lease’s next invoices are addressed to (the employer); null = the lessee.
+             */
+            payerPartyId: string | null;
+            /** @example 3 */
+            version: number;
+        };
         LeaseEventDto: {
             /**
              * @description user | system | webhook | device
@@ -24787,7 +26831,7 @@ export interface components {
             weekly: components["schemas"]["WeeklySlotDto"][];
         };
         /** @enum {string} */
-        ListingChannel: "line" | "facebook_group" | "facebook_marketplace" | "qr" | "link";
+        ListingChannel: "line" | "facebook_group" | "facebook_marketplace" | "qr" | "link" | "facebook_page" | "line_sponsored";
         /** @enum {string} */
         ListingCloseReason: "leased" | "withdrawn" | "hidden";
         ListingComparablesDto: {
@@ -25725,6 +27769,161 @@ export interface components {
          * @enum {string}
          */
         ManualUnitStatus: "vacant" | "maintenance" | "inactive";
+        MediaDeliverableDto: {
+            /** @example room-301-01.jpg */
+            fileName: string;
+            /** @example listing_photo */
+            kind: components["schemas"]["MediaDeliverableKind"];
+            /** @example image/jpeg */
+            mimeType: string;
+            /** @example b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9 */
+            sha256: string;
+            /** @example 2345678 */
+            sizeBytes: number;
+            /** @example ห้องนั่งเล่น */
+            title?: string | null;
+        };
+        /** @enum {string} */
+        MediaDeliverableKind: "listing_photo" | "other";
+        MediaDeliverDto: {
+            /**
+             * @description Uploaded deliverables (presigned with `POST …/deliverables`).
+             * @example [
+             *       "3b241101-e2bb-4255-8caf-4136c566a962"
+             *     ]
+             */
+            documentIds: string[];
+        };
+        MediaScheduleDto: {
+            /** @example PARTNER-2026-0042 */
+            partnerRef?: string | null;
+            /**
+             * Format: date-time
+             * @description The partner’s visit.
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            scheduledFor: string;
+        };
+        /** @enum {string} */
+        MediaServiceKind: "verified_photo" | "tour_360";
+        MediaServiceOrderCreateDto: {
+            /**
+             * Format: uuid
+             * @description One of my listings (its unit is photographed).
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            listingId: string;
+            /** @example สะดวกช่วงบ่ายวันธรรมดา */
+            note?: string | null;
+            /** @example verified_photo */
+            service: components["schemas"]["MediaServiceKind"];
+        };
+        MediaServiceOrderDto: {
+            /**
+             * Format: date-time
+             * @example null
+             */
+            cancelledAt: string | null;
+            /** @example null */
+            cancelReason: string | null;
+            /**
+             * Format: date-time
+             * @example 2026-11-01T00:15:00+07:00
+             */
+            createdAt: string;
+            /**
+             * @description Delivered files: documents of this tenant in the unit’s scope (listing media, counted to the quota).
+             * @example []
+             */
+            deliverableDocumentIds: string[];
+            /**
+             * Format: date-time
+             * @example null
+             */
+            deliveredAt: string | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            listingId: string | null;
+            /** @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์ */
+            listingTitle: string | null;
+            /** @example บริการถ่ายภาพยืนยันห้องจริง */
+            name: string;
+            /** @example null */
+            note: string | null;
+            /**
+             * @description Price incl. VAT (snapshot). Unit: THB, decimal string (D-046).
+             * @example 1605.00
+             */
+            price: string;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            requestedAt: string | null;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            scheduledFor: string | null;
+            /** @example verified_photo */
+            service: components["schemas"]["MediaServiceKind"];
+            /** @example pending_payment */
+            state: components["schemas"]["MediaServiceState"];
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            unitId: string;
+            /** @example A-201 */
+            unitNo: string;
+        };
+        MediaServiceOrdersDto: {
+            data: components["schemas"]["MediaServiceOrderDto"][];
+        };
+        MediaServiceProductDto: {
+            /** @example THB */
+            currency: string;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @example media_verified_photo */
+            key: string;
+            /** @example Verified photo service */
+            nameEn: string;
+            /** @example บริการถ่ายภาพยืนยันห้องจริง */
+            nameTh: string;
+            /** @example false */
+            onSale: boolean;
+            /**
+             * @description Price before VAT; null = not on sale (O-027). Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            price: string | null;
+            /** @example verified_photo */
+            service: components["schemas"]["MediaServiceKind"];
+            /**
+             * @description Price incl. VAT; null = not on sale. Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            total: string | null;
+            /** @example 0.0700 */
+            vatRate: string;
+        };
+        MediaServiceProductsDto: {
+            products: components["schemas"]["MediaServiceProductDto"][];
+        };
+        /** @enum {string} */
+        MediaServiceState: "pending_payment" | "requested" | "scheduled" | "delivered" | "cancelled";
         MemberDto: {
             /**
              * @description null = every building.
@@ -25777,7 +27976,90 @@ export interface components {
             /** @example active */
             status?: components["schemas"]["MemberSettableStatus"];
         };
+        /** @enum {string} */
+        MessagingAddonCharge: "setup" | "monthly";
+        MessagingAddonInvoiceDto: {
+            /** @example monthly */
+            charge: components["schemas"]["MessagingAddonCharge"];
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @example PINV-2026-000123 */
+            number: string;
+            /**
+             * Format: date
+             * @example 2026-12-31
+             */
+            periodEnd: string;
+            /**
+             * Format: date
+             * @example 2026-12-01
+             */
+            periodStart: string;
+            /** @example issued */
+            state: components["schemas"]["PlatformInvoiceStatus"];
+            /**
+             * @description Incl. VAT (THB).
+             * @example 1059.30
+             */
+            total: string;
+        };
+        MessagingAddonOfferDto: {
+            /** @example THB */
+            currency: string;
+            /**
+             * Format: date
+             * @example null
+             */
+            effectiveFrom: string | null;
+            /**
+             * @description Monthly fee before VAT (THB).
+             * @example null
+             */
+            monthlyFee: string | null;
+            /** @example Agency LINE OA integration */
+            nameEn: string;
+            /** @example เชื่อม LINE OA ของบริษัทนายหน้า */
+            nameTh: string;
+            /**
+             * @description false = no published price (O-027): connecting is free and nothing is charged ("ยังไม่เปิดขาย").
+             * @example false
+             */
+            onSale: boolean;
+            /** @example line_oa_integration */
+            planKey: string;
+            /**
+             * @description One-time setup fee before VAT (THB).
+             * @example null
+             */
+            setupFee: string | null;
+            /** @example 0.0700 */
+            vatRate: string;
+            /**
+             * Format: uuid
+             * @example null
+             */
+            versionId: string | null;
+        };
+        MessagingAddonsDto: {
+            invoices: components["schemas"]["MessagingAddonInvoiceDto"][];
+            /** @description null = no OA integration add-on for this tenant type (connecting is free, D-254). */
+            offer: components["schemas"]["MessagingAddonOfferDto"] | null;
+            /**
+             * @description The setup fee was already invoiced (it is charged once).
+             * @example false
+             */
+            setupCharged: boolean;
+        };
         MessagingChannelConnectDto: {
+            /**
+             * Format: uuid
+             * @description G4 (D-287): the LINE OA integration price version the owner accepts — required only while a priced version is in force for the tenant type (`messaging.addon_terms_required` tells which); see `GET /v1/owner/messaging/addons`.
+             * @example 0199f2a0-0000-7000-8000-0000000000cc
+             */
+            acceptAddonVersionId?: string;
             /**
              * @description Messaging API → Channel access token (long-lived). Stored encrypted (D-148), never shown again.
              * @example eyJhbGciOiJIUzI1NiJ9.long-lived-channel-access-token
@@ -28119,6 +30401,13 @@ export interface components {
         };
         /** @enum {string} */
         PaymentStatus: "pending" | "confirmed" | "failed" | "refunded" | "reversed";
+        PayrollExportCreateDto: {
+            /**
+             * @description Bangkok month (YYYY-MM) of the statement to export.
+             * @example 2026-11
+             */
+            month: string;
+        };
         PenaltyDto: {
             /**
              * @description compliance.late_fee_policy allowed it (⚖ O-002).
@@ -29062,7 +31351,34 @@ export interface components {
              */
             id: string;
         };
+        ProblemAddonTerms: {
+            /** @example THB */
+            currency: string;
+            /**
+             * @description Monthly fee before VAT (THB).
+             * @example 990.00
+             */
+            monthlyFee: string;
+            /**
+             * @description One-time setup fee before VAT (THB).
+             * @example 1500.00
+             */
+            setupFee: string;
+            /**
+             * @description VAT rate.
+             * @example 0.0700
+             */
+            vatRate: string;
+            /**
+             * Format: uuid
+             * @description The price-plan version to accept (`acceptAddonVersionId`).
+             * @example 0199f2a0-0000-7000-8000-0000000000cc
+             */
+            versionId: string;
+        };
         ProblemDetails: {
+            /** @description `messaging.addon_terms_required` only (G4, D-287): the LINE OA integration prices in force; connect again with `acceptAddonVersionId` */
+            addon?: components["schemas"]["ProblemAddonTerms"];
             /**
              * @description `auth.otp_invalid` only (B1.3): codes that may still be tried on this challenge
              * @example 4
@@ -29493,6 +31809,21 @@ export interface components {
         PublicGuidesDto: {
             data: components["schemas"]["GuideSummaryDto"][];
         };
+        PublicHandoffDto: {
+            /**
+             * @description Only the first name of the buyer (minimisation).
+             * @example Somchai
+             */
+            buyerFirstName: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @description What the landlord wizard and the listing draft are prefilled with. */
+            facts: components["schemas"]["HandoffFactsDto"];
+            /** @description `invited` = can be claimed; `expired` also when the date passed and the job has not run yet. */
+            state: components["schemas"]["RentalHandoffState"];
+            /** Format: date */
+            transferDate: string;
+        };
         PublicListingDetailDto: {
             /** @description The full address (D-252); the unit number only when the owner shows it. */
             address: string | null;
@@ -29515,9 +31846,30 @@ export interface components {
             furnishing: components["schemas"]["Furnishing"] | null;
             /** @description The map pin (D-252: public). */
             geo: components["schemas"]["PublicGeoDto"] | null;
+            /**
+             * @description G4: schema.org JSON-LD (`Offer` of an `Apartment` / `House` / `Room` / `Accommodation` with a monthly THB `UnitPriceSpecification`) to embed as `application/ld+json`; only facts already on the page (D-252).
+             * @example {
+             *       "@context": "https://schema.org",
+             *       "@type": "Offer",
+             *       "itemOffered": {
+             *         "@type": "Apartment",
+             *         "numberOfBedrooms": 1
+             *       },
+             *       "price": "15000.00",
+             *       "priceCurrency": "THB"
+             *     }
+             */
+            jsonLd: {
+                [key: string]: unknown;
+            };
             /** @example 12 */
             minTermMonths: number;
             nearestTransit: components["schemas"]["PublicTransitDto"] | null;
+            /**
+             * @description G4: the 1200 × 630 Open Graph card (`og:image`, Facebook / LINE previews), a stable URL.
+             * @example https://api.getproperty.co/v1/public/listings/condo-1br-0a1b2c3d4e/og-image
+             */
+            ogImageUrl: string;
             /** @example มาลี มีสุข */
             ownerDisplayName: string;
             /**
@@ -29548,6 +31900,16 @@ export interface components {
             slug: string;
             smokingAllowed: boolean;
             /**
+             * @description G5 (D-297): a boosted listing shown in a sponsored slot on top of a search page (at most `boost.search.max_per_page` per page, ranked by verified vacancy then freshness); always labelled as an ad. False everywhere else (organic results, detail, owner page).
+             * @example false
+             */
+            sponsored: boolean;
+            /**
+             * @description The ad label to show on a sponsored card ("โฆษณา" / "Ad" by Accept-Language); null when not sponsored.
+             * @example null
+             */
+            sponsoredLabel: string | null;
+            /**
              * @description English title for `Accept-Language: en` when the owner wrote one.
              * @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์
              */
@@ -29555,8 +31917,19 @@ export interface components {
             unitKind: components["schemas"]["PortfolioUnitKind"] | null;
             /** @description The unit’s real utility cost (D-265). */
             utility: components["schemas"]["ListingUtilityDto"] | null;
+            /**
+             * Format: date
+             * @description The day the last lease on getproperty ended, when `verifiedVacant`; else null.
+             * @example 2026-10-31
+             */
+            vacantSince: string | null;
             /** @description The unit’s owner is verified (badge "เจ้าของตัวจริง"). */
             verifiedOwner: boolean;
+            /**
+             * @description G4 (D-296) badge "ว่างจริง": getproperty’s own lease data shows nobody lives there — no current occupancy, no lease in force or waiting for signature — and the unit had a lease on the platform that ended (`listing.verified_vacant.require_history`). Never from the owner’s say-so.
+             * @example true
+             */
+            verifiedVacant: boolean;
         };
         PublicListingPhotoDto: {
             caption: string | null;
@@ -29616,13 +31989,34 @@ export interface components {
             /** @example condo-1br-0a1b2c3d4e */
             slug: string;
             /**
+             * @description G5 (D-297): a boosted listing shown in a sponsored slot on top of a search page (at most `boost.search.max_per_page` per page, ranked by verified vacancy then freshness); always labelled as an ad. False everywhere else (organic results, detail, owner page).
+             * @example false
+             */
+            sponsored: boolean;
+            /**
+             * @description The ad label to show on a sponsored card ("โฆษณา" / "Ad" by Accept-Language); null when not sponsored.
+             * @example null
+             */
+            sponsoredLabel: string | null;
+            /**
              * @description English title for `Accept-Language: en` when the owner wrote one.
              * @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์
              */
             title: string;
             unitKind: components["schemas"]["PortfolioUnitKind"] | null;
+            /**
+             * Format: date
+             * @description The day the last lease on getproperty ended, when `verifiedVacant`; else null.
+             * @example 2026-10-31
+             */
+            vacantSince: string | null;
             /** @description The unit’s owner is verified (badge "เจ้าของตัวจริง"). */
             verifiedOwner: boolean;
+            /**
+             * @description G4 (D-296) badge "ว่างจริง": getproperty’s own lease data shows nobody lives there — no current occupancy, no lease in force or waiting for signature — and the unit had a lease on the platform that ended (`listing.verified_vacant.require_history`). Never from the owner’s say-so.
+             * @example true
+             */
+            verifiedVacant: boolean;
         };
         PublicMessagingRateDto: {
             /**
@@ -29870,6 +32264,29 @@ export interface components {
              * @example 3b241101-e2bb-4255-8caf-4136c566a962
              */
             id: string;
+        };
+        QuietHoursDto: {
+            /** @example 07:00 */
+            end: string;
+            /**
+             * @description Local time (Asia/Bangkok), HH:MM.
+             * @example 22:00
+             */
+            start: string;
+        };
+        QuietHoursOutDto: {
+            /** @example 08:00 */
+            end: string;
+            /** @example 21:00 */
+            start: string;
+        };
+        QuietHoursWindowDto: {
+            /** @example 08:00 */
+            end: string;
+            /** @example 21:00 */
+            start: string;
+            /** @example Asia/Bangkok */
+            timezone: string;
         };
         /** @enum {string} */
         RateBasis: "per_unit" | "per_sqm" | "per_ownership_ratio" | "fixed";
@@ -30368,6 +32785,86 @@ export interface components {
          * @enum {string}
          */
         ReclaimRefusal: "legal_hold" | "system_file" | "evidence" | "listing_in_use";
+        RecommendationHistoryItemDto: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description Every sponsored message was labelled as an ad.
+             * @example โฆษณา
+             */
+            label: string;
+            listings: components["schemas"]["RecommendationHistoryListingDto"][];
+            /** Format: date-time */
+            sentAt: string;
+            /**
+             * @description Who paid for it (the listing owner or agency).
+             * @example มาลี มีสุข
+             */
+            sponsor: string;
+        };
+        RecommendationHistoryListingDto: {
+            /** @description Still published (false = the page no longer opens). */
+            public: boolean;
+            /** @example condo-1br-0a1b2c3d4e */
+            slug: string;
+            /** @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์ */
+            title: string;
+        };
+        RecommendationsConsentDto: {
+            /**
+             * @description Plain-language purpose with the profiling note (Markdown).
+             * @example ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ …
+             */
+            bodyMarkdown: string;
+            /**
+             * Format: date-time
+             * @example null
+             */
+            capturedAt: string | null;
+            /** Format: date-time */
+            effectiveFrom: string;
+            /**
+             * @description True only after my explicit grant of the current version — never pre-ticked (D-300).
+             * @example false
+             */
+            granted: boolean;
+            /**
+             * @description The version I last granted.
+             * @example null
+             */
+            grantedVersion: number | null;
+            /** @example th */
+            language: string;
+            /** @example platform.recommendations */
+            purposeKey: string;
+            /** @example รับห้องแนะนำจาก getproperty (รวมโฆษณา) */
+            title: string;
+            /**
+             * @description The current version; send it as `consentVersion`.
+             * @example 1
+             */
+            version: number;
+        };
+        RecommendationsDto: {
+            consent: components["schemas"]["RecommendationsConsentDto"];
+            /**
+             * @description At most this many sponsored messages in any 7 days (`broadcast.sponsored.max_per_week`).
+             * @example 2
+             */
+            maxPerWeek: number;
+            /** @description Null while I have not consented (or withdrew). */
+            preferences: components["schemas"]["AudiencePreferencesDto"] | null;
+            /** @description The default quiet hours when I set none. */
+            quietHours: components["schemas"]["QuietHoursWindowDto"];
+        };
+        RecommendationsUpdateDto: {
+            /**
+             * @description I tick “receive recommended places” now: the version of the text I was shown (it must be the current one). Leave it out to keep an earlier grant; nothing is ever granted without it.
+             * @example 1
+             */
+            consentVersion?: number;
+            preferences: components["schemas"]["AudiencePreferencesInputDto"];
+        };
         RecordNoticeDto: {
             /** @example [] */
             acknowledgementIds?: string[];
@@ -30498,6 +32995,103 @@ export interface components {
              */
             reason: string;
         };
+        RelocationDestinationDto: {
+            /**
+             * @description An area / station slug of `GET /v1/public/listings/areas`; or give a province (+ district).
+             * @example ari
+             */
+            areaSlug?: string | null;
+            /** @example เมืองเชียงใหม่ */
+            district?: string | null;
+            /**
+             * @description Highest monthly rent to show. Unit: THB, decimal string (D-046).
+             * @example 12000
+             */
+            maxRent?: string | null;
+            /** @example เชียงใหม่ */
+            province?: string | null;
+        };
+        RelocationDestinationOutDto: {
+            /** @example null */
+            areaSlug: string | null;
+            /** @example เมืองเชียงใหม่ */
+            district: string | null;
+            /**
+             * @description Highest rent shown. Unit: THB, decimal string (D-046).
+             * @example 12000.00
+             */
+            maxRent: string | null;
+            /** @example เชียงใหม่ */
+            province: string | null;
+        };
+        RelocationEnquireDto: {
+            /**
+             * @description I agree to purpose `prospect.enquiry` of the new landlord (D-025).
+             * @example true
+             */
+            consent: boolean;
+            /**
+             * @description A public listing (for example one of the offer).
+             * @example condo-1br-0a1b2c3d4e
+             */
+            listingSlug: string;
+            /** @example สนใจห้องนี้ ย้ายเข้าได้ต้นเดือนหน้า */
+            message: string;
+            /**
+             * Format: date
+             * @example 2026-12-01
+             */
+            moveInDate?: string | null;
+            /**
+             * @description Send my rent record (B7.11) to the new landlord with this enquiry — the only way it travels.
+             * @example true
+             */
+            shareRentRecord: boolean;
+        };
+        RelocationEnquiryDto: {
+            /** @description A new enquiry (false = a message in the open one). */
+            created: boolean;
+            /**
+             * Format: uuid
+             * @description My enquiry (see `/v1/prospect/me/enquiries`).
+             */
+            leadId: string;
+            /** Format: uuid */
+            listingId: string;
+            /** @description My rent record was shared (false when asked but no month is confirmed yet). */
+            rentRecordShared: boolean;
+        };
+        RelocationOfferDto: {
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Null until I tell it. */
+            destination: components["schemas"]["RelocationDestinationOutDto"] | null;
+            /** @description Listings I enquired about from this offer. */
+            enquiredListingIds: string[];
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description My current landlord (who does not see this offer).
+             * @example หอพักตัวอย่าง
+             */
+            landlordName: string;
+            /** Format: uuid */
+            leaseId: string;
+            /** @description Public listings in the destination (`relocation.offer.max_listings`), only while open and consented. */
+            listings: components["schemas"]["PublicListingSummaryDto"][];
+            /** Format: date */
+            moveOutDate: string | null;
+            state: components["schemas"]["RelocationOfferState"];
+            /** @example A-201 */
+            unitNo: string;
+        };
+        RelocationOffersDto: {
+            /** @description My consent `resident.relocation` is granted (current version); false = no offer shows listings. */
+            consented: boolean;
+            data: components["schemas"]["RelocationOfferDto"][];
+        };
+        /** @enum {string} */
+        RelocationOfferState: "open" | "dismissed" | "withdrawn" | "closed";
         /** @enum {string} */
         ReminderStatus: "scheduled" | "sent" | "skipped_paid" | "deferred_quiet_hours" | "cancelled" | "failed";
         /** @enum {string} */
@@ -30644,6 +33238,56 @@ export interface components {
              */
             rent?: string;
         };
+        RentalHandoffClaimDto: {
+            /** @description Needed only when getbuild did not tell the address (`validation.failed` on `address`). */
+            address?: components["schemas"]["PortfolioAddressDto"];
+            /**
+             * @description Monthly rent of the listing draft. Unit: THB, decimal string (D-046).
+             * @example 15000
+             */
+            rent: string;
+            /** @example 1-bedroom condo near the train */
+            titleEn?: string | null;
+            /**
+             * @description Default: from the unit facts.
+             * @example คอนโด 1 ห้องนอน ใกล้รถไฟฟ้า
+             */
+            titleTh?: string;
+            /**
+             * @description The token of the invitation link getbuild showed the buyer (`/handoff/<token>`).
+             * @example q3K8xF0bW2yR9mT4vN6pL1sA7dE5gH0j
+             */
+            token: string;
+        };
+        RentalHandoffDto: {
+            /** Format: date-time */
+            acceptedAt: string | null;
+            /**
+             * @description The developer campaign (also on the listing).
+             * @example getbuild:dev-campaign-2026
+             */
+            campaignTag: string;
+            facts: components["schemas"]["HandoffFactsDto"];
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            listedAt: string | null;
+            /**
+             * Format: uuid
+             * @description The prefilled listing draft.
+             */
+            listingId: string | null;
+            state: components["schemas"]["RentalHandoffState"];
+            /** Format: date */
+            transferDate: string;
+            /** Format: uuid */
+            unitId: string | null;
+        };
+        RentalHandoffsDto: {
+            data: components["schemas"]["RentalHandoffDto"][];
+        };
+        /** @enum {string} */
+        RentalHandoffState: "invited" | "accepted" | "listed" | "declined" | "expired";
         RentCertificateCreateDto: {
             /** @description Default th. */
             language?: components["schemas"]["Language"];
@@ -33460,6 +36104,8 @@ export interface components {
              * @example 0193f2a4-b1c2-7d3e-8f40-5a6b7c8d9e0a
              */
             listingId: string;
+            /** @description G4 image bundle: the listing’s photos in order (1600 px WebP, signed 10 minutes) to download and post by hand in Facebook groups — groups are never automated (D-288). */
+            photos: components["schemas"]["ShareCardDto"][];
         };
         ShareKitLinkDto: {
             /**
@@ -33697,8 +36343,332 @@ export interface components {
         };
         /** @enum {string} */
         SlipStatus: "pending_verification" | "auto_confirmed" | "pending_review" | "approved" | "rejected" | "duplicate";
+        SocialChannelConnectDto: {
+            /**
+             * @description Post published listings automatically (default true).
+             * @example true
+             */
+            autoPost?: boolean;
+            /**
+             * @description A Page access token with `pages_manage_posts` (from the Meta app of O-029). Checked with Facebook, stored encrypted with the tenant key (D-148), never shown again.
+             * @example EAAG-page-access-token
+             */
+            pageAccessToken: string;
+            /**
+             * @description The numeric id of the Facebook Page.
+             * @example 102345678901234
+             */
+            pageId: string;
+        };
+        SocialChannelDto: {
+            /** @example true */
+            autoPost: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** Format: date-time */
+            lastCheckedAt: string | null;
+            /**
+             * @description Why Facebook refused (no token).
+             * @example null
+             */
+            lastError: string | null;
+            /** @example 102345678901234 */
+            pageId: string;
+            /** @example บ้านดี พร็อพเพอร์ตี้ */
+            pageName: string | null;
+            /** @example facebook_page */
+            provider: components["schemas"]["SocialProvider"];
+            /** @example verified */
+            state: components["schemas"]["SocialChannelState"];
+            /** Format: date-time */
+            verifiedAt: string | null;
+        };
+        /** @enum {string} */
+        SocialChannelState: "verified" | "failing" | "revoked";
+        /**
+         * @description While `queued`: what getproperty is about to do on the Page.
+         * @enum {string}
+         */
+        SocialPostAction: "publish" | "update" | "delete";
+        SocialPostDto: {
+            /** @example 0 */
+            attempts: number;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            channelId: string;
+            /** Format: date-time */
+            deletedAt: string | null;
+            /**
+             * Format: uuid
+             * @example 3b241101-e2bb-4255-8caf-4136c566a962
+             */
+            id: string;
+            /** @example null */
+            lastError: string | null;
+            /** @example 102345678901234 */
+            pageId: string;
+            /** @example บ้านดี พร็อพเพอร์ตี้ */
+            pageName: string | null;
+            /**
+             * @description While `queued`: what getproperty is about to do on the Page.
+             * @example null
+             */
+            pendingAction: components["schemas"]["SocialPostAction"] | null;
+            /** Format: date-time */
+            postedAt: string | null;
+            /** @example https://www.facebook.com/102345678901234/posts/1001 */
+            postUrl: string | null;
+            /** @example posted */
+            state: components["schemas"]["SocialPostState"];
+            /** Format: date-time */
+            updatedOnPageAt: string | null;
+        };
+        /** @enum {string} */
+        SocialPostState: "queued" | "posted" | "failed" | "deleted";
+        /** @enum {string} */
+        SocialProvider: "facebook_page";
         /** @enum {string} */
         SortOrder: "asc" | "desc";
+        SponsoredCampaignCreateDto: {
+            /** @description My own published listings (1–`broadcast.sponsored.max_listings`). */
+            listingIds: string[];
+            /**
+             * @description Send to at most this many people.
+             * @example 1000
+             */
+            maxRecipients: number;
+            /** @example คอนโดอารีย์ ต้นเดือนธันวา */
+            name: string;
+            segment: components["schemas"]["SponsoredSegmentDto"];
+        };
+        SponsoredCampaignDto: {
+            /**
+             * @description Clicks on the campaign’s links (aggregate).
+             * @example 0
+             */
+            clicks: number;
+            /** Format: date-time */
+            completedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /**
+             * @description People it was delivered to (aggregate).
+             * @example 0
+             */
+            delivered: number;
+            /**
+             * @description Null below the minimum.
+             * @example 1000
+             */
+            estimated: number | null;
+            /** Format: uuid */
+            id: string;
+            /** @description The purchase invoice once sent. */
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            listings: components["schemas"]["SponsoredCampaignListingDto"][];
+            /** @example 1000 */
+            maxRecipients: number;
+            /** @example 500 */
+            minimumRecipients: number | null;
+            /** @example คอนโดอารีย์ ต้นเดือนธันวา */
+            name: string;
+            /**
+             * @description Snapshot at scheduling.
+             * @example 0.5000
+             */
+            pricePerRecipient: string | null;
+            /** @example null */
+            rejectReason: string | null;
+            /** Format: date-time */
+            scheduledAt: string | null;
+            segment: components["schemas"]["SponsoredSegmentOutDto"];
+            /** Format: date-time */
+            sendingStartedAt: string | null;
+            state: components["schemas"]["SponsoredCampaignState"];
+            /** @example 0.0700 */
+            vatRate: string | null;
+        };
+        SponsoredCampaignListingDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example true */
+            public: boolean;
+            /** @example condo-1br-0a1b2c3d4e */
+            slug: string;
+            /** @example คอนโด 1 ห้องนอน ใกล้ BTS อารีย์ */
+            title: string;
+        };
+        /** @enum {string} */
+        SponsoredCampaignState: "draft" | "scheduled" | "sending" | "sent" | "cancelled" | "rejected";
+        SponsoredCostDto: {
+            /** @example 1000 */
+            recipients: number;
+            /**
+             * @description Before VAT. Unit: THB, decimal string (D-046).
+             * @example 500.00
+             */
+            subtotal: string;
+            /**
+             * @description Incl. VAT. Unit: THB, decimal string (D-046).
+             * @example 535.00
+             */
+            total: string;
+            /**
+             * @description VAT. Unit: THB, decimal string (D-046).
+             * @example 35.00
+             */
+            vatAmount: string;
+        };
+        SponsoredEstimateDto: {
+            /** @example false */
+            belowMinimum: boolean;
+            /** @description Null when not on sale or below the minimum. */
+            cost: components["schemas"]["SponsoredCostDto"] | null;
+            /**
+             * @description People who would get it now (≤ maxRecipients); null below the minimum — never a person.
+             * @example 1000
+             */
+            estimated: number | null;
+            /** @example 500 */
+            minimumRecipients: number;
+            product: components["schemas"]["SponsoredProductDto"];
+        };
+        SponsoredEstimateRequestDto: {
+            /** @description My own published listings (1–`broadcast.sponsored.max_listings`). */
+            listingIds: string[];
+            /**
+             * @description Send to at most this many people.
+             * @example 1000
+             */
+            maxRecipients: number;
+            segment: components["schemas"]["SponsoredSegmentDto"];
+        };
+        SponsoredProductDto: {
+            /** @example THB */
+            currency: string;
+            /**
+             * @description Sponsored broadcasts may be scheduled (`broadcast.sponsored.enabled`, off until LINE Thailand confirms, O-023).
+             * @example false
+             */
+            enabled: boolean;
+            /** @example 5 */
+            maxListings: number;
+            /**
+             * @description No person gets more sponsored messages a week.
+             * @example 2
+             */
+            maxPerWeek: number;
+            /**
+             * @description A campaign must reach at least this many people.
+             * @example 500
+             */
+            minimumRecipients: number;
+            /**
+             * @description A price per recipient is set (O-027); false = "ยังไม่เปิดขาย".
+             * @example false
+             */
+            onSale: boolean;
+            /**
+             * @description Price per delivered recipient before VAT (4 decimals; THB); null = not on sale.
+             * @example null
+             */
+            pricePerRecipient: string | null;
+            /** @example 0.0700 */
+            vatRate: string;
+        };
+        SponsoredReportDto: {
+            /** @example 7 */
+            attributionDays: number;
+            /** Format: uuid */
+            campaignId: string;
+            /** @example 64 */
+            clicks: number;
+            invoice: components["schemas"]["StoragePackageInvoiceDto"] | null;
+            /**
+             * @description Enquiries on these listings by people who got the message, within `attributionDays`.
+             * @example 5
+             */
+            leads: number;
+            /**
+             * @description Not available: LINE gives no per-message opens for a multicast.
+             * @example null
+             */
+            opened: number | null;
+            /** @example 812 */
+            sent: number;
+            state: components["schemas"]["SponsoredCampaignState"];
+        };
+        SponsoredScheduleDto: {
+            /**
+             * Format: date-time
+             * @description When to start sending (now when empty; up to 90 days ahead).
+             */
+            scheduledAt?: string | null;
+        };
+        SponsoredSegmentDto: {
+            /**
+             * @description Area / station slugs of `GET /v1/public/listings/areas`; empty = any area.
+             * @example [
+             *       "ari"
+             *     ]
+             */
+            areas?: string[];
+            /**
+             * @description People whose budget starts at most at this. Unit: THB, decimal string (D-046).
+             * @example 20000
+             */
+            budgetMax?: string | null;
+            /**
+             * @description People whose budget reaches at least this. Unit: THB, decimal string (D-046).
+             * @example 8000
+             */
+            budgetMin?: string | null;
+            /** @example [] */
+            languages?: components["schemas"]["ResidentLanguage"][];
+            /**
+             * Format: date
+             * @example 2026-12-01
+             */
+            moveInFrom?: string | null;
+            /**
+             * Format: date
+             * @example 2027-01-31
+             */
+            moveInTo?: string | null;
+            unitKinds?: components["schemas"]["PortfolioUnitKind"][];
+        };
+        SponsoredSegmentOutDto: {
+            /**
+             * @example [
+             *       "ari"
+             *     ]
+             */
+            areas: string[];
+            /**
+             * @description Budget to. Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            budgetMax: string | null;
+            /**
+             * @description Budget from. Unit: THB, decimal string (D-046).
+             * @example null
+             */
+            budgetMin: string | null;
+            /** @example [] */
+            languages: string[];
+            /** Format: date */
+            moveInFrom: string | null;
+            /** Format: date */
+            moveInTo: string | null;
+            unitKinds: components["schemas"]["PortfolioUnitKind"][];
+        };
         StaffBuildingDto: {
             /** @example A */
             code: string;
@@ -34123,6 +37093,38 @@ export interface components {
             paidOn?: string;
             /** @example ใบเสร็จ อ.ส.4 เลขที่ 0012345 */
             reference?: string | null;
+        };
+        StatementLineDto: {
+            /**
+             * @description Still due. Unit: THB, decimal string (D-046).
+             * @example 5000.00
+             */
+            balance: string;
+            /** Format: uuid */
+            invoiceId: string;
+            /** Format: date-time */
+            issuedAt: string;
+            /** Format: uuid */
+            leaseId: string;
+            /** @example INV-2026-00042 */
+            number: string | null;
+            /**
+             * @description Paid so far. Unit: THB, decimal string (D-046).
+             * @example 0.00
+             */
+            paidTotal: string;
+            /** Format: date */
+            periodEnd: string;
+            /** Format: date */
+            periodStart: string;
+            shares: components["schemas"]["WorkerShareDto"][];
+            /**
+             * @description Invoice total. Unit: THB, decimal string (D-046).
+             * @example 5000.00
+             */
+            total: string;
+            /** @example A-201 */
+            unitNo: string;
         };
         StorageAutoRenewDto: {
             /** @example true */
@@ -36223,7 +39225,10 @@ export interface components {
         };
         /** @enum {string} */
         UserStatus: "active" | "locked" | "disabled";
-        /** @enum {string} */
+        /**
+         * @description The utility of a `loss_report_csv` (with `buildingId` and the billing period).
+         * @enum {string}
+         */
         Utility: "electric" | "water";
         UtilityAccountCreateDto: {
             /** @example 000012345678 */
@@ -36929,6 +39934,29 @@ export interface components {
              */
             scale?: string | null;
         };
+        WorkerShareDto: {
+            /**
+             * @description Recovered through payroll (share × deduct percent). Unit: THB, decimal string (D-046).
+             * @example 2500.00
+             */
+            deduction: string;
+            /** @example E-0042 */
+            employeeNo: string | null;
+            /**
+             * @description Carried by the employer. Unit: THB, decimal string (D-046).
+             * @example 0.00
+             */
+            employerPays: string;
+            /** @example ผู้เช่า ทดสอบ */
+            name: string;
+            /** Format: uuid */
+            partyId: string;
+            /**
+             * @description The worker’s share of the invoice. Unit: THB, decimal string (D-046).
+             * @example 2500.00
+             */
+            share: string;
+        };
         WorkflowDefinitionDto: {
             /** @example true */
             active: boolean;
@@ -37451,6 +40479,353 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.broadcast.publishConsentText": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BroadcastConsentTextCreateDto"];
+            };
+        };
+        responses: {
+            /** @description Published */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *       "en": {
+                     *         "bodyMarkdown": "Draft ⚖ — optional …",
+                     *         "title": "Recommended places from getproperty (incl. ads)"
+                     *       },
+                     *       "th": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ …",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)"
+                     *       },
+                     *       "version": 1
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BroadcastConsentTextDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `consent.unknown_purpose` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.broadcast.settings": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Settings */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attributionDays": 7,
+                     *       "consentText": {
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "en": {
+                     *           "bodyMarkdown": "Draft ⚖ — optional …",
+                     *           "title": "Recommended places from getproperty (incl. ads)"
+                     *         },
+                     *         "th": {
+                     *           "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ …",
+                     *           "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)"
+                     *         },
+                     *         "version": 1
+                     *       },
+                     *       "consenting": 1240,
+                     *       "deliveryKeepMonths": 12,
+                     *       "enabled": false,
+                     *       "maxListings": 5,
+                     *       "maxPerWeek": 2,
+                     *       "preferencesKeepDays": 30,
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       },
+                     *       "sendWindowHours": 24
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BroadcastSettingsDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.broadcast.updateSettings": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BroadcastSettingsUpdateDto"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attributionDays": 7,
+                     *       "consentText": {
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "en": {
+                     *           "bodyMarkdown": "Draft ⚖ — optional …",
+                     *           "title": "Recommended places from getproperty (incl. ads)"
+                     *         },
+                     *         "th": {
+                     *           "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ …",
+                     *           "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)"
+                     *         },
+                     *         "version": 1
+                     *       },
+                     *       "consenting": 1240,
+                     *       "deliveryKeepMonths": 12,
+                     *       "enabled": false,
+                     *       "maxListings": 5,
+                     *       "maxPerWeek": 2,
+                     *       "preferencesKeepDays": 30,
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       },
+                     *       "sendWindowHours": 24
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BroadcastSettingsDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `settings.invalid_value`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -40243,6 +43618,277 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.feeAccruals.list": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+                state?: components["schemas"]["FeeAccrualState"];
+                /** @description The paying agency. */
+                tenantId?: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "accruedOn": "2026-11-01",
+                     *           "amount": "1500.00",
+                     *           "baseAmount": "15000.00",
+                     *           "billingUnit": "percent_of_amount",
+                     *           "capped": false,
+                     *           "creditNote": null,
+                     *           "dealId": "0199f2a0-0000-7000-8000-0000000000f1",
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "invoice": {
+                     *             "id": "0199f2a0-0000-7000-8000-0000000000f3",
+                     *             "number": "PIV-2026-00040",
+                     *             "state": "issued"
+                     *           },
+                     *           "kind": "success_fee",
+                     *           "leaseId": "0199f2a0-0000-7000-8000-0000000000f2",
+                     *           "rate": "10.0000",
+                     *           "state": "invoiced",
+                     *           "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *           "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *           "unitNo": "A-201"
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["AdminFeeAccrualDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.feeAccruals.dispute": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                accrualId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonDto"];
+            };
+        };
+        responses: {
+            /** @description Disputed */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accruedOn": "2026-11-01",
+                     *       "amount": "1500.00",
+                     *       "baseAmount": "15000.00",
+                     *       "billingUnit": "percent_of_amount",
+                     *       "capped": false,
+                     *       "creditNote": {
+                     *         "amount": "1605.00",
+                     *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "number": null,
+                     *         "state": "requested"
+                     *       },
+                     *       "dealId": "0199f2a0-0000-7000-8000-0000000000f1",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": {
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000f3",
+                     *         "number": "PIV-2026-00040",
+                     *         "state": "issued"
+                     *       },
+                     *       "kind": "success_fee",
+                     *       "leaseId": "0199f2a0-0000-7000-8000-0000000000f2",
+                     *       "rate": "10.0000",
+                     *       "state": "disputed",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminFeeAccrualDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `fee.already_disputed`, `fee.not_invoiced`, `idempotency.in_progress`, `platform_invoice.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `platform_invoice.amount_exceeds_open`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -44076,6 +47722,858 @@ export interface operations {
             };
             /** @description Problem: `http.not_found` */
             404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.list": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+                state?: components["schemas"]["MediaServiceState"];
+                tenantId?: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "cancelReason": null,
+                     *           "cancelledAt": null,
+                     *           "createdAt": "2026-11-01T10:00:00+07:00",
+                     *           "deliverableDocumentIds": [],
+                     *           "deliveredAt": null,
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *           "invoice": {
+                     *             "dueAt": "2026-11-08T10:00:00+07:00",
+                     *             "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *             "number": "PIV-2026-00032",
+                     *             "qrAvailable": false,
+                     *             "state": "issued",
+                     *             "total": "1605.00"
+                     *           },
+                     *           "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *           "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *           "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *           "note": null,
+                     *           "partnerRef": null,
+                     *           "price": "1605.00",
+                     *           "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *           "scheduledAt": null,
+                     *           "scheduledFor": null,
+                     *           "service": "verified_photo",
+                     *           "state": "requested",
+                     *           "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *           "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *           "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *           "unitNo": "A-201"
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["AdminMediaServiceOrderDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": null,
+                     *       "cancelledAt": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [],
+                     *       "deliveredAt": null,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "partnerRef": null,
+                     *       "price": "1605.00",
+                     *       "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *       "scheduledAt": null,
+                     *       "scheduledFor": null,
+                     *       "service": "verified_photo",
+                     *       "state": "requested",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminMediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.cancel": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonDto"];
+            };
+        };
+        responses: {
+            /** @description Cancelled */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": "พาร์ทเนอร์ไม่สามารถเข้าพื้นที่ได้",
+                     *       "cancelledAt": "2026-11-01T00:15:00+07:00",
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [],
+                     *       "deliveredAt": null,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "partnerRef": null,
+                     *       "price": "1605.00",
+                     *       "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *       "scheduledAt": null,
+                     *       "scheduledFor": null,
+                     *       "service": "verified_photo",
+                     *       "state": "cancelled",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminMediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `media_service.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.deliver": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaDeliverDto"];
+            };
+        };
+        responses: {
+            /** @description Delivered */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": null,
+                     *       "cancelledAt": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [
+                     *         "3b241101-e2bb-4255-8caf-4136c566a962"
+                     *       ],
+                     *       "deliveredAt": "2026-11-01T00:15:00+07:00",
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "partnerRef": null,
+                     *       "price": "1605.00",
+                     *       "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *       "scheduledAt": null,
+                     *       "scheduledFor": null,
+                     *       "service": "verified_photo",
+                     *       "state": "delivered",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminMediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `document.not_uploaded`, `media_service.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `document.size_mismatch`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.schedule": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaScheduleDto"];
+            };
+        };
+        responses: {
+            /** @description Scheduled */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": null,
+                     *       "cancelledAt": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [],
+                     *       "deliveredAt": null,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "partnerRef": "PARTNER-2026-0042",
+                     *       "price": "1605.00",
+                     *       "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *       "scheduledAt": "2026-11-01T00:15:00+07:00",
+                     *       "scheduledFor": "2026-11-01T00:15:00+07:00",
+                     *       "service": "verified_photo",
+                     *       "state": "scheduled",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminMediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `media_service.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.mediaServices.presignDeliverable": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaDeliverableDto"];
+            };
+        };
+        responses: {
+            /** @description Presigned */
+            201: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "expiresAt": "2026-11-01T00:30:00+07:00",
+                     *       "file": {
+                     *         "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *         "createdAt": "2026-11-01T00:15:00+07:00",
+                     *         "height": null,
+                     *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "kind": "listing_photo",
+                     *         "mimeType": "image/jpeg",
+                     *         "retentionClass": "meter_photo",
+                     *         "scanStatus": "pending",
+                     *         "scopeId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "scopeType": "unit",
+                     *         "sizeBytes": 2345678,
+                     *         "title": "มิเตอร์ห้อง A-201",
+                     *         "uploadState": "presigned",
+                     *         "width": null
+                     *       },
+                     *       "headers": {
+                     *         "Content-Type": "image/jpeg"
+                     *       },
+                     *       "multipart": null,
+                     *       "uploadUrl": "https://storage.example.com/upload?X-Amz-Signature=abc"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["FilePresignedDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `media_service.invalid_state`, `storage.allowance_exceeded` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `document.type_not_allowed`, `validation.failed` */
+            422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -49400,6 +53898,254 @@ export interface operations {
             };
         };
     };
+    "admin.rentalHandoffs.list": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+                state?: components["schemas"]["RentalHandoffState"];
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "buildingRef": "bldg-a",
+                     *           "campaignTag": "getbuild:dev-campaign-2026",
+                     *           "createdAt": "2026-11-01T00:15:00+07:00",
+                     *           "deliveredAt": "2026-11-01T00:15:00+07:00",
+                     *           "deliveryAttempts": 1,
+                     *           "developerRef": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *           "expiresAt": "2026-12-01T10:00:00+07:00",
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "lastDeliveryError": null,
+                     *           "listingId": null,
+                     *           "state": "invited",
+                     *           "tenantId": null,
+                     *           "transferDate": "2026-11-01",
+                     *           "unitRef": "u-101"
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["AdminRentalHandoffDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.rentalHandoffs.resend": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                handoffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Resent */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingRef": "bldg-a",
+                     *       "campaignTag": "getbuild:dev-campaign-2026",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "deliveredAt": "2026-11-01T00:15:00+07:00",
+                     *       "deliveryAttempts": 1,
+                     *       "developerRef": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "expiresAt": "2026-12-01T10:00:00+07:00",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "lastDeliveryError": null,
+                     *       "listingId": null,
+                     *       "state": "invited",
+                     *       "tenantId": null,
+                     *       "transferDate": "2026-11-01",
+                     *       "unitRef": "u-101"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminRentalHandoffDto"];
+                };
+            };
+            /** @description Problem: `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `handoff.invalid_state`, `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "admin.settings.list": {
         parameters: {
             query?: never;
@@ -49806,6 +54552,305 @@ export interface operations {
                 };
             };
             /** @description Problem: `install_order.invalid_transition` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.sponsoredCampaigns.list": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+                state?: components["schemas"]["SponsoredCampaignState"];
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "clicks": 0,
+                     *           "completedAt": null,
+                     *           "createdAt": "2026-11-01T00:15:00+07:00",
+                     *           "delivered": 0,
+                     *           "estimated": 1000,
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "invoice": null,
+                     *           "listings": [
+                     *             {
+                     *               "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *               "public": true,
+                     *               "slug": "condo-1br-0a1b2c3d4e",
+                     *               "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *             }
+                     *           ],
+                     *           "maxRecipients": 1000,
+                     *           "minimumRecipients": null,
+                     *           "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *           "pricePerRecipient": null,
+                     *           "rejectReason": null,
+                     *           "scheduledAt": null,
+                     *           "segment": {
+                     *             "areas": [
+                     *               "ari"
+                     *             ],
+                     *             "budgetMax": null,
+                     *             "budgetMin": null,
+                     *             "languages": [],
+                     *             "moveInFrom": null,
+                     *             "moveInTo": null,
+                     *             "unitKinds": [
+                     *               "condo_unit"
+                     *             ]
+                     *           },
+                     *           "sendingStartedAt": null,
+                     *           "state": "draft",
+                     *           "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *           "tenantName": "มาลี มีสุข",
+                     *           "vatRate": null
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["AdminSponsoredCampaignDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "admin.sponsoredCampaigns.reject": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonDto"];
+            };
+        };
+        responses: {
+            /** @description Rejected */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "clicks": 0,
+                     *       "completedAt": null,
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "delivered": 0,
+                     *       "estimated": 1000,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": null,
+                     *       "listings": [
+                     *         {
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *           "public": true,
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ],
+                     *       "maxRecipients": 1000,
+                     *       "minimumRecipients": null,
+                     *       "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *       "pricePerRecipient": null,
+                     *       "rejectReason": null,
+                     *       "scheduledAt": null,
+                     *       "segment": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": null,
+                     *         "budgetMin": null,
+                     *         "languages": [],
+                     *         "moveInFrom": null,
+                     *         "moveInTo": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ]
+                     *       },
+                     *       "sendingStartedAt": null,
+                     *       "state": "rejected",
+                     *       "tenantId": "0d0c7a4e-5b0e-4c55-9d7c-3f2b8a1e6c11",
+                     *       "tenantName": "มาลี มีสุข",
+                     *       "vatRate": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminSponsoredCampaignDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `broadcast.invalid_state` */
             409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -61773,6 +66818,364 @@ export interface operations {
             };
         };
     };
+    "owner.boosts.products": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Products */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "products": [
+                     *         {
+                     *           "currency": "THB",
+                     *           "days": 7,
+                     *           "free": false,
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *           "key": "boost_listing_7d",
+                     *           "months": null,
+                     *           "nameEn": "Listing boost, 7 days",
+                     *           "nameTh": "โปรโมตประกาศ 7 วัน",
+                     *           "onSale": false,
+                     *           "price": null,
+                     *           "target": "listing",
+                     *           "total": null,
+                     *           "vatRate": "0.0700"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BoostProductsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.boosts.list": {
+        parameters: {
+            query?: {
+                listingId?: string;
+                state?: components["schemas"]["StoragePackageState"];
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Boosts */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "buildingId": null,
+                     *           "createdAt": "2026-11-01T10:00:00+07:00",
+                     *           "days": 7,
+                     *           "endsAt": null,
+                     *           "free": false,
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000e2",
+                     *           "invoice": {
+                     *             "dueAt": "2026-11-08T10:00:00+07:00",
+                     *             "id": "0199f2a0-0000-7000-8000-0000000000cc",
+                     *             "number": "PIV-2026-00031",
+                     *             "qrAvailable": false,
+                     *             "state": "issued",
+                     *             "total": "535.00"
+                     *           },
+                     *           "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *           "listingSlug": "condo-1br-ari-8f3k2",
+                     *           "months": null,
+                     *           "name": "โปรโมตประกาศ 7 วัน",
+                     *           "price": "535.00",
+                     *           "productId": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *           "productKey": "boost_listing_7d",
+                     *           "startsAt": null,
+                     *           "state": "pending_payment",
+                     *           "target": "listing",
+                     *           "targetName": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BoostsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.boosts.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                boostId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Boost */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "days": 7,
+                     *       "endsAt": null,
+                     *       "free": false,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e2",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cc",
+                     *         "number": "PIV-2026-00031",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "535.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingSlug": "condo-1br-ari-8f3k2",
+                     *       "months": null,
+                     *       "name": "โปรโมตประกาศ 7 วัน",
+                     *       "price": "535.00",
+                     *       "productId": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *       "productKey": "boost_listing_7d",
+                     *       "startsAt": null,
+                     *       "state": "pending_payment",
+                     *       "target": "listing",
+                     *       "targetName": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BoostDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.buildingRules.acknowledgements": {
         parameters: {
             query?: never;
@@ -62641,6 +68044,154 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.boosts.boostBuilding": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoostPurchaseDto"];
+            };
+        };
+        responses: {
+            /** @description Ordered */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "days": null,
+                     *       "endsAt": null,
+                     *       "free": false,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e2",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cc",
+                     *         "number": "PIV-2026-00031",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "535.00"
+                     *       },
+                     *       "listingId": null,
+                     *       "listingSlug": null,
+                     *       "months": 1,
+                     *       "name": "โปรโมตอาคารรายเดือน",
+                     *       "price": "535.00",
+                     *       "productId": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *       "productKey": "boost_building_month",
+                     *       "startsAt": null,
+                     *       "state": "pending_payment",
+                     *       "target": "building",
+                     *       "targetName": "หอพักตัวอย่าง"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BoostDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `boost.already_active`, `boost.not_on_sale`, `boost.pending`, `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -74498,6 +80049,1008 @@ export interface operations {
             };
         };
     };
+    "owner.employerAgreements.list": {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["EmployerAgreementState"];
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Agreements */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *           "buildingName": "หอพักตัวอย่าง",
+                     *           "createdAt": "2026-11-01T00:15:00+07:00",
+                     *           "deductPercent": "100.00",
+                     *           "employer": {
+                     *             "displayName": "บริษัท ตัวอย่าง จำกัด",
+                     *             "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *             "type": "company"
+                     *           },
+                     *           "endedAt": null,
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "leaseIds": [
+                     *             "0199f2a0-0000-7000-8000-0000000000e3"
+                     *           ],
+                     *           "payrollExportFormat": "generic_csv",
+                     *           "reference": "HR-2026-014",
+                     *           "splitRule": "per_occupant",
+                     *           "state": "active",
+                     *           "validFrom": "2026-11-01",
+                     *           "validTo": null,
+                     *           "version": 1,
+                     *           "workers": [
+                     *             {
+                     *               "employeeNo": "E-0042",
+                     *               "partyId": "0199f2a0-0000-7000-8000-0000000000e2"
+                     *             }
+                     *           ]
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerAgreementsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.create": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployerAgreementCreateDto"];
+            };
+        };
+        responses: {
+            /** @description Recorded */
+            201: {
+                headers: {
+                    ETag: components["headers"]["ETag"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *       "buildingName": "หอพักตัวอย่าง",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "deductPercent": "100.00",
+                     *       "employer": {
+                     *         "displayName": "บริษัท ตัวอย่าง จำกัด",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *         "type": "company"
+                     *       },
+                     *       "endedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "leaseIds": [
+                     *         "0199f2a0-0000-7000-8000-0000000000e3"
+                     *       ],
+                     *       "payrollExportFormat": "generic_csv",
+                     *       "reference": "HR-2026-014",
+                     *       "splitRule": "per_occupant",
+                     *       "state": "active",
+                     *       "validFrom": "2026-11-01",
+                     *       "validTo": null,
+                     *       "version": 1,
+                     *       "workers": [
+                     *         {
+                     *           "employeeNo": "E-0042",
+                     *           "partyId": "0199f2a0-0000-7000-8000-0000000000e2"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerAgreementDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                agreementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The agreement */
+            200: {
+                headers: {
+                    ETag: components["headers"]["ETag"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *       "buildingName": "หอพักตัวอย่าง",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "deductPercent": "100.00",
+                     *       "employer": {
+                     *         "displayName": "บริษัท ตัวอย่าง จำกัด",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *         "type": "company"
+                     *       },
+                     *       "endedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "leaseIds": [
+                     *         "0199f2a0-0000-7000-8000-0000000000e3"
+                     *       ],
+                     *       "payrollExportFormat": "generic_csv",
+                     *       "reference": "HR-2026-014",
+                     *       "splitRule": "per_occupant",
+                     *       "state": "active",
+                     *       "validFrom": "2026-11-01",
+                     *       "validTo": null,
+                     *       "version": 1,
+                     *       "workers": [
+                     *         {
+                     *           "employeeNo": "E-0042",
+                     *           "partyId": "0199f2a0-0000-7000-8000-0000000000e2"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerAgreementDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.update": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description ETag from the last read of this resource. Mismatch → 412 `concurrency.stale`; missing → 428 `concurrency.precondition_required`. */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                agreementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployerAgreementUpdateDto"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    ETag: components["headers"]["ETag"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *       "buildingName": "หอพักตัวอย่าง",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "deductPercent": "50.00",
+                     *       "employer": {
+                     *         "displayName": "บริษัท ตัวอย่าง จำกัด",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *         "type": "company"
+                     *       },
+                     *       "endedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "leaseIds": [
+                     *         "0199f2a0-0000-7000-8000-0000000000e3"
+                     *       ],
+                     *       "payrollExportFormat": "generic_csv",
+                     *       "reference": "HR-2026-014",
+                     *       "splitRule": "per_occupant",
+                     *       "state": "active",
+                     *       "validFrom": "2026-11-01",
+                     *       "validTo": null,
+                     *       "version": 2,
+                     *       "workers": [
+                     *         {
+                     *           "employeeNo": "E-0042",
+                     *           "partyId": "0199f2a0-0000-7000-8000-0000000000e2"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerAgreementDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `employer.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `concurrency.stale` */
+            412: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `concurrency.precondition_required` */
+            428: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.payrollExport": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                agreementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayrollExportCreateDto"];
+            };
+        };
+        responses: {
+            /** @description Queued. Poll `owner.exports.get` until it completes. */
+            202: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": null,
+                     *       "download": null,
+                     *       "error": null,
+                     *       "finishedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "kind": "payroll_deduction",
+                     *       "params": {
+                     *         "employerAgreementId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "period": "2026-11"
+                     *       },
+                     *       "requestedAt": "2026-11-01T00:15:00+07:00",
+                     *       "rowCount": null,
+                     *       "status": "queued",
+                     *       "version": 2
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ExportJobDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.statement": {
+        parameters: {
+            query: {
+                /** @description Bangkok month (YYYY-MM): invoices issued in it. */
+                month: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                agreementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Statement */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "agreementId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "balance": "5000.00",
+                     *       "deductPercent": "100.00",
+                     *       "deductions": "5000.00",
+                     *       "employerName": "บริษัท ตัวอย่าง จำกัด",
+                     *       "employerPays": "0.00",
+                     *       "lines": [
+                     *         {
+                     *           "balance": "5000.00",
+                     *           "invoiceId": "0199f2a0-0000-7000-8000-0000000000e4",
+                     *           "issuedAt": "2026-11-01T00:15:00+07:00",
+                     *           "leaseId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *           "number": "INV-2026-00042",
+                     *           "paidTotal": "0.00",
+                     *           "periodEnd": "2026-10-31",
+                     *           "periodStart": "2026-10-01",
+                     *           "shares": [
+                     *             {
+                     *               "deduction": "2500.00",
+                     *               "employeeNo": "E-0042",
+                     *               "employerPays": "0.00",
+                     *               "name": "ผู้เช่า ทดสอบ",
+                     *               "partyId": "0199f2a0-0000-7000-8000-0000000000e2",
+                     *               "share": "2500.00"
+                     *             },
+                     *             {
+                     *               "deduction": "2500.00",
+                     *               "employeeNo": null,
+                     *               "employerPays": "0.00",
+                     *               "name": "Somchai Test",
+                     *               "partyId": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *               "share": "2500.00"
+                     *             }
+                     *           ],
+                     *           "total": "5000.00",
+                     *           "unitNo": "A-201"
+                     *         }
+                     *       ],
+                     *       "month": "2026-11",
+                     *       "paid": "0.00",
+                     *       "splitRule": "per_occupant",
+                     *       "total": "5000.00"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerStatementDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.employerAgreements.setWorkers": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                agreementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployerWorkersDto"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": "5c8e2a1f-6b3d-4e7a-9f0c-1d2e3f4a5b6c",
+                     *       "buildingName": "หอพักตัวอย่าง",
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "deductPercent": "100.00",
+                     *       "employer": {
+                     *         "displayName": "บริษัท ตัวอย่าง จำกัด",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *         "type": "company"
+                     *       },
+                     *       "endedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "leaseIds": [
+                     *         "0199f2a0-0000-7000-8000-0000000000e3"
+                     *       ],
+                     *       "payrollExportFormat": "generic_csv",
+                     *       "reference": "HR-2026-014",
+                     *       "splitRule": "per_occupant",
+                     *       "state": "active",
+                     *       "validFrom": "2026-11-01",
+                     *       "validTo": null,
+                     *       "version": 1,
+                     *       "workers": [
+                     *         {
+                     *           "employeeNo": "E-0042",
+                     *           "partyId": "0199f2a0-0000-7000-8000-0000000000e2"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EmployerAgreementDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `employer.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.etax.list": {
         parameters: {
             query?: {
@@ -85336,6 +91889,130 @@ export interface operations {
             };
         };
     };
+    "owner.employerAgreements.setLeaseEmployer": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                leaseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaseEmployerDto"];
+            };
+        };
+        responses: {
+            /** @description Payer set */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "employerAgreementId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "leaseId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "payerPartyId": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *       "version": 3
+                     *     }
+                     */
+                    "application/json": components["schemas"]["LeaseEmployerResultDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `employer.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `employer.building_mismatch`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.leases.events": {
         parameters: {
             query?: never;
@@ -89799,6 +96476,154 @@ export interface operations {
             };
         };
     };
+    "owner.boosts.boostListing": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                listingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoostPurchaseDto"];
+            };
+        };
+        responses: {
+            /** @description Ordered */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buildingId": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "days": 7,
+                     *       "endsAt": null,
+                     *       "free": false,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e2",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cc",
+                     *         "number": "PIV-2026-00031",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "535.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingSlug": "condo-1br-ari-8f3k2",
+                     *       "months": null,
+                     *       "name": "โปรโมตประกาศ 7 วัน",
+                     *       "price": "535.00",
+                     *       "productId": "0199f2a0-0000-7000-8000-0000000000e1",
+                     *       "productKey": "boost_listing_7d",
+                     *       "startsAt": null,
+                     *       "state": "pending_payment",
+                     *       "target": "listing",
+                     *       "targetName": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BoostDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `boost.listing_not_public`, `boost.not_on_sale`, `boost.pending`, `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.listings.comparables": {
         parameters: {
             query?: never;
@@ -90521,7 +97346,15 @@ export interface operations {
                      *           "url": "https://app.getproperty.co/s/ab12cd34"
                      *         }
                      *       ],
-                     *       "listingId": "3b241101-e2bb-4255-8caf-4136c566a962"
+                     *       "listingId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "photos": [
+                     *         {
+                     *           "documentId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "height": 1200,
+                     *           "url": "https://storage.getproperty.test/photo-01.webp",
+                     *           "width": 1600
+                     *         }
+                     *       ]
                      *     }
                      */
                     "application/json": components["schemas"]["ShareKitDto"];
@@ -90578,6 +97411,258 @@ export interface operations {
                 };
             };
             /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.listingSocialPosts.list": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                listingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Posts */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "attempts": 0,
+                     *         "channelId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "deletedAt": null,
+                     *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "lastError": null,
+                     *         "pageId": "102345678901234",
+                     *         "pageName": "บ้านดี พร็อพเพอร์ตี้",
+                     *         "pendingAction": null,
+                     *         "postUrl": "https://www.facebook.com/102345678901234/posts/1001",
+                     *         "postedAt": "2026-11-01T10:01:00+07:00",
+                     *         "state": "posted",
+                     *         "updatedOnPageAt": null
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["SocialPostDto"][];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.listingSocialPosts.retry": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                listingId: string;
+                postId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queued */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attempts": 0,
+                     *       "channelId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "deletedAt": null,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "lastError": null,
+                     *       "pageId": "102345678901234",
+                     *       "pageName": "บ้านดี พร็อพเพอร์ตี้",
+                     *       "pendingAction": "publish",
+                     *       "postUrl": "https://www.facebook.com/102345678901234/posts/1001",
+                     *       "postedAt": "2026-11-01T10:01:00+07:00",
+                     *       "state": "queued",
+                     *       "updatedOnPageAt": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SocialPostDto"];
+                };
+            };
+            /** @description Problem: `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `social.post_invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
             422: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
@@ -94487,6 +101572,494 @@ export interface operations {
             };
         };
     };
+    "owner.mediaServices.list": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Orders */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "cancelReason": null,
+                     *           "cancelledAt": null,
+                     *           "createdAt": "2026-11-01T10:00:00+07:00",
+                     *           "deliverableDocumentIds": [],
+                     *           "deliveredAt": null,
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *           "invoice": {
+                     *             "dueAt": "2026-11-08T10:00:00+07:00",
+                     *             "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *             "number": "PIV-2026-00032",
+                     *             "qrAvailable": false,
+                     *             "state": "issued",
+                     *             "total": "1605.00"
+                     *           },
+                     *           "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *           "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *           "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *           "note": null,
+                     *           "price": "1605.00",
+                     *           "requestedAt": null,
+                     *           "scheduledFor": null,
+                     *           "service": "verified_photo",
+                     *           "state": "pending_payment",
+                     *           "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *           "unitNo": "A-201"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MediaServiceOrdersDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.mediaServices.order": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MediaServiceOrderCreateDto"];
+            };
+        };
+        responses: {
+            /** @description Ordered */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": null,
+                     *       "cancelledAt": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [],
+                     *       "deliveredAt": null,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "price": "1605.00",
+                     *       "requestedAt": null,
+                     *       "scheduledFor": null,
+                     *       "service": "verified_photo",
+                     *       "state": "pending_payment",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `boost.listing_not_public`, `idempotency.in_progress`, `media_service.not_on_sale`, `media_service.order_open` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.mediaServices.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "cancelReason": null,
+                     *       "cancelledAt": null,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "deliverableDocumentIds": [],
+                     *       "deliveredAt": null,
+                     *       "id": "0199f2a0-0000-7000-8000-0000000000e5",
+                     *       "invoice": {
+                     *         "dueAt": "2026-11-08T10:00:00+07:00",
+                     *         "id": "0199f2a0-0000-7000-8000-0000000000cd",
+                     *         "number": "PIV-2026-00032",
+                     *         "qrAvailable": false,
+                     *         "state": "issued",
+                     *         "total": "1605.00"
+                     *       },
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000e3",
+                     *       "listingTitle": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *       "name": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *       "note": null,
+                     *       "price": "1605.00",
+                     *       "requestedAt": null,
+                     *       "scheduledFor": null,
+                     *       "service": "verified_photo",
+                     *       "state": "pending_payment",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000e6",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MediaServiceOrderDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.mediaServices.products": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Products */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "products": [
+                     *         {
+                     *           "currency": "THB",
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000e4",
+                     *           "key": "media_verified_photo",
+                     *           "nameEn": "Verified photo service",
+                     *           "nameTh": "บริการถ่ายภาพยืนยันห้องจริง",
+                     *           "onSale": false,
+                     *           "price": null,
+                     *           "service": "verified_photo",
+                     *           "total": null,
+                     *           "vatRate": "0.0700"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MediaServiceProductsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.members.list": {
         parameters: {
             query?: {
@@ -94850,6 +102423,104 @@ export interface operations {
             };
         };
     };
+    "owner.messagingAddons.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offer and invoices */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "invoices": [],
+                     *       "offer": {
+                     *         "currency": "THB",
+                     *         "effectiveFrom": null,
+                     *         "monthlyFee": null,
+                     *         "nameEn": "Agency LINE OA integration",
+                     *         "nameTh": "เชื่อม LINE OA ของบริษัทนายหน้า",
+                     *         "onSale": false,
+                     *         "planKey": "line_oa_integration",
+                     *         "setupFee": null,
+                     *         "vatRate": "0.0700",
+                     *         "versionId": null
+                     *       },
+                     *       "setupCharged": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MessagingAddonsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.messagingChannels.list": {
         parameters: {
             query?: never;
@@ -95027,6 +102698,16 @@ export interface operations {
             };
             /** @description Problem: `http.not_found` */
             404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `messaging.addon_terms_required` */
+            409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -104387,6 +112068,253 @@ export interface operations {
             };
         };
     };
+    "owner.rentalHandoffs.list": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Handoffs */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "acceptedAt": "2026-11-01T00:15:00+07:00",
+                     *           "campaignTag": "getbuild:dev-campaign-2026",
+                     *           "facts": {
+                     *             "areaSqm": "32.00",
+                     *             "bathrooms": 1,
+                     *             "bedrooms": 1,
+                     *             "district": "จตุจักร",
+                     *             "floorLabel": "12",
+                     *             "kind": "condo_unit",
+                     *             "projectName": "หอพักตัวอย่าง",
+                     *             "province": "กรุงเทพมหานคร",
+                     *             "unitNo": "A-201"
+                     *           },
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "listedAt": null,
+                     *           "listingId": "0199f2a0-0000-7000-8000-0000000000c2",
+                     *           "state": "accepted",
+                     *           "transferDate": "2026-11-01",
+                     *           "unitId": "0199f2a0-0000-7000-8000-0000000000c1"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RentalHandoffsDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.rentalHandoffs.claim": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RentalHandoffClaimDto"];
+            };
+        };
+        responses: {
+            /** @description Claimed */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "acceptedAt": "2026-11-01T00:15:00+07:00",
+                     *       "campaignTag": "getbuild:dev-campaign-2026",
+                     *       "facts": {
+                     *         "areaSqm": "32.00",
+                     *         "bathrooms": 1,
+                     *         "bedrooms": 1,
+                     *         "district": "จตุจักร",
+                     *         "floorLabel": "12",
+                     *         "kind": "condo_unit",
+                     *         "projectName": "หอพักตัวอย่าง",
+                     *         "province": "กรุงเทพมหานคร",
+                     *         "unitNo": "A-201"
+                     *       },
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "listedAt": null,
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000c2",
+                     *       "state": "accepted",
+                     *       "transferDate": "2026-11-01",
+                     *       "unitId": "0199f2a0-0000-7000-8000-0000000000c1"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RentalHandoffDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `handoff.invalid_state`, `idempotency.in_progress`, `portfolio.unit_claimed` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `handoff.landlord_required`, `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.search.query": {
         parameters: {
             query: {
@@ -108108,6 +116036,1563 @@ export interface operations {
             };
         };
     };
+    "owner.socialChannels.list": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pages */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "autoPost": true,
+                     *         "createdAt": "2026-11-01T10:00:00+07:00",
+                     *         "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *         "lastCheckedAt": "2026-11-01T10:00:00+07:00",
+                     *         "lastError": null,
+                     *         "pageId": "102345678901234",
+                     *         "pageName": "บ้านดี พร็อพเพอร์ตี้",
+                     *         "provider": "facebook_page",
+                     *         "state": "verified",
+                     *         "verifiedAt": "2026-11-01T10:00:00+07:00"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["SocialChannelDto"][];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.socialChannels.connect": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SocialChannelConnectDto"];
+            };
+        };
+        responses: {
+            /** @description Connected */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "autoPost": true,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "lastCheckedAt": "2026-11-01T10:00:00+07:00",
+                     *       "lastError": null,
+                     *       "pageId": "102345678901234",
+                     *       "pageName": "บ้านดี พร็อพเพอร์ตี้",
+                     *       "provider": "facebook_page",
+                     *       "state": "verified",
+                     *       "verifiedAt": "2026-11-01T10:00:00+07:00"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SocialChannelDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `facebook.page_refused`, `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `facebook.unavailable` */
+            503: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.socialChannels.revoke": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Disconnected */
+            204: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.socialChannels.verify": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Checked */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "autoPost": true,
+                     *       "createdAt": "2026-11-01T10:00:00+07:00",
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "lastCheckedAt": "2026-11-01T10:00:00+07:00",
+                     *       "lastError": null,
+                     *       "pageId": "102345678901234",
+                     *       "pageName": "บ้านดี พร็อพเพอร์ตี้",
+                     *       "provider": "facebook_page",
+                     *       "state": "verified",
+                     *       "verifiedAt": "2026-11-01T10:00:00+07:00"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SocialChannelDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `facebook.unavailable` */
+            503: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.list": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+                state?: components["schemas"]["SponsoredCampaignState"];
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "clicks": 0,
+                     *           "completedAt": null,
+                     *           "createdAt": "2026-11-01T00:15:00+07:00",
+                     *           "delivered": 0,
+                     *           "estimated": 1000,
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "invoice": null,
+                     *           "listings": [
+                     *             {
+                     *               "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *               "public": true,
+                     *               "slug": "condo-1br-0a1b2c3d4e",
+                     *               "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *             }
+                     *           ],
+                     *           "maxRecipients": 1000,
+                     *           "minimumRecipients": null,
+                     *           "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *           "pricePerRecipient": null,
+                     *           "rejectReason": null,
+                     *           "scheduledAt": null,
+                     *           "segment": {
+                     *             "areas": [
+                     *               "ari"
+                     *             ],
+                     *             "budgetMax": null,
+                     *             "budgetMin": null,
+                     *             "languages": [],
+                     *             "moveInFrom": null,
+                     *             "moveInTo": null,
+                     *             "unitKinds": [
+                     *               "condo_unit"
+                     *             ]
+                     *           },
+                     *           "sendingStartedAt": null,
+                     *           "state": "draft",
+                     *           "vatRate": null
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["SponsoredCampaignDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.create": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SponsoredCampaignCreateDto"];
+            };
+        };
+        responses: {
+            /** @description Drafted */
+            201: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "clicks": 0,
+                     *       "completedAt": null,
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "delivered": 0,
+                     *       "estimated": 1000,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": null,
+                     *       "listings": [
+                     *         {
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *           "public": true,
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ],
+                     *       "maxRecipients": 1000,
+                     *       "minimumRecipients": null,
+                     *       "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *       "pricePerRecipient": null,
+                     *       "rejectReason": null,
+                     *       "scheduledAt": null,
+                     *       "segment": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": null,
+                     *         "budgetMin": null,
+                     *         "languages": [],
+                     *         "moveInFrom": null,
+                     *         "moveInTo": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ]
+                     *       },
+                     *       "sendingStartedAt": null,
+                     *       "state": "draft",
+                     *       "vatRate": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredCampaignDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `broadcast.listing_not_public`, `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Campaign */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "clicks": 0,
+                     *       "completedAt": null,
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "delivered": 0,
+                     *       "estimated": 1000,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": null,
+                     *       "listings": [
+                     *         {
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *           "public": true,
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ],
+                     *       "maxRecipients": 1000,
+                     *       "minimumRecipients": null,
+                     *       "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *       "pricePerRecipient": null,
+                     *       "rejectReason": null,
+                     *       "scheduledAt": null,
+                     *       "segment": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": null,
+                     *         "budgetMin": null,
+                     *         "languages": [],
+                     *         "moveInFrom": null,
+                     *         "moveInTo": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ]
+                     *       },
+                     *       "sendingStartedAt": null,
+                     *       "state": "draft",
+                     *       "vatRate": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredCampaignDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.cancel": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cancelled */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "clicks": 0,
+                     *       "completedAt": null,
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "delivered": 0,
+                     *       "estimated": 1000,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": null,
+                     *       "listings": [
+                     *         {
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *           "public": true,
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ],
+                     *       "maxRecipients": 1000,
+                     *       "minimumRecipients": null,
+                     *       "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *       "pricePerRecipient": null,
+                     *       "rejectReason": null,
+                     *       "scheduledAt": null,
+                     *       "segment": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": null,
+                     *         "budgetMin": null,
+                     *         "languages": [],
+                     *         "moveInFrom": null,
+                     *         "moveInTo": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ]
+                     *       },
+                     *       "sendingStartedAt": null,
+                     *       "state": "cancelled",
+                     *       "vatRate": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredCampaignDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `broadcast.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.schedule": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SponsoredScheduleDto"];
+            };
+        };
+        responses: {
+            /** @description Scheduled */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "clicks": 0,
+                     *       "completedAt": null,
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "delivered": 0,
+                     *       "estimated": 1000,
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "invoice": null,
+                     *       "listings": [
+                     *         {
+                     *           "id": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *           "public": true,
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *         }
+                     *       ],
+                     *       "maxRecipients": 1000,
+                     *       "minimumRecipients": 500,
+                     *       "name": "คอนโดอารีย์ ต้นเดือนธันวา",
+                     *       "pricePerRecipient": "0.5000",
+                     *       "rejectReason": null,
+                     *       "scheduledAt": "2026-11-02T10:00:00+07:00",
+                     *       "segment": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": null,
+                     *         "budgetMin": null,
+                     *         "languages": [],
+                     *         "moveInFrom": null,
+                     *         "moveInTo": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ]
+                     *       },
+                     *       "sendingStartedAt": null,
+                     *       "state": "scheduled",
+                     *       "vatRate": "0.0700"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredCampaignDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope`, `tenant.read_only` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `broadcast.below_minimum`, `broadcast.invalid_state`, `broadcast.listing_not_public`, `broadcast.not_on_sale`, `broadcast.sponsored_disabled`, `idempotency.in_progress` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.report": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Report */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attributionDays": 7,
+                     *       "campaignId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "clicks": 64,
+                     *       "invoice": null,
+                     *       "leads": 5,
+                     *       "opened": null,
+                     *       "sent": 812,
+                     *       "state": "sent"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredReportDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.estimate": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SponsoredEstimateRequestDto"];
+            };
+        };
+        responses: {
+            /** @description Estimate */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "belowMinimum": false,
+                     *       "cost": null,
+                     *       "estimated": 1000,
+                     *       "minimumRecipients": 500,
+                     *       "product": {
+                     *         "currency": "THB",
+                     *         "enabled": false,
+                     *         "maxListings": 5,
+                     *         "maxPerWeek": 2,
+                     *         "minimumRecipients": 500,
+                     *         "onSale": false,
+                     *         "pricePerRecipient": null,
+                     *         "vatRate": "0.0700"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredEstimateDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `broadcast.listing_not_public` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "owner.sponsoredCampaigns.product": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Tenant context (the SaaS customer organisation, D-151) for operators who belong to several tenants (contract §8): must be one of the `tenant:<uuid>` scopes of the token. Not a uuid → 400 `tenant.context_invalid`; not in the token → 403 `tenant.not_in_scope`; omitted with several tenants → 400 `tenant.context_required`. Single-tenant users never need it. */
+                "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "currency": "THB",
+                     *       "enabled": false,
+                     *       "maxListings": 5,
+                     *       "maxPerWeek": 2,
+                     *       "minimumRecipients": 500,
+                     *       "onSale": false,
+                     *       "pricePerRecipient": null,
+                     *       "vatRate": "0.0700"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SponsoredProductDto"];
+                };
+            };
+            /** @description Problem: `tenant.context_invalid`, `tenant.context_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience`, `tenant.not_in_scope` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "owner.storage.get": {
         parameters: {
             query?: never;
@@ -110974,6 +120459,8 @@ export interface operations {
         parameters: {
             query?: {
                 building?: string;
+                /** @description G8 (D-299): only the foreign workers of the leases attached to this employer agreement (an unknown or other tenant’s agreement lists nothing). */
+                employerAgreementId?: string;
                 order?: components["schemas"]["SortOrder"];
                 page?: number;
                 perPage?: number;
@@ -118736,6 +128223,451 @@ export interface operations {
             };
         };
     };
+    "prospect.recommendations.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mine */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": true,
+                     *         "grantedVersion": 1,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": "15000.00",
+                     *         "budgetMin": "8000.00",
+                     *         "language": "th",
+                     *         "moveInFrom": "2026-12-01",
+                     *         "moveInTo": "2027-01-31",
+                     *         "quietHours": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ],
+                     *         "updatedAt": "2026-11-01T00:15:00+07:00"
+                     *       },
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.recommendations.update": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecommendationsUpdateDto"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": true,
+                     *         "grantedVersion": 1,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": "15000.00",
+                     *         "budgetMin": "8000.00",
+                     *         "language": "th",
+                     *         "moveInFrom": "2026-12-01",
+                     *         "moveInTo": "2027-01-31",
+                     *         "quietHours": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ],
+                     *         "updatedAt": "2026-11-01T00:15:00+07:00"
+                     *       },
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `recommendations.consent_outdated`, `recommendations.consent_required` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.recommendations.withdraw": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Withdrawn */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": false,
+                     *         "grantedVersion": null,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": null,
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.recommendations.history": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "label": "โฆษณา",
+                     *           "listings": [
+                     *             {
+                     *               "public": true,
+                     *               "slug": "condo-1br-0a1b2c3d4e",
+                     *               "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *             }
+                     *           ],
+                     *           "sentAt": "2026-11-01T00:15:00+07:00",
+                     *           "sponsor": "มาลี มีสุข"
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["RecommendationHistoryItemDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "prospect.rentRecord.get": {
         parameters: {
             query?: never;
@@ -119107,6 +129039,204 @@ export interface operations {
             };
             /** @description Problem: `validation.failed` */
             422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.messagingLinks.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The link */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "botName": "หอพักสุขใจ",
+                     *       "botPictureUrl": null,
+                     *       "expiresAt": "2026-11-01T00:45:00+07:00",
+                     *       "state": "valid",
+                     *       "tenantName": "หอพักสุขใจ"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MessagingLinkDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `messaging.link_invalid` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "prospect.messagingLinks.confirm": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Linked */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "botName": "หอพักสุขใจ",
+                     *       "botPictureUrl": null,
+                     *       "expiresAt": "2026-11-01T00:45:00+07:00",
+                     *       "state": "used",
+                     *       "tenantName": "หอพักสุขใจ"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MessagingLinkDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `messaging.link_invalid` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `messaging.line_user_taken`, `messaging.link_used` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `messaging.link_expired` */
+            410: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -120228,6 +130358,176 @@ export interface operations {
             };
         };
     };
+    "public.handoffs.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                /** @description The token of the invitation link getbuild showed the buyer. */
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Invitation */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buyerFirstName": "Somchai",
+                     *       "expiresAt": "2026-12-01T10:00:00+07:00",
+                     *       "facts": {
+                     *         "areaSqm": "32.00",
+                     *         "bathrooms": 1,
+                     *         "bedrooms": 1,
+                     *         "district": "จตุจักร",
+                     *         "floorLabel": "12",
+                     *         "kind": "condo_unit",
+                     *         "projectName": "หอพักตัวอย่าง",
+                     *         "province": "กรุงเทพมหานคร",
+                     *         "unitNo": "A-201"
+                     *       },
+                     *       "state": "invited",
+                     *       "transferDate": "2026-11-01"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PublicHandoffDto"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "public.handoffs.decline": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                /** @description The token of the invitation link getbuild showed the buyer. */
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Declined */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "buyerFirstName": "Somchai",
+                     *       "expiresAt": "2026-12-01T10:00:00+07:00",
+                     *       "facts": {
+                     *         "areaSqm": "32.00",
+                     *         "bathrooms": 1,
+                     *         "bedrooms": 1,
+                     *         "district": "จตุจักร",
+                     *         "floorLabel": "12",
+                     *         "kind": "condo_unit",
+                     *         "projectName": "หอพักตัวอย่าง",
+                     *         "province": "กรุงเทพมหานคร",
+                     *         "unitNo": "A-201"
+                     *       },
+                     *       "state": "declined",
+                     *       "transferDate": "2026-11-01"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PublicHandoffDto"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `handoff.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "public.listings.search": {
         parameters: {
             query?: {
@@ -120305,9 +130605,13 @@ export interface operations {
                      *           "rent": "15000.00",
                      *           "sizeSqm": "28.50",
                      *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "sponsored": false,
+                     *           "sponsoredLabel": null,
                      *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
                      *           "unitKind": "condo_unit",
-                     *           "verifiedOwner": true
+                     *           "vacantSince": "2026-10-31",
+                     *           "verifiedOwner": true,
+                     *           "verifiedVacant": true
                      *         }
                      *       ],
                      *       "nextCursor": null,
@@ -120400,12 +130704,24 @@ export interface operations {
                      *         "lat": 13.7799,
                      *         "lng": 100.5446
                      *       },
+                     *       "jsonLd": {
+                     *         "@context": "https://schema.org",
+                     *         "@type": "Offer",
+                     *         "itemOffered": {
+                     *           "@type": "Apartment",
+                     *           "numberOfBedrooms": 1
+                     *         },
+                     *         "price": "15000.00",
+                     *         "priceCurrency": "THB",
+                     *         "url": "https://getproperty.co/rent/condo-1br-0a1b2c3d4e"
+                     *       },
                      *       "minTermMonths": 12,
                      *       "nearestTransit": {
                      *         "distanceM": 350,
                      *         "line": "BTS สายสุขุมวิท",
                      *         "name": "BTS อารีย์"
                      *       },
+                     *       "ogImageUrl": "https://api.getproperty.co/v1/public/listings/condo-1br-0a1b2c3d4e/og-image",
                      *       "ownerDisplayName": "มาลี มีสุข",
                      *       "ownerIdentityVerified": true,
                      *       "ownerProfileSlug": "landlord-0a1b2c3d4e",
@@ -120424,6 +130740,8 @@ export interface operations {
                      *       "sizeSqm": "28.50",
                      *       "slug": "condo-1br-0a1b2c3d4e",
                      *       "smokingAllowed": false,
+                     *       "sponsored": false,
+                     *       "sponsoredLabel": null,
                      *       "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
                      *       "unitKind": "condo_unit",
                      *       "utility": {
@@ -120449,7 +130767,9 @@ export interface operations {
                      *           "tiers": []
                      *         }
                      *       },
-                     *       "verifiedOwner": true
+                     *       "vacantSince": "2026-10-31",
+                     *       "verifiedOwner": true,
+                     *       "verifiedVacant": true
                      *     }
                      */
                     "application/json": components["schemas"]["PublicListingDetailDto"];
@@ -120467,6 +130787,67 @@ export interface operations {
             };
             /** @description Problem: `validation.failed` */
             422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "public.listings.ogImage": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The PNG card (1200 × 630) */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example <PNG, 1200 × 630> */
+                    "image/png": string;
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
@@ -120873,9 +131254,13 @@ export interface operations {
                      *           "rent": "15000.00",
                      *           "sizeSqm": "28.50",
                      *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "sponsored": false,
+                     *           "sponsoredLabel": null,
                      *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
                      *           "unitKind": "condo_unit",
-                     *           "verifiedOwner": true
+                     *           "vacantSince": "2026-10-31",
+                     *           "verifiedOwner": true,
+                     *           "verifiedVacant": true
                      *         }
                      *       ],
                      *       "medianReplyMinutes": 42,
@@ -129896,6 +140281,451 @@ export interface operations {
             };
         };
     };
+    "resident.recommendations.get": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mine */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": true,
+                     *         "grantedVersion": 1,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": "15000.00",
+                     *         "budgetMin": "8000.00",
+                     *         "language": "th",
+                     *         "moveInFrom": "2026-12-01",
+                     *         "moveInTo": "2027-01-31",
+                     *         "quietHours": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ],
+                     *         "updatedAt": "2026-11-01T00:15:00+07:00"
+                     *       },
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.recommendations.update": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecommendationsUpdateDto"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": true,
+                     *         "grantedVersion": 1,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": {
+                     *         "areas": [
+                     *           "ari"
+                     *         ],
+                     *         "budgetMax": "15000.00",
+                     *         "budgetMin": "8000.00",
+                     *         "language": "th",
+                     *         "moveInFrom": "2026-12-01",
+                     *         "moveInTo": "2027-01-31",
+                     *         "quietHours": null,
+                     *         "unitKinds": [
+                     *           "condo_unit"
+                     *         ],
+                     *         "updatedAt": "2026-11-01T00:15:00+07:00"
+                     *       },
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `recommendations.consent_outdated`, `recommendations.consent_required` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.recommendations.withdraw": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Withdrawn */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consent": {
+                     *         "bodyMarkdown": "ร่าง ⚖ — เลือกรับหรือไม่ก็ได้ ไม่มีผลต่อการใช้บริการอื่น …",
+                     *         "capturedAt": "2026-11-01T00:15:00+07:00",
+                     *         "effectiveFrom": "2026-11-01T00:15:00+07:00",
+                     *         "granted": false,
+                     *         "grantedVersion": null,
+                     *         "language": "th",
+                     *         "purposeKey": "platform.recommendations",
+                     *         "title": "รับห้องแนะนำจาก getproperty (รวมโฆษณา)",
+                     *         "version": 1
+                     *       },
+                     *       "maxPerWeek": 2,
+                     *       "preferences": null,
+                     *       "quietHours": {
+                     *         "end": "08:00",
+                     *         "start": "21:00",
+                     *         "timezone": "Asia/Bangkok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationsDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.recommendations.history": {
+        parameters: {
+            query?: {
+                order?: components["schemas"]["SortOrder"];
+                page?: number;
+                perPage?: number;
+                /** @description Free-text search */
+                q?: string;
+                /** @description Sort field; each endpoint validates it against its own allow-list. */
+                sort?: string;
+            };
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of results */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "label": "โฆษณา",
+                     *           "listings": [
+                     *             {
+                     *               "public": true,
+                     *               "slug": "condo-1br-0a1b2c3d4e",
+                     *               "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์"
+                     *             }
+                     *           ],
+                     *           "sentAt": "2026-11-01T00:15:00+07:00",
+                     *           "sponsor": "มาลี มีสุข"
+                     *         }
+                     *       ],
+                     *       "meta": {
+                     *         "page": 1,
+                     *         "perPage": 25,
+                     *         "total": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        data: components["schemas"]["RecommendationHistoryItemDto"][];
+                        meta: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     "resident.rentRecord.get": {
         parameters: {
             query?: never;
@@ -131441,6 +142271,544 @@ export interface operations {
                 };
             };
             /** @description Problem: `export.not_ready` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.relocationOffers.list": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Offers */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "consented": true,
+                     *       "data": [
+                     *         {
+                     *           "createdAt": "2026-11-01T00:15:00+07:00",
+                     *           "destination": {
+                     *             "areaSlug": null,
+                     *             "district": "เมืองเชียงใหม่",
+                     *             "maxRent": "12000.00",
+                     *             "province": "เชียงใหม่"
+                     *           },
+                     *           "enquiredListingIds": [],
+                     *           "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *           "landlordName": "หอพักตัวอย่าง",
+                     *           "leaseId": "0199f2a0-0000-7000-8000-0000000000d1",
+                     *           "listings": [
+                     *             {
+                     *               "address": "ถนนพหลโยธิน, พญาไท, กรุงเทพมหานคร 10400",
+                     *               "advanceMonths": 1,
+                     *               "availableFrom": "2026-12-01",
+                     *               "bathrooms": 1,
+                     *               "bedrooms": 1,
+                     *               "cover": {
+                     *                 "caption": null,
+                     *                 "height": 720,
+                     *                 "url": "https://storage.invalid/p.w960.webp",
+                     *                 "width": 960
+                     *               },
+                     *               "depositMonths": 2,
+                     *               "district": "พญาไท",
+                     *               "furnishing": "fully_furnished",
+                     *               "minTermMonths": 12,
+                     *               "nearestTransit": {
+                     *                 "distanceM": 350,
+                     *                 "line": "BTS สายสุขุมวิท",
+                     *                 "name": "BTS อารีย์"
+                     *               },
+                     *               "ownerIdentityVerified": true,
+                     *               "petsAllowed": false,
+                     *               "province": "กรุงเทพมหานคร",
+                     *               "publishedAt": "2026-11-01T10:00:00+07:00",
+                     *               "rent": "15000.00",
+                     *               "sizeSqm": "28.50",
+                     *               "slug": "condo-1br-0a1b2c3d4e",
+                     *               "sponsored": false,
+                     *               "sponsoredLabel": null,
+                     *               "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *               "unitKind": "condo_unit",
+                     *               "vacantSince": "2026-10-31",
+                     *               "verifiedOwner": true,
+                     *               "verifiedVacant": true
+                     *             }
+                     *           ],
+                     *           "moveOutDate": "2026-12-31",
+                     *           "state": "open",
+                     *           "unitNo": "A-201"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RelocationOffersDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.relocationOffers.dismiss": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                offerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Dismissed */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "destination": null,
+                     *       "enquiredListingIds": [],
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "landlordName": "หอพักตัวอย่าง",
+                     *       "leaseId": "0199f2a0-0000-7000-8000-0000000000d1",
+                     *       "listings": [],
+                     *       "moveOutDate": "2026-12-31",
+                     *       "state": "dismissed",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RelocationOfferDto"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `relocation.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.relocationOffers.enquire": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Client-generated uuid for this operation. A replay with the same key and body within 24 h returns the original response with `Idempotent-Replayed: true`; the same key with a different body → 422 `idempotency.key_reused`; while the first request is still running → 409 `idempotency.in_progress`. A failed attempt releases the key. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                offerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelocationEnquireDto"];
+            };
+        };
+        responses: {
+            /** @description Sent */
+            200: {
+                headers: {
+                    "Idempotent-Replayed": components["headers"]["IdempotentReplayed"];
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "created": true,
+                     *       "leadId": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "listingId": "0199f2a0-0000-7000-8000-0000000000d2",
+                     *       "rentRecordShared": true
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RelocationEnquiryDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request`, `idempotency.key_invalid`, `idempotency.key_required` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.in_progress`, `relocation.consent_required`, `relocation.invalid_state` */
+            409: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `idempotency.key_reused`, `listing.bank_account_in_message`, `listing.consent_required`, `validation.failed` */
+            422: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.too_many_requests`, `listing.enquiry_limit` */
+            429: {
+                headers: {
+                    "Retry-After": components["headers"]["RetryAfter"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `internal.unexpected` */
+            500: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    "resident.relocationOffers.setDestination": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Language of `title`/`detail` in problems and of generated documents: `th` (default) or `en` (resident surface also `my|km|lo|zh` in R2, D-064). */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                offerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelocationDestinationDto"];
+            };
+        };
+        responses: {
+            /** @description Set */
+            200: {
+                headers: {
+                    "X-RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                    "X-RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                    "X-RateLimit-Reset": components["headers"]["RateLimitReset"];
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "createdAt": "2026-11-01T00:15:00+07:00",
+                     *       "destination": {
+                     *         "areaSlug": null,
+                     *         "district": "เมืองเชียงใหม่",
+                     *         "maxRent": "12000.00",
+                     *         "province": "เชียงใหม่"
+                     *       },
+                     *       "enquiredListingIds": [],
+                     *       "id": "3b241101-e2bb-4255-8caf-4136c566a962",
+                     *       "landlordName": "หอพักตัวอย่าง",
+                     *       "leaseId": "0199f2a0-0000-7000-8000-0000000000d1",
+                     *       "listings": [
+                     *         {
+                     *           "address": "ถนนพหลโยธิน, พญาไท, กรุงเทพมหานคร 10400",
+                     *           "advanceMonths": 1,
+                     *           "availableFrom": "2026-12-01",
+                     *           "bathrooms": 1,
+                     *           "bedrooms": 1,
+                     *           "cover": {
+                     *             "caption": null,
+                     *             "height": 720,
+                     *             "url": "https://storage.invalid/p.w960.webp",
+                     *             "width": 960
+                     *           },
+                     *           "depositMonths": 2,
+                     *           "district": "พญาไท",
+                     *           "furnishing": "fully_furnished",
+                     *           "minTermMonths": 12,
+                     *           "nearestTransit": {
+                     *             "distanceM": 350,
+                     *             "line": "BTS สายสุขุมวิท",
+                     *             "name": "BTS อารีย์"
+                     *           },
+                     *           "ownerIdentityVerified": true,
+                     *           "petsAllowed": false,
+                     *           "province": "กรุงเทพมหานคร",
+                     *           "publishedAt": "2026-11-01T10:00:00+07:00",
+                     *           "rent": "15000.00",
+                     *           "sizeSqm": "28.50",
+                     *           "slug": "condo-1br-0a1b2c3d4e",
+                     *           "sponsored": false,
+                     *           "sponsoredLabel": null,
+                     *           "title": "คอนโด 1 ห้องนอน ใกล้ BTS อารีย์",
+                     *           "unitKind": "condo_unit",
+                     *           "vacantSince": "2026-10-31",
+                     *           "verifiedOwner": true,
+                     *           "verifiedVacant": true
+                     *         }
+                     *       ],
+                     *       "moveOutDate": "2026-12-31",
+                     *       "state": "open",
+                     *       "unitNo": "A-201"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RelocationOfferDto"];
+                };
+            };
+            /** @description Problem: `http.bad_request` */
+            400: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.unauthenticated` */
+            401: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `auth.forbidden`, `auth.wrong_audience` */
+            403: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `http.not_found` */
+            404: {
+                headers: {
+                    "X-Request-Id": components["headers"]["XRequestId"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Problem: `relocation.consent_required`, `relocation.invalid_state` */
             409: {
                 headers: {
                     "X-Request-Id": components["headers"]["XRequestId"];

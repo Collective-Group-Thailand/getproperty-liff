@@ -140,6 +140,9 @@ describe("allow-list", () => {
     expect(routeFor("/v1/prospect/enquiries", false)).toMatchObject({ type: "proxy", kind: "prospect", auth: true });
     expect(routeFor("/v1/public/listings/condo-1br-a1b2c3d4e5", false)).toMatchObject({ auth: false });
     expect(routeFor("/v1/public/listings/condo-1br-a1b2c3d4e5/viewing-slots", false)).toMatchObject({ auth: false });
+    // GL1: the area slugs of the recommendations preferences (anonymous read).
+    expect(routeFor("/v1/public/listings/areas", false)).toMatchObject({ auth: false });
+    expect(routeFor("/v1/prospect/me/recommendations", false)).toMatchObject({ kind: "prospect", auth: true });
     for (const path of [
       "/v1/public/listings",
       "/v1/public/listings/sitemap/x",
