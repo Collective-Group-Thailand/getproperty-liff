@@ -207,10 +207,16 @@ jobs:
           path: test-results
           retention-days: 7
 
+  # Every set, split into shards that run in parallel (`LHCI_SHARD`, balanced by URL count in scripts/lhci.ts):
+  # one runner took ~35 s a URL and the sets outgrew the job's timeout.
   lighthouse:
-    name: lighthouse (mock build)
+    name: lighthouse (mock build, shard ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -223,12 +229,14 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_LIFF_MOCK: "1"
-      - name: Lighthouse budgets (resident, public)
+      - name: Lighthouse budgets
         run: pnpm lhci
+        env:
+          LHCI_SHARD: ${{ matrix.shard }}/3
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lighthouse
+          name: lighthouse-${{ matrix.shard }}
           path: .lighthouseci
           retention-days: 14
 
