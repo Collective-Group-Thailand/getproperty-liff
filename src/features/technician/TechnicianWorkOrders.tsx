@@ -24,7 +24,7 @@ async function Item({ item, locale }: { item: WorkOrder; locale: Locale }) {
     <li>
       <Link
         href={`/technician/work-orders/${item.id}`}
-        className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
+        className="active:bg-bg-subtle flex min-h-14 items-center gap-3 px-4 py-3"
         data-testid="work-order-item"
         data-status={item.status}
       >
@@ -55,7 +55,7 @@ async function Item({ item, locale }: { item: WorkOrder; locale: Locale }) {
             ) : null}
           </span>
         </span>
-        <Icon icon={IconChevronRight} className="text-muted shrink-0" />
+        <Icon icon={IconChevronRight} className="text-subtle shrink-0 rtl:rotate-180" />
       </Link>
     </li>
   );
@@ -90,7 +90,7 @@ export async function TechnicianWorkOrders({
     ["finished", groups.finished],
   ] as const;
   return (
-    <div className="flex flex-col gap-5 py-6" data-testid="technician-home">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="technician-home">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("greeting", { name: me.user.displayName })}</p>
@@ -111,17 +111,20 @@ export async function TechnicianWorkOrders({
           <p className="text-muted mt-2 text-sm">{t("pending.next")}</p>
         </Card>
       ) : null}
-      <RefreshWork />
+      {items.length || waiting ? <RefreshWork /> : null}
       {items.length === 0 && !waiting ? (
-        <EmptyState icon={IconTicket} title={t("empty")} description={t("body")} />
+        <EmptyState icon={IconTicket} title={t("empty")} description={t("body")} action={<RefreshWork />} />
       ) : null}
       {sections.map(([key, list]) =>
         list.length ? (
           <section key={key} aria-labelledby={`wo-${key}`} className="flex flex-col gap-2">
-            <h2 id={`wo-${key}`} className="font-semibold">
+            <h2 id={`wo-${key}`} className="text-muted text-sm font-semibold">
               {t(key)}
             </h2>
-            <ul className="flex flex-col gap-2" role="list">
+            <ul
+              className="rounded-card border-border bg-surface shadow-card divide-border flex flex-col divide-y border"
+              role="list"
+            >
               {list.map((item) => (
                 <Item key={item.id} item={item} locale={locale} />
               ))}

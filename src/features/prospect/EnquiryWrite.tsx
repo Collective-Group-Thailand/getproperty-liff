@@ -49,7 +49,15 @@ export function EnquiryWrite({ leadId }: { leadId: string }) {
         <Textarea rows={3} maxLength={MAX} value={draft} onChange={(event) => setDraft(event.target.value)} />
       </Field>
       {error ? <ProblemCallout error={error} /> : null}
-      <Button type="submit" size="lg" block loading={busy} disabled={!draft.trim()} data-testid="enquiry-send">
+      <Button
+        type="submit"
+        variant="secondary"
+        size="lg"
+        block
+        loading={busy}
+        disabled={!draft.trim()}
+        data-testid="enquiry-send"
+      >
         {t("send")}
       </Button>
     </form>

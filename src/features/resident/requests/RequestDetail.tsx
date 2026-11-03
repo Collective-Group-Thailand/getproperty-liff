@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/routing";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
-import { DescriptionList } from "@/ui/components/DescriptionList";
+import { Facts } from "@/features/shared/Screen";
 import { Timeline, type TimelineEvent } from "@/ui/components/Timeline";
 import { Icon } from "@/ui/icons";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
@@ -56,7 +56,7 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
   });
 
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="request-detail" data-status={request.status}>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="request-detail" data-status={request.status}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-semibold">{t("detail.title", { ref: request.ref })}</h1>
         <StatusBadge status={status} label={root(status.labelKey)} />
@@ -70,39 +70,34 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
         </div>
       ) : null}
 
-      <Card as="section" padding="md" aria-label={t("detail.description")}>
-        <DescriptionList
-          columns={1}
+      <Card as="section" padding="none" className="px-4 pt-1 pb-4" aria-label={t("detail.description")}>
+        <Facts
           items={[
             {
-              id: "category",
-              term: t("detail.category"),
-              description: categoryName(request.category, locale, (key) => cat(key)),
+              key: "category",
+              label: t("detail.category"),
+              value: categoryName(request.category, locale, (key) => cat(key)),
             },
-            { id: "unit", term: t("detail.unit"), description: request.unitNo },
-            { id: "reported", term: t("detail.reported"), description: formatDateTime(request.createdAt, locale) },
+            { key: "unit", label: t("detail.unit"), value: request.unitNo },
+            { key: "reported", label: t("detail.reported"), value: formatDateTime(request.createdAt, locale) },
             {
-              id: "priority",
-              term: t("detail.priority"),
-              description:
-                request.priority === "low" ? t("new.priority.normal") : t(`new.priority.${request.priority}`),
+              key: "priority",
+              label: t("detail.priority"),
+              value: request.priority === "low" ? t("new.priority.normal") : t(`new.priority.${request.priority}`),
             },
             ...(request.preferredVisit
               ? [
                   {
-                    id: "preferredVisit",
-                    term: t("detail.preferredVisit"),
-                    description: t(`new.visit.${request.preferredVisit}`),
+                    key: "preferredVisit",
+                    label: t("detail.preferredVisit"),
+                    value: t(`new.visit.${request.preferredVisit}`),
                   },
                 ]
               : []),
-            {
-              id: "description",
-              term: t("detail.description"),
-              description: <span className="whitespace-pre-line">{request.description}</span>,
-            },
           ]}
         />
+        <h2 className="text-muted mt-3 text-sm font-semibold">{t("detail.description")}</h2>
+        <p className="mt-1 whitespace-pre-line">{request.description}</p>
       </Card>
 
       {/* A landlord's decision (D-263): who fixes it and who pays, as the owner set it. */}

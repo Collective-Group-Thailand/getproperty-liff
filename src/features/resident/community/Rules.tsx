@@ -8,6 +8,7 @@ import { IconChecklist } from "@/ui/icons/glyphs/checklist";
 
 import type { BuildingRules } from "./data";
 import { AcknowledgeRules } from "./AcknowledgeRules";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 /**
  * The building's house rules in force (D-073, D-212): the version, its text in my language when translated, and the
@@ -16,7 +17,7 @@ import { AcknowledgeRules } from "./AcknowledgeRules";
 export async function RulesView({ rules, unitId, locale }: { rules: BuildingRules; unitId: string; locale: Locale }) {
   const t = await getTranslations("resident.community.rules");
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="rules">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="rules">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>
@@ -41,7 +42,7 @@ export async function RulesView({ rules, unitId, locale }: { rules: BuildingRule
           )}
         </Card>
       ) : (
-        <EmptyState icon={IconChecklist} title={t("none")} />
+        <EmptyState variant="card" icon={IconChecklist} title={t("none")} action={<EmptyAction href="/contacts" />} />
       )}
     </div>
   );

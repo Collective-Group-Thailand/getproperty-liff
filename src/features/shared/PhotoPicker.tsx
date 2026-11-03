@@ -64,7 +64,7 @@ export function PhotoPicker({
   return (
     <div className="flex flex-col gap-3" data-testid={testId}>
       {camera && room > 0 ? (
-        <Suspense fallback={<Skeleton className="aspect-[4/3] w-full rounded-lg" />}>
+        <Suspense fallback={<Skeleton className="rounded-card aspect-[4/3] w-full" />}>
           <CameraCapture
             label={labels.shoot}
             hint={labels.shootHint}

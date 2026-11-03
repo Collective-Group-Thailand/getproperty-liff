@@ -20,7 +20,6 @@
   },
   "notifications": {
     "title": "通知",
-    "unavailable": "通知设置即将推出",
     "topic": {
       "billing": "账单与付款",
       "lease": "租约与通知",
@@ -38,7 +37,6 @@
   },
   "documents": {
     "title": "我的文件",
-    "unavailable": "您的文件即将在此列出",
     "empty": "还没有文件",
     "kind": {
       "lease_contract": "租约",

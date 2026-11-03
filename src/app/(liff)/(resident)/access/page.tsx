@@ -25,7 +25,7 @@ export default async function AccessPage() {
   const log = await loadUnlockLog(actor.unit.unitId);
   return (
     <ResidentShell active={null}>
-      <div className="flex flex-col gap-4 py-5" data-testid="access">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="access">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
           <p className="text-muted">{t("lead")}</p>

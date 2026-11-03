@@ -153,11 +153,12 @@ const DAY_MS = 24 * 3_600_000;
 /**
  * D-224: the instant from which a resident sees a unit's requests, parcels and bookings — 00:00 Asia/Bangkok of the
  * first day of their occupancy. The mock units carry the contract example's `validFrom`, which can lie after the
- * machine's date; such an occupancy counts as begun 90 days ago so the seeded history stays visible.
+ * machine's date — or only just before it, earlier than the seeded history (parcels a week old) — such an occupancy
+ * counts as begun 90 days ago so the seeded history stays visible whatever the day of the month.
  */
 export function occupancyStart(unit: Pick<Unit, "validFrom">, now = Date.now()): number {
   const from = Date.parse(`${unit.validFrom}T00:00:00+07:00`);
-  if (Number.isFinite(from) && from <= now) return from;
+  if (Number.isFinite(from) && from <= now - 30 * DAY_MS) return from;
   const day = new Date(now - 90 * DAY_MS + 7 * 3_600_000).toISOString().slice(0, 10);
   return Date.parse(`${day}T00:00:00+07:00`);
 }

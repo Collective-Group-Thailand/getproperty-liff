@@ -67,14 +67,16 @@ export default function SettingsSheet({ open, setOpen, locale, signedIn, onLangu
           )}
         </section>
 
-        <section className="flex flex-col gap-2">
-          <SegmentedControl
-            label={t("theme")}
-            value={choice}
-            onValueChange={(value) => setChoice(value as ThemeChoice)}
-            options={choices.map((option) => ({ value: option, label: t(`themeChoice.${option}`) }))}
-          />
-        </section>
+        {choices.length > 1 ? (
+          <section className="flex flex-col gap-2">
+            <SegmentedControl
+              label={t("theme")}
+              value={choice}
+              onValueChange={(value) => setChoice(value as ThemeChoice)}
+              options={choices.map((option) => ({ value: option, label: t(`themeChoice.${option}`) }))}
+            />
+          </section>
+        ) : null}
 
         {signedIn ? (
           <Button

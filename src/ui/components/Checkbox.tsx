@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
+// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
 "use client";
 
 import { useId } from "react";
@@ -34,7 +34,7 @@ export function Checkbox({ label, description, className, disabled, ...props }: 
         id={id}
         disabled={disabled}
         aria-describedby={descriptionId}
-        className="border-border-strong bg-surface data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:border-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm border"
+        className="border-border-strong bg-surface data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:border-primary rounded-thumb mt-0.5 flex size-5 shrink-0 items-center justify-center border"
         {...props}
       >
         <CheckboxPrimitive.Indicator className="text-primary-fg">

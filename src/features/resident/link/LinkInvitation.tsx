@@ -68,7 +68,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
   if (linked) {
     const next = linked.units.length ? "/" : `/lease/${linked.leaseId}`;
     return (
-      <div className="flex flex-col gap-5 py-6" data-testid="link-success">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="link-success">
         <Callout tone="success" title={t("success.title")}>
           {linked.units.length ? t("success.body", { count: linked.units.length }) : t("success.lease")}
         </Callout>
@@ -106,7 +106,7 @@ export function LinkInvitation({ initialCode }: { initialCode: string }) {
         : null;
 
   return (
-    <form className="flex flex-col gap-5 py-6" onSubmit={submit} data-testid="link-form" noValidate>
+    <form className="flex flex-1 flex-col gap-6 pt-2 pb-8" onSubmit={submit} data-testid="link-form" noValidate>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>

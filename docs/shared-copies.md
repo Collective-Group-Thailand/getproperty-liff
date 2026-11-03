@@ -86,6 +86,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 **Re-sync 2026-10-29** (from getproperty-web's committed **`c3a5aa7`**, GW6; `git archive c3a5aa7` → `SHARED_SOURCE=… pnpm shared:check --strict`: 293 copies, 279 same, 14 adapted, 0 drift — the concurrent web session's working-tree edits never reach this repo): `curated.ts` gains G9's `star` and `sparkles`; `pnpm icons` regenerated their glyph modules and `registry.ts`. The GL4 review stars (`src/features/resident/reviews/Stars.tsx`) now draw the synced `IconStar` instead of their own SVG path.
 
 
+**Redesign G2 re-sync (2026-11-03)** (from getproperty-web **`e0750d8`**, main after G0/G1; `pnpm shared:check`: 301 copies, 287 same, 14 adapted, 0 drift): the redesigned tokens — four radii (`thumb` 6 / `control` 10 / `card` 14 / `panel` 16; `sm`/`md`/`lg`/`xl`/`photo` gone), 44-px `md` controls (the resident zone still raises them to 48 px in `zones.css`), placeholder and 16-px phone fields in `base.css`, 6-px `Badge` / `Tabs` count / `EnvBadge`, `EmptyState` `variant="card"`, the one `NativeSelect` (listbox with type-to-filter on a fine pointer, the phone's picker on touch), `SimpleTable` row links, `AppShell` `rail`; new here: `RowList`, `Statement`, `DetailLayout` / `ActionPanel`, `PhotoPlaceholder` (+ stories). `src/ui/design-language.test.ts` and `src/ui/dead-ends.test.ts` are LIFF-owned adaptations (not manifest rows): the resident app's script faces are allowed, and its dead-end baseline is empty.
+
 ## Design system — `src/ui`
 
 | Path | Mode | Source commit |
@@ -101,13 +103,13 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/AlertDialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/AlertDialog.tsx` | verbatim | `838a6bf` |
 | `src/ui/components/AppShell.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/AppShell.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Badge.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Badge.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/AppShell.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Badge.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Badge.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Breadcrumbs.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Breadcrumbs.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Button.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Button.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Button.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Callout.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Callout.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/CameraCapture.stories.tsx` | verbatim | `6a8ffcf` |
@@ -115,19 +117,27 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Card.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Checkbox.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/Checkbox.tsx` | verbatim | `2493107` |
+| `src/ui/components/Checkbox.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/CountBadge.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/CountBadge.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/DescriptionList.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/DescriptionList.tsx` | verbatim | `2493107` |
+| `src/ui/components/DetailLayout.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/DetailLayout.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/PhotoPlaceholder.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/PhotoPlaceholder.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/RowList.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/RowList.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Statement.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Statement.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Dialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Dialog.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/DropdownMenu.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/DropdownMenu.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/EmptyState.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/EmptyState.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/EmptyState.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/EmptyState.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/EnvBadge.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/EnvBadge.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/EnvBadge.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/ErrorState.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ErrorState.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Field.stories.tsx` | verbatim | `08ff63b` |
@@ -135,12 +145,12 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/IconButton.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/IconButton.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ImageViewer.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/ImageViewer.tsx` | verbatim | `2005ad0` |
-| `src/ui/components/Input.tsx` | verbatim | `08ff63b` |
+| `src/ui/components/ImageViewer.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Input.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/MoneyDisplay.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/MoneyDisplay.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/NativeSelect.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/NativeSelect.tsx` | verbatim | `2493107` |
+| `src/ui/components/NativeSelect.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/NativeSelect.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/OTPInput.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/OTPInput.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.stories.tsx` | verbatim | `08ff63b` |
@@ -153,8 +163,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/SimpleTable.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/SimpleTable.tsx` | verbatim | `2005ad0` |
+| `src/ui/components/SimpleTable.stories.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/SimpleTable.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
@@ -168,7 +178,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Switch.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/Switch.tsx` | verbatim | `2493107` |
 | `src/ui/components/Tabs.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/Tabs.tsx` | verbatim | `2005ad0` |
+| `src/ui/components/Tabs.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Timeline.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Timeline.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Toast.stories.tsx` | verbatim | `08ff63b` |
@@ -180,13 +190,13 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/docs/Principles.mdx` | adapted | `79541bc` |
 | `src/ui/docs/Tokens.mdx` | verbatim | `a2bd4b6` |
 | `src/ui/docs/VoiceAndTone.mdx` | verbatim | `08ff63b` |
-| `src/ui/docs/tokens-blocks.tsx` | verbatim | `08ff63b` |
+| `src/ui/docs/tokens-blocks.tsx` | verbatim | `e0750d8` |
 | `src/ui/fonts/README.md` | verbatim | `2005ad0` |
 | `src/ui/fonts/files/anuphan-latin.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/files/anuphan-thai.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/files/jetbrains-mono-latin.woff2` | binary | `08ff63b` |
 | `src/ui/fonts/index.ts` | verbatim | `2005ad0` |
-| `src/ui/generated/tokens.css` | generated | `2005ad0` |
+| `src/ui/generated/tokens.css` | generated | `e0750d8` |
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
@@ -197,7 +207,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/icons/registry.ts` | generated | `c3a5aa7` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
-| `src/ui/lib/cn.ts` | verbatim | `2005ad0` |
+| `src/ui/lib/cn.ts` | verbatim | `e0750d8` |
 | `src/ui/lib/image.test.ts` | verbatim | `7b560af` |
 | `src/ui/lib/image.ts` | verbatim | `7b560af` |
 | `src/ui/lib/index.ts` | verbatim | `f57d4dc` |
@@ -205,7 +215,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/lib/lazy.tsx` | verbatim | `f57d4dc` |
 | `src/ui/lib/phone.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/useReturnFocus.ts` | verbatim | `08ff63b` |
-| `src/ui/styles/base.css` | verbatim | `08ff63b` |
+| `src/ui/styles/base.css` | verbatim | `e0750d8` |
 | `src/ui/styles/zones.css` | adapted | `08ff63b` |
 | `src/ui/test/axe.ts` | verbatim | `08ff63b` |
 | `src/ui/test/setup.ts` | verbatim | `08ff63b` |
@@ -222,7 +232,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/tokens/contrast.test.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/index.ts` | verbatim | `2005ad0` |
 | `src/ui/tokens/primitives.ts` | verbatim | `79541bc` |
-| `src/ui/tokens/scale.ts` | verbatim | `2005ad0` |
+| `src/ui/tokens/scale.ts` | verbatim | `e0750d8` |
 | `src/ui/tokens/semantic.ts` | verbatim | `79541bc` |
 
 ## i18n formatters and status presentation

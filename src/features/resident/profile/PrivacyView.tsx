@@ -22,7 +22,7 @@ export async function PrivacyView({ privacy, locale }: { privacy: ResidentPrivac
     privacy.consents.filter((c) => c.capturedAt).map((c) => [c.key, formatDate(c.capturedAt!, locale)]),
   );
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="privacy">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="privacy">
       <h1 className="font-display text-2xl font-semibold">{t("privacy.title")}</h1>
       <p className="text-muted">{t("privacy.lead")}</p>
 

@@ -64,7 +64,7 @@ const noop = () => undefined;
 
 function Body() {
   return (
-    <div className="flex flex-col gap-4 py-5">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8">
       <h1 className="font-display text-2xl font-semibold">สวัสดี สมชาย ใจดี</h1>
       <Card padding="md">
         <p className="text-muted text-sm">ห้องของคุณ</p>

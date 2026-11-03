@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
@@ -17,8 +17,10 @@ export const controlVariants = cva(
   {
     variants: {
       inputSize: {
-        sm: "h-8 px-2.5 text-sm",
-        md: "h-10 px-3 text-base",
+        /** Toolbars and dense tables: 36 px. */
+        sm: "h-9 px-3 text-sm",
+        /** The standard field: 44 px (REDESIGN-PROMPT §3). */
+        md: "h-11 px-3 text-base",
         /** Staff and resident: 48 px. */
         lg: "h-12 px-4 text-lg",
       },

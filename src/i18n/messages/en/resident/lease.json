@@ -18,7 +18,11 @@
     "waitingTitle": "Waiting for the office's signature",
     "waitingBody": "You have signed. The lease comes into force when the office signs too — you will get a LINE message",
     "noticeCta": "Give notice to move out",
-    "depositCta": "Deposit and refund"
+    "depositCta": "Deposit and refund",
+    "documentKind": "Lease agreement",
+    "more": "About this lease",
+    "noticeHint": "Tell the office the day you will move out, as the lease requires",
+    "depositHint": "Your deposit and what is returned when you move out"
   },
   "notice": {
     "givenTitle": "Notice given",

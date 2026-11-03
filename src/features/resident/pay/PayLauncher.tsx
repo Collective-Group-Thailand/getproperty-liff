@@ -24,6 +24,7 @@ export function PayLauncher({
   autoOpen = false,
   payable = true,
   size = "xl",
+  variant = "primary",
   testId = "invoice-pay",
   className,
   vapidKey,
@@ -33,6 +34,8 @@ export function PayLauncher({
   autoOpen?: boolean;
   payable?: boolean;
   size?: "lg" | "xl";
+  /** `secondary` for every pay button after the first on a screen (one filled action per screen). */
+  variant?: "primary" | "secondary";
   testId?: string;
   className?: string;
   vapidKey?: string;
@@ -43,6 +46,7 @@ export function PayLauncher({
       {payable ? (
         <Button
           size={size}
+          variant={variant}
           block
           iconStart={IconQr}
           className={className}

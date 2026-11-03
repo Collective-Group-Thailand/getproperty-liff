@@ -8,8 +8,9 @@ import { ErrorState } from "@/ui/components/ErrorState";
 export default async function NotFound() {
   const t = await getTranslations("common");
   return (
-    <div className="py-10">
+    <div className="py-8">
       <ErrorState
+        className="rounded-card border-border bg-surface shadow-card border"
         title={t("notFoundTitle")}
         description={t("notFoundBody")}
         action={

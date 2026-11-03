@@ -45,7 +45,7 @@ export default async function InspectionPage({
   return (
     <ResidentShell active={null}>
       <BackLink href={`/lease/${leaseId}`}>{t("back")}</BackLink>
-      <div className="flex flex-col gap-4 py-5" data-testid="inspection-page" data-status={report.status}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="inspection-page" data-status={report.status}>
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-2xl font-semibold">
             {t(`type.${report.type === "move_out" ? "move_out" : "move_in"}`)}

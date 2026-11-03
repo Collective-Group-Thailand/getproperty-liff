@@ -22,8 +22,14 @@ export default async function ReceiptPage({ params }: { params: Promise<{ receip
   ]);
   return (
     <ResidentShell active="bills">
-      <BackLink href="/receipts">{t("title")}</BackLink>
-      {loaded.data ? <ReceiptDetail receipt={loaded.data} locale={locale} /> : <ProblemPage error={loaded.error} />}
+      {loaded.data ? (
+        <ReceiptDetail receipt={loaded.data} locale={locale} />
+      ) : (
+        <>
+          <BackLink href="/receipts">{t("title")}</BackLink>
+          <ProblemPage error={loaded.error} />
+        </>
+      )}
     </ResidentShell>
   );
 }

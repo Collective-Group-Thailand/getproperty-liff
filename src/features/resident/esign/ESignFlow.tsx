@@ -335,7 +335,7 @@ export function ESignFlow<R>({
   if (step === "done" && signed) {
     const done = renderDone(signed.result);
     return (
-      <div className="flex flex-col gap-5 py-6" data-testid="sign-done">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="sign-done">
         <h1 id="sign-done-title" {...headingProps}>
           {t("done.title")}
         </h1>
@@ -354,7 +354,7 @@ export function ESignFlow<R>({
 
   return (
     <div
-      className="flex flex-col gap-5 py-6"
+      className="flex flex-1 flex-col gap-6 pt-2 pb-8"
       data-testid="sign-flow"
       data-step={step}
       data-reader={readerReady ? "current" : "pending"}

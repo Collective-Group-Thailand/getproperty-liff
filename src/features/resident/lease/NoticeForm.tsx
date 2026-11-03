@@ -59,7 +59,7 @@ export function NoticeForm({
 
   if (done?.notice) {
     return (
-      <div className="flex flex-col gap-5 py-6" data-testid="notice-done">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="notice-done">
         <h1 className="font-display text-2xl font-semibold">{t("done.title")}</h1>
         <Callout tone="success" icon={IconCheckCircle} title={t("done.calloutTitle")}>
           {t("done.body", {
@@ -131,7 +131,7 @@ export function NoticeForm({
   }
 
   return (
-    <div className="flex flex-col gap-5 py-6" data-testid="notice-form">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="notice-form">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>

@@ -15,6 +15,7 @@ import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import { ListingEnquire } from "./ListingEnquire";
 import type { ListingSummary } from "./model";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 /**
  * The public listings in my destination, as the API matched them (D-299: published, up to my highest rent, not of the
@@ -36,7 +37,12 @@ export async function OfferListings({
   if (listings.length === 0) {
     return (
       <div data-testid="relocation-listings-empty">
-        <EmptyState icon={IconBuilding} title={t("emptyTitle")} description={t("emptyBody")} />
+        <EmptyState
+          icon={IconBuilding}
+          title={t("emptyTitle")}
+          description={t("emptyBody")}
+          action={<EmptyAction href="/relocation" />}
+        />
       </div>
     );
   }

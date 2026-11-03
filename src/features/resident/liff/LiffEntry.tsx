@@ -123,7 +123,11 @@ export function LiffEntry({ technicianEnabled }: { technicianEnabled: boolean })
       : null;
 
   return (
-    <div className="flex flex-col gap-5 py-6" data-testid="liff-entry" data-status={result?.status ?? "running"}>
+    <div
+      className="flex flex-1 flex-col gap-6 pt-2 pb-8"
+      data-testid="liff-entry"
+      data-status={result?.status ?? "running"}
+    >
       <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
       {isLiffMocked() ? <Callout tone="info">{t("mock")}</Callout> : null}
 

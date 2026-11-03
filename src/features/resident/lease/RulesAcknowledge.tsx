@@ -61,7 +61,15 @@ export function RulesAcknowledge({ leaseId, acknowledgedOn }: { leaseId: string;
         <LazyCheckbox label={t("checkbox")} checked={read} onCheckedChange={(checked) => setRead(checked === true)} />
       </WhenNear>
       {error ? <ProblemCallout error={error} /> : null}
-      <Button type="submit" size="lg" block disabled={!read} loading={busy} data-testid="rules-submit">
+      <Button
+        type="submit"
+        variant="secondary"
+        size="lg"
+        block
+        disabled={!read}
+        loading={busy}
+        data-testid="rules-submit"
+      >
         {t("submit")}
       </Button>
     </form>

@@ -1,0 +1,76 @@
+// adapted from getproperty-web@e0750d8 until collective-shared exists (D-155) — adapted: the resident app's (empty) baseline
+// @vitest-environment node
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+/**
+ * No dead ends (docs/design/REDESIGN-PROMPT.md §4.9): every empty, status or error card offers the one next step.
+ * An `<EmptyState>` without an `action` fails here with its file. The baseline below is the state before the
+ * redesign (2026-11-03): each work group removes its own files from it; a count may only go down, a file may never
+ * be added. The resident app (G2) cleared all of its files.
+ */
+const BASELINE: Record<string, number> = {};
+
+const root = fileURLToPath(new URL("../../", import.meta.url));
+
+function files(dir: string): string[] {
+  return readdirSync(join(root, dir)).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(join(root, path)).isDirectory()) return name === "generated" ? [] : files(path);
+    return /\.tsx$/.test(name) && !/\.(test|stories)\.tsx$/.test(name) ? [path] : [];
+  });
+}
+
+/** The opening tag of each `<EmptyState` in a file (braces balanced, so a JSX prop value cannot end it early). */
+export function emptyStatesWithoutAction(source: string): number {
+  let count = 0;
+  for (const match of source.matchAll(/<EmptyState\b/g)) {
+    const rest = source.slice((match.index ?? 0) + match[0].length);
+    let depth = 0;
+    let end = rest.length;
+    for (let i = 0; i < rest.length; i += 1) {
+      const c = rest[i];
+      if (c === "{") depth += 1;
+      else if (c === "}") depth -= 1;
+      else if (depth === 0 && (c === ">" || rest.startsWith("/>", i))) {
+        end = i;
+        break;
+      }
+    }
+    if (!/\baction\s*=/.test(rest.slice(0, end))) count += 1;
+  }
+  return count;
+}
+
+describe("dead ends", () => {
+  it("finds an EmptyState without an action", () => {
+    expect(emptyStatesWithoutAction('<EmptyState title="x" />')).toBe(1);
+    expect(emptyStatesWithoutAction('<EmptyState title={t("a")} action={<Button>go</Button>} />')).toBe(0);
+    expect(emptyStatesWithoutAction("<EmptyState title={x > 1 ? a : b} />")).toBe(1);
+  });
+
+  it("every EmptyState offers a next step (no file above its baseline)", () => {
+    const over = files("src").flatMap((file) => {
+      const count = emptyStatesWithoutAction(readFileSync(join(root, file), "utf8"));
+      const allowed = BASELINE[file] ?? 0;
+      return count > allowed ? [`${file}: ${count} without an action (allowed ${allowed})`] : [];
+    });
+    expect(over).toEqual([]);
+  });
+
+  it("keeps the baseline honest: a file that is fixed leaves it", () => {
+    const stale = Object.entries(BASELINE).flatMap(([file, allowed]) => {
+      let count = 0;
+      try {
+        count = emptyStatesWithoutAction(readFileSync(join(root, file), "utf8"));
+      } catch {
+        return [`${file}: no longer exists`];
+      }
+      return count < allowed ? [`${file}: ${count} now (baseline ${allowed}) — lower it`] : [];
+    });
+    expect(stale).toEqual([]);
+  });
+});

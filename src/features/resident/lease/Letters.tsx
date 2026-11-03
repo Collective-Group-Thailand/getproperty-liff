@@ -76,7 +76,7 @@ export async function LetterView({
   const date = (value: string) => formatDate(value, locale);
   const money = (value: string) => formatTHB(value, locale);
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="letter-view" data-kind={notice.kind}>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="letter-view" data-kind={notice.kind}>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t(`kinds.${notice.kind}`)}</h1>
         <p className="text-muted text-sm">{t("from", { name: tenantName, number: notice.number })}</p>

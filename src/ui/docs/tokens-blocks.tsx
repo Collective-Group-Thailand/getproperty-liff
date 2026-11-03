@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
 import { oklchToHex } from "../tokens/color";
 import { DURATION, FONT_SIZE, RADIUS, SHADOW } from "../tokens/scale";
 import { SEMANTIC_KEYS, THEME_NAMES, THEMES } from "../tokens/semantic";
@@ -28,7 +28,7 @@ export function Swatches() {
               return (
                 <td key={theme}>
                   <span className="inline-flex items-center gap-2">
-                    <span aria-hidden="true" className="border-border inline-block size-5 rounded-sm border" style={{ background: hex }} />
+                    <span aria-hidden="true" className="border-border inline-block size-5 rounded-thumb border" style={{ background: hex }} />
                     <code>{hex}</code>
                   </span>
                 </td>

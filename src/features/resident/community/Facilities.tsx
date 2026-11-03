@@ -7,11 +7,11 @@ import { formatDate } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
+import { Button } from "@/ui/components/Button";
+import { List, Screen, ScreenHeader } from "@/features/shared/Screen";
 import { EmptyState } from "@/ui/components/EmptyState";
-import { Icon } from "@/ui/icons";
 import { IconBuilding } from "@/ui/icons/glyphs/building";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
-import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 
 import { CancelBooking } from "./CancelBooking";
 import type { Booking, Facility } from "./data";
@@ -22,7 +22,7 @@ export async function FacilityFacts({ facility }: { facility: Facility }) {
   const t = await getTranslations("resident.community.facilities");
   const p = facility.bookingPolicy;
   return (
-    <ul className="text-muted flex flex-col gap-0.5 text-sm" role="list">
+    <ul className="text-muted flex flex-col text-sm" role="list">
       <li>{t("hours", { from: p.openFrom ?? POLICY_DEFAULTS.openFrom, to: p.openTo ?? POLICY_DEFAULTS.openTo })}</li>
       {facility.capacity ? <li>{t("capacity", { count: facility.capacity })}</li> : null}
       {p.maxPerUnitPerWeek ? <li>{t("quota", { count: p.maxPerUnitPerWeek })}</li> : null}
@@ -41,39 +41,48 @@ export async function FacilityList({
   bookings: Booking[];
   locale: Locale;
 }) {
-  const [t, root] = await Promise.all([getTranslations("resident.community.facilities"), getTranslations()]);
+  const [t, root, tiles] = await Promise.all([
+    getTranslations("resident.community.facilities"),
+    getTranslations(),
+    getTranslations("resident.home.tiles"),
+  ]);
   const live = bookings.filter((b) => b.status === "requested" || b.status === "confirmed");
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="facilities">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted">{t("lead")}</p>
-      </div>
+    <Screen testId="facilities">
+      <ScreenHeader title={t("title")} lede={t("lead")} />
       {facilities.length === 0 ? (
-        <EmptyState icon={IconBuilding} title={t("empty")} description={t("emptyBody")} />
+        <EmptyState
+          variant="card"
+          icon={IconBuilding}
+          title={t("empty")}
+          description={t("emptyBody")}
+          action={
+            <Button asChild variant="secondary">
+              <Link href="/contacts">{tiles("contacts")}</Link>
+            </Button>
+          }
+        />
       ) : (
-        <ul className="flex flex-col gap-2" role="list">
-          {facilities.map((f) => (
-            <li key={f.id}>
-              <Link
-                href={`/facilities/${f.id}`}
-                className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
-                data-testid="facility-item"
-              >
-                <span className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="font-medium">{f.name}</span>
-                  <span className="text-muted text-sm">{t(`kind.${f.kind}`)}</span>
+        <List
+          rows={await Promise.all(
+            facilities.map(async (f) => ({
+              key: f.id,
+              href: `/facilities/${f.id}`,
+              testId: "facility-item",
+              icon: IconCalendar,
+              title: f.name,
+              meta: (
+                <>
+                  <span className="block">{t(`kind.${f.kind}`)}</span>
                   <FacilityFacts facility={f} />
-                </span>
-                <Icon icon={IconChevronRight} className="text-muted shrink-0" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                </>
+              ),
+            })),
+          )}
+        />
       )}
       <section aria-labelledby="bookings-title" className="flex flex-col gap-2" data-testid="my-bookings">
-        <h2 id="bookings-title" className="flex items-center gap-2 font-semibold">
-          <Icon icon={IconCalendar} />
+        <h2 id="bookings-title" className="text-muted text-sm font-semibold">
           {t("mine")}
         </h2>
         {bookings.length === 0 ? <p className="text-muted text-sm">{t("mineEmpty")}</p> : null}
@@ -102,6 +111,6 @@ export async function FacilityList({
           })}
         </ul>
       </section>
-    </div>
+    </Screen>
   );
 }

@@ -39,7 +39,7 @@ export default async function ContractSignPage({ params }: { params: Promise<{ c
   if (!awaitsMySignature(contract)) {
     return (
       <ResidentShell active={null}>
-        <div className="flex flex-col gap-4 py-6" data-testid="sign-unavailable">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="sign-unavailable">
           <Callout tone="info" title={t("sign.unavailableTitle")}>
             {contract.state === "pending_signature" || contract.state === "signed"
               ? t("sign.alreadySigned")

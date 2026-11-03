@@ -58,6 +58,7 @@ export function ProblemPage({ error, action }: { error: ApiError; action?: React
   // 4.5:1 on the page background (axe) — reported upstream to getproperty-web (docs/PROGRESS.md).
   return (
     <ErrorState
+      className="rounded-card border-border bg-surface shadow-card my-6 border"
       title={copy.title}
       description={
         <>

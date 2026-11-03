@@ -50,7 +50,12 @@ export async function RecommendationsScreen({
   const state = consentState(data.consent);
   const own = data.preferences?.quietHours ?? null;
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="recommendations" data-state={state} data-audience={audience}>
+    <div
+      className="flex flex-1 flex-col gap-6 pt-2 pb-8"
+      data-testid="recommendations"
+      data-state={state}
+      data-audience={audience}
+    >
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>

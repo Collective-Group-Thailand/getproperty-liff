@@ -33,7 +33,7 @@ export default async function LandlordSignInPage({
   const t = await getTranslations("landlord.home");
   const env = serverEnv();
   return (
-    <div className="flex flex-col gap-6 py-6" data-testid="landlord-sign-in">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="landlord-sign-in">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("signIn.title")}</h1>
         <p className="text-muted">{t("signIn.lead")}</p>

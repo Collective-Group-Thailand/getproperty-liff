@@ -4,11 +4,11 @@ import Link from "next/link";
 import { formatDate, formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/components/Badge";
+import { Button } from "@/ui/components/Button";
+import { List, Screen, ScreenHeader } from "@/features/shared/Screen";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
-import { Icon } from "@/ui/icons";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
-import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 import { IconTag } from "@/ui/icons/glyphs/tag";
 
 import type { Announcement } from "./data";
@@ -17,26 +17,35 @@ import { MarkAnnouncementRead } from "./MarkAnnouncementRead";
 /** Announcements of my buildings (D-073, D-212): pinned first as the API orders them; unread ones flagged. */
 export async function AnnouncementList({ items, locale }: { items: Announcement[]; locale: Locale }) {
   const t = await getTranslations("resident.community.announcements");
+  const home = await getTranslations("resident.nav");
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="announcements">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted">{t("lead")}</p>
-      </div>
+    <Screen testId="announcements">
+      <ScreenHeader title={t("title")} lede={t("lead")} />
       {items.length === 0 ? (
-        <EmptyState icon={IconAnnounce} title={t("empty")} description={t("emptyBody")} />
+        <EmptyState
+          variant="card"
+          icon={IconAnnounce}
+          title={t("empty")}
+          description={t("emptyBody")}
+          action={
+            <Button asChild variant="secondary">
+              <Link href="/">{home("home")}</Link>
+            </Button>
+          }
+        />
       ) : (
-        <ul className="flex flex-col gap-2" role="list">
-          {items.map((a) => (
-            <li key={a.id}>
-              <Link
-                href={`/announcements/${a.id}`}
-                className="border-border bg-surface rounded-card flex min-h-12 items-center gap-3 border p-3"
-                data-testid="announcement-item"
-                data-read={a.readAt ? "true" : "false"}
-              >
-                <span className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="flex flex-wrap items-center gap-2">
+        <List
+          rows={items.map((a) => ({
+            key: a.id,
+            href: `/announcements/${a.id}`,
+            testId: "announcement-item",
+            data: { "data-read": a.readAt ? "true" : "false" },
+            strong: !a.readAt,
+            title: a.title,
+            meta: (
+              <>
+                {a.pinned || !a.readAt ? (
+                  <span className="my-1 flex flex-wrap gap-1.5">
                     {a.pinned ? (
                       <Badge tone="info" size="sm" icon={IconTag}>
                         {t("pinned")}
@@ -48,19 +57,17 @@ export async function AnnouncementList({ items, locale }: { items: Announcement[
                       </Badge>
                     ) : null}
                   </span>
-                  <span className={a.readAt ? "font-medium" : "font-semibold"}>{a.title}</span>
-                  <span className="text-muted line-clamp-2 text-sm">{a.body}</span>
-                  <span className="text-muted text-xs">
-                    {t("published", { date: formatDate(a.publishedAt, locale) })}
-                  </span>
+                ) : null}
+                <span className="line-clamp-2 block">{a.body}</span>
+                <span className="mt-0.5 block text-xs">
+                  {t("published", { date: formatDate(a.publishedAt, locale) })}
                 </span>
-                <Icon icon={IconChevronRight} className="text-muted shrink-0" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+              </>
+            ),
+          }))}
+        />
       )}
-    </div>
+    </Screen>
   );
 }
 

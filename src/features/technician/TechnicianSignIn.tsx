@@ -86,7 +86,7 @@ export function TechnicianSignIn({ lineHref, next }: { lineHref: string; next: s
     const finished = error?.code === "auth.otp_expired" || error?.code === "auth.otp_attempts_exceeded";
     return (
       <form
-        className="flex flex-col gap-5 py-6"
+        className="flex flex-1 flex-col gap-6 pt-2 pb-8"
         data-testid="technician-otp"
         onSubmit={(event) => {
           event.preventDefault();
@@ -147,7 +147,7 @@ export function TechnicianSignIn({ lineHref, next }: { lineHref: string; next: s
   }
 
   return (
-    <div className="flex flex-col gap-6 py-6" data-testid="technician-sign-in">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="technician-sign-in">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>

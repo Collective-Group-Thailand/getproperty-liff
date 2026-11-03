@@ -24,7 +24,7 @@ export default async function NotificationsPage() {
     <ResidentShell active="me">
       <BackLink href="/profile">{t("title")}</BackLink>
       {data ? (
-        <div className="flex flex-col gap-4 py-5">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8">
           <h1 className="font-display text-2xl font-semibold">{t("notifications.title")}</h1>
           <Card as="section" padding="md">
             <NotificationPreferences initial={data.items} />

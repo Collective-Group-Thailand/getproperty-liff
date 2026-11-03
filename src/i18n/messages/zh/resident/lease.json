@@ -18,7 +18,11 @@
     "waitingTitle": "等待管理处签署",
     "waitingBody": "您已签署。管理处也签署后租约生效——您会收到 LINE 消息",
     "noticeCta": "通知退租",
-    "depositCta": "押金与退款"
+    "depositCta": "押金与退款",
+    "documentKind": "租赁合同",
+    "more": "关于此合同",
+    "noticeHint": "按合同提前告知搬出日期",
+    "depositHint": "押金及搬出时的退还"
   },
   "notice": {
     "givenTitle": "已通知退租",

@@ -85,7 +85,7 @@ test.describe("contracts and renewals (GL3, D-294)", () => {
     await page.goto("/");
     const card = page.getByTestId("home-contracts-to-sign");
     await expect(card).toContainText("เอกสาร 1 ฉบับรอให้อ่านและลงนาม");
-    await card.getByRole("link").click();
+    await card.click();
 
     const detail = page.getByTestId("contract-detail");
     await expect(detail).toHaveAttribute("data-kind", "addendum");
@@ -200,7 +200,7 @@ test.describe("contracts and renewals (GL3, D-294)", () => {
   test("accepting an offer to renew leads to the renewal lease to sign", async ({ page, context, baseURL }) => {
     await seedSession(context, baseURL!, subject("renewal", "accept"));
     await page.goto("/");
-    await page.getByTestId("home-renewal-offer").getByRole("link").click();
+    await page.getByTestId("home-renewal-offer").click();
 
     const offer = page.getByTestId("renewal-offer");
     await expect(offer).toHaveAttribute("data-state", "offered");

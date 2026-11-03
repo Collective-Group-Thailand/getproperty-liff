@@ -28,11 +28,13 @@ export default async function ReceiptsPage({
   ]);
   return (
     <ResidentShell active="bills">
-      <BackLink href="/invoices">{t("title")}</BackLink>
       {loaded.data ? (
         <ReceiptList items={loaded.data.items} meta={loaded.data.meta} page={page} locale={locale} />
       ) : (
-        <ProblemPage error={loaded.error} />
+        <>
+          <BackLink href="/invoices">{t("title")}</BackLink>
+          <ProblemPage error={loaded.error} />
+        </>
       )}
     </ResidentShell>
   );

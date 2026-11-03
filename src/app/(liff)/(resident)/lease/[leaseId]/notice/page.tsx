@@ -36,7 +36,7 @@ export default async function NoticePage({ params }: { params: Promise<{ leaseId
         locale={locale}
         unavailable={
           l.nextActions.includes("give-notice") ? undefined : (
-            <div className="flex flex-col gap-4 py-6" data-testid="notice-unavailable">
+            <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="notice-unavailable">
               <Callout tone="info" title={t("noticeForm.unavailableTitle")}>
                 {l.notice ? t("noticeForm.alreadyGiven") : t("noticeForm.unavailableBody")}
               </Callout>

@@ -33,7 +33,6 @@ export default async function InvoicePage({
   ]);
   return (
     <ResidentShell active="bills">
-      <BackLink href="/invoices">{t("back")}</BackLink>
       {loaded.data ? (
         <InvoiceDetail
           invoice={loaded.data}
@@ -43,7 +42,10 @@ export default async function InvoicePage({
           vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
         />
       ) : (
-        <ProblemPage error={loaded.error} />
+        <>
+          <BackLink href="/invoices">{t("back")}</BackLink>
+          <ProblemPage error={loaded.error} />
+        </>
       )}
     </ResidentShell>
   );

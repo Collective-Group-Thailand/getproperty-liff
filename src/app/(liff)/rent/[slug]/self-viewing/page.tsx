@@ -47,7 +47,7 @@ export default async function SelfViewingPage({ params }: { params: Promise<{ sl
   const existing = mine.data?.find((e) => e.listing.slug === slug && e.open) ?? null;
 
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="self-viewing" data-offered={offered}>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="self-viewing" data-offered={offered}>
       <BackLink href={`/rent/${slug}`}>{t("back")}</BackLink>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>

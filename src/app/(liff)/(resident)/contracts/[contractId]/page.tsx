@@ -51,7 +51,7 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
         {contract.leaseId ? t("back.lease") : t("back.list")}
       </BackLink>
       <div
-        className="flex flex-col gap-4 py-5"
+        className="flex flex-1 flex-col gap-6 pt-2 pb-8"
         data-testid="contract-detail"
         data-kind={contract.kind}
         data-state={contract.state}
