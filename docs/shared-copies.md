@@ -231,8 +231,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/tokens/color.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/contrast.test.ts` | verbatim | `08ff63b` |
 | `src/ui/tokens/index.ts` | verbatim | `2005ad0` |
-| `src/ui/tokens/primitives.ts` | verbatim | `79541bc` |
-| `src/ui/tokens/scale.ts` | verbatim | `e0750d8` |
+| `src/ui/tokens/primitives.ts` | verbatim | `6707bbd` |
+| `src/ui/tokens/scale.ts` | verbatim | `6707bbd` |
 | `src/ui/tokens/semantic.ts` | verbatim | `79541bc` |
 
 ## i18n formatters and status presentation
