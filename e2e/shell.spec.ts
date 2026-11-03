@@ -7,7 +7,7 @@ import { expectAxeClean, expectNoHorizontalScroll, forceProblems, seedSession, s
  * error states with request ids, the per-request CSP nonce and the PWA basics.
  */
 test.describe("resident shell", () => {
-  test("home: greeting, unit card, entitled tiles and bottom nav; axe-clean; no sideways scroll", async ({
+  test("home: greeting, unit card, entitled services and bottom nav; axe-clean; no sideways scroll", async ({
     page,
     context,
     baseURL,
@@ -18,27 +18,17 @@ test.describe("resident shell", () => {
     const html = page.locator("html");
     await expect(html).toHaveAttribute("lang", "th");
     await expect(html).toHaveAttribute("data-zone", "resident");
-    await expect(html).not.toHaveAttribute("data-theme", /.+/);
+    await expect(html).toHaveAttribute("data-theme", "light");
 
     const home = page.getByTestId("resident-home");
     await expect(home.getByRole("heading", { level: 1 })).toHaveText("สวัสดี สมชาย ใจดี");
     await expect(page.getByTestId("unit-card")).toContainText("ห้อง A-201");
     await expect(page.getByTestId("unit-card")).toContainText("ดูแลโดย หอพักตัวอย่าง");
-    // Mock entitlements: bills (bills + receipts tiles), usage, lease and the R2 modules (repairs, announcements,
-    // parcels; facilities with the community module; door codes, house rules and contacts with the lease).
-    for (const tile of [
-      "บิล",
-      "ใบเสร็จ",
-      "การใช้น้ำไฟ",
-      "แจ้งซ่อม",
-      "สัญญาเช่า",
-      "ประกาศ",
-      "พัสดุ",
-      "จองห้องส่วนกลาง",
-      "รหัสประตู",
-      "ระเบียบอาคาร",
-      "เบอร์ติดต่อ",
-    ])
+    // Mock entitlements: bills (receipts), lease and the R2 modules (announcements, parcels; facilities with the
+    // community module; door codes, house rules and contacts with the lease). Bills, usage and repairs are the bottom
+    // nav's, the lease sits under "my unit" (redesign G2).
+    await expect(page.getByTestId("unit-lease")).toContainText("สัญญาเช่า");
+    for (const tile of ["ใบเสร็จ", "ประกาศ", "พัสดุ", "จองห้องส่วนกลาง", "รหัสประตู", "ระเบียบอาคาร", "เบอร์ติดต่อ"])
       await expect(home.getByRole("link", { name: tile, exact: true })).toBeVisible();
 
     const nav = page.getByRole("navigation", { name: "เมนูด่วน" });

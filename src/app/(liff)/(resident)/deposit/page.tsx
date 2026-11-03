@@ -13,6 +13,7 @@ import { StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { IconShield } from "@/ui/icons/glyphs/shield";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.deposit");
@@ -34,9 +35,9 @@ export default async function DepositsPage() {
       {!data ? (
         <ProblemPage error={problemFromParsed(response, error)} />
       ) : data.length === 0 ? (
-        <EmptyState icon={IconShield} title={t("emptyTitle")} description={t("emptyBody")} />
+        <EmptyState icon={IconShield} title={t("emptyTitle")} description={t("emptyBody")} action={<EmptyAction />} />
       ) : (
-        <div className="flex flex-col gap-4 py-5" data-testid="deposit-list">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="deposit-list">
           <h1 className="font-display text-2xl font-semibold">{t("listTitle")}</h1>
           <ul className="flex flex-col gap-3" role="list">
             {data.map((deposit) => (

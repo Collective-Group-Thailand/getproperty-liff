@@ -9,6 +9,7 @@ import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { IconLease } from "@/ui/icons/glyphs/lease";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.contracts");
@@ -46,10 +47,15 @@ export default async function ContractsPage() {
       <BackLink href="/">{t("back.home")}</BackLink>
       {docs.length === 0 && sorted.length === 0 ? (
         <div data-testid="contracts-empty">
-          <EmptyState icon={IconLease} title={t("list.emptyTitle")} description={t("list.emptyBody")} />
+          <EmptyState
+            icon={IconLease}
+            title={t("list.emptyTitle")}
+            description={t("list.emptyBody")}
+            action={<EmptyAction />}
+          />
         </div>
       ) : (
-        <div className="flex flex-col gap-5 py-5" data-testid="contracts-page">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="contracts-page">
           <div className="flex flex-col gap-1">
             <h1 className="font-display text-2xl font-semibold">{t("list.title")}</h1>
             <p className="text-muted text-sm">{t("list.lead")}</p>

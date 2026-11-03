@@ -6,3 +6,12 @@
 @import "../ui/generated/tokens.css";
 @import "../ui/styles/base.css";
 @import "../ui/styles/zones.css";
+
+/*
+ * The docked primary action (`ActionDock`, redesign G2): it sits on the bottom nav when the screen has one
+ * (`ResidentShellView` sets the two variables), otherwise on the bottom edge, clear of the home indicator.
+ */
+:root {
+  --dock: 0px;
+  --dock-pad: env(safe-area-inset-bottom);
+}

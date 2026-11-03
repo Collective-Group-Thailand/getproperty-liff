@@ -17,7 +17,7 @@ export function QrImage({ payload, label, dimmed }: { payload: string; label: st
   const png = useMemo(() => qrCanvas(modules)?.toDataURL("image/png") ?? null, [modules]);
   const size = modules.length;
   const className = cn(
-    "mx-auto block aspect-square w-full max-w-64 rounded-lg bg-white",
+    "mx-auto block aspect-square w-full max-w-64 rounded-card bg-white",
     dimmed && "opacity-25 blur-[2px]",
   );
   return png ? (

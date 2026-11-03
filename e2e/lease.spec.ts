@@ -245,6 +245,7 @@ test.describe("move-in report (L5 5.2, D-253)", () => {
     // D-266: what I see differently goes with my signature — a note and a photo of my own
     const sign = page.getByTestId("inspection-countersign");
     await sign.getByTestId("inspection-note").fill("ผนังห้องนอนมีรอยขีดอยู่ก่อนแล้ว");
+    await sign.getByTestId("inspection-photo-add").click();
     await sign.getByTestId("camera-file").setInputFiles([{ name: "wall.png", mimeType: "image/png", buffer: PHOTO }]);
     await sign.getByTestId("camera-done").click();
     await expect(page.getByTestId("inspection-note-photos").getByRole("listitem")).toHaveCount(1);

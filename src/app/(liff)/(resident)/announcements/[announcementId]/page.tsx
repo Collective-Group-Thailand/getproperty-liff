@@ -10,6 +10,7 @@ import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { getActor } from "@/lib/auth/actor";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { IconAnnounce } from "@/ui/icons/glyphs/announce";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.community.announcements");
@@ -40,7 +41,12 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ a
         ) : item ? (
           <AnnouncementDetail item={item} locale={locale} />
         ) : (
-          <EmptyState icon={IconAnnounce} title={t("notFound")} description={t("notFoundBody")} />
+          <EmptyState
+            icon={IconAnnounce}
+            title={t("notFound")}
+            description={t("notFoundBody")}
+            action={<EmptyAction href="/announcements" label={t("title")} />}
+          />
         )}
       </div>
     </ResidentShell>

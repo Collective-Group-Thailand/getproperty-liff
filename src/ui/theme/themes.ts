@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: single resident zone
+// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: single resident zone, light only (redesign G2)
 
 /**
  * Theme selection (ADR-0003). Shared by the server stamp and the client provider, so it must stay
@@ -28,9 +28,9 @@ export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 export const ZONES = ["resident"] as const;
 export type Zone = (typeof ZONES)[number];
 
-/** The resident app follows the phone's light/dark setting until the resident chooses. */
+/** The resident app is light only (redesign G2, 2026-11-03): one calm palette, no theme choice. */
 export const ZONE_DEFAULT_THEME = {
-  resident: "system",
+  resident: "light",
 } as const satisfies Record<Zone, ThemeChoice>;
 
 export function isThemeChoice(value: unknown): value is ThemeChoice {
@@ -42,7 +42,7 @@ export function dataThemeAttribute(choice: ThemeChoice): Theme | undefined {
   return choice === "system" ? undefined : choice;
 }
 
-/** The resident app offers system / light / dark; high contrast is the staff PWA's (design-system.md §5). */
+/** The resident app offers the light palette only (redesign G2); high contrast is the staff PWA's (design-system.md §5). */
 export function themeChoicesFor(_zone: Zone): readonly ThemeChoice[] {
-  return ["system", "light", "dark"] as const;
+  return ["light"] as const;
 }

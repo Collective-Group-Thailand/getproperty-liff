@@ -53,7 +53,7 @@ export default async function LeaseReviewPage({
   return (
     <ResidentShell active={null}>
       {back}
-      <div className="flex flex-col gap-5 py-5" data-testid="review-page" data-kind={entry.kind}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="review-page" data-kind={entry.kind}>
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title", { building: lease.data!.buildingName })}</h1>
           <p className="text-muted">{t("lead")}</p>

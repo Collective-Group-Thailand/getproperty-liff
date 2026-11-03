@@ -54,12 +54,12 @@ export function UsageFigure({
         <span className="flex items-center gap-1">
           <span
             aria-hidden="true"
-            className={`inline-block size-3 rounded-sm ${tone === "electric" ? "bg-primary" : "bg-info"}`}
+            className={`rounded-thumb inline-block size-3 ${tone === "electric" ? "bg-primary" : "bg-info"}`}
           />
           {labels.current}
         </span>
         <span className="flex items-center gap-1">
-          <span aria-hidden="true" className="bg-border-strong inline-block size-3 rounded-sm" />
+          <span aria-hidden="true" className="bg-border-strong rounded-thumb inline-block size-3" />
           {labels.previous}
         </span>
       </figcaption>

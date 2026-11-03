@@ -1,5 +1,5 @@
 import { loadContracts, loadRenewalOffers } from "@/features/resident/contracts/data";
-import { HomeContracts } from "@/features/resident/contracts/HomeContracts";
+import { homeContractRows } from "@/features/resident/contracts/HomeContracts";
 import { pageLocale } from "@/features/resident/lease/data";
 import { loadOpenInvoices } from "@/features/resident/invoices/data";
 import { bangkokToday } from "@/features/resident/invoices/model";
@@ -43,7 +43,7 @@ export default async function HomePage() {
         notifications={notifications}
         today={bangkokToday()}
         vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
-        contracts={<HomeContracts contracts={contracts.data ?? []} offers={offers.data ?? []} locale={locale} />}
+        todo={await homeContractRows({ contracts: contracts.data ?? [], offers: offers.data ?? [], locale })}
       />
     </ResidentShell>
   );

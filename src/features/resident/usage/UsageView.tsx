@@ -5,6 +5,9 @@ import { formatDate, formatUnits, TIME_ZONE, type MeterUnit } from "@/i18n/forma
 import type { Locale } from "@/i18n/routing";
 import type { ResidentUsage, UtilityUsage } from "@/lib/api/types";
 import { Callout } from "@/ui/components/Callout";
+import { Button } from "@/ui/components/Button";
+import { ScreenHeader } from "@/features/shared/Screen";
+import { EmptyState } from "@/ui/components/EmptyState";
 import { Card } from "@/ui/components/Card";
 import { Icon } from "@/ui/icons";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
@@ -52,7 +55,7 @@ export async function UsageView({
   }
 
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="usage-view">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="usage-view">
       <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
       <nav aria-label={t("rangeLabel")}>
         <ul className="bg-bg-subtle rounded-control grid grid-cols-3 gap-1 p-1" role="list">
@@ -190,10 +193,19 @@ async function UtilityCard({
 export async function ManualReadings() {
   const t = await getTranslations("resident.usage.manual");
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="usage-manual">
-      <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
-      <Callout tone="neutral">{t("body")}</Callout>
-      <p className="text-muted text-sm">{t("bills")}</p>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="usage-manual">
+      <ScreenHeader title={t("title")} />
+      <EmptyState
+        variant="card"
+        icon={IconElectric}
+        title={t("cardTitle")}
+        description={`${t("body")} ${t("bills")}`}
+        action={
+          <Button asChild variant="secondary">
+            <Link href="/invoices">{t("cta")}</Link>
+          </Button>
+        }
+      />
     </div>
   );
 }

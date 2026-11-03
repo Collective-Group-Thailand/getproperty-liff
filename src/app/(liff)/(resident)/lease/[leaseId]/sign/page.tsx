@@ -33,7 +33,7 @@ export default async function SignPage({ params }: { params: Promise<{ leaseId: 
   if (!l.nextActions.includes("sign")) {
     return (
       <ResidentShell active={null}>
-        <div className="flex flex-col gap-4 py-6" data-testid="sign-unavailable">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="sign-unavailable">
           <Callout tone="info" title={t("sign.unavailableTitle")}>
             {l.signatureRequired ? t("sign.unavailableBody") : t("sign.alreadySigned")}
           </Callout>

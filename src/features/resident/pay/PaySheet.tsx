@@ -49,7 +49,7 @@ type Mode = "qr" | "slip";
 function Loading({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center gap-3 py-4" aria-busy="true" data-testid="pay-loading">
-      <Skeleton className="size-60 rounded-lg" />
+      <Skeleton className="rounded-card size-60" />
       <Skeleton className="h-6 w-40" />
       <span className="sr-only">{label}</span>
     </div>

@@ -34,7 +34,7 @@ export async function DepositView({ deposit, locale }: { deposit: Deposit; local
   const actions = new Set(deposit.nextActions);
 
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="deposit-view">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="deposit-view">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-semibold">{t("title", { unit: deposit.unitNo })}</h1>
         <StatusBadge status={DEPOSIT_STATUS[deposit.status]} label={root(DEPOSIT_STATUS[deposit.status].labelKey)} />

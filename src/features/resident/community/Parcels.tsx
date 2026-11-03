@@ -10,6 +10,7 @@ import { EmptyState } from "@/ui/components/EmptyState";
 import { IconParcel } from "@/ui/icons/glyphs/parcel";
 
 import type { Parcel } from "./data";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 /** The pick-up PIN, big, with a QR of it the desk can scan from the phone (D-212). Server-rendered SVG. */
 async function PickupCode({ parcel, locale }: { parcel: Parcel & { pin: string }; locale: Locale }) {
@@ -21,14 +22,14 @@ async function PickupCode({ parcel, locale }: { parcel: Parcel & { pin: string }
       <h3 id={titleId} className="text-muted text-sm font-medium">
         {t("pinTitle")}
       </h3>
-      <p className="font-mono text-5xl font-semibold tracking-[0.2em] tabular-nums" data-testid="parcel-pin-code">
+      <p className="font-mono text-4xl font-semibold tracking-[0.2em] tabular-nums" data-testid="parcel-pin-code">
         {parcel.pin}
       </p>
       <svg
         role="img"
         aria-label={t("pinQr", { pin: parcel.pin })}
         viewBox={`0 0 ${qr.size} ${qr.size}`}
-        className="size-56 rounded-md bg-white p-1"
+        className="rounded-thumb size-56 bg-white p-1"
         shapeRendering="crispEdges"
         data-testid="parcel-pin-qr"
       >
@@ -86,12 +87,14 @@ export async function ParcelList({
   const waiting = parcels.filter((p) => p.status === "received" || p.status === "notified");
   const past = parcels.filter((p) => p.status !== "received" && p.status !== "notified");
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="parcels">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="parcels">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>
       </div>
-      {parcels.length === 0 ? <EmptyState icon={IconParcel} title={t("empty")} description={t("emptyBody")} /> : null}
+      {parcels.length === 0 ? (
+        <EmptyState icon={IconParcel} title={t("empty")} description={t("emptyBody")} action={<EmptyAction />} />
+      ) : null}
       {waiting.length ? (
         <section aria-labelledby="parcels-waiting" className="flex flex-col gap-2">
           <h2 id="parcels-waiting" className="font-semibold">

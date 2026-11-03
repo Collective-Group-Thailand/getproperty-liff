@@ -36,10 +36,19 @@
       "total": "This bill",
       "prior": "Unpaid from earlier bills",
       "amountDue": "Amount due",
-      "balance": "Still to pay"
+      "balance": "Still to pay",
+      "caption": "Invoice totals"
     },
     "receipts": "Receipts for this bill",
-    "pdf": "Open the bill (PDF)"
+    "pdf": "Open the bill (PDF)",
+    "doc": {
+      "kind": "Invoice",
+      "unit": "Unit",
+      "period": "Billing period",
+      "issued": "Issued",
+      "due": "Due",
+      "range": "{from} – {to}"
+    }
   },
   "lines": {
     "groups": {

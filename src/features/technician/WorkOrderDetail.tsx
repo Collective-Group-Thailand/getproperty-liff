@@ -48,7 +48,7 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
   };
 
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="work-order" data-status={workOrder.status}>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="work-order" data-status={workOrder.status}>
       <div className="flex flex-col gap-2">
         <h1 className="font-display text-2xl font-semibold">{workOrder.title}</h1>
         <div className="flex flex-wrap gap-2">

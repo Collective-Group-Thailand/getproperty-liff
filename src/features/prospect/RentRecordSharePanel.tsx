@@ -99,6 +99,7 @@ export function RentRecordSharePanel({
             />
           </WhenNear>
           <Button
+            variant="secondary"
             block
             disabled={!agree}
             loading={busy}

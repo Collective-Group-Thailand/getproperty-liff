@@ -19,7 +19,7 @@ export function LineChatButton({
   return (
     <Button
       variant="secondary"
-      size="lg"
+      size="md"
       iconStart={IconChat}
       aria-label={label}
       onClick={() => void openExternal(lineChatUrl(lineId), { external: false })}

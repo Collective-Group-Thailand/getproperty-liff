@@ -30,17 +30,15 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <Card as="section" padding="md" aria-labelledby={id} className="flex flex-col gap-3" data-testid={id}>
-      <h2 id={id} className="flex items-center justify-between gap-2 font-semibold">
+    <section aria-labelledby={id} className="flex flex-col gap-2" data-testid={id}>
+      <h2 id={id} className="text-muted flex items-baseline gap-2 text-sm font-semibold">
         <span>{title}</span>
-        {count > 0 ? (
-          <span className="bg-primary-subtle text-primary-subtle-fg rounded-full px-2 text-sm tabular-nums">
-            {count}
-          </span>
-        ) : null}
+        {count > 0 ? <span className="text-fg tabular-nums">{count}</span> : null}
       </h2>
-      {count === 0 ? <p className="text-muted text-sm">{empty}</p> : children}
-    </Card>
+      <Card padding="none" className="px-4 py-1">
+        {count === 0 ? <p className="text-muted py-3 text-sm">{empty}</p> : children}
+      </Card>
+    </section>
   );
 }
 
@@ -60,7 +58,7 @@ export async function LandlordHome({
   const [t, root, current] = await Promise.all([getTranslations("landlord.home"), getTranslations(), getLocale()]);
   const locale: Locale = isLocale(current) ? current : "th";
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="landlord-home">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="landlord-home">
       <div className="flex flex-col gap-1">
         <p className="text-muted text-sm">{t("greeting", { name })}</p>
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>

@@ -80,6 +80,9 @@ export function WorkOrderActions({
   }
 
   if (actions.length === 0) return null;
+  // One filled button: the step that moves the job forward now; every other action is outlined.
+  const lead = (["check-in", "resume", "complete", "accept"] as const).find((action) => actions.includes(action));
+  const variantOf = (action: string) => (action === lead ? "primary" : "secondary");
   return (
     <Card
       as="section"
@@ -95,7 +98,7 @@ export function WorkOrderActions({
         <Button
           size="lg"
           block
-          variant="secondary"
+          variant={variantOf("accept")}
           iconStart={IconCheckCircle}
           loading={busy === "accept"}
           onClick={() => void run("accept", t("accepted"))}
@@ -108,6 +111,7 @@ export function WorkOrderActions({
         <Button
           size="lg"
           block
+          variant={variantOf("check-in")}
           iconStart={IconPlay}
           loading={busy === "check-in"}
           onClick={() => void run("check-in", t("checkedIn"))}
@@ -120,6 +124,7 @@ export function WorkOrderActions({
         <Button
           size="lg"
           block
+          variant={variantOf("resume")}
           iconStart={IconPlay}
           loading={busy === "resume"}
           onClick={() => void run("resume", t("resumed"))}
@@ -157,7 +162,7 @@ export function WorkOrderActions({
               key={action}
               size="lg"
               block
-              variant={action === "complete" ? "primary" : "secondary"}
+              variant={variantOf(action)}
               iconStart={action === "complete" ? IconCheckCircle : IconClock}
               onClick={() => {
                 setNote("");

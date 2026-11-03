@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: single resident zone
+// copied from getproperty-web@08ff63b until collective-shared exists (D-155) — adapted: single resident zone, light only (redesign G2)
 import { describe, expect, it } from "vitest";
 
 import { dataThemeAttribute, isThemeChoice, themeChoicesFor, ZONE_DEFAULT_THEME } from "./themes";
@@ -14,10 +14,10 @@ describe("theme selection", () => {
     expect(dataThemeAttribute("system")).toBeUndefined();
     expect(dataThemeAttribute("dark")).toBe("dark");
   });
-  it("offers system, light and dark to residents — no high contrast toggle", () => {
-    expect(themeChoicesFor("resident")).toEqual(["system", "light", "dark"]);
+  it("offers residents the light palette only — no theme toggle (redesign G2)", () => {
+    expect(themeChoicesFor("resident")).toEqual(["light"]);
   });
-  it("follows the phone by default", () => {
-    expect(ZONE_DEFAULT_THEME.resident).toBe("system");
+  it("is light by default", () => {
+    expect(ZONE_DEFAULT_THEME.resident).toBe("light");
   });
 });

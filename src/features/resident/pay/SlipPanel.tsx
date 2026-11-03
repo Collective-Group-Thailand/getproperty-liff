@@ -217,11 +217,11 @@ export function SlipPanel({
             <img
               src={chosen.url}
               alt={t("previewAlt")}
-              className="border-border mx-auto max-h-80 w-auto rounded-lg border object-contain"
+              className="border-border rounded-card mx-auto max-h-80 w-auto border object-contain"
               data-testid="slip-preview"
             />
           ) : (
-            <p className="border-border rounded-lg border p-3 text-sm break-all" data-testid="slip-preview">
+            <p className="border-border rounded-card border p-3 text-sm break-all" data-testid="slip-preview">
               {t("pdf", { name: chosen.name })}
             </p>
           )}

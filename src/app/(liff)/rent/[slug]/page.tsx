@@ -84,7 +84,7 @@ export default async function RentListingPage({
   }
 
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="prospect-rent">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="prospect-rent">
       <ListingSummary listing={listing} />
       {listing.utility ? <ListingUtilityCard utility={listing.utility} /> : null}
       {panel}

@@ -10,10 +10,10 @@ import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
+import { List, Screen, ScreenHeader, Section, SectionLink } from "@/features/shared/Screen";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { Icon } from "@/ui/icons";
-import { IconBill } from "@/ui/icons/glyphs/bill";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconChevronLeft } from "@/ui/icons/glyphs/chevron-left";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
@@ -27,27 +27,27 @@ async function OpenInvoice({
   today,
   showUnit,
   vapidKey,
+  lead,
 }: {
   invoice: InvoiceView;
   locale: Locale;
   today: string;
   showUnit: boolean;
   vapidKey?: string;
+  /** The first open invoice carries the screen's one filled pay button; the others are outlined. */
+  lead: boolean;
 }) {
   const t = await getTranslations("resident.invoices.list");
   const root = await getTranslations();
   const state = dueState(invoice, today);
   return (
-    <Card as="li" padding="md" className="flex flex-col gap-2" data-testid="open-invoice" data-invoice={invoice.id}>
-      <div className="flex items-start justify-between gap-2">
+    <Card as="li" padding="none" className="flex flex-col" data-testid="open-invoice" data-invoice={invoice.id}>
+      <Link href={`/invoices/${invoice.id}`} className="flex items-start justify-between gap-3 px-4 pt-4 pb-1">
         <div className="min-w-0">
-          <Link
-            href={`/invoices/${invoice.id}`}
-            className="text-primary inline-flex min-h-12 items-center gap-1 font-semibold"
-          >
+          <span className="inline-flex items-center gap-1 font-semibold">
             {t("period", { period: formatDate(invoice.periodStart, locale, { style: "month" }) })}
-            <Icon icon={IconChevronRight} />
-          </Link>
+            <Icon icon={IconChevronRight} className="text-subtle rtl:rotate-180" />
+          </span>
           <p className="text-muted text-sm">
             {showUnit
               ? t("issuerUnit", { issuer: invoice.issuerName, unit: invoice.unitNo ?? "—" })
@@ -59,15 +59,25 @@ async function OpenInvoice({
           label={root(INVOICE_STATUS[invoice.status].labelKey)}
           size="sm"
         />
+      </Link>
+      <div className="flex flex-col gap-1 px-4 pb-4">
+        <MoneyDisplay
+          amount={invoice.balance}
+          locale={locale}
+          size="lg"
+          tone={needsAttention(state) ? "attention" : "default"}
+        />
+        <Due state={state} dueDate={invoice.dueDate} locale={locale} />
+        <PayLauncher
+          invoice={invoice}
+          label={t("pay")}
+          size="lg"
+          variant={lead ? "primary" : "secondary"}
+          className="mt-3"
+          testId="open-invoice-pay"
+          vapidKey={vapidKey}
+        />
       </div>
-      <MoneyDisplay
-        amount={invoice.balance}
-        locale={locale}
-        size="lg"
-        tone={needsAttention(state) ? "attention" : "default"}
-      />
-      <Due state={state} dueDate={invoice.dueDate} locale={locale} />
-      <PayLauncher invoice={invoice} label={t("pay")} size="lg" testId="open-invoice-pay" vapidKey={vapidKey} />
     </Card>
   );
 }
@@ -102,27 +112,14 @@ export async function InvoiceList({
   const hasOlder = page * meta.perPage < meta.total;
 
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="invoice-list">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
-        <Link
-          href="/receipts"
-          className="text-primary inline-flex min-h-12 items-center gap-1 font-medium"
-          data-testid="to-receipts"
-        >
-          {t("receipts")}
-          <Icon icon={IconChevronRight} />
-        </Link>
-      </div>
+    <Screen testId="invoice-list">
+      <ScreenHeader title={t("title")} />
 
       {page === 1 ? (
-        <section aria-labelledby="open-title" className="flex flex-col gap-3">
-          <h2 id="open-title" className="font-semibold">
-            {t("openTitle")}
-          </h2>
+        <Section title={t("openTitle")} titleId="open-title">
           {open.length ? (
             <ul className="flex flex-col gap-3">
-              {open.map((invoice) => (
+              {open.map((invoice, index) => (
                 <OpenInvoice
                   key={invoice.id}
                   invoice={invoice}
@@ -130,60 +127,66 @@ export async function InvoiceList({
                   today={today}
                   showUnit={showUnit}
                   vapidKey={vapidKey}
+                  lead={index === 0}
                 />
               ))}
             </ul>
           ) : (
-            <EmptyState icon={IconCheckCircle} title={t("nothingDue")} description={t("nothingDueBody")} />
+            <EmptyState
+              variant="card"
+              icon={IconCheckCircle}
+              title={t("nothingDue")}
+              description={t("nothingDueBody")}
+              action={
+                <Button asChild variant="secondary">
+                  <Link href="/receipts">{t("receipts")}</Link>
+                </Button>
+              }
+            />
           )}
-        </section>
+        </Section>
       ) : null}
 
-      <section aria-labelledby="history-title" className="flex flex-col gap-3">
-        <h2 id="history-title" className="font-semibold">
-          {t("historyTitle")}
-        </h2>
+      <Section
+        title={t("historyTitle")}
+        titleId="history-title"
+        action={
+          <SectionLink href="/receipts" testId="to-receipts">
+            {t("receipts")}
+          </SectionLink>
+        }
+      >
         {past.length === 0 ? (
           <p className="text-muted text-sm">{t("noHistory")}</p>
         ) : (
-          byPeriod(past).map(([period, invoices]) => (
-            <div key={period} data-testid="history-period" data-period={period}>
-              <h3 className="text-muted text-sm font-semibold">
-                {formatDate(`${period}-01`, locale, { style: "month" })}
-              </h3>
-              <ul>
-                {invoices.map((invoice) => (
-                  <li key={invoice.id} className="border-border border-b last:border-b-0">
-                    <Link
-                      href={`/invoices/${invoice.id}`}
-                      className="flex min-h-14 items-center justify-between gap-3 py-2"
-                      data-testid="history-invoice"
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <Icon icon={IconBill} className="text-muted shrink-0" />
-                        <span className="min-w-0">
-                          <span className="block truncate font-medium">{invoice.number}</span>
-                          <span className="text-muted block text-xs">
-                            {showUnit
-                              ? t("issuerUnit", { issuer: invoice.issuerName, unit: invoice.unitNo ?? "—" })
-                              : invoice.issuerName}
-                          </span>
-                        </span>
-                      </span>
-                      <span className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="tabular-nums">{formatTHB(invoice.amountDue, locale)}</span>
-                        <StatusBadge
-                          status={INVOICE_STATUS[invoice.status]}
-                          label={root(INVOICE_STATUS[invoice.status].labelKey)}
-                          size="sm"
-                        />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
+          <div className="flex flex-col gap-4">
+            {byPeriod(past).map(([period, invoices]) => (
+              <div key={period} className="flex flex-col gap-2" data-testid="history-period" data-period={period}>
+                <h3 className="text-muted text-xs font-semibold">
+                  {formatDate(`${period}-01`, locale, { style: "month" })}
+                </h3>
+                <List
+                  rows={invoices.map((invoice) => ({
+                    key: invoice.id,
+                    href: `/invoices/${invoice.id}`,
+                    testId: "history-invoice",
+                    title: <span className="font-mono text-sm">{invoice.number}</span>,
+                    meta: showUnit
+                      ? t("issuerUnit", { issuer: invoice.issuerName, unit: invoice.unitNo ?? "—" })
+                      : invoice.issuerName,
+                    end: formatTHB(invoice.amountDue, locale),
+                    endMeta: (
+                      <StatusBadge
+                        status={INVOICE_STATUS[invoice.status]}
+                        label={root(INVOICE_STATUS[invoice.status].labelKey)}
+                        size="sm"
+                      />
+                    ),
+                  }))}
+                />
+              </div>
+            ))}
+          </div>
         )}
         {page > 1 || hasOlder ? (
           <nav aria-label={t("pages")} className="flex justify-between gap-2">
@@ -204,7 +207,7 @@ export async function InvoiceList({
             ) : null}
           </nav>
         ) : null}
-      </section>
-    </div>
+      </Section>
+    </Screen>
   );
 }

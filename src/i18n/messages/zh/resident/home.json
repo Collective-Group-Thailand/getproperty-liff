@@ -6,7 +6,9 @@
     "building": "{name}",
     "operator": "由 {name} 管理",
     "since": "自 {date} 起入住",
-    "lease": "租约 {number} · {status}"
+    "lease": "租约 {number} · {status}",
+    "summary": "{code} 室 · {building}",
+    "managed": "由 {name} 管理 · 自 {date} 起入住"
   },
   "bills": {
     "title": "本房间的账单",
@@ -25,7 +27,8 @@
     "facilities": "预约公共设施",
     "access": "门禁密码",
     "rules": "楼宇规定",
-    "contacts": "联系方式"
+    "contacts": "联系方式",
+    "more": "楼内服务"
   },
   "noUnit": {
     "title": "此账户还没有房间",
@@ -62,5 +65,8 @@
     "title": "楼宇管理处未确认此次登录",
     "body": "管理处拒绝将您的手机号码与其登记的住户记录绑定，因此此账户尚未添加房间。",
     "next": "如果您住在这栋楼，请联系楼宇管理处，或向管理处索取邀请码——输入后可立即绑定您的房间。"
+  },
+  "todo": {
+    "title": "待办"
   }
 }

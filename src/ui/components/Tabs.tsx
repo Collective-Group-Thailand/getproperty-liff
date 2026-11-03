@@ -1,4 +1,4 @@
-// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
+// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
 "use client";
 
 import { Tabs as TabsPrimitive } from "radix-ui";
@@ -43,7 +43,7 @@ export function Tabs({ tabs, label, children, className, ...props }: TabsProps) 
           >
             {tab.label}
             {tab.count !== undefined ? (
-              <span className="bg-neutral-subtle text-neutral-subtle-fg rounded-full px-1.5 text-xs tabular-nums">
+              <span className="bg-neutral-subtle text-neutral-subtle-fg rounded-thumb px-1.5 text-xs tabular-nums">
                 {tab.count}
               </span>
             ) : null}

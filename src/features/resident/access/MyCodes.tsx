@@ -19,6 +19,7 @@ import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLock } from "@/ui/icons/glyphs/lock";
 
 import { VisitorCode } from "./VisitorCode";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 /**
  * My own door codes (D-070, D-071, D-211). Every reveal is audited by the API, so the codes are fetched only when
@@ -68,7 +69,12 @@ export function MyCodes({ unitId }: { unitId: string }) {
   return (
     <div className="flex flex-col gap-3" data-testid="access-codes">
       {mine.length === 0 ? (
-        <EmptyState icon={IconLock} title={t("none")} description={t("noneBody")} />
+        <EmptyState
+          icon={IconLock}
+          title={t("none")}
+          description={t("noneBody")}
+          action={<EmptyAction href="/contacts" />}
+        />
       ) : (
         <ul className="flex flex-col gap-2" role="list">
           {mine.map((c) => {

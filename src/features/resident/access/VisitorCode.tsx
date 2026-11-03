@@ -17,6 +17,7 @@ import { Field } from "@/ui/components/Field";
 import { Input } from "@/ui/components/Input";
 import { NativeSelect } from "@/ui/components/NativeSelect";
 import { IconLock } from "@/ui/icons/glyphs/lock";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 const HOURS = [2, 4, 8, 24];
 
@@ -53,7 +54,12 @@ export function VisitorCode({ unitId, policy }: { unitId: string; policy: Visito
   if (disabled) {
     return (
       <Card as="section" padding="md" data-testid="visitor-disabled">
-        <EmptyState icon={IconLock} title={t("title")} description={t("notAllowed")} />
+        <EmptyState
+          icon={IconLock}
+          title={t("title")}
+          description={t("notAllowed")}
+          action={<EmptyAction href="/contacts" />}
+        />
       </Card>
     );
   }

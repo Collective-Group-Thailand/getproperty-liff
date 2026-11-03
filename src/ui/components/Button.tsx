@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
 "use client";
 
 import { Slot } from "radix-ui";
@@ -34,8 +34,8 @@ export const buttonVariants = cva(
         link: "text-primary underline underline-offset-4 hover:text-primary-hover",
       },
       size: {
-        sm: "h-8 px-3 text-sm",
-        md: "h-10 px-4 text-base",
+        sm: "h-9 px-3 text-sm",
+        md: "h-11 px-4 text-base",
         lg: "h-12 px-6 text-base",
         /** Staff and resident: 48 px+ targets and 18 px text (design-system.md §5). */
         xl: "h-14 px-8 text-lg",

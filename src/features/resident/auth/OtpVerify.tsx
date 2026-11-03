@@ -91,7 +91,7 @@ export function OtpVerify({ challengeFromUrl, next }: { challengeFromUrl: string
 
   if (pending === null) {
     return (
-      <div className="flex flex-col gap-4 py-6" data-testid="otp-verify">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="otp-verify">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <Callout tone="warning">{t("noChallenge")}</Callout>
         <Button asChild size="lg" block>
@@ -106,7 +106,7 @@ export function OtpVerify({ challengeFromUrl, next }: { challengeFromUrl: string
 
   return (
     <form
-      className="flex flex-col gap-5 py-6"
+      className="flex flex-1 flex-col gap-6 pt-2 pb-8"
       data-testid="otp-verify"
       onSubmit={(event) => {
         event.preventDefault();

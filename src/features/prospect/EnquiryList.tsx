@@ -14,6 +14,7 @@ import { IconShield } from "@/ui/icons/glyphs/shield";
 import { IconReceipt } from "@/ui/icons/glyphs/receipt";
 
 import { liveViewing, sortEnquiries, type Enquiry } from "./model";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 async function Item({ enquiry, locale }: { enquiry: Enquiry; locale: Locale }) {
   const [t, root] = await Promise.all([getTranslations("prospect.rent.mine"), getTranslations()]);
@@ -67,7 +68,7 @@ export async function EnquiryList({
   const locale = isLocale(current) ? current : "th";
   const { open, closed } = sortEnquiries(enquiries);
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="enquiries">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="enquiries">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted">{t("lead")}</p>
@@ -114,7 +115,14 @@ export async function EnquiryList({
         </span>
         <Icon icon={IconChevronRight} className="text-muted shrink-0" />
       </Link>
-      {enquiries.length === 0 ? <EmptyState icon={IconInbox} title={t("empty")} description={t("emptyHint")} /> : null}
+      {enquiries.length === 0 ? (
+        <EmptyState
+          icon={IconInbox}
+          title={t("empty")}
+          description={t("emptyHint")}
+          action={<EmptyAction href="/rent/recommendations" />}
+        />
+      ) : null}
       {[
         { key: "open", list: open, label: t("open") },
         { key: "closed", list: closed, label: t("closed") },

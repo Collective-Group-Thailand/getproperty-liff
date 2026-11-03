@@ -5,7 +5,8 @@ import type { Locale } from "@/i18n/routing";
 import type { InvoiceView } from "@/lib/api/types";
 import { ExternalLinkButton } from "@/features/shared/ExternalLinkButton";
 import { Callout } from "@/ui/components/Callout";
-import { Card } from "@/ui/components/Card";
+import { Icon } from "@/ui/icons";
+import { IconChevronDown } from "@/ui/icons/glyphs/chevron-down";
 
 import { LEGAL_REFERENCE_URL } from "./legal";
 import { isMeterLine, isZero } from "./model";
@@ -23,11 +24,15 @@ export async function InvoiceExplainer({ invoice, locale }: { invoice: InvoiceVi
   const hasMeter = invoice.lines.some(isMeterLine);
   const hasPrior = !isZero(invoice.priorBalance);
   return (
-    <Card as="section" padding="md" aria-labelledby="explained-title" data-testid="invoice-explained">
-      <h2 id="explained-title" className="font-semibold">
-        {t("title")}
-      </h2>
-      <div className="mt-2 flex flex-col gap-2 text-sm">
+    <details className="rounded-card border-border bg-surface shadow-card group border" data-testid="invoice-explained">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
+        <span id="explained-title">{t("title")}</span>
+        <Icon
+          icon={IconChevronDown}
+          className="text-subtle duration-fast shrink-0 transition-transform group-open:rotate-180"
+        />
+      </summary>
+      <div className="flex flex-col gap-2 px-4 pb-4 text-sm">
         {hasRent ? <p>{t("rent")}</p> : null}
         {hasMeter ? <p>{t("meters")}</p> : null}
         {hasMeter ? <p>{t("sources")}</p> : null}
@@ -35,15 +40,15 @@ export async function InvoiceExplainer({ invoice, locale }: { invoice: InvoiceVi
         {hasPrior ? <p>{t("prior", { amount: formatTHB(invoice.priorBalance, locale) })}</p> : null}
         {invoice.status === "overdue" ? <p>{t("late")}</p> : null}
         <p>{t("questions", { issuer: invoice.issuerName })}</p>
+        {hasMeter ? (
+          <div className="mt-1">
+            <Callout tone="neutral" title={t("lawTitle")} legalRef={t("legalRef")}>
+              <span className="block">{t("lawBody")}</span>
+              <ExternalLinkButton href={LEGAL_REFERENCE_URL}>{t("lawLink")}</ExternalLinkButton>
+            </Callout>
+          </div>
+        ) : null}
       </div>
-      {hasMeter ? (
-        <div className="mt-3">
-          <Callout tone="neutral" title={t("lawTitle")} legalRef={t("legalRef")}>
-            <span className="block">{t("lawBody")}</span>
-            <ExternalLinkButton href={LEGAL_REFERENCE_URL}>{t("lawLink")}</ExternalLinkButton>
-          </Callout>
-        </div>
-      ) : null}
-    </Card>
+    </details>
   );
 }

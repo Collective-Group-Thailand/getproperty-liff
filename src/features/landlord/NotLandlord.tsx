@@ -7,7 +7,7 @@ import { Callout } from "@/ui/components/Callout";
 export async function NotLandlord({ consoleUrl }: { consoleUrl: string | undefined }) {
   const t = await getTranslations("landlord.home");
   return (
-    <div className="flex flex-col gap-4 py-6" data-testid="landlord-not-landlord">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="landlord-not-landlord">
       <Callout tone="info" title={t("signIn.notLandlordTitle")}>
         {t("signIn.notLandlordBody")}
       </Callout>

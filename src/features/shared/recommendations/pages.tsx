@@ -17,6 +17,7 @@ import { loadAreas, loadHistory, loadRecommendations } from "./data";
 import { HistoryList } from "./HistoryList";
 import { basePath, HISTORY_PER_PAGE, HISTORY_PREVIEW, hasOlder, pageFrom, type RecommendationsAudience } from "./model";
 import { RecommendationsScreen } from "./RecommendationsScreen";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -98,7 +99,12 @@ export async function RecommendationsHistoryPage({
       {loaded.error ? (
         <ProblemPage error={loaded.error} />
       ) : loaded.data.items.length === 0 ? (
-        <EmptyState icon={IconBell} title={t("empty")} />
+        <EmptyState
+          variant="card"
+          icon={IconBell}
+          title={t("empty")}
+          action={<EmptyAction href={base} label={root("title")} />}
+        />
       ) : (
         <Card as="section" padding="md" aria-label={t("title")}>
           <HistoryList items={loaded.data.items} locale={current} />

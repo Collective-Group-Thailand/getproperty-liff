@@ -110,6 +110,7 @@ export function ConsentManager({
                       </Button>
                     ) : (
                       <Button
+                        variant="secondary"
                         size="lg"
                         block
                         loading={busy === purpose.key}

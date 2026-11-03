@@ -6,7 +6,9 @@
     "building": "{name}",
     "operator": "Managed by {name}",
     "since": "Living here since {date}",
-    "lease": "Lease {number} · {status}"
+    "lease": "Lease {number} · {status}",
+    "summary": "Unit {code} · {building}",
+    "managed": "Managed by {name} · since {date}"
   },
   "bills": {
     "title": "Bills for this unit",
@@ -25,7 +27,8 @@
     "facilities": "Book a facility",
     "access": "Door codes",
     "rules": "House rules",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "more": "Around the building"
   },
   "noUnit": {
     "title": "No unit on this account yet",
@@ -62,5 +65,8 @@
     "title": "The building's office did not confirm this sign-in",
     "body": "The office declined to link your mobile number to the resident records it entered, so no unit was added to this account.",
     "next": "If you live in this building, contact the building's office, or ask them for an invitation code — it links your unit at once."
+  },
+  "todo": {
+    "title": "To do"
   }
 }

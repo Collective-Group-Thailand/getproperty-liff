@@ -40,7 +40,7 @@ export default async function LandlordLeadPage({ params }: { params: Promise<{ l
   ].filter(Boolean);
   const requested = lead.data.viewings.filter((viewing) => viewing.state === "requested");
   return (
-    <div className="flex flex-col gap-4 py-5" data-testid="landlord-lead-page">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="landlord-lead-page">
       <BackLink href="/landlord">{t("back")}</BackLink>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{lead.data.prospect.name}</h1>

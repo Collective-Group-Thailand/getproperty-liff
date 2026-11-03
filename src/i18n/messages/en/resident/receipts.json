@@ -29,5 +29,6 @@
       "copied": "Copied — paste it in a chat.",
       "failed": "Sharing is not possible in this browser."
     }
-  }
+  },
+  "amount": "Amount received"
 }

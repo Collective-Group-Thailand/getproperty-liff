@@ -59,7 +59,7 @@ for (const locale of LOCALES) {
       await expect(
         page
           .getByTestId("resident-home")
-          .getByRole("link", { name: text(locale, "resident/home", "tiles.serviceRequest"), exact: true }),
+          .getByRole("link", { name: text(locale, "resident/home", "tiles.contacts"), exact: true }),
       ).toBeVisible();
       await expectScriptFont(page, locale);
       await expectNoHorizontalScroll(page);

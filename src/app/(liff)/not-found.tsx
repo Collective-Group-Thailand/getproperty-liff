@@ -14,12 +14,16 @@ export default async function NotFound() {
     <main className="mx-auto flex max-w-lg flex-col items-center gap-8 px-4 py-16">
       <Wordmark size="md" />
       <ErrorState
+        className="rounded-card border-border bg-surface shadow-card w-full border"
         title={t("notFoundTitle")}
         description={t("notFoundBody")}
         action={
           // A full load home is right after a dead end, and `next/link` would add a client module to every page.
           // eslint-disable-next-line @next/next/no-html-link-for-pages
-          <a className="text-primary font-semibold underline underline-offset-4" href="/">
+          <a
+            className="rounded-control border-border-strong bg-surface inline-flex h-11 items-center border px-4 font-medium"
+            href="/"
+          >
             {t("goHome")}
           </a>
         }

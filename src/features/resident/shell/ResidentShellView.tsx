@@ -70,12 +70,22 @@ export function ResidentShellView({
       }
       bottomNav={navItems.length > 0 ? <BottomNav items={navItems} label={navLabel} /> : undefined}
     >
-      {brand === "hero" && !unit ? (
-        <div className="flex justify-center pt-8 pb-2" data-testid="brand-hero">
-          <Wordmark size="md" />
-        </div>
-      ) : null}
-      {children}
+      {/* `--dock` / `--dock-pad`: where a screen's docked primary action (`ActionDock`) rests — on the bottom nav
+          when there is one, else on the bottom edge clear of the home indicator. */}
+      <div
+        className={
+          navItems.length > 0
+            ? "flex min-h-[calc(100dvh-3.5rem-var(--bottom-nav-h))] flex-col [--dock-pad:0px] [--dock:var(--bottom-nav-h)]"
+            : "flex min-h-[calc(100dvh-3.5rem)] flex-col"
+        }
+      >
+        {brand === "hero" && !unit ? (
+          <div className="flex justify-center pt-10 pb-4" data-testid="brand-hero">
+            <Wordmark size="md" />
+          </div>
+        ) : null}
+        {children}
+      </div>
     </AppShell>
   );
 }

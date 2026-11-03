@@ -53,7 +53,7 @@ export default async function EnquiryPage({
           ? sv("panel.left")
           : null;
   return (
-    <div className="flex flex-col gap-5 py-5" data-testid="enquiry">
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="enquiry">
       <BackLink href="/rent/enquiries">{t("mine.back")}</BackLink>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{enquiry.listing.titleTh}</h1>

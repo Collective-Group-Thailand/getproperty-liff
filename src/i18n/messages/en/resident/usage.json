@@ -44,6 +44,8 @@
   "manual": {
     "title": "Water & electricity use",
     "body": "The meters of your unit are read by the building's staff once a month, so there is no daily chart",
-    "bills": "Each month's reading and the meter photo are on your bill"
+    "bills": "Each month's reading and the meter photo are on your bill",
+    "cardTitle": "This unit's meters are read once a month",
+    "cta": "See bills and meter photos"
   }
 }

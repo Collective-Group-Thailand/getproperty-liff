@@ -95,7 +95,7 @@ export function OaLinkConfirm({
 
   if (state === "linked") {
     return (
-      <div className="flex flex-col gap-5 py-6" data-testid="oa-link-done">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="oa-link-done">
         <Callout tone="success" title={t("done.title")}>
           {t(copy("done.body"), { name: oaName })}
         </Callout>
@@ -118,7 +118,7 @@ export function OaLinkConfirm({
 
   if (state !== "valid") {
     return (
-      <div className="flex flex-col gap-5 py-6" data-testid="oa-link-ended" data-state={state}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="oa-link-ended" data-state={state}>
         <Callout tone="warning" title={t(`${state}.title`)}>
           {t(state === "taken" ? copy("taken.body") : `${state}.body`, { name: oaName })}
         </Callout>
@@ -140,7 +140,7 @@ export function OaLinkConfirm({
         ];
 
   return (
-    <div className="flex flex-col gap-5 py-6" data-testid="oa-link" data-audience={audience}>
+    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="oa-link" data-audience={audience}>
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-2xl font-semibold">{t(copy("title"))}</h1>
         <p className="text-muted">{t(copy("lead"), { name: link.tenantName })}</p>

@@ -43,12 +43,13 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
   const depositId = deposits.data?.find((d) => d.leaseId === leaseId)?.id;
   return (
     <ResidentShell active={null}>
-      <BackLink href="/">{t("back.home")}</BackLink>
       {lease.error ? (
-        <ProblemPage error={lease.error} />
-      ) : (
         <>
-          <LeaseView lease={lease.data} locale={locale} depositId={depositId} />
+          <BackLink href="/">{t("back.home")}</BackLink>
+          <ProblemPage error={lease.error} />
+        </>
+      ) : (
+        <LeaseView lease={lease.data} locale={locale} depositId={depositId}>
           {lease.data.notice ? <RelocationPrompt /> : null}
           <LeaseContracts
             leaseId={leaseId}
@@ -62,7 +63,7 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
           ) : null}
           {CERTIFICATE_LEASE_STATES.includes(lease.data.status) ? <CertificateLink leaseId={leaseId} /> : null}
           {review.data ? <LeaseReviewEntry leaseId={leaseId} view={review.data} locale={locale} /> : null}
-        </>
+        </LeaseView>
       )}
     </ResidentShell>
   );

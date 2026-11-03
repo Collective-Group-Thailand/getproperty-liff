@@ -32,7 +32,7 @@ export default async function FakeProviderPage({
   const action = `/bff/oauth/${provider}/callback`;
   return (
     <ResidentShell active={null} chrome="entry">
-      <div className="flex flex-col gap-5 py-6" data-testid="oauth-fake">
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="oauth-fake">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">
             {t("fake.title", { provider: t(`providers.${provider}`) })}

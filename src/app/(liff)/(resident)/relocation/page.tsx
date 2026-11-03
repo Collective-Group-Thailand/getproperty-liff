@@ -10,6 +10,7 @@ import { RelocationStop } from "@/features/resident/relocation/RelocationStop";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
 import { BackLink } from "@/features/shared/BackLink";
 import { PurposeText } from "@/features/shared/consent/PurposeText";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { formatDate, formatTHB } from "@/i18n/format";
 import { StatusBadge } from "@/ui/components/Badge";
@@ -68,7 +69,7 @@ export default async function RelocationPage({
   return (
     <ResidentShell active={null}>
       <BackLink href="/">{t("back.home")}</BackLink>
-      <div className="flex flex-col gap-5 py-5" data-testid="relocation-page" data-on={on}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="relocation-page" data-on={on}>
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
           <p className="text-muted">{t("lead")}</p>
@@ -183,6 +184,7 @@ export default async function RelocationPage({
                       ? t("offers.emptyOnBody")
                       : t("offers.emptyOffBody")
                 }
+                action={<EmptyAction />}
               />
             </div>
           ) : (

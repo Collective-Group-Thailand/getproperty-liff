@@ -36,10 +36,19 @@
       "total": "本账单",
       "prior": "以往账单未付",
       "amountDue": "应付金额",
-      "balance": "尚欠"
+      "balance": "尚欠",
+      "caption": "账单合计"
     },
     "receipts": "本账单的收据",
-    "pdf": "打开账单 (PDF)"
+    "pdf": "打开账单 (PDF)",
+    "doc": {
+      "kind": "账单",
+      "unit": "房间",
+      "period": "账期",
+      "issued": "开具日期",
+      "due": "到期日",
+      "range": "{from} – {to}"
+    }
   },
   "lines": {
     "groups": {

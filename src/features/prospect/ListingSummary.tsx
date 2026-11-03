@@ -3,8 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { formatTHB } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { Badge } from "@/ui/components/Badge";
-import { Icon } from "@/ui/icons";
-import { IconImage } from "@/ui/icons/glyphs/image";
+import { PhotoPlaceholder } from "@/ui/components/PhotoPlaceholder";
 import { IconShield } from "@/ui/icons/glyphs/shield";
 
 import type { PublicListing } from "./model";
@@ -34,10 +33,7 @@ export async function ListingSummary({ listing }: { listing: PublicListing }) {
           className="bg-bg-subtle aspect-[16/10] w-full object-cover"
         />
       ) : (
-        <div className="bg-bg-subtle text-muted flex aspect-[16/10] w-full flex-col items-center justify-center gap-2">
-          <Icon icon={IconImage} size={32} />
-          <span className="text-sm">{t("noPhoto")}</span>
-        </div>
+        <PhotoPlaceholder className="aspect-[16/10] w-full border-0 border-b" label={t("noPhoto")} />
       )}
       <div className="flex flex-col gap-2 p-4">
         <h1 className="font-display text-xl font-semibold">{listing.title}</h1>

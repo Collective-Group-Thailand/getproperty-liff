@@ -12,6 +12,7 @@ import { toApiError, type ApiError } from "@/lib/api/problem";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { CameraCapture } from "@/ui/components/CameraCapture";
+import { IconCamera } from "@/ui/icons/glyphs/camera";
 import { Card } from "@/ui/components/Card";
 import { Field } from "@/ui/components/Field";
 import { IconButton } from "@/ui/components/IconButton";
@@ -46,6 +47,8 @@ export function InspectionCountersign({ inspectionId }: { inspectionId: string }
   const [note, setNote] = useState("");
   const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
   const cameraLabels = useCameraLabels();
+  /** The camera opens on request only — never a live viewfinder (a large dark block) on arrival. */
+  const [camera, setCamera] = useState(false);
   /** Photo (its preview URL) → uploaded file id, so a retry does not upload it again. */
   const uploaded = useRef(new Map<string, string>());
 
@@ -110,21 +113,37 @@ export function InspectionCountersign({ inspectionId }: { inspectionId: string }
           data-testid="inspection-note"
         />
       </Field>
-      <CameraCapture
-        label={t("addPhoto")}
-        hint={t("photoHint", { max: MAX_PHOTOS })}
-        labels={cameraLabels}
-        multiple
-        maxShots={Math.max(1, MAX_PHOTOS - photos.length)}
-        guide="none"
-        fileBaseName="inspection-note"
-        disabled={photos.length >= MAX_PHOTOS || busy}
-        onCapture={(files) =>
-          setPhotos((current) =>
-            [...current, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))].slice(0, MAX_PHOTOS),
-          )
-        }
-      />
+      {camera ? (
+        <CameraCapture
+          label={t("addPhoto")}
+          hint={t("photoHint", { max: MAX_PHOTOS })}
+          labels={cameraLabels}
+          multiple
+          maxShots={Math.max(1, MAX_PHOTOS - photos.length)}
+          guide="none"
+          fileBaseName="inspection-note"
+          disabled={photos.length >= MAX_PHOTOS || busy}
+          onCapture={(files) => {
+            setPhotos((current) =>
+              [...current, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))].slice(0, MAX_PHOTOS),
+            );
+            setCamera(false);
+          }}
+        />
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          block
+          iconStart={IconCamera}
+          disabled={photos.length >= MAX_PHOTOS || busy}
+          onClick={() => setCamera(true)}
+          data-testid="inspection-photo-add"
+        >
+          {t("addPhoto")}
+        </Button>
+      )}
       {photos.length ? (
         <ul
           className="grid grid-cols-3 gap-2"

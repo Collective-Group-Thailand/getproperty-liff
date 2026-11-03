@@ -34,7 +34,7 @@ export function SlotPicker({
     <div className="flex flex-col gap-3" data-testid={testId}>
       <fieldset className="flex min-w-0 flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">{t("day")}</legend>
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <div className="relative -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           {days.map(({ day: d }) => {
             const noon = new Date(`${d}T12:00:00+07:00`);
             const selected = d === current.day;

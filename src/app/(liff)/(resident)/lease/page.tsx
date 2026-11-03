@@ -11,6 +11,7 @@ import { StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { IconLease } from "@/ui/icons/glyphs/lease";
+import { EmptyAction } from "@/features/shared/EmptyAction";
 
 export async function generateMetadata() {
   const t = await getTranslations("resident.lease");
@@ -31,9 +32,14 @@ export default async function LeasesPage() {
       {leases.error ? (
         <ProblemPage error={leases.error} />
       ) : leases.data.length === 0 ? (
-        <EmptyState icon={IconLease} title={t("list.emptyTitle")} description={t("list.emptyBody")} />
+        <EmptyState
+          icon={IconLease}
+          title={t("list.emptyTitle")}
+          description={t("list.emptyBody")}
+          action={<EmptyAction />}
+        />
       ) : (
-        <div className="flex flex-col gap-4 py-5" data-testid="lease-list">
+        <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="lease-list">
           <h1 className="font-display text-2xl font-semibold">{t("list.title")}</h1>
           <ul className="flex flex-col gap-3" role="list">
             {leases.data.map((lease) => (

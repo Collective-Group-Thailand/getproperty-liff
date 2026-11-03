@@ -77,7 +77,7 @@ export default async function RelocationOfferPage({ params }: { params: Promise<
   return (
     <ResidentShell active={null}>
       {back}
-      <div className="flex flex-col gap-5 py-5" data-testid="relocation-offer" data-state={offer.state}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="relocation-offer" data-state={offer.state}>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h1 className="font-display text-2xl font-semibold">{t("offer.title")}</h1>

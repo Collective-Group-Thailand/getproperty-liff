@@ -20,7 +20,6 @@
   },
   "notifications": {
     "title": "Notifications",
-    "unavailable": "Notification settings will be available soon",
     "topic": {
       "billing": "Bills and payments",
       "lease": "Lease and notices",
@@ -38,7 +37,6 @@
   },
   "documents": {
     "title": "My documents",
-    "unavailable": "Your documents will be listed here soon",
     "empty": "No documents yet",
     "kind": {
       "lease_contract": "Lease",

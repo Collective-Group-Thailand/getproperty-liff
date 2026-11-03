@@ -7,8 +7,7 @@ import { publicConfigAttributes } from "@/lib/publicConfig";
 import { LOGO_COLOURS } from "@/ui/brand";
 import { fontClassNames } from "@/ui/fonts";
 import { ThemeProvider } from "@/ui/theme/ThemeProvider";
-import { readThemeChoice } from "@/ui/theme/server";
-import { dataThemeAttribute } from "@/ui/theme/themes";
+import { dataThemeAttribute, ZONE_DEFAULT_THEME } from "@/ui/theme/themes";
 import { Toaster } from "@/ui/components/Toast";
 import { SharedShellModules } from "@/features/resident/shell/SharedShellModules";
 
@@ -20,7 +19,7 @@ import "@/fonts/scripts.css";
 /**
  * The one root layout (ADR-0004: a single zone, no host routing). It stamps what must be there before
  * the first paint — `lang` from the `gp_locale` cookie (set from `liff.getLanguage()` on first open),
- * `data-theme` from `gp_theme` (none = follow the phone), `data-zone="resident"` for the density and
+ * `data-theme="light"` (the resident app is light only), `data-zone="resident"` for the density and
  * safe-area rules, the font variables — and mounts the providers (Web Vitals, the service worker) and the toast viewport, which loads sonner with the
  * first toast (D-179). Every page is rendered per request: the proxy's CSP nonce must reach Next's scripts.
  *
@@ -59,7 +58,9 @@ export const viewport: Viewport = {
 };
 
 export default async function LiffLayout({ children }: { children: React.ReactNode }) {
-  const [locale, choice] = await Promise.all([getLocale(), readThemeChoice("resident")]);
+  // Light only (redesign G2): an old `gp_theme` cookie no longer switches the palette.
+  const locale = await getLocale();
+  const choice = ZONE_DEFAULT_THEME.resident;
   const env = serverEnv();
 
   return (

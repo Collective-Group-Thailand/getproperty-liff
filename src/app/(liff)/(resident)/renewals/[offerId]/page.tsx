@@ -74,7 +74,7 @@ export default async function RenewalOfferPage({ params }: { params: Promise<{ o
   return (
     <ResidentShell active={null}>
       <BackLink href={`/lease/${offer.leaseId}`}>{back("lease")}</BackLink>
-      <div className="flex flex-col gap-4 py-5" data-testid="renewal-offer" data-state={offer.state}>
+      <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="renewal-offer" data-state={offer.state}>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>

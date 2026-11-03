@@ -81,6 +81,7 @@ export function ViewingDecision({ viewingId }: { viewingId: string }) {
       ) : (
         <div className="grid grid-cols-2 gap-2">
           <Button
+            variant="secondary"
             iconStart={IconCheck}
             loading={busy === "confirm"}
             onClick={() => void run("confirm")}
