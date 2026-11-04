@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -246,29 +247,31 @@ export function DepositResponse({
         {t("title")}
       </h2>
       <p className="text-muted text-sm">{t("lead")}</p>
-      {canAccept ? (
-        <Button
-          size="lg"
-          block
-          iconStart={IconCheckCircle}
-          onClick={() => setMode("accept")}
-          data-testid="deposit-accept"
-        >
-          {refund ? t("accept", { amount: refund }) : t("acceptNoAmount")}
-        </Button>
-      ) : null}
-      {canDispute ? (
-        <Button
-          variant="secondary"
-          size="lg"
-          block
-          iconStart={IconFlag}
-          onClick={() => setMode("dispute")}
-          data-testid="deposit-dispute"
-        >
-          {t("dispute")}
-        </Button>
-      ) : null}
+      <ActionDock>
+        {canAccept ? (
+          <Button
+            size="lg"
+            block
+            iconStart={IconCheckCircle}
+            onClick={() => setMode("accept")}
+            data-testid="deposit-accept"
+          >
+            {refund ? t("accept", { amount: refund }) : t("acceptNoAmount")}
+          </Button>
+        ) : null}
+        {canDispute ? (
+          <Button
+            variant="secondary"
+            size="lg"
+            block
+            iconStart={IconFlag}
+            onClick={() => setMode("dispute")}
+            data-testid="deposit-dispute"
+          >
+            {t("dispute")}
+          </Button>
+        ) : null}
+      </ActionDock>
     </section>
   );
 }

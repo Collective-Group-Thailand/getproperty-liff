@@ -76,7 +76,7 @@ export async function LeaseView({
   return (
     <Screen testId="lease-view">
       <ScreenHeader
-        back={{ href: "/", label: t("back.home") }}
+        flush
         title={t("view.title", { unit: lease.unitNo })}
         status={<StatusBadge status={LEASE_STATUS[lease.status]} label={status(LEASE_STATUS[lease.status].labelKey)} />}
         lede={t("view.subtitle", { building: lease.buildingName, operator: lease.tenantName })}

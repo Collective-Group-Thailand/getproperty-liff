@@ -106,12 +106,12 @@ export function CancelRequest({ serviceRequestId }: { serviceRequestId: string }
 export function ConfirmVisit({ serviceRequestId }: { serviceRequestId: string }) {
   const t = useTranslations("resident.requests.detail");
   const { busy, error, run } = useRun();
+  // The request page's one next step: docked on the bottom edge, the screen's only filled button.
   return (
-    <div className="mt-3 flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <Button
         size="lg"
         block
-        variant="secondary"
         iconStart={IconCheckCircle}
         loading={busy}
         data-testid="request-confirm-visit"

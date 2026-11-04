@@ -39,10 +39,16 @@ export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph;
 export async function ResidentShell({
   active,
   chrome = "full",
+  back,
   children,
 }: {
   active: ResidentNavKey | null;
   chrome?: "full" | "minimal" | "entry";
+  /**
+   * A record or form screen (an invoice, a request, the lease, a form): "‹ {label}" in the top bar with the unit at its
+   * end, and no bottom nav — the screen's one action docks on the bottom edge instead (redesign G2 r2).
+   */
+  back?: { href: string; label: string };
   children: React.ReactNode;
 }) {
   const [t, nav, actor, current] = await Promise.all([
@@ -74,6 +80,14 @@ export async function ResidentShell({
       navItems={items}
       envBadge={badge ? t("envBadge", { name: badge }) : undefined}
       brand={chrome === "entry" ? "hero" : "header"}
+      back={
+        back
+          ? {
+              ...back,
+              context: signedIn && actor.unit ? t("unitSwitcher.unit", { unit: actor.unit.unitNo }) : undefined,
+            }
+          : undefined
+      }
       unit={
         signedIn && actor.unit && chrome === "full" ? (
           <UnitSwitcher

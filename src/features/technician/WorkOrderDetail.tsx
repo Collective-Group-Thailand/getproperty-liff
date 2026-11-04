@@ -7,10 +7,22 @@ import { formatClock } from "@/features/shared/time";
 import { formatDate, formatDateTime, formatDecimal, formatTHB } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
+import { Button } from "@/ui/components/Button";
 import { Card } from "@/ui/components/Card";
-import { DescriptionList } from "@/ui/components/DescriptionList";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { SimpleTable } from "@/ui/components/SimpleTable";
+import { Icon } from "@/ui/icons";
+import { IconCalendar } from "@/ui/icons/glyphs/calendar";
+import { IconChat } from "@/ui/icons/glyphs/chat";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconChecklist } from "@/ui/icons/glyphs/checklist";
+import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconPlay } from "@/ui/icons/glyphs/play";
+import { IconResident } from "@/ui/icons/glyphs/resident";
+import { IconRoom } from "@/ui/icons/glyphs/room";
+import { IconWarning } from "@/ui/icons/glyphs/warning";
+import { KNOWN_CATEGORY_KEYS } from "@/features/resident/requests/model";
+import { ProgressSteps } from "@/features/shared/ProgressSteps";
 
 import { LazyCostLineForm } from "./LazyCostLineForm";
 import { DoorCodes } from "./DoorCodes";
@@ -18,26 +30,57 @@ import { canAddPhotos, fieldActions, type WorkOrder } from "./model";
 import { WorkOrderActions } from "./WorkOrderActions";
 import { LazyWorkOrderPhotos } from "./LazyWorkOrderPhotos";
 
+/** The job's three field steps (D-072) and the status each is current in. */
+const STEPS = [
+  { key: "accept", icon: IconCheckCircle },
+  { key: "start", icon: IconPlay },
+  { key: "close", icon: IconChecklist },
+] as const;
+
+function currentStep(status: WorkOrder["status"]): number {
+  if (status === "open" || status === "assigned") return 0;
+  if (status === "accepted") return 1;
+  if (status === "in_progress") return 2;
+  return 3;
+}
+
 /**
- * One work order for its technician (L4 4.4 §2, A4.3): the place (unit, building), the visit window, the problem
- * with the resident's photos, the door codes of the visit, the next field step, before / after photos, parts and
- * costs (amounts and the total are the API's), the thread with the resident through the platform (never a phone
- * number), and — once done — the resident's rating. Photo links (5 minutes; a file not scanned clean yet is a
- * placeholder), the resident's preferred visit and the rating are the API's (D-218).
+ * One work order for its technician (L4 4.4 §2, A4.3; redesign G2 r2). Head: the problem in the resident's words as
+ * the title, category · place as the lede, status and urgency. Then where the job stands (three steps), the
+ * appointment (when, where, what the resident prefers, a message to them through the platform — never a phone number,
+ * D-218 — and the visit's door codes, masked until revealed and audited), the resident's photos, before / after photos
+ * side by side with the "one after photo to close" rule beside the after slot, parts and costs (the API's amounts),
+ * the rating once done and the thread. The one next step docks on the bottom edge (`WorkOrderActions`).
  */
 export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOrder; locale: Locale }) {
-  const [t, root] = await Promise.all([getTranslations("technician.workOrders"), getTranslations()]);
+  const [t, root, cat] = await Promise.all([
+    getTranslations("technician.workOrders"),
+    getTranslations(),
+    getTranslations("resident.requests.category"),
+  ]);
   const status = WORK_ORDER_STATUS[workOrder.status];
   const photos = workOrder.photos;
   const requestPhotos = photos.filter((p) => p.role === "report");
   const open = canAddPhotos(workOrder);
   const finished = workOrder.status === "done" || workOrder.status === "verified";
+  const actions = fieldActions(workOrder);
+  const problem = (workOrder.requestDescription ?? workOrder.description ?? "").trim();
+  const known = (KNOWN_CATEGORY_KEYS as readonly string[]).includes(workOrder.categoryKey ?? "");
+  const category = known
+    ? cat(workOrder.categoryKey as (typeof KNOWN_CATEGORY_KEYS)[number])
+    : t(`detail.kind.${workOrder.kind}`);
+  const place = workOrder.unitNo
+    ? t("where", { unit: workOrder.unitNo, building: workOrder.buildingName })
+    : workOrder.buildingName;
+  // The title is the problem in words; a long report is clamped there and printed in full under the photos.
+  const long = problem.length > 64 || problem.includes("\n");
   const uploaded = (role: "before" | "after", label: string) => {
     const list = photos.filter((p) => p.role === role);
     return list.length ? (
       <PhotoGallery
         label={label}
         testId={`wo-gallery-${role}`}
+        columns={2}
         photos={list.map((p, i) => ({
           id: p.id,
           url: p.url,
@@ -46,34 +89,48 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
       />
     ) : null;
   };
+  const needsAfter = actions.includes("complete") && workOrder.afterPhotoIds.length === 0;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="work-order" data-status={workOrder.status}>
-      <div className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl font-semibold">{workOrder.title}</h1>
+    <div className="flex flex-1 flex-col gap-4 pt-2" data-testid="work-order" data-status={workOrder.status}>
+      <header className="flex flex-col gap-2">
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={status} label={root(status.labelKey)} />
-          <Badge tone={workOrder.priority === "urgent" || workOrder.priority === "high" ? "warning" : "neutral"}>
-            {t(`priority.${workOrder.priority}`)}
-          </Badge>
+          {workOrder.priority === "urgent" || workOrder.priority === "high" ? (
+            <Badge tone="warning" icon={IconWarning}>
+              {t(`priority.${workOrder.priority}`)}
+            </Badge>
+          ) : (
+            <Badge tone="neutral">{t(`priority.${workOrder.priority}`)}</Badge>
+          )}
         </div>
-      </div>
+        <h1 className="font-display line-clamp-3 text-xl leading-snug font-semibold text-pretty">
+          {problem || workOrder.title}
+        </h1>
+        <p className="text-muted" data-testid="wo-lede">
+          {t("detail.lede", { category, place })}
+        </p>
+      </header>
 
-      <Card as="section" padding="md" aria-label={t("detail.place")}>
-        <DescriptionList
-          columns={1}
-          items={[
-            {
-              id: "place",
-              term: t("detail.place"),
-              description: workOrder.unitNo
-                ? t("where", { unit: workOrder.unitNo, building: workOrder.buildingName })
-                : workOrder.buildingName,
-            },
-            {
-              id: "visit",
-              term: t("detail.visit"),
-              description: workOrder.scheduledAt
+      {workOrder.status !== "cancelled" ? (
+        <ProgressSteps
+          label={t("detail.progress")}
+          doneLabel={t("detail.stepDone")}
+          current={currentStep(workOrder.status)}
+          testId="wo-progress"
+          steps={STEPS.map((step) => ({ key: step.key, icon: step.icon, label: t(`detail.step.${step.key}`) }))}
+        />
+      ) : null}
+
+      <Card as="section" padding="none" aria-labelledby="wo-visit-title" data-testid="wo-visit">
+        <h2 id="wo-visit-title" className="px-4 pt-4 font-semibold">
+          {t("detail.appointment")}
+        </h2>
+        <ul className="flex flex-col gap-3 px-4 pt-3 pb-4">
+          <li className="flex items-start gap-3">
+            <Icon icon={IconCalendar} className="text-muted mt-0.5 shrink-0 text-xl" />
+            <span className="tabular-nums">
+              {workOrder.scheduledAt
                 ? workOrder.scheduledUntil
                   ? t("when", {
                       date: formatDate(workOrder.scheduledAt, locale),
@@ -81,33 +138,46 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
                       to: formatClock(workOrder.scheduledUntil),
                     })
                   : formatDateTime(workOrder.scheduledAt, locale)
-                : t("detail.noVisit"),
-            },
-            ...(workOrder.preferredVisit
-              ? [
-                  {
-                    id: "preferredVisit",
-                    term: t("detail.preferredVisit"),
-                    description: t(`detail.visitPreference.${workOrder.preferredVisit}`),
-                  },
-                ]
-              : []),
-            { id: "kind", term: t("detail.problem"), description: t(`detail.kind.${workOrder.kind}`) },
-            {
-              id: "problem",
-              term: t("detail.problem"),
-              description: (
-                <span className="whitespace-pre-line">{workOrder.requestDescription ?? workOrder.description}</span>
-              ),
-            },
-          ]}
-        />
+                : t("detail.noVisit")}
+            </span>
+          </li>
+          <li className="flex items-start gap-3">
+            <Icon icon={IconRoom} className="text-muted mt-0.5 shrink-0 text-xl" />
+            <span>{place}</span>
+          </li>
+          {workOrder.preferredVisit ? (
+            <li className="flex items-start gap-3">
+              <Icon icon={IconClock} className="text-muted mt-0.5 shrink-0 text-xl" />
+              <span>
+                {t("detail.preferredVisit")} {t(`detail.visitPreference.${workOrder.preferredVisit}`)}
+              </span>
+            </li>
+          ) : null}
+        </ul>
+        {workOrder.serviceRequestId ? (
+          <div className="border-border flex items-center gap-3 border-t px-4 py-3">
+            <Icon icon={IconResident} className="text-muted shrink-0 text-xl" />
+            <span className="min-w-0 flex-1">{t("detail.resident")}</span>
+            <Button asChild variant="secondary" iconStart={IconChat}>
+              <a href="#wo-thread" data-testid="wo-message">
+                {t("detail.message")}
+              </a>
+            </Button>
+          </div>
+        ) : null}
+        {open ? (
+          <div className="border-border flex flex-col gap-2 border-t px-4 pt-3 pb-4">
+            <h3 className="text-sm font-semibold">{t("detail.doorCodes")}</h3>
+            <DoorCodes workOrderId={workOrder.id} />
+          </div>
+        ) : null}
       </Card>
 
-      <Card as="section" padding="md" aria-labelledby="wo-request-photos">
-        <h2 id="wo-request-photos" className="mb-2 font-semibold">
-          {t("detail.requestPhotos")}
+      <Card as="section" padding="md" aria-labelledby="wo-request-photos" className="flex flex-col gap-3">
+        <h2 id="wo-request-photos" className="font-semibold">
+          {long ? t("detail.problem") : t("detail.requestPhotos")}
         </h2>
+        {long ? <p className="whitespace-pre-line">{problem}</p> : null}
         {requestPhotos.length ? (
           <PhotoGallery
             label={t("detail.requestPhotos")}
@@ -125,30 +195,35 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
         )}
       </Card>
 
-      {open ? (
-        <Card as="section" padding="md" aria-labelledby="wo-door" className="flex flex-col gap-2">
-          <h2 id="wo-door" className="font-semibold">
-            {t("detail.doorCodes")}
-          </h2>
-          <DoorCodes workOrderId={workOrder.id} />
-        </Card>
-      ) : null}
-
-      <WorkOrderActions
-        workOrderId={workOrder.id}
-        actions={fieldActions(workOrder)}
-        hasAfterPhoto={workOrder.afterPhotoIds.length > 0}
-      />
-
-      {(["before", "after"] as const).map((role) => (
-        <Card key={role} as="section" padding="md" aria-labelledby={`wo-${role}`} className="flex flex-col gap-3">
-          <h2 id={`wo-${role}`} className="font-semibold">
-            {t(`photos.${role}`)}
-          </h2>
-          {uploaded(role, t(`photos.${role}`))}
-          {open ? <LazyWorkOrderPhotos workOrderId={workOrder.id} role={role} /> : null}
-        </Card>
-      ))}
+      <Card as="section" padding="md" aria-labelledby="wo-photos-title" className="flex flex-col gap-3">
+        <h2 id="wo-photos-title" className="font-semibold">
+          {t("photos.title")}
+        </h2>
+        <div className="grid grid-cols-2 gap-4">
+          {(["before", "after"] as const).map((role) => (
+            <section
+              key={role}
+              aria-labelledby={`wo-${role}`}
+              className="flex min-w-0 flex-col gap-2 has-[[data-camera-open]]:col-span-2"
+            >
+              <h3 id={`wo-${role}`} className="text-sm font-semibold">
+                {t(`photos.${role}`)}
+              </h3>
+              {uploaded(role, t(`photos.${role}`))}
+              {open ? <LazyWorkOrderPhotos workOrderId={workOrder.id} role={role} /> : null}
+              {role === "after" && needsAfter ? (
+                <p className="text-sm font-medium" data-testid="wo-needs-photo">
+                  {t("photos.afterHint")}
+                </p>
+              ) : (
+                <p className="text-muted text-sm">
+                  {role === "before" ? t("photos.beforeHint") : t("photos.afterDone")}
+                </p>
+              )}
+            </section>
+          ))}
+        </div>
+      </Card>
 
       <Card as="section" padding="md" aria-labelledby="wo-costs" className="flex flex-col gap-3" data-testid="wo-costs">
         <div>
@@ -228,12 +303,17 @@ export async function WorkOrderDetail({ workOrder, locale }: { workOrder: WorkOr
         </Card>
       ) : null}
 
-      <LazyRequestThread
-        of={{ kind: "technician", workOrderId: workOrder.id }}
-        canWrite={!finished && workOrder.status !== "cancelled"}
-        namespace="technician.workOrders.thread"
-        withOffice={!workOrder.serviceRequestId}
-      />
+      <div id="wo-thread" className="scroll-mt-16">
+        <LazyRequestThread
+          of={{ kind: "technician", workOrderId: workOrder.id }}
+          canWrite={!finished && workOrder.status !== "cancelled"}
+          namespace="technician.workOrders.thread"
+          withOffice={!workOrder.serviceRequestId}
+        />
+      </div>
+
+      <WorkOrderActions workOrderId={workOrder.id} actions={actions} />
+      {actions.length === 0 ? <div className="pb-4" /> : null}
     </div>
   );
 }

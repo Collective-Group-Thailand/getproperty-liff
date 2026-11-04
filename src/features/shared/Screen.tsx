@@ -42,8 +42,11 @@ export function ScreenHeader({
   meta,
   titleId,
   className,
+  flush,
 }: {
   back?: { href: string; label: string };
+  /** A record screen under the back bar: no extra top inset. */
+  flush?: boolean;
   title: React.ReactNode;
   lede?: React.ReactNode;
   status?: React.ReactNode;
@@ -52,7 +55,9 @@ export function ScreenHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("flex flex-col", back ? "pt-0" : "pt-4", className)}>
+    // Record screens carry the way back in the top bar (redesign G2 r2) and the frame adds its own top inset there, so
+    // a header without a back link only needs the 16-px lead on the tab screens (`flush` on record screens).
+    <header className={cn("flex flex-col", back || flush ? "pt-0" : "pt-4", className)}>
       {back ? <BackLink href={back.href}>{back.label}</BackLink> : null}
       <div className="flex items-start justify-between gap-3">
         <h1 id={titleId} className="font-display min-w-0 text-2xl font-semibold text-balance">

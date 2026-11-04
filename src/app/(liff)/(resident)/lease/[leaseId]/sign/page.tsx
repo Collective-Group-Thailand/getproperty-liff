@@ -5,7 +5,6 @@ import { loadLease, pageLocale } from "@/features/resident/lease/data";
 import { SignFlow } from "@/features/resident/lease/SignFlow";
 import { SignReader } from "@/features/resident/lease/SignReader";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -24,7 +23,7 @@ export default async function SignPage({ params }: { params: Promise<{ leaseId: 
   const [t, locale, lease] = await Promise.all([getTranslations("resident.lease"), pageLocale(), loadLease(leaseId)]);
   if (lease.error) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back.lease") }}>
         <ProblemPage error={lease.error} />
       </ResidentShell>
     );
@@ -32,7 +31,7 @@ export default async function SignPage({ params }: { params: Promise<{ leaseId: 
   const l = lease.data;
   if (!l.nextActions.includes("sign")) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back.lease") }}>
         <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="sign-unavailable">
           <Callout tone="info" title={t("sign.unavailableTitle")}>
             {l.signatureRequired ? t("sign.unavailableBody") : t("sign.alreadySigned")}
@@ -45,8 +44,7 @@ export default async function SignPage({ params }: { params: Promise<{ leaseId: 
     );
   }
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${l.id}`}>{t("back.lease")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${l.id}`, label: t("back.lease") }}>
       <SignFlow lease={l} reader={<SignReader lease={l} locale={locale} />} />
     </ResidentShell>
   );

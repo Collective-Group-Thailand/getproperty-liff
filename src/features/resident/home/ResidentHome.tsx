@@ -6,7 +6,6 @@ import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { dueState, needsAttention, openFirst } from "@/features/resident/invoices/model";
 import { LINK_CHECK_ATTRIBUTE } from "@/features/resident/home/linkDecision";
 import { LinkPendingLazy } from "@/features/resident/home/LinkPendingLazy";
-import { LEASE_STATUS } from "@/domain/status/lease";
 import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import type { InvoiceView } from "@/lib/api/types";
@@ -135,6 +134,7 @@ export async function ResidentHome({
   today,
   vapidKey,
   todo = [],
+  waitingParcels = 0,
 }: {
   me: ResidentMe;
   unit: ResidentUnit | null;
@@ -146,9 +146,11 @@ export async function ResidentHome({
   vapidKey?: string;
   /** GL3: documents to sign and an open offer to renew (`homeContractRows`). */
   todo?: ListRow[];
+  /** Parcels waiting at the desk (rows of `/v1/resident/parcels` still `received` / `notified`), on the parcels tile. */
+  waitingParcels?: number;
 }) {
   const t = await getTranslations("resident.home");
-  const root = await getTranslations();
+  const dueWords = await getTranslations("resident.invoices.due");
   const current = await getLocale();
   const locale = isLocale(current) ? current : "th";
   // A lease the office sent for signature (D-062) — also before the resident occupies any unit.
@@ -179,13 +181,40 @@ export async function ResidentHome({
       : []),
     ...todo,
   ];
-  const tiles = TILES.filter((tile) => entitlements.has(tile.needs));
+  // The lease opens from the services grid now that the "my unit" card is gone (its words moved into the greeting).
+  const tiles: { key: string; href: string; icon: IconGlyph; label: string; testId?: string; count?: number }[] = [
+    ...(unitLease
+      ? [
+          {
+            key: "lease",
+            href: `/lease/${unitLease.leaseId}`,
+            icon: IconLease,
+            label: t("tiles.lease"),
+            testId: "unit-lease",
+          },
+        ]
+      : []),
+    ...TILES.filter((tile) => entitlements.has(tile.needs)).map((tile) => ({
+      key: tile.key,
+      href: tile.href,
+      icon: tile.icon,
+      label: t(`tiles.${tile.key}`),
+      count: tile.key === "parcels" && waitingParcels ? waitingParcels : undefined,
+    })),
+  ];
 
   return (
     <Screen testId="resident-home">
+      {/* The unit and building are in the top bar; the greeting carries who runs the place and since when. */}
       <ScreenHeader
         title={t("greeting", { name: me.user.displayName })}
-        lede={unit ? t("unit.summary", { code: unit.unitNo, building: unit.buildingName }) : undefined}
+        lede={
+          unit ? (
+            <span data-testid="home-unit">
+              {t("unit.managed", { name: unit.tenantName, date: formatDate(unit.validFrom, locale) })}
+            </span>
+          ) : undefined
+        }
       />
 
       {billing && unit ? (
@@ -199,16 +228,19 @@ export async function ResidentHome({
             data-invoice={hero.id}
           >
             <div className="flex flex-col gap-1 px-5 pt-5">
-              <h2 id="bills-title" className="text-primary-subtle-fg text-sm font-semibold">
-                {t("invoice.title", { period: formatDate(hero.periodStart, locale, { style: "month" }) })}
-              </h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 id="bills-title" className="text-primary-subtle-fg text-sm font-semibold">
+                  {t("invoice.title", { period: formatDate(hero.periodStart, locale, { style: "month" }) })}
+                </h2>
+                <Due state={heroState} dueDate={hero.dueDate} locale={locale} variant="badge" />
+              </div>
               <MoneyDisplay
                 amount={hero.balance}
                 locale={locale}
                 size="hero"
                 tone={needsAttention(heroState) ? "attention" : "default"}
               />
-              <Due state={heroState} dueDate={hero.dueDate} locale={locale} />
+              <p className="text-muted text-sm">{dueWords("on", { date: formatDate(hero.dueDate, locale) })}</p>
             </div>
             <div className="flex flex-col gap-1 px-5 pt-4 pb-2">
               <PayLauncher invoice={hero} label={t("invoice.pay")} testId="home-pay" vapidKey={vapidKey} />
@@ -274,55 +306,34 @@ export async function ResidentHome({
             </LinkPendingLazy>
           ) : null}
 
-          <Section title={t("unit.title")} titleId="unit-title">
-            <List
-              testId="unit-card"
-              rows={[
-                {
-                  key: "unit",
-                  icon: IconRoom,
-                  title: t("unit.summary", { code: unit.unitNo, building: unit.buildingName }),
-                  meta: t("unit.managed", { name: unit.tenantName, date: formatDate(unit.validFrom, locale) }),
-                },
-                ...(unitLease
-                  ? [
-                      {
-                        key: "lease",
-                        href: `/lease/${unitLease.leaseId}`,
-                        icon: IconLease,
-                        title: t("tiles.lease"),
-                        meta: t("unit.lease", {
-                          number: unitLease.number ?? "—",
-                          status: root(LEASE_STATUS[unitLease.status].labelKey),
-                        }),
-                        testId: "unit-lease",
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          </Section>
-
           {tiles.length ? (
             <Section title={t("tiles.more")} titleId="tiles-title">
-              <ul className="rounded-card border-border bg-surface shadow-card grid grid-cols-2 overflow-hidden border">
-                {tiles.map((tile, index) => {
-                  const lastRow = index >= tiles.length - (tiles.length % 2 === 0 ? 2 : 1);
-                  return (
-                    <li
-                      key={tile.key}
-                      className={`border-border ${index % 2 === 0 ? "border-e" : ""} ${lastRow ? "" : "border-b"}`}
+              <ul className="grid grid-cols-4 gap-2" data-testid="home-tiles">
+                {tiles.map((tile) => (
+                  <li key={tile.key}>
+                    <Link
+                      href={tile.href}
+                      className="rounded-card border-border bg-surface shadow-card active:bg-bg-subtle relative flex min-h-21 flex-col items-center justify-center gap-1.5 border px-1 py-3 text-center"
+                      data-testid={tile.testId}
                     >
-                      <Link
-                        href={tile.href}
-                        className="active:bg-bg-subtle flex min-h-14 min-w-0 items-center gap-3 px-4 py-3 font-medium [overflow-wrap:anywhere]"
-                      >
-                        <Icon icon={tile.icon} className="text-muted shrink-0 text-xl" />
-                        {t(`tiles.${tile.key}`)}
-                      </Link>
-                    </li>
-                  );
-                })}
+                      <Icon icon={tile.icon} className="text-fg text-2xl" />
+                      <span className="line-clamp-2 text-sm leading-tight font-medium [overflow-wrap:anywhere]">
+                        {tile.label}
+                      </span>
+                      {tile.count ? (
+                        <>
+                          <span
+                            aria-hidden="true"
+                            className="bg-primary-subtle text-primary-subtle-fg rounded-thumb absolute end-1.5 top-1.5 grid h-5 min-w-5 place-items-center px-1 text-xs font-semibold tabular-nums"
+                          >
+                            {tile.count}
+                          </span>
+                          <span className="sr-only">{t("tiles.waiting", { count: tile.count })}</span>
+                        </>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </Section>
           ) : null}

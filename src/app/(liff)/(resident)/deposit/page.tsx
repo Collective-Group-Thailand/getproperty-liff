@@ -31,7 +31,7 @@ export default async function DepositsPage() {
   const { data, error, response } = await api.GET("/v1/resident/deposits");
   if (data?.length === 1) redirect(`/deposit/${data[0]!.id}`);
   return (
-    <ResidentShell active={null}>
+    <ResidentShell active={null} back={{ href: "/", label: root("resident.lease.back.home") }}>
       {!data ? (
         <ProblemPage error={problemFromParsed(response, error)} />
       ) : data.length === 0 ? (

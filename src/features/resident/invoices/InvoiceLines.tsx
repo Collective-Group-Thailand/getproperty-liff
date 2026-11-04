@@ -7,7 +7,7 @@ import type { InvoiceLineView } from "@/lib/api/types";
 import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { IconHelp } from "@/ui/icons/glyphs/help";
 
-import { MeterPhoto } from "./MeterPhoto";
+import { MeterDetails } from "./MeterPhoto";
 import { formatRate, groupLines, isMeterLine, meterUnit } from "./model";
 
 function isReadingSource(value: string | null): value is ReadingSource {
@@ -22,6 +22,12 @@ function quantity(line: InvoiceLineView, locale: Locale): string {
     : formatUnits(line.quantity, "kWh", locale, { withUnit: false });
 }
 
+/**
+ * A meter line (D-022): the charge and its amount, then ONE muted line with everything the resident must be able to
+ * check — previous → current register, units used × price per unit — and the reading's source (D-012). The labelled
+ * readings, the units × price = amount sum, when it was read and the register photo sit one tap away in a sheet
+ * (`MeterDetails`), whose trigger is the photo's thumbnail when there is one.
+ */
 async function MeterLine({ line, locale }: { line: InvoiceLineView; locale: Locale }) {
   const t = await getTranslations("resident.invoices.lines");
   const root = await getTranslations();
@@ -29,69 +35,80 @@ async function MeterLine({ line, locale }: { line: InvoiceLineView; locale: Loca
   const register = (value: string | null) =>
     value === null ? "—" : formatUnits(value, unit ?? "kWh", locale, { withUnit: false });
   const source = isReadingSource(line.readingSource) ? line.readingSource : null;
+  const used = quantity(line, locale);
+  const rate = line.unitPrice ? formatRate(line.unitPrice, locale) : null;
+  const details = (
+    <MeterDetails
+      title={line.description}
+      photoUrl={line.readingPhotoUrl}
+      facts={[
+        { key: "previous", label: t("previous"), value: register(line.registerFrom) },
+        { key: "current", label: t("current"), value: register(line.registerTo) },
+        { key: "used", label: t("used"), value: used },
+        ...(rate ? [{ key: "rate", label: t("pricePerUnit"), value: t("rate", { rate }) }] : []),
+        ...(source ? [{ key: "source", label: t("source"), value: root(READING_SOURCE[source].labelKey) }] : []),
+        ...(line.periodFrom && line.periodTo
+          ? [
+              {
+                key: "period",
+                label: t("periodLabel"),
+                value: t("period", {
+                  from: formatDate(line.periodFrom, locale),
+                  to: formatDate(line.periodTo, locale),
+                }),
+              },
+            ]
+          : []),
+      ]}
+      formula={rate ? t("unitsTimesPrice", { units: used, rate, amount: formatTHB(line.amount, locale) }) : undefined}
+      note={
+        line.isEstimated
+          ? t("estimated")
+          : line.readAt
+            ? t("readAt", { date: formatDateTime(line.readAt, locale) })
+            : undefined
+      }
+    />
+  );
+  const summary = [
+    line.registerFrom !== null || line.registerTo !== null
+      ? t("registers", { from: register(line.registerFrom), to: register(line.registerTo) })
+      : null,
+    rate ? t("usedTimesRate", { units: used, rate }) : t("usedOnly", { units: used }),
+  ].filter(Boolean);
   return (
     <li
-      className="border-border flex flex-col gap-2 border-b py-3 last:border-b-0"
+      className="border-border flex flex-col gap-1 border-b py-3 last:border-b-0"
       data-testid="invoice-line"
       data-kind={line.lineKind}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-medium">{line.description}</p>
-          {line.periodFrom && line.periodTo ? (
-            <p className="text-muted text-xs">
-              {t("period", { from: formatDate(line.periodFrom, locale), to: formatDate(line.periodTo, locale) })}
-            </p>
-          ) : null}
-        </div>
+        <p className="min-w-0 font-medium">{line.description}</p>
         <p className="font-semibold tabular-nums">{formatTHB(line.amount, locale)}</p>
       </div>
-      {source ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={READING_SOURCE[source]} label={root(READING_SOURCE[source].labelKey)} size="sm" />
-          {line.readAt ? (
-            <span className="text-muted text-xs">{t("readAt", { date: formatDateTime(line.readAt, locale) })}</span>
-          ) : null}
+      <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <p className="text-muted text-sm tabular-nums" data-testid="meter-readings">
+            {summary.join(" · ")}
+          </p>
+          <div className="flex min-h-6 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <p className="flex flex-wrap items-center gap-1.5">
+              {source ? (
+                <StatusBadge status={READING_SOURCE[source]} label={root(READING_SOURCE[source].labelKey)} size="sm" />
+              ) : null}
+              {line.isEstimated ? (
+                <span data-testid="line-estimated">
+                  <Badge tone="warning" size="sm" icon={IconHelp}>
+                    {t("estimatedBadge")}
+                  </Badge>
+                </span>
+              ) : null}
+            </p>
+            {line.readingPhotoUrl ? null : details}
+          </div>
         </div>
-      ) : null}
-      <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm" data-testid="meter-readings">
-        <dt className="text-muted">{t("previous")}</dt>
-        <dd className="text-end tabular-nums">{register(line.registerFrom)}</dd>
-        <dt className="text-muted">{t("current")}</dt>
-        <dd className="text-end tabular-nums">{register(line.registerTo)}</dd>
-        <dt className="text-muted">{t("used")}</dt>
-        <dd className="text-end font-medium tabular-nums">{quantity(line, locale)}</dd>
-        {line.unitPrice ? (
-          <>
-            <dt className="text-muted">{t("pricePerUnit")}</dt>
-            <dd className="text-end tabular-nums">{t("rate", { rate: formatRate(line.unitPrice, locale) })}</dd>
-          </>
-        ) : null}
-      </dl>
-      {line.unitPrice ? (
-        <p className="bg-bg-subtle rounded-control px-3 py-2 text-sm tabular-nums" data-testid="units-times-price">
-          {t("unitsTimesPrice", {
-            units: quantity(line, locale),
-            rate: formatRate(line.unitPrice, locale),
-            amount: formatTHB(line.amount, locale),
-          })}
-        </p>
-      ) : null}
-      {line.isEstimated ? (
-        <p className="text-muted flex flex-wrap items-center gap-2 text-sm" data-testid="line-estimated">
-          <Badge tone="warning" size="sm" icon={IconHelp}>
-            {t("estimatedBadge")}
-          </Badge>
-          {t("estimated")}
-        </p>
-      ) : null}
-      {line.readingPhotoUrl ? (
-        <MeterPhoto
-          url={line.readingPhotoUrl}
-          title={line.description}
-          caption={line.readAt ? t("readAt", { date: formatDateTime(line.readAt, locale) }) : t("photoCaption")}
-        />
-      ) : null}
+        {line.readingPhotoUrl ? details : null}
+      </div>
     </li>
   );
 }

@@ -5,7 +5,6 @@ import { pageLocale } from "@/features/resident/lease/data";
 import { loadRequest } from "@/features/resident/requests/data";
 import { RequestDetail } from "@/features/resident/requests/RequestDetail";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { Callout } from "@/ui/components/Callout";
 
@@ -32,8 +31,7 @@ export default async function RequestPage({
   // Not mine — e.g. an old LINE link to a request of the unit's former occupant (D-224): the plain not-found page.
   if (loaded.error?.status === 404) notFound();
   return (
-    <ResidentShell active="requests">
-      <BackLink href="/requests">{t("detail.back")}</BackLink>
+    <ResidentShell active="requests" back={{ href: "/requests", label: t("detail.back") }}>
       {loaded.error ? (
         <ProblemPage error={loaded.error} />
       ) : (

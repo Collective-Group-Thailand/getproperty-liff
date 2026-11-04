@@ -4,7 +4,13 @@
     "today": "ယနေ့ ပေးရမည် ({date})",
     "inDays": "{days, plural, other {# ရက်အတွင်း}} ပေးရမည် ({date})",
     "paid": "ပေးပြီး",
-    "void": "ပယ်ဖျက်ပြီး"
+    "void": "ပယ်ဖျက်ပြီး",
+    "short": {
+      "overdue": "{days, plural, other {# ရက် နောက်ကျ}}",
+      "today": "ယနေ့ ပေးရမည်",
+      "inDays": "{days, plural, other {# ရက်အတွင်း}} ပေးရမည်"
+    },
+    "on": "နောက်ဆုံးရက် {date}"
   },
   "list": {
     "title": "ဘေလ်များ",
@@ -48,7 +54,8 @@
       "issued": "ထုတ်ပေးသည့်နေ့",
       "due": "နောက်ဆုံးရက်",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · နောက်ဆုံးရက် {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
     "quantityTimesPrice": "{quantity} × ฿{rate}",
     "estimated": "ဤအရာသည် ခန့်မှန်းချက် ဖြစ်သည်။ မီတာဖတ်ပြီးနောက် နောက်ဘေလ်တွင် ပြင်ဆင်မည်။",
-    "photoOpen": "မီတာဓာတ်ပုံ ကြည့်ရန်",
     "photoAlt": "မီတာဓာတ်ပုံ: {title}",
-    "photoCaption": "ဖတ်စဉ် ရိုက်ထားသော ဓာတ်ပုံ",
-    "estimatedBadge": "ခန့်မှန်း"
+    "estimatedBadge": "ခန့်မှန်း",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "အသုံးပြု {units} × {rate} ဘတ်",
+    "usedOnly": "အသုံးပြု {units}",
+    "source": "မီတာဖတ်ချက် ရင်းမြစ်",
+    "periodLabel": "ကာလ",
+    "details": "အသေးစိတ်",
+    "photoOpenFor": "မီတာဓာတ်ပုံနှင့် အသေးစိတ်: {title}",
+    "detailsOf": " ({title})"
   },
   "explained": {
     "title": "ဤပမာဏ ဘာကြောင့်လဲ",

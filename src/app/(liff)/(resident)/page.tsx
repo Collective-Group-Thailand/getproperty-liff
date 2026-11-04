@@ -1,3 +1,4 @@
+import { loadParcels } from "@/features/resident/community/data";
 import { loadContracts, loadRenewalOffers } from "@/features/resident/contracts/data";
 import { homeContractRows } from "@/features/resident/contracts/HomeContracts";
 import { pageLocale } from "@/features/resident/lease/data";
@@ -25,14 +26,19 @@ export default async function HomePage() {
   const actor = await getActor();
   if (actor.status !== "signed-in") return null;
   const billing = actor.entitlements.has("bills") && actor.unit !== null;
-  const [open, notifications, contracts, offers, locale] = await Promise.all([
+  const [open, notifications, contracts, offers, locale, parcels] = await Promise.all([
     billing ? loadOpenInvoices() : Promise.resolve({ data: [] }),
     actor.unit ? latestNotifications().catch(() => []) : Promise.resolve([]),
     // GL3: documents to sign and offers to renew — extra, so a failure leaves the cards out.
     loadContracts().catch(() => ({ data: [] })),
     loadRenewalOffers().catch(() => ({ data: [] })),
     pageLocale(),
+    // The count on the parcels tile — extra, so a failure leaves it out.
+    actor.unit && actor.entitlements.has("parcels")
+      ? loadParcels().catch(() => ({ data: [] }))
+      : Promise.resolve({ data: [] }),
   ]);
+  const waitingParcels = (parcels.data ?? []).filter((p) => p.status === "received" || p.status === "notified").length;
   return (
     <ResidentShell active="home">
       <ResidentHome
@@ -43,6 +49,7 @@ export default async function HomePage() {
         notifications={notifications}
         today={bangkokToday()}
         vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        waitingParcels={waitingParcels}
         todo={await homeContractRows({ contracts: contracts.data ?? [], offers: offers.data ?? [], locale })}
       />
     </ResidentShell>

@@ -11,5 +11,12 @@ export const dynamic = "force-dynamic";
  */
 export default async function TechnicianAppLayout({ children }: { children: React.ReactNode }) {
   const actor = await requireTechnician();
-  return <TechnicianShell>{actor.status === "error" ? <ProblemPage error={actor.error} /> : children}</TechnicianShell>;
+  // Each screen renders its own frame (the job page has a back bar and a docked next step instead of the logo).
+  return actor.status === "error" ? (
+    <TechnicianShell>
+      <ProblemPage error={actor.error} />
+    </TechnicianShell>
+  ) : (
+    children
+  );
 }

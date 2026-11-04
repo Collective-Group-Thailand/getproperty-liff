@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { DepositView } from "@/features/resident/deposit/DepositView";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
@@ -21,8 +20,10 @@ export default async function DepositPage({ params }: { params: Promise<{ deposi
     params: { path: { depositId } },
   });
   return (
-    <ResidentShell active={null}>
-      {data ? <BackLink href={`/lease/${data.leaseId}`}>{t("back.lease")}</BackLink> : null}
+    <ResidentShell
+      active={null}
+      back={data ? { href: `/lease/${data.leaseId}`, label: t("back.lease") } : { href: "/", label: t("back.home") }}
+    >
       {data ? (
         <DepositView deposit={data} locale={locale} />
       ) : (

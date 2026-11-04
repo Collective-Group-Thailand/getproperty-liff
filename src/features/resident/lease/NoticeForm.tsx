@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -200,9 +201,11 @@ export function NoticeForm({
             />
           </Field>
           {error && !error.fieldError("effectiveDate") ? <ProblemCallout error={error} /> : null}
-          <Button type="submit" size="lg" block iconStart={IconCalendar} disabled={!date} data-testid="notice-review">
-            {t("review")}
-          </Button>
+          <ActionDock>
+            <Button type="submit" size="lg" block iconStart={IconCalendar} disabled={!date} data-testid="notice-review">
+              {t("review")}
+            </Button>
+          </ActionDock>
         </form>
       )}
     </div>

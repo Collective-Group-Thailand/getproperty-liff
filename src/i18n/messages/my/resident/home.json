@@ -1,13 +1,10 @@
 {
   "greeting": "မင်္ဂလာပါ {name}",
   "unit": {
-    "title": "သင့်အခန်း",
     "unitCode": "အခန်း {code}",
     "building": "{name}",
     "operator": "{name} မှ စီမံသည်",
     "since": "{date} မှစ၍ နေထိုင်သည်",
-    "lease": "စာချုပ် {number} · {status}",
-    "summary": "အခန်း {code} · {building}",
     "managed": "{name} မှ စီမံသည် · {date} မှစ၍"
   },
   "bills": {
@@ -28,7 +25,8 @@
     "access": "တံခါးကုဒ်",
     "rules": "အဆောက်အအုံ စည်းမျဉ်း",
     "contacts": "ဆက်သွယ်ရန်",
-    "more": "အဆောက်အအုံ ဝန်ဆောင်မှု"
+    "more": "အဆောက်အအုံ ဝန်ဆောင်မှု",
+    "waiting": "{count} ခု စောင့်နေသည်"
   },
   "noUnit": {
     "title": "ဤအကောင့်တွင် အခန်း မရှိသေးပါ",

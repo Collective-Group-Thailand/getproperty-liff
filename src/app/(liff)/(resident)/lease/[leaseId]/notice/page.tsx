@@ -4,7 +4,6 @@ import Link from "next/link";
 import { loadLease, pageLocale } from "@/features/resident/lease/data";
 import { NoticeForm } from "@/features/resident/lease/NoticeForm";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -20,15 +19,14 @@ export default async function NoticePage({ params }: { params: Promise<{ leaseId
   const [t, locale, lease] = await Promise.all([getTranslations("resident.lease"), pageLocale(), loadLease(leaseId)]);
   if (lease.error) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back.lease") }}>
         <ProblemPage error={lease.error} />
       </ResidentShell>
     );
   }
   const l = lease.data;
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${l.id}`}>{t("back.lease")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${l.id}`, label: t("back.lease") }}>
       {/* Always the same component: its done screen must survive the refresh after the notice is recorded. */}
       <NoticeForm
         lease={l}

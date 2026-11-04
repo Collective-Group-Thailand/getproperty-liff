@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 
 import { NotificationPreferences } from "@/features/resident/profile/NotificationPreferences";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
@@ -21,8 +20,7 @@ export default async function NotificationsPage() {
   const [t, api] = await Promise.all([getTranslations("resident.profile"), serverApi()]);
   const { data, error, response } = await api.GET("/v1/resident/me/notification-preferences");
   return (
-    <ResidentShell active="me">
-      <BackLink href="/profile">{t("title")}</BackLink>
+    <ResidentShell active="me" back={{ href: "/profile", label: t("title") }}>
       {data ? (
         <div className="flex flex-1 flex-col gap-6 pt-2 pb-8">
           <h1 className="font-display text-2xl font-semibold">{t("notifications.title")}</h1>

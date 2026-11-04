@@ -83,6 +83,8 @@ test.describe("technician app (D-072, D-210)", () => {
     await page.getByTestId("wo-resume").click();
 
     // The cost form loads as the technician scrolls to it (D-179 budget, GL3).
+    // The cost form sits behind one outlined "add a cost" button (redesign G2 r2).
+    await page.getByTestId("cost-open").click();
     await page.getByTestId("cost-form-slot").scrollIntoViewIfNeeded();
     const costs = page.getByTestId("cost-form");
     await costs.getByTestId("cost-submit").click();
@@ -191,9 +193,10 @@ test.describe("technician app (D-072, D-210)", () => {
 
     await resident.goto("/requests/new");
     const form = resident.getByTestId("request-form");
-    await form.getByTestId("request-category").selectOption({ label: "ไฟฟ้า" });
+    await form.locator("label", { has: resident.getByRole("radio", { name: "ไฟฟ้า", exact: true }) }).click();
     await form.getByTestId("request-description").fill("ไฟห้องนอนกะพริบ");
-    await form.getByTestId("request-visit").selectOption("morning");
+    await form.locator("label", { has: resident.getByTestId("request-visit-window") }).click();
+    await form.locator("label", { has: resident.getByTestId("request-visit-morning") }).click();
     await form.getByTestId("request-photos-add").click();
     await form
       .locator('input[type="file"]')
@@ -239,6 +242,8 @@ test.describe("technician app (D-072, D-210)", () => {
     await expectAxeClean(technician);
     await expectNoHorizontalScroll(technician);
 
+    // Only the next step is offered: accept, then start (redesign G2 r2).
+    await technician.getByTestId("wo-accept").click();
     await technician.getByTestId("wo-check-in").click();
     await expect(technician.getByTestId("work-order")).toHaveAttribute("data-status", "in_progress");
     await addPhotos(technician, "after", 1);

@@ -4,6 +4,7 @@ import { pageLocale } from "@/features/resident/lease/data";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { currentTime } from "@/features/shared/time";
 import { loadWorkOrders } from "@/features/technician/data";
+import { TechnicianShell } from "@/features/technician/TechnicianShell";
 import { TechnicianWorkOrders } from "@/features/technician/TechnicianWorkOrders";
 import { getTechnician } from "@/lib/auth/actor";
 
@@ -17,9 +18,13 @@ export default async function TechnicianPage() {
   const [actor, locale] = await Promise.all([getTechnician(), pageLocale()]);
   if (actor.status !== "signed-in") return null;
   const loaded = await loadWorkOrders();
-  return loaded.error ? (
-    <ProblemPage error={loaded.error} />
-  ) : (
-    <TechnicianWorkOrders me={actor.me} items={loaded.data} locale={locale} now={currentTime()} />
+  return (
+    <TechnicianShell>
+      {loaded.error ? (
+        <ProblemPage error={loaded.error} />
+      ) : (
+        <TechnicianWorkOrders me={actor.me} items={loaded.data} locale={locale} now={currentTime()} />
+      )}
+    </TechnicianShell>
   );
 }

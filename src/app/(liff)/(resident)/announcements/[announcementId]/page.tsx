@@ -5,7 +5,6 @@ import { AnnouncementDetail } from "@/features/resident/community/Announcements"
 import { loadAnnouncements } from "@/features/resident/community/data";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { getActor } from "@/lib/auth/actor";
 import { EmptyState } from "@/ui/components/EmptyState";
@@ -33,8 +32,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ a
   const loaded = await loadAnnouncements();
   const item = loaded.data?.find((a) => a.id === announcementId);
   return (
-    <ResidentShell active={null}>
-      <BackLink href="/announcements">{t("back")}</BackLink>
+    <ResidentShell active={null} back={{ href: "/announcements", label: t("back") }}>
       <div className="pb-6">
         {loaded.error ? (
           <ProblemPage error={loaded.error} />

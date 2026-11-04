@@ -106,7 +106,7 @@ export async function ReceiptDetail({ receipt, locale }: { receipt: ReceiptView;
   return (
     <Screen testId="receipt-detail">
       <ScreenHeader
-        back={{ href: "/receipts", label: t("title") }}
+        flush
         title={t("detailTitle", { number: receipt.number })}
         status={
           receipt.voided ? (

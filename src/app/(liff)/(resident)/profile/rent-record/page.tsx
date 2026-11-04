@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { RentRecordFacts } from "@/features/shared/rentRecord/RentRecordFacts";
 import { RentRecordShares } from "@/features/shared/rentRecord/RentRecordShares";
@@ -25,9 +24,8 @@ export default async function ResidentRentRecordPage() {
   ]);
   const { data, error, response } = await api.GET("/v1/resident/me/rent-record");
   return (
-    <ResidentShell active="me">
+    <ResidentShell active="me" back={{ href: "/profile", label: profile("title") }}>
       <div className="flex flex-col gap-4 py-3" data-testid="rent-record-page">
-        <BackLink href="/profile">{profile("title")}</BackLink>
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
           <p className="text-muted">{t("lead")}</p>

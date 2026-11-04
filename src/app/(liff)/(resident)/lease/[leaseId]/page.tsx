@@ -11,7 +11,6 @@ import { RelocationPrompt } from "@/features/resident/relocation/RelocationPromp
 import { loadReview } from "@/features/resident/reviews/data";
 import { LeaseReviewEntry } from "@/features/resident/reviews/LeaseReviewEntry";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { serverApi } from "@/lib/api/server";
 
@@ -42,12 +41,9 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
   ]);
   const depositId = deposits.data?.find((d) => d.leaseId === leaseId)?.id;
   return (
-    <ResidentShell active={null}>
+    <ResidentShell active={null} back={{ href: "/", label: t("back.home") }}>
       {lease.error ? (
-        <>
-          <BackLink href="/">{t("back.home")}</BackLink>
-          <ProblemPage error={lease.error} />
-        </>
+        <ProblemPage error={lease.error} />
       ) : (
         <LeaseView lease={lease.data} locale={locale} depositId={depositId}>
           {lease.data.notice ? <RelocationPrompt /> : null}
