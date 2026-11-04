@@ -67,5 +67,71 @@
         "body": "The LINE account that follows {name} is linked to someone else. Ask {name} to fix it"
       }
     }
+  },
+  "unitInvite": {
+    "title": "Add a unit to your account",
+    "lead": "The building's office invited you to this unit as a co-owner. Check the details before you confirm.",
+    "preview": {
+      "unit": "Unit {unit}",
+      "name": "Name on the register",
+      "phone": "Code goes to",
+      "noPhone": "No phone on the register",
+      "until": "Invitation valid until",
+      "why": "A 6-digit code goes by SMS to the phone the office recorded on the co-owner register. If that number is not yours, contact the building's office.",
+      "send": "Send the code"
+    },
+    "code": {
+      "title": "Enter the code",
+      "lead": "We sent a 6-digit code to <mono>{phone}</mono>",
+      "digit": "Digit {index}",
+      "valid": "The code works until {time}",
+      "submit": "Confirm and add the unit",
+      "resend": "Send a new code",
+      "resendIn": "New code in {time}"
+    },
+    "problem": {
+      "wrongCode": {
+        "title": "That code is not right",
+        "body": "Check the SMS and try again.",
+        "attempts": "{count, plural, one {Check the SMS and try again. # try left.} other {Check the SMS and try again. # tries left.}}"
+      },
+      "codeExpired": {
+        "title": "The code has expired",
+        "body": "Send a new code and enter that one instead."
+      },
+      "tooManyAttempts": {
+        "title": "Too many wrong tries",
+        "body": "This code can't be used any more. Send a new code."
+      },
+      "rateLimited": {
+        "title": "Too many codes asked for",
+        "body": "Wait a little, then try again."
+      },
+      "other": "That didn't work. Please try again."
+    },
+    "done": {
+      "title": "Unit {unit} is on your account",
+      "body": "{building} is now on your account. Switch between your units from the top bar.",
+      "continue": "Go to unit {unit}"
+    },
+    "closed": {
+      "home": "Back to home",
+      "notFound": {
+        "title": "We can't find this invitation",
+        "body": "The link may be incomplete. Open it again from the QR code or SMS, or ask the building's office for a new invitation."
+      },
+      "notPending": {
+        "title": "This invitation can no longer be used",
+        "body": "It was used, cancelled or has expired. Ask the building's office for a new one."
+      },
+      "partyMismatch": {
+        "title": "This owner is linked to another LINE account",
+        "body": "The name on the register is already used by a different LINE account. If that's a mistake, contact the building's office."
+      },
+      "phoneMissing": {
+        "title": "No mobile number on the register",
+        "body": "The building's office needs to record your mobile number on the co-owner register before a code can be sent."
+      }
+    }
   }
 }

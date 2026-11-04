@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "เลือกห้อง",
-    "description": "{count, plural, other {คุณมี # ห้องในบัญชีนี้}}",
+    "description": "{count, plural, other {ทุกห้องของฉัน (#)}}",
     "current": "ห้องที่เลือกอยู่",
     "unit": "ห้อง {unit}",
     "place": "{building} · {operator}",
-    "switch": " — เปลี่ยนห้อง"
+    "switch": " — เปลี่ยนห้อง",
+    "role": {
+      "co_owner": "เจ้าของร่วม",
+      "tenant": "ผู้เช่า",
+      "co_tenant": "ผู้เช่าร่วม",
+      "family": "สมาชิกในครอบครัว",
+      "payer": "ผู้ชำระค่าเช่า"
+    }
   },
   "envBadge": "สภาพแวดล้อม {name}"
 }

@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "အခန်း ရွေးရန်",
-    "description": "{count, plural, other {ဤအကောင့်တွင် အခန်း # ခန်း ရှိသည်}}",
+    "description": "{count, plural, other {ကျွန်ုပ်၏ အခန်းအားလုံး (#)}}",
     "current": "ရွေးထားသော အခန်း",
     "unit": "အခန်း {unit}",
     "place": "{building} · {operator}",
-    "switch": " — အခန်း ပြောင်းရန်"
+    "switch": " — အခန်း ပြောင်းရန်",
+    "role": {
+      "co_owner": "ပူးတွဲပိုင်ရှင်",
+      "tenant": "အိမ်ငှားသူ",
+      "co_tenant": "ပူးတွဲအိမ်ငှားသူ",
+      "family": "မိသားစုဝင်",
+      "payer": "အိမ်လခ ပေးချေသူ"
+    }
   },
   "envBadge": "{name} ပတ်ဝန်းကျင်"
 }

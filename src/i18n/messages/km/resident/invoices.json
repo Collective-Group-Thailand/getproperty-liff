@@ -25,7 +25,12 @@
     "noHistory": "មិនទាន់មានវិក្កយបត្រមុនៗ។",
     "pages": "ទំព័រវិក្កយបត្រ",
     "newer": "ថ្មីជាង",
-    "older": "ចាស់ជាង"
+    "older": "ចាស់ជាង",
+    "unitFilter": {
+      "label": "ជ្រើសបន្ទប់",
+      "all": "{count, plural, other {បន្ទប់ទាំងអស់ (#)}}",
+      "unit": "បន្ទប់ {unit}"
+    }
   },
   "detail": {
     "metaTitle": "វិក្កយបត្រ",

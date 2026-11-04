@@ -20,20 +20,27 @@ function pageOf(value: string | string[] | undefined): number {
   return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-/** My invoices (L2 2.1 §2): open first, then history by billing period. */
+/**
+ * My invoices (L2 2.1 §2): open first, then history by billing period. JRL: `?unit=` narrows to one of my units with
+ * bills (the API's `unitId`); an id that is not one of them is ignored (all units).
+ */
 export default async function InvoicesPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const page = pageOf((await searchParams).page);
-  const [locale, actor, open, history] = await Promise.all([
+  const params = await searchParams;
+  const page = pageOf(params.page);
+  const actor = await getActor();
+  const billed = actor.status === "signed-in" ? actor.units.filter((u) => u.capabilities.includes("invoices")) : [];
+  const wanted = typeof params.unit === "string" ? params.unit : null;
+  const unitId = billed.some((u) => u.unitId === wanted) ? wanted : null;
+  const [locale, open, history] = await Promise.all([
     pageLocale(),
-    getActor(),
-    page === 1 ? loadOpenInvoices() : Promise.resolve<Loaded<InvoiceView[]>>({ data: [] }),
-    loadInvoicePage(page),
+    page === 1 ? loadOpenInvoices(unitId ?? undefined) : Promise.resolve<Loaded<InvoiceView[]>>({ data: [] }),
+    loadInvoicePage(page, unitId ?? undefined),
   ]);
-  const showUnit = actor.status === "signed-in" && actor.me.units.length > 1;
+  const showUnit = actor.status === "signed-in" && actor.units.length > 1 && unitId === null;
   return (
     <ResidentShell active="bills">
       {open.error || history.error ? (
@@ -47,6 +54,11 @@ export default async function InvoicesPage({
           locale={locale}
           today={bangkokToday()}
           showUnit={showUnit}
+          unitFilter={
+            billed.length > 1
+              ? { units: billed.map((u) => ({ unitId: u.unitId, unitNo: u.unitNo })), current: unitId }
+              : undefined
+          }
           vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
         />
       )}

@@ -41,6 +41,8 @@ export const DEEP_LINK_ROOTS = [
   "relocation",
   // L1: invitation acceptance from the operator's invite QR/SMS (`liff.state=/link?code=…`, D-061).
   "link",
+  // JRL (D-322): a co-owner's unit invitation — `/link/unit?code=…` (the API's link) or `/join/<code>`.
+  "join",
   "consent",
 ] as const;
 

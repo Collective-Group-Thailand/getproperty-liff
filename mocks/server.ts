@@ -23,9 +23,11 @@ import { rentRecordHandlers } from "./rentRecord";
 import { residentHandlers } from "./resident";
 import { reviewHandlers } from "./reviews";
 import { serviceHandlers } from "./service";
+import { unitHandlers } from "./units";
 import { uploadHandlers } from "./uploads";
 
 const handlers = [
+  ...unitHandlers,
   ...billingHandlers,
   ...uploadHandlers,
   ...serviceHandlers,

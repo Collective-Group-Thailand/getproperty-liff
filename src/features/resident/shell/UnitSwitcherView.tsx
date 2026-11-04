@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { lazy, Suspense, useState } from "react";
 
+import type { ResidentUnitRole } from "@/lib/api/types";
 import { Icon } from "@/ui/icons";
 import { IconChevronsUpDown } from "@/ui/icons/glyphs/chevrons-up-down";
 
@@ -13,17 +14,21 @@ export interface SwitcherUnit {
   unitNo: string;
   buildingName: string;
   tenantName: string;
+  /** JRL: the role word of the row (co-owner, tenant, co-tenant, payer, family); `null` says nothing. */
+  role?: ResidentUnitRole | null;
 }
 
 export interface UnitSwitcherViewProps {
   units: SwitcherUnit[];
   currentId: string;
-  onSelect: (unitId: string) => void;
+  onSelect: (unitId: string) => void | Promise<void>;
 }
 
 /**
- * The header's unit + building (from `/v1/resident/me`). A resident with several occupancies (D-061: families,
- * companies, more than one room) taps it to switch in a bottom sheet; with one unit it is plain text.
+ * The header's unit + building (`/v1/resident/me/units`). A resident with several units — rooms they rent, condos they
+ * co-own, a family home (D-061, D-309) — taps it to switch in a bottom sheet ("all my units (n)", a role word per
+ * row); with one unit it is plain text. The bar keeps the unit on screen, never "all units": every screen below is
+ * about one unit (JRL design decision).
  */
 export function UnitSwitcherView({ units, currentId, onSelect }: UnitSwitcherViewProps) {
   const t = useTranslations("shell.unitSwitcher");

@@ -45,7 +45,7 @@ export default function UnitSheet({ open, setOpen, units, current, onSelect }: U
                 )}
                 onClick={() => {
                   setOpen(false);
-                  if (!selected) onSelect(unit.unitId);
+                  if (!selected) void onSelect(unit.unitId);
                 }}
               >
                 <Icon icon={IconRoom} className="shrink-0 text-xl" />
@@ -54,6 +54,11 @@ export default function UnitSheet({ open, setOpen, units, current, onSelect }: U
                   <span className="text-muted text-sm">
                     {t("place", { building: unit.buildingName, operator: unit.tenantName })}
                   </span>
+                  {unit.role ? (
+                    <span className="text-muted text-sm" data-testid="unit-role" data-role={unit.role}>
+                      {t(`role.${unit.role}`)}
+                    </span>
+                  ) : null}
                 </span>
                 {selected ? (
                   <span className="flex shrink-0 items-center gap-1 text-sm">

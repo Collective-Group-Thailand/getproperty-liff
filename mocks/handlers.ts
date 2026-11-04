@@ -27,6 +27,7 @@ import {
 import { subscribeEvents } from "./events";
 import { residenceOf } from "./residence";
 import { bangkokIso, mockAccessToken, readMockAccessToken, TTL } from "./tokens";
+import { scopeUnitIds, unitRolesOf } from "./unitRoles";
 
 type Schemas = components["schemas"];
 
@@ -51,10 +52,13 @@ export const MOCK_ENTITLEMENTS = [
 ] as const;
 const R2_MODULES = new Set<string>(["service_requests", "announcements", "parcels", "facilities", "access"]);
 
-/** The resident scopes the API puts in a token (`SubjectsService.resident`): my leases, then my occupied units. */
+/**
+ * The resident scopes the API puts in a token (`SubjectsService.resident`): my leases, then my units — occupied or
+ * (JR, D-309) owned.
+ */
 export function residentScopes(account: MockAccount): string[] {
   const leases = residenceOf(account).leases.map(({ dto }) => `lease:${dto.id}`);
-  return [...leases, ...account.units.map((u) => `unit:${u.unitId}`)];
+  return [...leases, ...scopeUnitIds(account).map((id) => `unit:${id}`)];
 }
 
 export function tokenPair(session: MockSession, account: MockAccount, now = Date.now()): Schemas["TokenPairDto"] {
@@ -144,8 +148,15 @@ export function residentMe(account: MockAccount, session?: MockSession): Schemas
       language: account.language,
       lineLinked: account.lineLinked,
     },
-    // Like the API: nothing without a unit or a lease (an SMS sign-in still waiting for the Owner, D-226).
-    entitlements: (account.units.length === 0 && leases.length === 0 ? [] : MOCK_ENTITLEMENTS)
+    unitRoles: unitRolesOf(account),
+    // Like the API: nothing without a unit or a lease (an SMS sign-in still waiting for the Owner, D-226); a unit I
+    // only own (JR) gives bills and the tenant's modules, never lease / usage / access.
+    entitlements: (account.units.length === 0 && leases.length === 0
+      ? account.owned.length
+        ? MOCK_ENTITLEMENTS.filter((e) => e !== "lease" && e !== "usage" && e !== "access")
+        : []
+      : MOCK_ENTITLEMENTS
+    )
       .filter((e) => e !== "usage" || residence.usage === "iot")
       .filter((e) => !R2_MODULES.has(e) || !account.subject.toLowerCase().includes("nocommunity"))
       .filter((e) => e !== "access" || !account.subject.toLowerCase().includes("nolocks")),

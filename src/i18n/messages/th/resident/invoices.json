@@ -25,7 +25,12 @@
     "noHistory": "ยังไม่มีบิลย้อนหลัง",
     "pages": "หน้าของบิล",
     "newer": "ใหม่กว่า",
-    "older": "เก่ากว่า"
+    "older": "เก่ากว่า",
+    "unitFilter": {
+      "label": "เลือกห้อง",
+      "all": "{count, plural, other {ทุกห้อง (#)}}",
+      "unit": "ห้อง {unit}"
+    }
   },
   "detail": {
     "metaTitle": "บิล",

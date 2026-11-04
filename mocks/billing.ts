@@ -39,7 +39,7 @@ import type { components } from "../src/lib/api/schema";
 import { mswPath, problem } from "./contract";
 import { authenticate } from "./handlers";
 import { bangkokDate } from "./residence";
-import { UNIT_A, UNIT_B, type MockAccount } from "./state";
+import { UNIT_A, UNIT_B, type MockAccount, type OwnedUnit } from "./state";
 import { emit } from "./events";
 import { bangkokIso } from "./tokens";
 
@@ -259,6 +259,65 @@ function monthInvoice(
   };
 }
 
+/**
+ * JRL: one month of common fees of a co-owned unit (D-J06: billed to the co-owner) — a juristic tenant's bill with
+ * the common fee by ownership ratio and the sinking fund (the mock's figures, never computed by the app).
+ */
+function commonFeeInvoice(
+  subject: string,
+  unit: OwnedUnit,
+  start: string,
+  options: { open: boolean; dueDate: string; issuedAt: string; slot: string },
+): MockInvoice {
+  invoiceSeq += 1;
+  const end = monthEnd(start);
+  const lines: BaseLine[] = [
+    line(1, "common_fee", {
+      description: `ค่าส่วนกลาง ห้อง ${unit.unitNo} (42.50 ตร.ม. × 45 บาท)`,
+      amount: "1912.50",
+      unit: "month",
+      unitPrice: "1912.5000",
+      periodFrom: start,
+      periodTo: end,
+    }),
+    line(2, "fund", {
+      description: "เงินกองทุนสำรอง",
+      amount: "212.50",
+      unit: "month",
+      unitPrice: "212.5000",
+      periodFrom: start,
+      periodTo: end,
+    }),
+  ];
+  const total = "2125.00";
+  return {
+    unitId: unit.unitId,
+    extras: [
+      { sourceType: "common_fee", readAt: null, readingPhotoUrl: null },
+      { sourceType: "fund", readAt: null, readingPhotoUrl: null },
+    ],
+    receiptIds: [],
+    dto: {
+      id: mockInvoiceId(subject, unit.unitNo, options.slot),
+      number: `CF-${start.slice(0, 4)}-${String(invoiceSeq).padStart(5, "0")}`,
+      status: options.open ? "issued" : "paid",
+      issuerName: unit.tenantName,
+      unitNo: unit.unitNo,
+      periodStart: start,
+      periodEnd: end,
+      issuedAt: options.issuedAt,
+      dueDate: options.dueDate,
+      isFinal: false,
+      lines,
+      total,
+      priorBalance: "0.00",
+      amountDue: total,
+      balance: options.open ? total : "0.00",
+      hasEstimate: false,
+    },
+  };
+}
+
 function receiptFor(invoice: MockInvoice, at: number, billing: MockBilling): Receipt & { invoiceIds: string[] } {
   receiptSeq += 1;
   const receipt = {
@@ -310,7 +369,30 @@ export function billingOf(account: MockAccount): MockBilling {
     held: [],
   };
   billings.set(account.userId, billing);
-  if (account.units.length === 0) return billing;
+  // JRL: a co-owner's common fees (one paid month with its receipt, the current month open), billed to them.
+  for (const owned of account.owned) {
+    const paidIssued = Date.parse(`${monthStart(now, -1)}T09:00:00+07:00`);
+    const paid = commonFeeInvoice(account.subject, owned, monthStart(now, -2), {
+      open: false,
+      issuedAt: bangkokIso(paidIssued),
+      dueDate: bangkokDate(paidIssued + 15 * DAY),
+      slot: "fees-paid",
+    });
+    billing.invoices.unshift(paid);
+    receiptFor(paid, paidIssued + 4 * DAY, billing);
+    if (!has("paidup")) {
+      billing.invoices.unshift(
+        commonFeeInvoice(account.subject, owned, monthStart(now, -1), {
+          open: true,
+          issuedAt: bangkokIso(now - 3 * DAY),
+          dueDate: bangkokDate(now + 12 * DAY),
+          slot: "fees-open",
+        }),
+      );
+    }
+  }
+  // A family member is not billed (the lessee or the payer is, D-J08).
+  if (account.units.length === 0 || has("family")) return billing;
 
   // History: two months paid on time, each with its receipt (newest first, like the API).
   for (const offset of [-3, -2]) {
@@ -575,8 +657,14 @@ export const billingHandlers: HttpHandler[] = [
     const perPage = Math.min(100, Math.max(1, Number(url.searchParams.get("perPage") ?? 25)));
     const status = url.searchParams.get("status");
     const unpaid = url.searchParams.get("unpaid") === "true";
+    // JR (D-322): `unitId` narrows to one unit; an unknown unit gives an empty page.
+    const unitId = url.searchParams.get("unitId");
     const all = billing.invoices.filter(
-      (i) => (!unpaid || isOpen(i)) && (!status || i.dto.status === status) && i.dto.status !== "draft",
+      (i) =>
+        (!unpaid || isOpen(i)) &&
+        (!status || i.dto.status === status) &&
+        (!unitId || i.unitId === unitId) &&
+        i.dto.status !== "draft",
     );
     return HttpResponse.json({
       data: all.slice((page - 1) * perPage, page * perPage).map((i) => invoiceView(i, billing)),

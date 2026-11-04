@@ -25,7 +25,12 @@
     "noHistory": "ຍັງບໍ່ມີບິນກ່ອນໜ້າ.",
     "pages": "ໜ້າບິນ",
     "newer": "ໃໝ່ກວ່າ",
-    "older": "ເກົ່າກວ່າ"
+    "older": "ເກົ່າກວ່າ",
+    "unitFilter": {
+      "label": "ເລືອກຫ້ອງ",
+      "all": "{count, plural, other {ທຸກຫ້ອງ (#)}}",
+      "unit": "ຫ້ອງ {unit}"
+    }
   },
   "detail": {
     "metaTitle": "ບິນ",

@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { isLocale } from "@/i18n/routing";
 import type { ResidentEntitlement } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
+import { primaryRole } from "@/lib/auth/units";
 import { serverEnv } from "@/lib/env";
 import type { NavItem } from "@/ui/components/AppShell";
 import { Icon, type IconGlyph } from "@/ui/icons";
@@ -19,8 +20,8 @@ import { UnitSwitcher } from "./UnitSwitcher";
 export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
 
 /**
- * Bottom nav entries and the entitlement each needs (`ResidentMeDto.entitlements`, D-063). Home and Me are always
- * there; Repairs is R2.
+ * Bottom nav entries and the entitlement each needs (`ResidentMeDto.entitlements`, D-063) — for the unit on screen
+ * (JRL: `actor.entitlements` is already narrowed by its capabilities, D-322). Home and Me are always there.
  */
 export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph; needs?: ResidentEntitlement }[] = [
   { key: "home", href: "/", icon: IconHome },
@@ -92,11 +93,14 @@ export async function ResidentShell({
         signedIn && actor.unit && chrome === "full" ? (
           <UnitSwitcher
             currentId={actor.unit.unitId}
-            units={actor.me.units.map(({ unitId, unitNo, buildingName, tenantName }) => ({
-              unitId,
-              unitNo,
-              buildingName,
-              tenantName,
+            refreshRequired={actor.refreshRequired}
+            remembered={actor.remembered}
+            units={actor.units.map((unit) => ({
+              unitId: unit.unitId,
+              unitNo: unit.unitNo,
+              buildingName: unit.buildingName,
+              tenantName: unit.tenantName,
+              role: primaryRole(unit),
             }))}
           />
         ) : undefined

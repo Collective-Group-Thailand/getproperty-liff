@@ -9,12 +9,14 @@ import { LinkPendingLazy } from "@/features/resident/home/LinkPendingLazy";
 import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import type { InvoiceView } from "@/lib/api/types";
-import type { InboxItem, ResidentEntitlement, ResidentMe, ResidentUnit } from "@/lib/api/types";
+import type { InboxItem, ResidentEntitlement, ResidentMe, ResidentUnitCapability } from "@/lib/api/types";
 import type { ResidentNavEntitlements } from "@/lib/auth/entitlements";
+import type { HomeKind, MyUnit } from "@/lib/auth/units";
+import type { Announcement } from "@/features/resident/community/data";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
-import { List, Screen, ScreenHeader, Section, type ListRow } from "@/features/shared/Screen";
+import { List, Screen, ScreenHeader, Section, SectionLink, type ListRow } from "@/features/shared/Screen";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { Icon, type IconGlyph } from "@/ui/icons";
@@ -36,18 +38,29 @@ import { IconRefresh } from "@/ui/icons/glyphs/refresh";
 import { IconRules } from "@/ui/icons/glyphs/rules";
 import { IconRoom } from "@/ui/icons/glyphs/room";
 
-const TILES: { key: string; href: string; icon: IconGlyph; needs: ResidentEntitlement }[] = [
+type Tile = { key: string; href: string; icon: IconGlyph } & (
+  { needs: ResidentEntitlement } | { capability: ResidentUnitCapability }
+);
+
+const TILES: Tile[] = [
   // Bills, usage and repairs are in the bottom nav; the lease is under "my unit".
   { key: "receipts", href: "/receipts", icon: IconPayment, needs: "bills" },
   { key: "announcements", href: "/announcements", icon: IconAnnounce, needs: "announcements" },
   { key: "parcels", href: "/parcels", icon: IconParcel, needs: "parcels" },
   // `facilities`: the community module with a bookable facility; `access`: smart access with a lock on my unit
-  // (D-218). House rules and contacts follow the lease (D-071, D-073).
+  // (D-218). House rules and contacts follow the unit since JR (D-322: every role, no lease needed).
   { key: "facilities", href: "/facilities", icon: IconCalendarCheck, needs: "facilities" },
   { key: "access", href: "/access", icon: IconDoor, needs: "access" },
-  { key: "rules", href: "/rules", icon: IconRules, needs: "lease" },
-  { key: "contacts", href: "/contacts", icon: IconContact, needs: "lease" },
+  { key: "rules", href: "/rules", icon: IconRules, capability: "rules" },
+  { key: "contacts", href: "/contacts", icon: IconContact, capability: "contacts" },
 ];
+
+/** Tiles a home shows as their own section instead (JRL): the owner's documents and notices, the household's. */
+const IN_SECTIONS: Record<HomeKind, ReadonlySet<string>> = {
+  resident: new Set(),
+  owner: new Set(["receipts", "announcements"]),
+  household: new Set(["announcements", "parcels"]),
+};
 
 /**
  * D-226: the resident signed in with an SMS code and their phone matches parties the office entered — nothing is
@@ -108,7 +121,7 @@ async function LinkPending({ count }: { count: number }) {
 }
 
 /** The selected unit's invoices: by `unitId`; an invoice without one (a final bill of an ended lease) by unit no. + landlord. */
-function ofUnit(invoices: InvoiceView[], unit: ResidentUnit): InvoiceView[] {
+function ofUnit(invoices: InvoiceView[], unit: Pick<MyUnit, "unitId" | "unitNo" | "tenantName">): InvoiceView[] {
   return invoices.filter((invoice) =>
     invoice.unitId
       ? invoice.unitId === unit.unitId
@@ -124,6 +137,11 @@ function ofUnit(invoices: InvoiceView[], unit: ResidentUnit): InvoiceView[] {
  * 3. my unit and its lease; 4. the building's services I am entitled to (the bottom nav already carries bills, usage
  *    and repairs); 5. the latest notifications.
  * Nothing here is sample data and nothing is computed: amounts are the API's strings.
+ *
+ * JRL (D-322) — the same frame by role on the unit on screen (`kind`): a **tenant** gets the home above unchanged; a
+ * **co-owner** who does not rent it gets the common fees due as the hero, the latest notices and their documents
+ * (receipts, documents to sign); a **family member** gets the latest notices and the parcels waiting. Visitors join in
+ * JL4 (nothing is shown before it exists). The lease tile is a tenant's only.
  */
 export async function ResidentHome({
   me,
@@ -135,10 +153,19 @@ export async function ResidentHome({
   vapidKey,
   todo = [],
   waitingParcels = 0,
+  kind = "resident",
+  capabilities,
+  notices = [],
 }: {
   me: ResidentMe;
-  unit: ResidentUnit | null;
+  unit: MyUnit | null;
   entitlements: ResidentNavEntitlements;
+  /** JRL: which home (`homeKindOf` the unit on screen). */
+  kind?: HomeKind;
+  /** The unit's capabilities (house rules, contacts); every one when omitted. */
+  capabilities?: ReadonlySet<ResidentUnitCapability>;
+  /** The latest announcements (co-owner and household homes). */
+  notices?: Announcement[];
   /** `null` when the invoices could not be loaded (the hero then links to the list instead). */
   openInvoices: InvoiceView[] | null;
   notifications: InboxItem[];
@@ -155,12 +182,13 @@ export async function ResidentHome({
   const locale = isLocale(current) ? current : "th";
   // A lease the office sent for signature (D-062) — also before the resident occupies any unit.
   const pending = me.leases.find((lease) => lease.status === "pending_signature");
-  const unitLease = unit
-    ? me.leases.find(
-        (lease) =>
-          lease.unitNo === unit.unitNo && lease.tenantId === unit.tenantId && lease.status !== "pending_signature",
-      )
-    : undefined;
+  const unitLease =
+    unit && kind === "resident"
+      ? me.leases.find(
+          (lease) =>
+            lease.unitNo === unit.unitNo && lease.tenantId === unit.tenantId && lease.status !== "pending_signature",
+        )
+      : undefined;
   const due = unit && openInvoices ? openFirst(ofUnit(openInvoices, unit)).open : [];
   const hero = due[0];
   const heroState = hero ? dueState(hero, today) : null;
@@ -194,7 +222,11 @@ export async function ResidentHome({
           },
         ]
       : []),
-    ...TILES.filter((tile) => entitlements.has(tile.needs)).map((tile) => ({
+    ...TILES.filter(
+      (tile) =>
+        !IN_SECTIONS[kind].has(tile.key) &&
+        ("needs" in tile ? entitlements.has(tile.needs) : !capabilities || capabilities.has(tile.capability)),
+    ).map((tile) => ({
       key: tile.key,
       href: tile.href,
       icon: tile.icon,
@@ -211,7 +243,9 @@ export async function ResidentHome({
         lede={
           unit ? (
             <span data-testid="home-unit">
-              {t("unit.managed", { name: unit.tenantName, date: formatDate(unit.validFrom, locale) })}
+              {kind === "owner"
+                ? t("owner.lede", { name: unit.tenantName })
+                : t("unit.managed", { name: unit.tenantName, date: formatDate(unit.validFrom, locale) })}
             </span>
           ) : undefined
         }
@@ -230,7 +264,9 @@ export async function ResidentHome({
             <div className="flex flex-col gap-1 px-5 pt-5">
               <div className="flex items-center justify-between gap-3">
                 <h2 id="bills-title" className="text-primary-subtle-fg text-sm font-semibold">
-                  {t("invoice.title", { period: formatDate(hero.periodStart, locale, { style: "month" }) })}
+                  {t(kind === "owner" ? "owner.feesTitle" : "invoice.title", {
+                    period: formatDate(hero.periodStart, locale, { style: "month" }),
+                  })}
                 </h2>
                 <Due state={heroState} dueDate={hero.dueDate} locale={locale} variant="badge" />
               </div>
@@ -274,10 +310,14 @@ export async function ResidentHome({
               </span>
               <span className="flex min-w-0 flex-1 flex-col">
                 <span id="bills-title" className="font-semibold">
-                  {openInvoices ? t("invoice.nothingDue") : t("bills.title")}
+                  {openInvoices
+                    ? t(kind === "owner" ? "owner.nothingDue" : "invoice.nothingDue")
+                    : t(kind === "owner" ? "owner.feesTitleNone" : "bills.title")}
                 </span>
                 <span className="text-muted text-sm">
-                  {openInvoices ? t("invoice.nothingDueBody") : t("bills.body")}
+                  {openInvoices
+                    ? t(kind === "owner" ? "owner.nothingDueBody" : "invoice.nothingDueBody")
+                    : t(kind === "owner" ? "owner.feesBody" : "bills.body")}
                 </span>
               </span>
               <Icon icon={IconChevronRight} className="text-subtle shrink-0 rtl:rotate-180" />
@@ -304,6 +344,83 @@ export async function ResidentHome({
                 </Callout>
               </div>
             </LinkPendingLazy>
+          ) : null}
+
+          {kind === "household" && entitlements.has("parcels") ? (
+            <Section title={t("household.parcelsTitle")} titleId="home-parcels-title" testId="home-parcels">
+              <List
+                rows={[
+                  {
+                    key: "parcels",
+                    href: "/parcels",
+                    icon: IconParcel,
+                    strong: waitingParcels > 0,
+                    title: waitingParcels
+                      ? t("household.parcelsWaiting", { count: waitingParcels })
+                      : t("household.parcelsNone"),
+                    meta: t("household.parcelsBody"),
+                  },
+                ]}
+              />
+            </Section>
+          ) : null}
+
+          {kind !== "resident" && entitlements.has("announcements") ? (
+            <Section
+              title={t("notices.title")}
+              titleId="home-notices-title"
+              testId="home-notices"
+              action={notices.length ? <SectionLink href="/announcements">{t("notices.all")}</SectionLink> : undefined}
+            >
+              {notices.length ? (
+                <List
+                  rows={notices.slice(0, 3).map((notice) => ({
+                    key: notice.id,
+                    href: `/announcements/${notice.id}`,
+                    icon: IconAnnounce,
+                    strong: !notice.readAt,
+                    title: (
+                      <>
+                        {notice.readAt ? null : <span className="sr-only">{t("inbox.unread")} </span>}
+                        {notice.title}
+                      </>
+                    ),
+                    meta: (
+                      <time dateTime={notice.publishedAt} className="text-xs">
+                        {formatDate(notice.publishedAt, locale)}
+                      </time>
+                    ),
+                  }))}
+                />
+              ) : (
+                <List
+                  rows={[{ key: "none", icon: IconAnnounce, title: t("notices.none"), meta: t("notices.noneBody") }]}
+                />
+              )}
+            </Section>
+          ) : null}
+
+          {kind === "owner" && entitlements.has("bills") ? (
+            <Section title={t("owner.documentsTitle")} titleId="home-documents-title" testId="home-documents">
+              <List
+                rows={[
+                  {
+                    key: "receipts",
+                    href: "/receipts",
+                    icon: IconPayment,
+                    title: t("owner.receipts"),
+                    meta: t("owner.receiptsBody"),
+                  },
+                  {
+                    key: "bills",
+                    href: "/invoices",
+                    icon: IconBill,
+                    title: t("owner.statements"),
+                    meta: t("owner.statementsBody"),
+                  },
+                ]}
+              />
+            </Section>
           ) : null}
 
           {tiles.length ? (

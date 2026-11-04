@@ -103,7 +103,7 @@ function total(points: { usage: string }[]): string {
   return (milli / 1000).toFixed(3);
 }
 
-function usageSummary(residence: MockResidence, from: number, to: number, bucket: "15m" | "1h" | "1d") {
+export function usageSummary(residence: MockResidence, from: number, to: number, bucket: "15m" | "1h" | "1d") {
   if (residence.usage === "manual") return [];
   const span = to - from;
   const current = usageSeries(residence, from, to, bucket);

@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "Choose a unit",
-    "description": "{count, plural, one {You have # unit on this account} other {You have # units on this account}}",
+    "description": "{count, plural, one {All my units (#)} other {All my units (#)}}",
     "current": "Selected unit",
     "unit": "Unit {unit}",
     "place": "{building} · {operator}",
-    "switch": " — switch unit"
+    "switch": " — switch unit",
+    "role": {
+      "co_owner": "Co-owner",
+      "tenant": "Renter",
+      "co_tenant": "Co-renter",
+      "family": "Household member",
+      "payer": "Pays the rent"
+    }
   },
   "envBadge": "{name} environment"
 }

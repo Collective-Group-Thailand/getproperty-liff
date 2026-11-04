@@ -1,0 +1,55 @@
+{
+  "extends": "./shared.json",
+  "$comment": "JRL units and roles (D-322): the co-owner's home (gp_unit = the co-owned condo unit C-1203), the bills list with the unit filter, and a co-owner's unit invitation /link/unit (preview). Mock resident `coowner` + `multi` (rents A-201, co-owns C-1203). Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/",
+        "http://localhost:3400/invoices",
+        "http://localhost:3400/link/unit?code=OWN-OK-1"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-units-coowner-multi; gp_unit=c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

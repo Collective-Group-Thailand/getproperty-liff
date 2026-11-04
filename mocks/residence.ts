@@ -248,7 +248,8 @@ export function residenceOf(account: MockAccount): MockResidence {
   // Registered first: building the leases below reads it (their ids count the leases already there).
   residences.set(account.userId, residence);
   // An invitee, or an SMS sign-in whose party still waits for the Owner (D-226), holds no lease yet.
-  if (!has("invitee") && account.units.length > 0) {
+  // JRL: a family member lives there without a lease of their own; a co-owner owns without one.
+  if (!has("invitee") && !has("family") && account.units.length > 0) {
     if (has("signer")) {
       residence.leases.push({ dto: baseLease(account, "pending_signature"), rulesAcknowledgedAt: null });
     } else if (has("moveout")) {

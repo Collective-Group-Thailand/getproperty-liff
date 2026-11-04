@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "ເລືອກຫ້ອງ",
-    "description": "{count, plural, other {ບັນຊີນີ້ມີ # ຫ້ອງ}}",
+    "description": "{count, plural, other {ຫ້ອງທັງໝົດຂອງຂ້ອຍ (#)}}",
     "current": "ຫ້ອງທີ່ເລືອກ",
     "unit": "ຫ້ອງ {unit}",
     "place": "{building} · {operator}",
-    "switch": " — ປ່ຽນຫ້ອງ"
+    "switch": " — ປ່ຽນຫ້ອງ",
+    "role": {
+      "co_owner": "ເຈົ້າຂອງຮ່ວມ",
+      "tenant": "ຜູ້ເຊົ່າ",
+      "co_tenant": "ຜູ້ເຊົ່າຮ່ວມ",
+      "family": "ສະມາຊິກໃນຄອບຄົວ",
+      "payer": "ຜູ້ຈ່າຍຄ່າເຊົ່າ"
+    }
   },
   "envBadge": "ສະພາບແວດລ້ອມ {name}"
 }

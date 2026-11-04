@@ -25,7 +25,12 @@
     "noHistory": "还没有以往账单。",
     "pages": "账单页",
     "newer": "较新",
-    "older": "较早"
+    "older": "较早",
+    "unitFilter": {
+      "label": "选择房间",
+      "all": "{count, plural, other {全部房间（#）}}",
+      "unit": "房间 {unit}"
+    }
   },
   "detail": {
     "metaTitle": "账单",

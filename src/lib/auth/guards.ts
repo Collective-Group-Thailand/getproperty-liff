@@ -32,7 +32,13 @@ export async function requireResident(options: { consent?: boolean; path?: strin
   if (actor.status === "anonymous") redirect(signInPath(path, (await headers()).get("user-agent")));
   if (actor.status === "signed-in" && options.consent !== false && !actor.me.consentComplete)
     redirect(consentPath(path));
-  if (actor.status === "signed-in" && scopesStale(actor.me) && !(await cookies()).has(RESCOPE_COOKIE))
+  // JRL (D-322): `/me/units` says the token's unit scopes are behind (a co-owner link, a move-in, an ownership that
+  // ended) — the same one-time rotation as a confirmed phone match.
+  if (
+    actor.status === "signed-in" &&
+    (scopesStale(actor.me) || actor.refreshRequired) &&
+    !(await cookies()).has(RESCOPE_COOKIE)
+  )
     redirect(rescopePath(path));
   return actor;
 }
