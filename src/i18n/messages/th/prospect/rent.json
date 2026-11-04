@@ -98,7 +98,17 @@
     "owner": "เจ้าของ",
     "write": "ส่งข้อความถึงเจ้าของ",
     "send": "ส่ง",
-    "empty": "ยังไม่มีข้อความ"
+    "empty": "ยังไม่มีข้อความ",
+    "fact": {
+      "title": "ข้อมูลที่ส่งให้เจ้าของ",
+      "owner": "เจ้าของ",
+      "sent": "ส่งเมื่อ",
+      "moveIn": "วันที่อยากเข้าอยู่",
+      "term": "ระยะสัญญา",
+      "occupants": "จำนวนผู้อยู่"
+    },
+    "termValue": "{months, plural, other {# เดือน}}",
+    "occupantsValue": "{count, plural, other {# คน}}"
   },
   "viewing": {
     "title": "นัดดูห้อง",

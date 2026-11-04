@@ -1,4 +1,4 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 "use client";
 
 import { Dialog as DialogPrimitive } from "radix-ui";
@@ -21,6 +21,8 @@ const sheetVariants = cva(
         bottom: "inset-x-0 bottom-0 max-h-[90dvh] rounded-t-panel border-t pb-[env(safe-area-inset-bottom)]",
         /** The owner's filters and detail panes on a desktop. */
         right: "inset-y-0 end-0 h-dvh w-[min(100vw,28rem)] border-s",
+        /** A zone menu on a phone (the admin's navigation column): full height from the start edge, clear of the notch. */
+        left: "inset-y-0 start-0 h-dvh w-[min(88vw,20rem)] border-e pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
       },
     },
     defaultVariants: { side: "bottom" },
@@ -62,7 +64,7 @@ export function Sheet({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="z-overlay bg-overlay fixed inset-0" />
         <DialogPrimitive.Content {...returnFocus} className={cn(sheetVariants({ side }), className)}>
-          {side !== "right" ? (
+          {side !== "right" && side !== "left" ? (
             <div aria-hidden="true" className="bg-border-strong mx-auto mt-2 h-1 w-10 rounded-full" />
           ) : null}
           <div className="flex items-start justify-between gap-4 px-5 py-4">
@@ -79,7 +81,17 @@ export function Sheet({
             </DialogPrimitive.Close>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">{children}</div>
-          {footer ? <div className="border-border flex flex-col gap-2 border-t px-5 py-3">{footer}</div> : null}
+          {footer ? (
+            <div
+              className={cn(
+                "border-border flex flex-col gap-2 border-t px-5 py-3",
+                // A side sheet on a desktop: cancel and the action side by side at its end, like a dialog.
+                side === "right" && "sm:flex-row sm:justify-end",
+              )}
+            >
+              {footer}
+            </div>
+          ) : null}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

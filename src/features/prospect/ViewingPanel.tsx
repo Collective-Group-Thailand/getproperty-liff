@@ -55,13 +55,13 @@ export function ViewingPanel({
   const [changesWanted, setChangesWanted] = useState(false);
 
   return (
-    <section aria-labelledby="enquiry-viewing" className="flex flex-col gap-3" data-testid="enquiry-viewing">
-      <h2 id="enquiry-viewing" className="font-semibold">
+    <section aria-labelledby="enquiry-viewing" className="flex flex-col gap-2" data-testid="enquiry-viewing">
+      <h2 id="enquiry-viewing" className="text-muted text-sm font-semibold">
         {t("title")}
       </h2>
       {live ? (
         <div
-          className="border-border bg-surface rounded-card flex flex-col gap-3 border p-4"
+          className="border-border bg-surface rounded-card shadow-card flex flex-col gap-3 border p-4"
           data-testid="live-viewing"
           data-state={live.state}
         >

@@ -1,4 +1,4 @@
-// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import { cva, type VariantProps } from "class-variance-authority";
 
 import type { StatusMeta } from "@/domain/status";
@@ -6,7 +6,7 @@ import type { StatusMeta } from "@/domain/status";
 import { Icon, type IconGlyph } from "../icons";
 import { cn } from "../lib/cn";
 
-export const badgeVariants = cva("inline-flex items-center gap-1 rounded-thumb font-medium whitespace-nowrap", {
+export const badgeVariants = cva("inline-flex w-fit items-center gap-1 rounded-thumb font-medium whitespace-nowrap", {
   variants: {
     tone: {
       neutral: "bg-neutral-subtle text-neutral-subtle-fg",

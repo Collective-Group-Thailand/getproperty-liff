@@ -12,7 +12,21 @@
     "sent": "Sent by LINE",
     "viewings": "Viewings",
     "occupants": "{count, plural, one {# person} other {# people}}",
-    "term": "{months, plural, one {# month} other {# months}}"
+    "term": "{months, plural, one {# month} other {# months}}",
+    "status": {
+      "awaiting": "Waiting for you",
+      "talking": "In conversation",
+      "closed": "Closed"
+    },
+    "fact": {
+      "title": "What the prospect told you",
+      "received": "Received",
+      "moveIn": "Move-in date",
+      "term": "Lease term",
+      "occupants": "Occupants",
+      "nationality": "Nationality",
+      "notes": "Notes"
+    }
   },
   "greeting": "Hello {name}",
   "openConsole": "Open the web console",

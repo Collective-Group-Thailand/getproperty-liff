@@ -5,21 +5,28 @@ import { loadLead } from "@/features/landlord/data";
 import { LeadConversation } from "@/features/landlord/LeadConversation";
 import { NotLandlord } from "@/features/landlord/NotLandlord";
 import { ViewingDecision } from "@/features/landlord/ViewingDecision";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
-import { formatDate, formatDateTime } from "@/i18n/format";
+import { FACT_ROWS_CLASS, Screen, ScreenHeader, Section } from "@/features/shared/Screen";
+import { formatCountry, formatDate, formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { requireLandlord } from "@/lib/auth/guards";
 import { serverEnv } from "@/lib/env";
-import { StatusBadge } from "@/ui/components/Badge";
+import { Badge, StatusBadge } from "@/ui/components/Badge";
 import { Card } from "@/ui/components/Card";
+import { DescriptionList, type DescriptionItem } from "@/ui/components/DescriptionList";
+import { IconArchive } from "@/ui/icons/glyphs/archive";
+import { IconChat } from "@/ui/icons/glyphs/chat";
+import { IconClock } from "@/ui/icons/glyphs/clock";
 
 export async function generateMetadata() {
   const t = await getTranslations("landlord.home.leads");
   return { title: t("title") };
 }
 
-/** One enquiry in LINE (L5 5.3): what the prospect asked, the conversation, viewings to confirm, a reply. */
+/**
+ * One enquiry in LINE (L5 5.3) in the record frame (redesign G2): the prospect as the title with where the enquiry
+ * stands, the facts they gave, viewings to confirm, then the conversation with the reply box at the end.
+ */
 export default async function LandlordLeadPage({ params }: { params: Promise<{ leadId: string }> }) {
   const { leadId } = await params;
   const actor = await requireLandlord({ path: `/landlord/leads/${leadId}` });
@@ -33,47 +40,80 @@ export default async function LandlordLeadPage({ params }: { params: Promise<{ l
   ]);
   if (lead.error) return <ProblemPage error={lead.error} />;
   const locale = isLocale(current) ? current : "th";
-  const facts = [
-    lead.data.moveInDate ? formatDate(lead.data.moveInDate, locale) : null,
-    lead.data.termMonths ? t("term", { months: lead.data.termMonths }) : null,
-    lead.data.occupants ? t("occupants", { count: lead.data.occupants }) : null,
-  ].filter(Boolean);
-  const requested = lead.data.viewings.filter((viewing) => viewing.state === "requested");
+  const data = lead.data;
+  // Where it stands, as the API says it (never decided here): closed once won or lost, else whose turn it is.
+  const closed = data.state === "won" || data.state === "lost";
+  const status = closed ? (
+    <Badge tone="neutral" icon={IconArchive}>
+      {t("status.closed")}
+    </Badge>
+  ) : data.awaitingReply ? (
+    <Badge tone="warning" icon={IconClock}>
+      {t("status.awaiting")}
+    </Badge>
+  ) : (
+    <Badge tone="info" icon={IconChat}>
+      {t("status.talking")}
+    </Badge>
+  );
+  const facts: DescriptionItem[] = [
+    { id: "received", term: t("fact.received"), description: formatDateTime(data.createdAt, locale) },
+    ...(data.moveInDate
+      ? [{ id: "moveIn", term: t("fact.moveIn"), description: formatDate(data.moveInDate, locale) }]
+      : []),
+    ...(data.termMonths
+      ? [{ id: "term", term: t("fact.term"), description: t("term", { months: data.termMonths }) }]
+      : []),
+    ...(data.occupants
+      ? [{ id: "occupants", term: t("fact.occupants"), description: t("occupants", { count: data.occupants }) }]
+      : []),
+    ...(data.nationality
+      ? [{ id: "nationality", term: t("fact.nationality"), description: formatCountry(data.nationality, locale) }]
+      : []),
+    ...(data.notes
+      ? [{ id: "notes", term: t("fact.notes"), description: <span className="whitespace-pre-line">{data.notes}</span> }]
+      : []),
+  ];
+  const requested = data.viewings.filter((viewing) => viewing.state === "requested");
   return (
-    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="landlord-lead-page">
-      <BackLink href="/landlord">{t("back")}</BackLink>
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{lead.data.prospect.name}</h1>
-        <p className="text-muted">{t("listing", { title: lead.data.listing.title })}</p>
-        {facts.length ? <p className="text-sm">{facts.join(" · ")}</p> : null}
-      </div>
-      {lead.data.viewings.length ? (
-        <Card as="section" padding="md" aria-labelledby="lead-viewings" className="flex flex-col gap-3">
-          <h2 id="lead-viewings" className="font-semibold">
-            {t("viewings")}
-          </h2>
-          <ul className="flex flex-col gap-3" role="list">
-            {lead.data.viewings.map((viewing) => {
-              const status = VIEWING_STATUS[viewing.state];
-              return (
-                <li
-                  key={viewing.id}
-                  className="flex flex-col gap-2"
-                  data-testid="lead-viewing"
-                  data-state={viewing.state}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <time dateTime={viewing.startsAt}>{formatDateTime(viewing.startsAt, locale)}</time>
-                    <StatusBadge status={status} label={root(status.labelKey)} size="sm" />
-                  </div>
-                  {requested.includes(viewing) ? <ViewingDecision viewingId={viewing.id} /> : null}
-                </li>
-              );
-            })}
-          </ul>
-        </Card>
+    <Screen testId="landlord-lead-page" data-state={data.state}>
+      <ScreenHeader
+        back={{ href: "/landlord", label: t("back") }}
+        title={data.prospect.name}
+        lede={t("listing", { title: data.listing.title })}
+        status={<span data-testid="lead-status">{status}</span>}
+      />
+      <Card as="section" padding="md" aria-label={t("fact.title")} data-testid="lead-facts">
+        <DescriptionList layout="rows" items={facts} className={FACT_ROWS_CLASS} />
+      </Card>
+      {data.viewings.length ? (
+        <Section title={t("viewings")} titleId="lead-viewings">
+          <Card padding="none">
+            <ul className="divide-border flex flex-col divide-y" role="list">
+              {data.viewings.map((viewing) => {
+                const meta = VIEWING_STATUS[viewing.state];
+                return (
+                  <li
+                    key={viewing.id}
+                    className="flex flex-col gap-3 px-4 py-3"
+                    data-testid="lead-viewing"
+                    data-state={viewing.state}
+                  >
+                    <div className="flex min-h-8 items-center justify-between gap-3">
+                      <time dateTime={viewing.startsAt} className="font-medium tabular-nums">
+                        {formatDateTime(viewing.startsAt, locale)}
+                      </time>
+                      <StatusBadge status={meta} label={root(meta.labelKey)} size="sm" />
+                    </div>
+                    {requested.includes(viewing) ? <ViewingDecision viewingId={viewing.id} /> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        </Section>
       ) : null}
-      <LeadConversation lead={lead.data} />
-    </div>
+      <LeadConversation lead={data} />
+    </Screen>
   );
 }

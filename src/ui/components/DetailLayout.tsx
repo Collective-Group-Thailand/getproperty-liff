@@ -1,4 +1,4 @@
-// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import { cn } from "../lib/cn";
 
 /**
@@ -36,6 +36,7 @@ export interface PanelStep {
  * (amount due, dates) in tabular numerals.
  */
 export function ActionPanel({
+  summary,
   title,
   status,
   description,
@@ -48,6 +49,8 @@ export function ActionPanel({
   className,
   testId,
 }: {
+  /** What the record stands at, above the next steps (an SLA clock, a deadline, an amount). */
+  summary?: React.ReactNode;
   title: React.ReactNode;
   status?: React.ReactNode;
   description?: React.ReactNode;
@@ -66,10 +69,16 @@ export function ActionPanel({
       className={cn("rounded-card border-border bg-surface shadow-card flex flex-col border", className)}
       data-testid={testId}
     >
+      {summary ? <div className="border-border border-b p-5">{summary}</div> : null}
       <div className="flex flex-col gap-2 p-5">
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-base font-semibold">{title}</h2>
-          {more}
+          {more ? (
+            // Phones, under a record top bar (`data-record-top`, console shell): the "⋯" sits at the bar's end.
+            <div className="max-md:group-has-[[data-record-top]]/shell:fixed max-md:group-has-[[data-record-top]]/shell:end-2 max-md:group-has-[[data-record-top]]/shell:top-1.5 max-md:group-has-[[data-record-top]]/shell:z-[calc(var(--z-sticky)+2)]">
+              {more}
+            </div>
+          ) : null}
         </div>
         {status ? <div className="flex flex-wrap gap-1.5">{status}</div> : null}
         {description ? <p className="text-muted text-sm">{description}</p> : null}
@@ -86,7 +95,19 @@ export function ActionPanel({
       ) : null}
       {primary || secondary || destructive ? (
         <div className="border-border flex flex-col gap-2 border-t p-5 [&>*]:w-full">
-          {primary}
+          {/* Phones (Stitch revision): the lead action leaves the scroll and becomes the record's sticky bottom bar — the
+              same element, so nothing is rendered twice; the shell hides its bottom nav while a bar is on the page. */}
+          {primary ? (
+            <div
+              data-record-bar=""
+              className={cn(
+                "flex flex-col gap-2 empty:hidden [&>*]:w-full",
+                "max-md:border-border max-md:bg-surface max-md:z-sticky max-md:shadow-overlay max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:border-t max-md:px-4 max-md:pt-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] print:hidden",
+              )}
+            >
+              {primary}
+            </div>
+          ) : null}
           {secondary}
           {destructive ? <div className="border-border mt-2 border-t pt-3 [&>*]:w-full">{destructive}</div> : null}
         </div>

@@ -98,7 +98,17 @@
     "owner": "Owner",
     "write": "Message the owner",
     "send": "Send",
-    "empty": "No messages yet"
+    "empty": "No messages yet",
+    "fact": {
+      "title": "What you told the owner",
+      "owner": "Owner",
+      "sent": "Sent",
+      "moveIn": "Move-in date",
+      "term": "Lease term",
+      "occupants": "Occupants"
+    },
+    "termValue": "{months, plural, one {# month} other {# months}}",
+    "occupantsValue": "{count, plural, one {# person} other {# people}}"
   },
   "viewing": {
     "title": "Viewing",

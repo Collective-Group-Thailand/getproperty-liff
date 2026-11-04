@@ -18,7 +18,11 @@ export function EnquiryThread({ enquiry }: { enquiry: Enquiry }) {
   const t = useTranslations("prospect.rent.detail");
   const locale = useLocale() as Locale;
   return (
-    <section aria-labelledby="enquiry-thread" className="flex flex-col gap-3" data-testid="enquiry-thread">
+    <section
+      aria-labelledby="enquiry-thread"
+      className="rounded-card border-border bg-surface shadow-card flex flex-col gap-3 border p-4"
+      data-testid="enquiry-thread"
+    >
       <h2 id="enquiry-thread" className="font-semibold">
         {t("thread")}
       </h2>

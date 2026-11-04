@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./Button";
@@ -34,4 +34,13 @@ export const Info: Story = {
 };
 export const Neutral: Story = {
   args: { tone: "neutral", title: undefined, children: "โหมดอ่านอย่างเดียว — แพ็กเกจถูกระงับ ข้อมูลยังอยู่ครบ" },
+};
+export const Compact: Story = {
+  args: {
+    tone: "warning",
+    size: "sm",
+    live: false,
+    title: undefined,
+    children: "ค่าเช่าห่างจากค่ากลางของย่านมาก",
+  },
 };

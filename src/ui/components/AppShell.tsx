@@ -1,4 +1,4 @@
-// copied from getproperty-web@e0750d8 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import { cn } from "../lib/cn";
 
 export interface AppShellProps {
@@ -14,6 +14,8 @@ export interface AppShellProps {
   rail?: React.ReactNode;
   /** Bottom nav on phones (staff, the resident app; the owner's phone layout). */
   bottomNav?: React.ReactNode;
+  /** Keep the bottom nav at every width (the staff PWA is one phone column on a tablet or a desk screen too). */
+  bottomNavAlways?: boolean;
   footer?: React.ReactNode;
   children: React.ReactNode;
   /** Text of the skip link, from `src/i18n` (WCAG 2.4.1). */
@@ -36,6 +38,7 @@ export function AppShell({
   sidebar,
   rail,
   bottomNav,
+  bottomNavAlways = false,
   footer,
   children,
   skipLabel,
@@ -46,7 +49,7 @@ export function AppShell({
 }: AppShellProps) {
   if (rail) {
     return (
-      <div className={cn("bg-bg min-h-dvh md:flex", className)}>
+      <div className={cn("group/shell bg-bg min-h-dvh md:flex", className)}>
         <a href="#main" className="skip-link">
           {skipLabel}
         </a>
@@ -56,14 +59,19 @@ export function AppShell({
           <main
             id="main"
             tabIndex={-1}
-            className={cn("min-w-0 flex-1", bottomNav && "pb-(--bottom-nav-h) md:pb-0 print:pb-0")}
+            className={cn(
+              "min-w-0 flex-1",
+              bottomNav && "pb-(--bottom-nav-h) md:pb-0 print:pb-0",
+              "max-md:group-has-[[data-record-bar]:not(:empty)]/shell:pb-28",
+            )}
           >
             {children}
           </main>
           {footer}
         </div>
         {bottomNav ? (
-          <div className="border-border bg-surface z-sticky fixed inset-x-0 bottom-0 border-t pb-[env(safe-area-inset-bottom)] md:hidden print:hidden">
+          // A record page's sticky action bar (ActionPanel, `data-record-bar`) takes the bottom nav's place on phones.
+          <div className="border-border bg-surface z-sticky fixed inset-x-0 bottom-0 border-t pb-[env(safe-area-inset-bottom)] group-has-[[data-record-bar]:not(:empty)]/shell:hidden md:hidden print:hidden">
             {bottomNav}
           </div>
         ) : null}
@@ -100,7 +108,8 @@ export function AppShell({
           className={cn(
             "min-w-0 flex-1",
             variant === "mobile" && "max-w-phone mx-auto w-full px-4",
-            bottomNav && "pb-(--bottom-nav-h) md:pb-0 print:pb-0",
+            bottomNav && "pb-(--bottom-nav-h) print:pb-0",
+            bottomNav && !bottomNavAlways && "md:pb-0",
           )}
         >
           {children}
@@ -110,7 +119,12 @@ export function AppShell({
       {footer}
 
       {bottomNav ? (
-        <div className="border-border bg-surface z-sticky fixed inset-x-0 bottom-0 border-t pb-[env(safe-area-inset-bottom)] md:hidden print:hidden">
+        <div
+          className={cn(
+            "border-border bg-surface z-sticky fixed inset-x-0 bottom-0 border-t pb-[env(safe-area-inset-bottom)] print:hidden",
+            !bottomNavAlways && "md:hidden",
+          )}
+        >
           {bottomNav}
         </div>
       ) : null}
@@ -141,6 +155,10 @@ export interface NavItem {
   onSelect?: () => void;
   /** Extra decoration after the icon (a count badge); decorative — the label carries the meaning. */
   badge?: React.ReactNode;
+  /** e2e hook of the entry's link. */
+  testId?: string;
+  /** The section's own pages, listed under the entry (pass them only while the section is open). */
+  children?: { href: string; label: string; active?: boolean; testId?: string }[];
 }
 
 /**
@@ -159,27 +177,57 @@ export function SidebarNav({
 }) {
   return (
     <ul className="flex flex-col gap-0.5 px-3">
-      {items.map((item) => (
-        <li key={item.href}>
-          <a
-            href={item.href}
-            aria-current={item.active ? "page" : undefined}
-            title={collapsed ? item.label : undefined}
-            className={cn(
-              "rounded-control duration-fast flex items-center gap-3 px-2.5 text-sm transition-colors",
-              size === "touch" ? "h-11 text-base" : "h-10",
-              item.active
-                ? "bg-primary-subtle text-primary-subtle-fg font-semibold"
-                : "text-muted hover:bg-bg-subtle hover:text-fg font-medium",
-              collapsed && "justify-center px-0",
-            )}
-          >
-            <span className={cn("shrink-0 text-lg", item.active ? "text-primary" : "text-subtle")}>{item.icon}</span>
-            <span className={cn("min-w-0 flex-1 truncate", collapsed && "sr-only")}>{item.label}</span>
-            {item.badge && !collapsed ? <span className="shrink-0">{item.badge}</span> : null}
-          </a>
-        </li>
-      ))}
+      {items.map((item) => {
+        // An open section marks the page under it; the entry itself only reads as the open section.
+        const open = Boolean(item.children?.length) && !collapsed;
+        const current = item.active && !(open && item.children?.some((child) => child.active));
+        return (
+          <li key={item.href}>
+            <a
+              href={item.href}
+              aria-current={current ? "page" : undefined}
+              title={collapsed ? item.label : undefined}
+              data-testid={item.testId}
+              className={cn(
+                "rounded-control duration-fast flex items-center gap-3 px-2.5 text-sm transition-colors",
+                size === "touch" ? "h-11 text-base" : "h-10",
+                current
+                  ? "bg-primary-subtle text-primary-subtle-fg font-semibold"
+                  : item.active
+                    ? "text-fg hover:bg-bg-subtle font-semibold"
+                    : "text-muted hover:bg-bg-subtle hover:text-fg font-medium",
+                collapsed && "justify-center px-0",
+              )}
+            >
+              <span className={cn("shrink-0 text-lg", item.active ? "text-primary" : "text-subtle")}>{item.icon}</span>
+              <span className={cn("min-w-0 flex-1 truncate", collapsed && "sr-only")}>{item.label}</span>
+              {item.badge && !collapsed ? <span className="shrink-0">{item.badge}</span> : null}
+            </a>
+            {item.children && item.children.length > 0 && !collapsed ? (
+              <ul className="border-border ms-[1.3rem] mt-0.5 mb-1 flex flex-col gap-0.5 border-s ps-2.5">
+                {item.children.map((child) => (
+                  <li key={child.href}>
+                    <a
+                      href={child.href}
+                      aria-current={child.active ? "page" : undefined}
+                      data-testid={child.testId}
+                      className={cn(
+                        "rounded-control duration-fast flex items-center px-2.5 transition-colors",
+                        size === "touch" ? "h-11 text-base" : "h-9 text-sm",
+                        child.active
+                          ? "bg-primary-subtle text-primary-subtle-fg font-semibold"
+                          : "text-muted hover:bg-bg-subtle hover:text-fg font-medium",
+                      )}
+                    >
+                      <span className="min-w-0 flex-1 truncate">{child.label}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
+        );
+      })}
     </ul>
   );
 }

@@ -7,12 +7,14 @@ import type { ReceiptView } from "@/lib/api/types";
 import type { PageMeta, ResidentReceipt } from "@/lib/api/types";
 import { PdfButton } from "@/features/shared/PdfButton";
 import { Badge } from "@/ui/components/Badge";
+import { Callout } from "@/ui/components/Callout";
 import { Button } from "@/ui/components/Button";
 import { List, PaperDocument, Screen, ScreenHeader } from "@/features/shared/Screen";
 import { EmptyState } from "@/ui/components/EmptyState";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { Icon } from "@/ui/icons";
 import { IconBill } from "@/ui/icons/glyphs/bill";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconChevronLeft } from "@/ui/icons/glyphs/chevron-left";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
 import { IconXCircle } from "@/ui/icons/glyphs/x-circle";
@@ -105,17 +107,19 @@ export async function ReceiptDetail({ receipt, locale }: { receipt: ReceiptView;
   const t = await getTranslations("resident.receipts");
   return (
     <Screen testId="receipt-detail">
-      <ScreenHeader
-        flush
-        title={t("detailTitle", { number: receipt.number })}
-        status={
-          receipt.voided ? (
-            <Badge tone="neutral" icon={IconXCircle}>
-              {t("voided")}
-            </Badge>
-          ) : undefined
-        }
-      />
+      <ScreenHeader flush title={t("detailTitle", { number: receipt.number })} />
+      {/* One status row on top, as on the bill (Stitch G2): green once paid, grey when the payment was reversed. */}
+      <div data-testid="receipt-status-row" data-voided={receipt.voided || undefined}>
+        {receipt.voided ? (
+          <Callout tone="neutral" icon={IconXCircle} live={false} title={t("voided")}>
+            {t("voidedBody")}
+          </Callout>
+        ) : (
+          <Callout tone="success" icon={IconCheckCircle} live={false} className="py-3 font-semibold">
+            {t("paidOn", { date: formatDate(receipt.issuedAt, locale) })}
+          </Callout>
+        )}
+      </div>
       <PaperDocument
         issuer={receipt.issuerName}
         kind={t(`kind.${receipt.kind}`)}
@@ -141,11 +145,10 @@ export async function ReceiptDetail({ receipt, locale }: { receipt: ReceiptView;
           </div>
         }
       >
-        <div className="flex items-baseline justify-between gap-4">
+        <div className="flex items-center justify-between gap-4" data-testid="receipt-amount">
           <span className="text-muted">{t("amount")}</span>
           <MoneyDisplay amount={receipt.amount} locale={locale} size="lg" tone={receipt.voided ? "muted" : "default"} />
         </div>
-        {receipt.voided ? <p className="text-muted mt-3 text-sm">{t("voidedBody")}</p> : null}
         {receipt.invoices?.length ? (
           <div className="border-border mt-4 border-t pt-3">
             <h3 className="text-muted text-sm font-semibold">{t("paidInvoices")}</h3>

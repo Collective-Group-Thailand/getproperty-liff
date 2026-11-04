@@ -54,7 +54,11 @@ export function LeadConversation({ lead }: { lead: Schemas["OwnerLeadDto"] }) {
   }
 
   return (
-    <section aria-labelledby="lead-thread" className="flex flex-col gap-3" data-testid="lead-thread">
+    <section
+      aria-labelledby="lead-thread"
+      className="rounded-card border-border bg-surface shadow-card flex flex-col gap-3 border p-4"
+      data-testid="lead-thread"
+    >
       <h2 id="lead-thread" className="font-semibold">
         {t("thread")}
       </h2>

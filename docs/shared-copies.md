@@ -88,6 +88,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 
 **Redesign G2 re-sync (2026-11-03)** (from getproperty-web **`e0750d8`**, main after G0/G1; `pnpm shared:check`: 301 copies, 287 same, 14 adapted, 0 drift): the redesigned tokens — four radii (`thumb` 6 / `control` 10 / `card` 14 / `panel` 16; `sm`/`md`/`lg`/`xl`/`photo` gone), 44-px `md` controls (the resident zone still raises them to 48 px in `zones.css`), placeholder and 16-px phone fields in `base.css`, 6-px `Badge` / `Tabs` count / `EnvBadge`, `EmptyState` `variant="card"`, the one `NativeSelect` (listbox with type-to-filter on a fine pointer, the phone's picker on touch), `SimpleTable` row links, `AppShell` `rail`; new here: `RowList`, `Statement`, `DetailLayout` / `ActionPanel`, `PhotoPlaceholder` (+ stories). `src/ui/design-language.test.ts` and `src/ui/dead-ends.test.ts` are LIFF-owned adaptations (not manifest rows): the resident app's script faces are allowed, and its dead-end baseline is empty.
 
+**Re-sync 2026-11-04** (from getproperty-web's committed **`77b4f25`**, main after the console redesign — the cloud's `bdbfe85` has the identical tree; exported tree → `SHARED_SOURCE=… pnpm shared:check --strict`: 301 copies, 287 same, 14 adapted, 0 drift; 20 files re-copied verbatim, no new modules, glyphs, tokens or messages needed): `AppShell` (`bottomNavAlways`, nav entries with `testId` and section `children`, the `group/shell` that hides the bottom nav while a record's `data-record-bar` is on the page), `Badge` `w-fit`, `Callout` `size="sm"` and `live`, `DescriptionList` `layout="rows"`, `ActionPanel` `summary` and its phone sticky bar (`data-record-bar`), `RowList` row `icon` / `current` and `stacked`, `Progress` `size="sm"`, `Sheet` `side="left"` and the side sheet's row footer, `SimpleTable` `stackOnPhones` / `phone` slots / `footer`, `Stepper` `variant="bar"` and `labelled` (+ every story), `format.ts` `formatDuration` and `formatCountry` (+ test). All additive: no LIFF caller changed for the API. The resident screens keep their own frame (`features/shared/Screen.tsx` and `ActionDock`), so the shell's record-bar rule is dormant here; the landlord lead and the prospect enquiry now use `DescriptionList layout="rows"` for their facts, the lead its nationality through `formatCountry`, and the receipt a non-live `Callout` for its paid / voided status row.
+
 ## Design system — `src/ui`
 
 | Path | Mode | Source commit |
@@ -103,15 +105,15 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/AlertDialog.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/AlertDialog.tsx` | verbatim | `838a6bf` |
 | `src/ui/components/AppShell.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/AppShell.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/AppShell.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Badge.stories.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/Badge.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Badge.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Breadcrumbs.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Breadcrumbs.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Button.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Button.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/Callout.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/Callout.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Callout.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/Callout.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/CameraCapture.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/CameraCapture.tsx` | verbatim | `2005ad0` |
 | `src/ui/components/Card.stories.tsx` | verbatim | `08ff63b` |
@@ -120,14 +122,14 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Checkbox.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/CountBadge.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/CountBadge.tsx` | verbatim | `2005ad0` |
-| `src/ui/components/DescriptionList.stories.tsx` | verbatim | `2493107` |
-| `src/ui/components/DescriptionList.tsx` | verbatim | `2493107` |
-| `src/ui/components/DetailLayout.stories.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/DetailLayout.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/DescriptionList.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/DescriptionList.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/DetailLayout.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/DetailLayout.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/PhotoPlaceholder.stories.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/PhotoPlaceholder.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/RowList.stories.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/RowList.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/RowList.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/RowList.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Statement.stories.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Statement.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Dialog.stories.tsx` | verbatim | `08ff63b` |
@@ -156,15 +158,15 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/PhoneInput.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.test.ts` | verbatim | `08ff63b` |
 | `src/ui/components/PhoneInput.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Progress.stories.tsx` | verbatim | `2005ad0` |
-| `src/ui/components/Progress.tsx` | verbatim | `2005ad0` |
+| `src/ui/components/Progress.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/Progress.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/SegmentedControl.stories.tsx` | verbatim | `79541bc` |
 | `src/ui/components/SegmentedControl.tsx` | verbatim | `79541bc` |
 | `src/ui/components/SegmentedControl.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/Sheet.stories.tsx` | verbatim | `08ff63b` |
-| `src/ui/components/Sheet.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/SimpleTable.stories.tsx` | verbatim | `e0750d8` |
-| `src/ui/components/SimpleTable.tsx` | verbatim | `e0750d8` |
+| `src/ui/components/Sheet.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/Sheet.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/SimpleTable.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/SimpleTable.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
@@ -173,8 +175,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Spinner.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stat.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Stat.tsx` | verbatim | `79541bc` |
-| `src/ui/components/Stepper.stories.tsx` | verbatim | `6a8ffcf` |
-| `src/ui/components/Stepper.tsx` | verbatim | `6a8ffcf` |
+| `src/ui/components/Stepper.stories.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/Stepper.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Switch.stories.tsx` | verbatim | `2493107` |
 | `src/ui/components/Switch.tsx` | verbatim | `2493107` |
 | `src/ui/components/Tabs.stories.tsx` | verbatim | `08ff63b` |
@@ -241,8 +243,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 |---|---|---|
 | `src/domain/status/index.ts` | adapted | `f57d4dc` |
 | `src/domain/status/status.test.ts` | adapted | `f57d4dc` |
-| `src/i18n/format.test.ts` | verbatim | `2005ad0` |
-| `src/i18n/format.ts` | verbatim | `2005ad0` |
+| `src/i18n/format.test.ts` | verbatim | `77b4f25` |
+| `src/i18n/format.ts` | verbatim | `77b4f25` |
 
 ## App, scripts, lint rules, Storybook
 
