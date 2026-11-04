@@ -7,14 +7,15 @@ import type { Locale } from "@/i18n/routing";
 import type { InvoiceView } from "@/lib/api/types";
 import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { PdfButton } from "@/features/shared/PdfButton";
-import { StatusBadge } from "@/ui/components/Badge";
+import { Callout } from "@/ui/components/Callout";
 import { Statement } from "@/ui/components/Statement";
 import { ActionDock, PaperDocument, Screen, ScreenHeader } from "@/features/shared/Screen";
 import { MoneyDisplay } from "@/ui/components/MoneyDisplay";
 import { Icon } from "@/ui/icons";
 import { IconChevronRight } from "@/ui/icons/glyphs/chevron-right";
+import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconWarning } from "@/ui/icons/glyphs/warning";
 
-import { Due } from "./Due";
 import { InvoiceExplainer } from "./InvoiceExplainer";
 import { InvoiceLines } from "./InvoiceLines";
 import { dueState, isOpen, isZero, needsAttention } from "./model";
@@ -45,39 +46,26 @@ export async function InvoiceDetail({
   const money = (value: string) => formatTHB(value, locale);
   const partlyPaid = open && invoice.balance !== invoice.amountDue;
 
-  const status = (
-    <StatusBadge status={INVOICE_STATUS[invoice.status]} label={root(INVOICE_STATUS[invoice.status].labelKey)} />
-  );
+  const statusLabel = root(INVOICE_STATUS[invoice.status].labelKey);
+  const attention = open && needsAttention(state);
+  // One status row on top (redesign G2 r2): amber only when the resident should act now (D-100), info blue while it
+  // is merely open, green once paid; the amount itself lives in the docked bar with "scan to pay".
+  const tone = attention ? "warning" : open ? "info" : invoice.status === "paid" ? "success" : "neutral";
+  const meta = INVOICE_STATUS[invoice.status];
 
   return (
     <Screen testId="invoice-detail" data-status={invoice.status}>
-      <ScreenHeader
-        back={{ href: "/invoices", label: t("back") }}
-        title={t("title", { period: formatDate(invoice.periodStart, locale, { style: "month" }) })}
-        status={status}
-      />
+      <ScreenHeader flush title={t("title", { period: formatDate(invoice.periodStart, locale, { style: "month" }) })} />
 
-      <section
-        aria-labelledby="invoice-amount-title"
-        className={
-          open ? "rounded-card bg-primary-subtle px-5 py-4" : "rounded-card border-border bg-surface border px-5 py-4"
-        }
-        data-testid="invoice-summary"
-      >
-        <h2
-          id="invoice-amount-title"
-          className={open ? "text-primary-subtle-fg text-sm font-semibold" : "text-muted text-sm"}
+      <div data-testid="invoice-status-row" data-due={state.kind}>
+        <Callout
+          tone={tone}
+          icon={attention ? IconWarning : open ? IconClock : meta.icon}
+          className="py-3 font-semibold"
         >
-          {open ? (partlyPaid ? t("stillDue") : t("toPay")) : t("total")}
-        </h2>
-        <MoneyDisplay
-          amount={open ? invoice.balance : invoice.amountDue}
-          locale={locale}
-          size="hero"
-          tone={open && needsAttention(state) ? "attention" : "default"}
-        />
-        <Due state={state} dueDate={invoice.dueDate} locale={locale} className="mt-1" />
-      </section>
+          {open ? t("statusDue", { status: statusLabel, date: formatDate(invoice.dueDate, locale) }) : statusLabel}
+        </Callout>
+      </div>
 
       <PaperDocument
         issuer={invoice.issuerName}
@@ -153,8 +141,20 @@ export async function InvoiceDetail({
 
       {/* Mounted for a paid invoice too: the sheet stays open on its paid state when the page re-renders. */}
       {open ? (
-        <ActionDock>
-          <PayLauncher invoice={invoice} label={t("pay")} autoOpen={autoPay} payable vapidKey={vapidKey} />
+        <ActionDock className="flex-row items-center justify-between gap-4" testId="invoice-dock">
+          <div className="flex min-w-0 flex-col" data-testid="invoice-summary">
+            <span className="text-muted text-sm">{partlyPaid ? t("stillDue") : t("toPay")}</span>
+            <MoneyDisplay amount={invoice.balance} locale={locale} size="lg" />
+          </div>
+          <PayLauncher
+            invoice={invoice}
+            label={t("pay")}
+            autoOpen={autoPay}
+            payable
+            size="lg"
+            className="w-auto shrink-0"
+            vapidKey={vapidKey}
+          />
         </ActionDock>
       ) : (
         <PayLauncher invoice={invoice} label={t("pay")} autoOpen={false} payable={false} vapidKey={vapidKey} />

@@ -6,7 +6,6 @@ import { loadCategories } from "@/features/resident/requests/data";
 import { categoryName } from "@/features/resident/requests/model";
 import { NewRequestForm } from "@/features/resident/requests/NewRequestForm";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { getActor } from "@/lib/auth/actor";
 import { Callout } from "@/ui/components/Callout";
@@ -39,9 +38,8 @@ export default async function NewRequestPage({
   const unit = actor.me.units.find((u) => u.unitId === wanted) ?? actor.unit;
   const categories = await loadCategories(unit.unitId);
   return (
-    <ResidentShell active="requests">
-      <BackLink href="/requests">{list("title")}</BackLink>
-      <div className="flex flex-col gap-4 pb-6">
+    <ResidentShell active="requests" back={{ href: "/requests", label: list("title") }}>
+      <div className="flex flex-1 flex-col gap-6 pt-2">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
           <p className="text-muted">{t("lead")}</p>
@@ -56,6 +54,7 @@ export default async function NewRequestPage({
             units={actor.me.units.map((u) => ({ value: u.unitId, label: `${u.unitNo} · ${u.buildingName}` }))}
             categories={categories.data.map((c) => ({
               value: c.id,
+              key: c.key,
               label: categoryName(c, locale, (key) => cat(key)),
             }))}
           />

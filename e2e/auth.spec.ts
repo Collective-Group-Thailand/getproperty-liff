@@ -68,7 +68,7 @@ test.describe("outside LINE", () => {
     // D-226: the phone matches a party the office entered — nothing is linked until the landlord's Owner confirms.
     await expect(page.getByTestId("home-link-pending")).toContainText("รอผู้ดูแลอาคารยืนยัน");
     await expect(page.getByTestId("home-link-pending")).toContainText("ข้อมูลผู้พักอาศัย 1 รายการ");
-    await expect(page.getByTestId("unit-card")).toHaveCount(0);
+    await expect(page.getByTestId("home-unit")).toHaveCount(0);
     await expect(page.getByTestId("home-invoice")).toHaveCount(0);
     await expectAxeClean(page);
     await expectNoHorizontalScroll(page);

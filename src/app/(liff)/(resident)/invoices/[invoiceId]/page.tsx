@@ -5,7 +5,6 @@ import { InvoiceDetail } from "@/features/resident/invoices/InvoiceDetail";
 import { bangkokToday } from "@/features/resident/invoices/model";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { serverEnv } from "@/lib/env";
 
@@ -32,7 +31,7 @@ export default async function InvoicePage({
     loadInvoice(invoiceId),
   ]);
   return (
-    <ResidentShell active="bills">
+    <ResidentShell active="bills" back={{ href: "/invoices", label: t("back") }}>
       {loaded.data ? (
         <InvoiceDetail
           invoice={loaded.data}
@@ -42,10 +41,7 @@ export default async function InvoicePage({
           vapidKey={serverEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY}
         />
       ) : (
-        <>
-          <BackLink href="/invoices">{t("back")}</BackLink>
-          <ProblemPage error={loaded.error} />
-        </>
+        <ProblemPage error={loaded.error} />
       )}
     </ResidentShell>
   );

@@ -8,14 +8,26 @@ import type { Locale } from "@/i18n/routing";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Callout } from "@/ui/components/Callout";
 import { Card } from "@/ui/components/Card";
-import { Facts } from "@/features/shared/Screen";
+import { ActionDock, Facts } from "@/features/shared/Screen";
+import { ProgressSteps } from "@/features/shared/ProgressSteps";
 import { Timeline, type TimelineEvent } from "@/ui/components/Timeline";
 import { Icon } from "@/ui/icons";
 import { IconCalendar } from "@/ui/icons/glyphs/calendar";
+import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
+import { IconChecklist } from "@/ui/icons/glyphs/checklist";
 import { IconClock } from "@/ui/icons/glyphs/clock";
+import { IconTicket } from "@/ui/icons/glyphs/ticket";
+import { IconWrench } from "@/ui/icons/glyphs/wrench";
 
 import { categoryName, isOpenRequest, photosOf, timelineOf, visitState, type ServiceRequest } from "./model";
 import { CancelRequest, ConfirmVisit, RateRequest } from "./RequestActions";
+
+/** Where the request stands, from its status (display only): reported → accepted → being repaired → done. */
+function progressOf(status: ServiceRequest["status"]): number {
+  if (status === "new") return 1;
+  if (status === "triaged" || status === "assigned" || status === "in_progress" || status === "waiting_parts") return 2;
+  return 4;
+}
 
 /**
  * One repair request (L4 4.1 §2): status, what was reported, the warranty referral when the API made one (D-153 —
@@ -55,12 +67,39 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
     };
   });
 
+  const category = categoryName(request.category, locale, (key) => cat(key));
+  const long = request.description.length > 64 || request.description.includes("\n");
+  const confirm = request.visitAt && isOpenRequest(request) && visit === "confirm";
+
   return (
-    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="request-detail" data-status={request.status}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-2xl font-semibold">{t("detail.title", { ref: request.ref })}</h1>
-        <StatusBadge status={status} label={root(status.labelKey)} />
-      </div>
+    <div className="flex flex-1 flex-col gap-4 pt-2" data-testid="request-detail" data-status={request.status}>
+      {/* Head: the problem in the resident's own words, category · unit · reference as the lede (redesign G2 r2). */}
+      <header className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge status={status} label={root(status.labelKey)} />
+        </div>
+        <h1 className="font-display line-clamp-3 text-xl leading-snug font-semibold text-pretty">
+          {request.description}
+        </h1>
+        <p className="text-muted" data-testid="request-lede">
+          {t("detail.lede", { category, unit: request.unitNo ?? "—", ref: request.ref })}
+        </p>
+      </header>
+
+      {request.status !== "cancelled" ? (
+        <ProgressSteps
+          label={t("detail.progress")}
+          doneLabel={t("detail.stepDone")}
+          current={progressOf(request.status)}
+          testId="request-progress"
+          steps={[
+            { key: "reported", icon: IconTicket, label: t("detail.step.reported") },
+            { key: "accepted", icon: IconCheckCircle, label: t("detail.step.accepted") },
+            { key: "repair", icon: IconWrench, label: t("detail.step.repair") },
+            { key: "done", icon: IconChecklist, label: t("detail.step.done") },
+          ]}
+        />
+      ) : null}
 
       {request.inWarranty ? (
         <div data-testid="request-warranty">
@@ -73,12 +112,6 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
       <Card as="section" padding="none" className="px-4 pt-1 pb-4" aria-label={t("detail.description")}>
         <Facts
           items={[
-            {
-              key: "category",
-              label: t("detail.category"),
-              value: categoryName(request.category, locale, (key) => cat(key)),
-            },
-            { key: "unit", label: t("detail.unit"), value: request.unitNo },
             { key: "reported", label: t("detail.reported"), value: formatDateTime(request.createdAt, locale) },
             {
               key: "priority",
@@ -96,8 +129,12 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
               : []),
           ]}
         />
-        <h2 className="text-muted mt-3 text-sm font-semibold">{t("detail.description")}</h2>
-        <p className="mt-1 whitespace-pre-line">{request.description}</p>
+        {long ? (
+          <>
+            <h2 className="text-muted mt-3 text-sm font-semibold">{t("detail.description")}</h2>
+            <p className="mt-1 whitespace-pre-line">{request.description}</p>
+          </>
+        ) : null}
       </Card>
 
       {/* A landlord's decision (D-263): who fixes it and who pays, as the owner set it. */}
@@ -146,12 +183,7 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
               {t("detail.visitConfirmedOn", { date: formatDateTime(request.visitConfirmedAt, locale) })}
             </p>
           ) : null}
-          {visit === "confirm" ? (
-            <>
-              <p className="text-muted mt-1 text-sm">{t("detail.confirmVisitLead")}</p>
-              <ConfirmVisit serviceRequestId={request.id} />
-            </>
-          ) : null}
+          {visit === "confirm" ? <p className="text-muted mt-1 text-sm">{t("detail.confirmVisitLead")}</p> : null}
         </Card>
       ) : null}
 
@@ -201,6 +233,14 @@ export async function RequestDetail({ request, locale }: { request: ServiceReque
       />
 
       {actions.has("cancel") ? <CancelRequest serviceRequestId={request.id} /> : null}
+
+      {confirm ? (
+        <ActionDock testId="request-dock">
+          <ConfirmVisit serviceRequestId={request.id} />
+        </ActionDock>
+      ) : (
+        <div className="pb-4" />
+      )}
     </div>
   );
 }

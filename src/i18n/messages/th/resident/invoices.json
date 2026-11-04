@@ -4,7 +4,13 @@
     "today": "ครบกำหนดวันนี้ ({date})",
     "inDays": "ครบกำหนดในอีก {days} วัน ({date})",
     "paid": "ชำระแล้ว",
-    "void": "ยกเลิกแล้ว"
+    "void": "ยกเลิกแล้ว",
+    "short": {
+      "overdue": "เลยกำหนด {days} วัน",
+      "today": "ครบกำหนดวันนี้",
+      "inDays": "ครบกำหนดในอีก {days} วัน"
+    },
+    "on": "ครบกำหนด {date}"
   },
   "list": {
     "title": "บิล",
@@ -48,7 +54,8 @@
       "issued": "วันที่ออก",
       "due": "ครบกำหนด",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · ครบกำหนด {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × {rate} บาท = {amount}",
     "quantityTimesPrice": "{quantity} × {rate} บาท",
     "estimated": "ยอดนี้เป็นการประมาณ จะปรับตามเลขมิเตอร์จริงในบิลถัดไป",
-    "photoOpen": "ดูรูปมิเตอร์",
     "photoAlt": "รูปมิเตอร์: {title}",
-    "photoCaption": "รูปตอนจดมิเตอร์",
-    "estimatedBadge": "ประมาณการ"
+    "estimatedBadge": "ประมาณการ",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "ใช้ไป {units} × {rate} บาท",
+    "usedOnly": "ใช้ไป {units}",
+    "source": "ที่มาของเลขมิเตอร์",
+    "periodLabel": "ช่วงที่ใช้",
+    "details": "รายละเอียด",
+    "photoOpenFor": "ดูรูปและรายละเอียดมิเตอร์: {title}",
+    "detailsOf": "ของ{title}"
   },
   "explained": {
     "title": "ทำไมยอดเป็นเท่านี้",

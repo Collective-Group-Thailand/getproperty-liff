@@ -6,7 +6,6 @@ import { loadLease, loadNotices, pageLocale } from "@/features/resident/lease/da
 import { LetterView } from "@/features/resident/lease/Letters";
 import { NoticeDocumentButton } from "@/features/resident/lease/NoticeDocumentButton";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 
 export async function generateMetadata() {
@@ -32,8 +31,7 @@ export default async function LetterPage({ params }: { params: Promise<{ leaseId
       : undefined;
   if (!error && !notice) notFound();
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${leaseId}`}>{t("letters.back")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("letters.back") }}>
       {error || !notice || !lease.data ? (
         <ProblemPage error={error!} />
       ) : (

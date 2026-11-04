@@ -105,8 +105,9 @@ export function WorkOrderPhotos({ workOrderId, role }: { workOrderId: string; ro
 
   return (
     <div className="flex flex-col gap-3" data-testid={`wo-photos-${role}`}>
-      <p className="text-muted text-sm">{role === "before" ? t("beforeHint") : t("afterHint")}</p>
       <PhotoPicker
+        variant="slots"
+        columns={2}
         photos={photos}
         onChange={setPhotos}
         max={MAX}
@@ -123,6 +124,7 @@ export function WorkOrderPhotos({ workOrderId, role }: { workOrderId: string; ro
       />
       {photos.length ? (
         <Button
+          variant="secondary"
           size="lg"
           block
           iconStart={IconUpload}

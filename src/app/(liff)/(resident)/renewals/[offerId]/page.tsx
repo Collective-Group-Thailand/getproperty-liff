@@ -7,7 +7,6 @@ import { isOpenOffer } from "@/features/resident/contracts/model";
 import { RenewalDecision } from "@/features/resident/contracts/RenewalDecision";
 import { loadLease, pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { formatDate, formatTHB } from "@/i18n/format";
 import { StatusBadge } from "@/ui/components/Badge";
@@ -51,8 +50,7 @@ export default async function RenewalOfferPage({ params }: { params: Promise<{ o
   const back = await getTranslations("resident.contracts.back");
   if (loaded.error) {
     return (
-      <ResidentShell active={null}>
-        <BackLink href="/contracts">{back("list")}</BackLink>
+      <ResidentShell active={null} back={{ href: "/contracts", label: back("list") }}>
         <ProblemPage error={loaded.error} />
       </ResidentShell>
     );
@@ -72,8 +70,7 @@ export default async function RenewalOfferPage({ params }: { params: Promise<{ o
   const consequence = lease ? t("decline.consequence", { end: date(lease.endDate) }) : t("decline.consequenceNoDate");
 
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${offer.leaseId}`}>{back("lease")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${offer.leaseId}`, label: back("lease") }}>
       <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="renewal-offer" data-state={offer.state}>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">

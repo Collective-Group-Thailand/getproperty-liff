@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -151,7 +152,7 @@ export function RenewalDecision({
           </div>
         </Card>
       ) : (
-        <div className="flex flex-col gap-2">
+        <ActionDock>
           {actions.includes("accept") ? (
             <Button
               size="lg"
@@ -182,7 +183,7 @@ export function RenewalDecision({
               {t("decline.cta")}
             </Button>
           ) : null}
-        </div>
+        </ActionDock>
       )}
       <LazyAlertDialog
         open={confirmAccept}

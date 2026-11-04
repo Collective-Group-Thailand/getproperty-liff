@@ -10,7 +10,16 @@ import { SettingsMenu } from "@/features/resident/shell/SettingsMenu";
  * has one screen, their work orders (L4). `entry` (the sign-in page) shows the full logo above the content instead
  * of in the top bar, like the resident sign-in.
  */
-export async function TechnicianShell({ children, entry = false }: { children: React.ReactNode; entry?: boolean }) {
+export async function TechnicianShell({
+  children,
+  entry = false,
+  back,
+}: {
+  children: React.ReactNode;
+  entry?: boolean;
+  /** A job's page: "‹ My work orders" in the top bar, the job's next step docked on the bottom edge. */
+  back?: { href: string; label: string; context?: React.ReactNode };
+}) {
   const [t, current] = await Promise.all([getTranslations("shell"), getLocale()]);
   const badge = serverEnv().NEXT_PUBLIC_ENV_BADGE;
   return (
@@ -20,6 +29,7 @@ export async function TechnicianShell({ children, entry = false }: { children: R
       navItems={[]}
       envBadge={badge ? t("envBadge", { name: badge }) : undefined}
       brand={entry ? "hero" : "header"}
+      back={back}
       settings={<SettingsMenu locale={isLocale(current) ? current : "th"} signedIn />}
     >
       {children}

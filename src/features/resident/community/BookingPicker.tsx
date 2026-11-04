@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -157,9 +158,11 @@ export function BookingPicker({
             <Input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} />
           </Field>
           {error ? <ProblemCallout error={error} /> : null}
-          <Button type="submit" size="lg" block loading={busy} data-testid="booking-submit">
-            {t("confirm", { from: slots[index]!.from, to: chosen.to })}
-          </Button>
+          <ActionDock>
+            <Button type="submit" size="lg" block loading={busy} data-testid="booking-submit">
+              {t("confirm", { from: slots[index]!.from, to: chosen.to })}
+            </Button>
+          </ActionDock>
         </form>
       ) : error ? (
         <ProblemCallout error={error} />

@@ -4,7 +4,13 @@
     "today": "ផុតកំណត់ថ្ងៃនេះ ({date})",
     "inDays": "ផុតកំណត់ក្នុង {days, plural, other {# ថ្ងៃ}} ({date})",
     "paid": "បានបង់",
-    "void": "បានលុបចោល"
+    "void": "បានលុបចោល",
+    "short": {
+      "overdue": "យឺត {days, plural, other {# ថ្ងៃ}}",
+      "today": "ផុតកំណត់ថ្ងៃនេះ",
+      "inDays": "ផុតកំណត់ក្នុង {days, plural, other {# ថ្ងៃ}}"
+    },
+    "on": "ផុតកំណត់ {date}"
   },
   "list": {
     "title": "វិក្កយបត្រ",
@@ -48,7 +54,8 @@
       "issued": "ថ្ងៃចេញ",
       "due": "ថ្ងៃផុតកំណត់",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · ផុតកំណត់ {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
     "quantityTimesPrice": "{quantity} × ฿{rate}",
     "estimated": "នេះជាការប៉ាន់ស្មាន វានឹងត្រូវកែលើវិក្កយបត្របន្ទាប់ពេលកុងទ័រត្រូវបានអាន។",
-    "photoOpen": "មើលរូបថតកុងទ័រ",
     "photoAlt": "រូបថតកុងទ័រ: {title}",
-    "photoCaption": "រូបថតដែលថតពេលអាន",
-    "estimatedBadge": "ប៉ាន់ស្មាន"
+    "estimatedBadge": "ប៉ាន់ស្មាន",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "ប្រើ {units} × {rate} បាត",
+    "usedOnly": "ប្រើ {units}",
+    "source": "ប្រភពការអាន",
+    "periodLabel": "រយៈពេល",
+    "details": "ព័ត៌មានលម្អិត",
+    "photoOpenFor": "រូបថត និងព័ត៌មានលម្អិតកុងទ័រ: {title}",
+    "detailsOf": " ({title})"
   },
   "explained": {
     "title": "ហេតុអ្វីចំនួននេះ",

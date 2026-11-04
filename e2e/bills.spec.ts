@@ -54,7 +54,7 @@ test.describe("home and invoices (L2 2.1)", () => {
     await expect(hero).toContainText("฿5,856.00");
     await expect(hero.getByTestId("invoice-due")).toHaveAttribute("data-due", "later");
     await expect(hero.getByTestId("invoice-due")).toContainText("ครบกำหนดในอีก 5 วัน");
-    await expect(page.getByTestId("unit-card")).toContainText("สัญญาเช่า");
+    await expect(page.getByTestId("unit-lease")).toContainText("สัญญาเช่า");
     await expect(page.getByRole("link", { name: "ใบเสร็จ" }).first()).toBeVisible();
     await expect(page.getByTestId("home-notifications")).toContainText("บิลค่าเช่าและค่าน้ำไฟพร้อมแล้ว");
     await checkPage(page);
@@ -131,10 +131,16 @@ test.describe("home and invoices (L2 2.1)", () => {
     await expect(electricity).toContainText("มิเตอร์อัตโนมัติ");
     await expect(electricity.getByTestId("meter-readings")).toContainText("1,114.5");
     await expect(electricity.getByTestId("meter-readings")).toContainText("1,234.5");
-    await expect(electricity.getByTestId("units-times-price")).toHaveText("120 kWh × 7.00 บาท = ฿840.00");
+    await expect(electricity.getByTestId("meter-readings")).toContainText("120 kWh × 7.00 บาท");
+    // One muted line per meter (redesign G2 r2); units × price = amount and the labelled readings are one tap away.
+    await electricity.getByTestId("meter-details").click();
+    const details = page.getByRole("dialog");
+    await expect(details.getByTestId("units-times-price")).toHaveText("120 kWh × 7.00 บาท = ฿840.00");
+    await expect(details.getByTestId("meter-sheet-readings")).toContainText("1,114.5");
+    await page.keyboard.press("Escape");
+    await expect(details).toBeHidden();
     const water = page.locator('[data-testid="invoice-line"][data-kind="water"]');
     await expect(water).toContainText("อ่านจากรูป");
-    await expect(water.getByTestId("units-times-price")).toHaveText("12 m³ × 18.00 บาท = ฿216.00");
     await expect(page.getByTestId("invoice-totals")).toContainText("฿5,856.00");
 
     const explained = page.getByTestId("invoice-explained");
@@ -148,6 +154,7 @@ test.describe("home and invoices (L2 2.1)", () => {
     const viewer = page.getByRole("dialog");
     await expect(viewer.getByTestId("meter-photo-full")).toBeVisible();
     await expect(viewer.getByRole("heading")).toHaveText("ค่าน้ำประปา");
+    await expect(viewer.getByTestId("units-times-price")).toHaveText("12 m³ × 18.00 บาท = ฿216.00");
     await checkPage(page);
     await page.keyboard.press("Escape");
     await expect(viewer).toBeHidden();

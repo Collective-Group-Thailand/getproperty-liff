@@ -4,7 +4,6 @@ import { loadReceipt } from "@/features/resident/invoices/data";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ReceiptDetail } from "@/features/resident/receipts/Receipts";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 
 export async function generateMetadata() {
@@ -21,15 +20,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ receip
     loadReceipt(receiptId),
   ]);
   return (
-    <ResidentShell active="bills">
-      {loaded.data ? (
-        <ReceiptDetail receipt={loaded.data} locale={locale} />
-      ) : (
-        <>
-          <BackLink href="/receipts">{t("title")}</BackLink>
-          <ProblemPage error={loaded.error} />
-        </>
-      )}
+    <ResidentShell active="bills" back={{ href: "/receipts", label: t("title") }}>
+      {loaded.data ? <ReceiptDetail receipt={loaded.data} locale={locale} /> : <ProblemPage error={loaded.error} />}
     </ResidentShell>
   );
 }

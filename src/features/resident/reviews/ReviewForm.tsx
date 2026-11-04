@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -210,9 +211,11 @@ export function ReviewForm({
         </div>
       ) : null}
       {error ? <ProblemCallout error={error} /> : null}
-      <Button type="submit" size="lg" block loading={busy} data-testid="review-submit">
-        {t("submit")}
-      </Button>
+      <ActionDock>
+        <Button type="submit" size="lg" block loading={busy} data-testid="review-submit">
+          {t("submit")}
+        </Button>
+      </ActionDock>
       <p className="text-muted text-center text-sm">{t("moderation")}</p>
     </form>
   );

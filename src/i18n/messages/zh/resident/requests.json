@@ -17,7 +17,6 @@
     "lead": "描述问题并添加照片——管理处和维修师傅会看到您所看到的。",
     "unit": "房间",
     "category": "什么类型的问题？",
-    "categoryPlaceholder": "选择类型",
     "categoryMissing": "请选择问题类型",
     "urgency": "有多紧急？",
     "urgencyHint": "漏水、停电或门锁不上时请选“紧急”。",
@@ -46,10 +45,16 @@
     "uploading": "正在发送第 {index} 张照片，共 {count} 张…",
     "submit": "提交报修",
     "noCategories": "此楼宇暂不接受应用内报修，请致电管理处。",
-    "sent": "报修 {ref} 已提交，管理处会与您联系。"
+    "sent": "报修 {ref} 已提交，管理处会与您联系。",
+    "counter": "{count}/{max}",
+    "access": {
+      "anytime": "任何时间",
+      "anytimeHint": "管理处会在应用内发送上门时间供您确认",
+      "window": "选择方便的时段",
+      "windowHint": "告诉管理处您通常何时在家"
+    }
   },
   "detail": {
-    "title": "报修 {ref}",
     "back": "全部报修",
     "category": "类型",
     "unit": "房间",
@@ -104,6 +109,15 @@
         "tenant": "维修费由您承担，将计入下一期账单"
       },
       "shared": "分摊：您承担 {share}%，将计入下一期账单"
+    },
+    "lede": "{category} · {unit} 室 · {ref}",
+    "progress": "报修进度",
+    "stepDone": "已完成",
+    "step": {
+      "reported": "已报修",
+      "accepted": "已受理",
+      "repair": "维修",
+      "done": "完成"
     }
   },
   "cancel": {

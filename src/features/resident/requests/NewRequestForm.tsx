@@ -4,7 +4,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { ChoiceCards, ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import { PhotoPicker, type PickedPhoto } from "@/features/shared/PhotoPicker";
+import { ActionDock } from "@/features/shared/Screen";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { browserApi, unwrap } from "@/lib/api/browser";
@@ -15,10 +17,32 @@ import { Button } from "@/ui/components/Button";
 import { Field } from "@/ui/components/Field";
 import { Textarea } from "@/ui/components/Input";
 import { NativeSelect, type NativeSelectOption } from "@/ui/components/NativeSelect";
-import { SegmentedControl } from "@/ui/components/SegmentedControl";
-import { IconForward } from "@/ui/icons/glyphs/forward";
+import type { IconGlyph } from "@/ui/icons";
+import { IconElectric } from "@/ui/icons/glyphs/electric";
+import { IconMore } from "@/ui/icons/glyphs/more";
+import { IconWater } from "@/ui/icons/glyphs/water";
+import { IconWrench } from "@/ui/icons/glyphs/wrench";
 
+import { IconBug, IconDoorOpen, IconRefrigerator, IconSnowflake, IconSprayCan } from "./categoryGlyphs";
 import { MAX_REQUEST_PHOTOS, RESIDENT_PRIORITIES } from "./model";
+
+/** The platform category keys' icons (D-072); a landlord's own category gets the wrench. */
+const CATEGORY_ICONS: Record<string, IconGlyph> = {
+  electrical: IconElectric,
+  plumbing: IconWater,
+  aircon: IconSnowflake,
+  appliance: IconRefrigerator,
+  structure: IconDoorOpen,
+  pest: IconBug,
+  cleaning: IconSprayCan,
+  other: IconMore,
+};
+
+/** What the resident can write (the API accepts more; a short, focused report reads better for the technician). */
+const MAX_DESCRIPTION = 500;
+
+/** The time windows of "pick a time" (`VisitPreference` minus `anytime`). */
+const WINDOWS = VISIT_PREFERENCES.filter((v) => v !== "anytime");
 
 type Priority = (typeof RESIDENT_PRIORITIES)[number];
 
@@ -37,9 +61,11 @@ export function NewRequestForm({
   unitId: string;
   /** My units as options (shown only with more than one). */
   units: NativeSelectOption[];
-  categories: NativeSelectOption[];
+  /** The landlord's categories with the platform key each maps to (for its icon). */
+  categories: { value: string; label: string; key: string }[];
 }) {
   const t = useTranslations("resident.requests.new");
+  const common = useTranslations("common");
   const router = useRouter();
   const [categoryId, setCategoryId] = useState("");
   const [priority, setPriority] = useState<Priority>("normal");
@@ -97,7 +123,7 @@ export function NewRequestForm({
   }
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={submit} noValidate data-testid="request-form">
+    <form className="flex flex-1 flex-col gap-7" onSubmit={submit} noValidate data-testid="request-form">
       {units.length > 1 ? (
         <Field label={t("unit")}>
           <NativeSelect
@@ -110,44 +136,70 @@ export function NewRequestForm({
           />
         </Field>
       ) : null}
-      <Field label={t("category")} error={invalid.category ? t("categoryMissing") : undefined} required>
-        <NativeSelect
-          name="category"
-          options={categories}
-          placeholder={t("categoryPlaceholder")}
-          value={categoryId}
-          disabled={busy}
-          onChange={(e) => {
-            setCategoryId(e.target.value);
-            changed();
-          }}
-          data-testid="request-category"
-        />
-      </Field>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 font-medium">{t("urgency")}</legend>
-        <SegmentedControl
-          label={t("urgency")}
-          size="lg"
-          value={priority}
-          options={RESIDENT_PRIORITIES.map((p) => ({ value: p, label: t(`priority.${p}`) }))}
-          onValueChange={(value) => {
-            setPriority(value as Priority);
-            changed();
-          }}
-        />
-        <p className="text-muted text-sm">{t("urgencyHint")}</p>
-      </fieldset>
+
+      <ChoiceGroup
+        legend={t("category")}
+        required
+        requiredLabel={common("required")}
+        error={invalid.category ? t("categoryMissing") : undefined}
+        testId="request-category"
+      >
+        {(describedBy) => (
+          <ChoiceTiles
+            name="category"
+            value={categoryId}
+            disabled={busy}
+            describedBy={describedBy}
+            options={categories.map((c) => ({
+              value: c.value,
+              label: c.label,
+              icon: CATEGORY_ICONS[c.key] ?? IconWrench,
+            }))}
+            onChange={(value) => {
+              setCategoryId(value);
+              setInvalid((before) => ({ ...before, category: false }));
+              changed();
+            }}
+          />
+        )}
+      </ChoiceGroup>
+
+      <ChoiceGroup legend={t("urgency")} hint={t("urgencyHint")} testId="request-priority">
+        {(describedBy) => (
+          <ChoiceTiles
+            name="priority"
+            variant="chip"
+            columns={3}
+            value={priority}
+            disabled={busy}
+            describedBy={describedBy}
+            options={RESIDENT_PRIORITIES.map((p) => ({ value: p, label: t(`priority.${p}`) }))}
+            onChange={(value) => {
+              setPriority(value as Priority);
+              changed();
+            }}
+          />
+        )}
+      </ChoiceGroup>
+
       <Field
-        label={t("description")}
-        hint={t("descriptionHint")}
+        label={<span className="text-base font-semibold">{t("description")}</span>}
+        hint={
+          <span className="flex justify-between gap-3">
+            <span>{t("descriptionHint")}</span>
+            <span className="shrink-0 tabular-nums" aria-hidden="true">
+              {t("counter", { count: description.length, max: MAX_DESCRIPTION })}
+            </span>
+          </span>
+        }
         error={invalid.description ? t("descriptionMissing") : undefined}
         required
+        requiredLabel={common("required")}
       >
         <Textarea
           name="description"
           rows={4}
-          maxLength={1500}
+          maxLength={MAX_DESCRIPTION}
           value={description}
           disabled={busy}
           onChange={(e) => {
@@ -157,50 +209,87 @@ export function NewRequestForm({
           data-testid="request-description"
         />
       </Field>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 font-medium">{t("photos")}</legend>
-        <p className="text-muted text-sm">{t("photosHint", { max: MAX_REQUEST_PHOTOS })}</p>
-        <PhotoPicker
-          photos={photos}
-          max={MAX_REQUEST_PHOTOS}
-          disabled={busy}
-          testId="request-photos"
-          onChange={(next) => {
-            setPhotos(next);
-            changed();
-          }}
-          labels={{
-            add: t("addPhotos"),
-            shoot: t("shoot"),
-            shootHint: t("shootHint"),
-            list: t("photos"),
-            photoAlt: (index) => t("photoAlt", { index }),
-            remove: (index) => t("removePhoto", { index }),
-          }}
-        />
-      </fieldset>
-      <Field label={t("preferredVisit")}>
-        <NativeSelect
-          name="visit"
-          value={visit}
-          disabled={busy}
-          options={VISIT_PREFERENCES.map((v) => ({ value: v, label: t(`visit.${v}`) }))}
-          onChange={(e) => {
-            setVisit(e.target.value as VisitPreference);
-            changed();
-          }}
-          data-testid="request-visit"
-        />
-      </Field>
+
+      <ChoiceGroup legend={t("photos")} hint={t("photosHint", { max: MAX_REQUEST_PHOTOS })}>
+        {() => (
+          <PhotoPicker
+            variant="slots"
+            photos={photos}
+            max={MAX_REQUEST_PHOTOS}
+            disabled={busy}
+            testId="request-photos"
+            onChange={(next) => {
+              setPhotos(next);
+              changed();
+            }}
+            labels={{
+              add: t("addPhotos"),
+              shoot: t("shoot"),
+              shootHint: t("shootHint"),
+              list: t("photos"),
+              photoAlt: (index) => t("photoAlt", { index }),
+              remove: (index) => t("removePhoto", { index }),
+            }}
+          />
+        )}
+      </ChoiceGroup>
+
+      <ChoiceGroup legend={t("preferredVisit")} testId="request-visit">
+        {(describedBy) => (
+          <ChoiceCards
+            name="visit"
+            value={visit === "anytime" ? "anytime" : "window"}
+            disabled={busy}
+            describedBy={describedBy}
+            options={[
+              {
+                value: "anytime",
+                label: t("access.anytime"),
+                hint: t("access.anytimeHint"),
+                testId: "request-visit-anytime",
+              },
+              {
+                value: "window",
+                label: t("access.window"),
+                hint: t("access.windowHint"),
+                testId: "request-visit-window",
+              },
+            ]}
+            onChange={(value) => {
+              setVisit(value === "anytime" ? "anytime" : "morning");
+              changed();
+            }}
+            detail={{
+              window: (
+                <ChoiceTiles
+                  name="visitWindow"
+                  variant="chip"
+                  columns={3}
+                  value={visit}
+                  disabled={busy}
+                  options={WINDOWS.map((v) => ({ value: v, label: t(`visit.${v}`), testId: `request-visit-${v}` }))}
+                  onChange={(value) => {
+                    setVisit(value as VisitPreference);
+                    changed();
+                  }}
+                />
+              ),
+            }}
+          />
+        )}
+      </ChoiceGroup>
+
       {progress ? (
         <p className="text-muted text-sm" aria-live="polite" data-testid="request-uploading">
           {t("uploading", progress)}
         </p>
       ) : null}
       {error ? <ProblemCallout error={error} /> : null}
-      <Button type="submit" size="lg" block loading={busy} iconEnd={IconForward} data-testid="request-submit">
-        {t("submit")}
-      </Button>
+      <ActionDock>
+        <Button type="submit" size="lg" block loading={busy} data-testid="request-submit">
+          {t("submit")}
+        </Button>
+      </ActionDock>
     </form>
   );
 }

@@ -31,8 +31,6 @@
     "requestPhotos": "รูปจากผู้พักอาศัย",
     "requestPhotoAlt": "รูปจากผู้พักอาศัยรูปที่ {index}",
     "noRequestPhotos": "{count, plural, =0 {ผู้พักอาศัยไม่ได้แนบรูป} other {ผู้พักอาศัยแนบรูป # รูป}}",
-    "place": "สถานที่",
-    "visit": "ช่วงเวลานัด",
     "noVisit": "ยังไม่นัดเวลา สำนักงานจะกำหนดให้",
     "preferredVisit": "ผู้พักอาศัยสะดวก",
     "visitPreference": {
@@ -49,7 +47,7 @@
       "inspection": "ตรวจสอบ"
     },
     "doorCodes": "รหัสประตูสำหรับนัดนี้",
-    "doorCodesShow": "แสดงรหัสประตู",
+    "doorCodesShow": "แสดงรหัส",
     "doorCodesHint": "ทุกครั้งที่แสดงรหัส ระบบจะบันทึกไว้ และรหัสใช้ได้เฉพาะช่วงเวลานัด",
     "doorCodesNone": "นัดนี้ไม่มีรหัสประตู",
     "doorCodeValid": "ใช้ได้ {from} – {to}",
@@ -59,7 +57,19 @@
     "ratingNone": "ผู้พักอาศัยยังไม่ได้ให้คะแนนงานนี้",
     "completedAt": "เสร็จเมื่อ {date}",
     "note": "บันทึกของคุณ: {note}",
-    "ratingComment": "“{comment}”"
+    "ratingComment": "“{comment}”",
+    "lede": "{category} · {place}",
+    "progress": "ขั้นตอนงาน",
+    "stepDone": "เสร็จแล้ว",
+    "step": {
+      "accept": "รับงาน",
+      "start": "เริ่มงาน",
+      "close": "ปิดงาน"
+    },
+    "appointment": "นัดหมาย",
+    "resident": "ผู้พักอาศัย",
+    "message": "ส่งข้อความ",
+    "doorCodesHidden": "รหัสซ่อนอยู่ กดแสดงรหัสเพื่อดู"
   },
   "actions": {
     "title": "ขั้นตอนถัดไป",
@@ -70,7 +80,6 @@
     "resume": "อะไหล่มาแล้ว ทำงานต่อ",
     "complete": "ปิดงาน",
     "completeNote": "ทำอะไรไปบ้าง (ไม่บังคับ)",
-    "completeNeedsPhoto": "โปรดแนบรูปหลังทำงานอย่างน้อย 1 รูปก่อน",
     "accepted": "รับงานแล้ว",
     "checkedIn": "เริ่มงานแล้ว ผู้พักอาศัยจะเห็นว่า \"กำลังซ่อม\"",
     "waiting": "ผู้พักอาศัยจะเห็นว่า \"รออะไหล่\"",
@@ -93,7 +102,9 @@
     "sent": "ส่งแล้ว {count} รูป",
     "queued": "มี {count} รูปรอส่ง ตรวจสอบสัญญาณเน็ต",
     "retry": "ลองส่งอีกครั้ง",
-    "uploadedAlt": "รูป{role} รูปที่ {index}"
+    "uploadedAlt": "รูป{role} รูปที่ {index}",
+    "title": "รูปถ่ายงาน",
+    "afterDone": "ถ่ายรูปงานที่เสร็จแล้ว"
   },
   "costs": {
     "title": "อะไหล่และค่าใช้จ่าย",

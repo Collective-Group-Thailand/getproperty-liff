@@ -19,14 +19,38 @@ export async function Due({
   dueDate,
   locale,
   className,
+  variant = "line",
 }: {
   state: DueState;
   dueDate: string;
   locale: Locale;
   className?: string;
+  /**
+   * `badge` (the home bill card's header row): the words alone in a small badge — amber when the resident should act
+   * now, neutral otherwise (D-100); the date itself is printed under the amount.
+   */
+  variant?: "line" | "badge";
 }) {
   const t = await getTranslations("resident.invoices.due");
   const date = formatDate(dueDate, locale);
+  if (variant === "badge" && state.kind !== "paid" && state.kind !== "void") {
+    const short =
+      state.kind === "overdue"
+        ? t("short.overdue", { days: state.days })
+        : state.kind === "today"
+          ? t("short.today")
+          : t("short.inDays", { days: state.days });
+    return (
+      <span className={cn("shrink-0", className)} data-testid="invoice-due" data-due={state.kind}>
+        <Badge
+          tone={needsAttention(state) ? "warning" : "neutral"}
+          icon={needsAttention(state) ? IconWarning : IconClock}
+        >
+          {short}
+        </Badge>
+      </span>
+    );
+  }
   const text =
     state.kind === "overdue"
       ? t("overdue", { days: state.days, date })

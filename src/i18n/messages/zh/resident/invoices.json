@@ -4,7 +4,13 @@
     "today": "今天到期（{date}）",
     "inDays": "{days, plural, other {# 天}}后到期（{date}）",
     "paid": "已付",
-    "void": "已取消"
+    "void": "已取消",
+    "short": {
+      "overdue": "已逾期 {days, plural, other {# 天}}",
+      "today": "今天到期",
+      "inDays": "{days, plural, other {# 天}}后到期"
+    },
+    "on": "到期日 {date}"
   },
   "list": {
     "title": "账单",
@@ -48,7 +54,8 @@
       "issued": "开具日期",
       "due": "到期日",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · 到期日 {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
     "quantityTimesPrice": "{quantity} × ฿{rate}",
     "estimated": "此为估算，抄表后将在下一张账单中更正。",
-    "photoOpen": "查看电表照片",
     "photoAlt": "电表照片：{title}",
-    "photoCaption": "抄表时拍摄的照片",
-    "estimatedBadge": "估算"
+    "estimatedBadge": "估算",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "用量 {units} × {rate} 泰铢",
+    "usedOnly": "用量 {units}",
+    "source": "读数来源",
+    "periodLabel": "计费期间",
+    "details": "详情",
+    "photoOpenFor": "电表照片和详情：{title}",
+    "detailsOf": "（{title}）"
   },
   "explained": {
     "title": "为什么是这个金额",

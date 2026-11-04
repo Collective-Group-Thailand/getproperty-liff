@@ -70,8 +70,12 @@ for (const locale of LOCALES) {
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(text(locale, "resident/requests", "new.title"));
       await form.getByTestId("request-submit").click();
       await expect(form.getByText(text(locale, "resident/requests", "new.categoryMissing"))).toBeVisible();
-      await form.getByTestId("request-category").selectOption({ index: 2 });
-      await form.getByRole("radio", { name: text(locale, "resident/requests", "new.priority.urgent") }).click();
+      await form.getByTestId("request-category").locator("label").nth(1).click();
+      await form
+        .locator("label", {
+          has: page.getByRole("radio", { name: text(locale, "resident/requests", "new.priority.urgent") }),
+        })
+        .click();
       await form.getByTestId("request-description").fill("Water leaks under the sink / น้ำรั่ว");
       await form.getByTestId("request-photos-add").click();
       await form

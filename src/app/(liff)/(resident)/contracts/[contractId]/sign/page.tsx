@@ -7,7 +7,6 @@ import { loadContract } from "@/features/resident/contracts/data";
 import { awaitsMySignature } from "@/features/resident/contracts/model";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -30,7 +29,7 @@ export default async function ContractSignPage({ params }: { params: Promise<{ c
   ]);
   if (loaded.error) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/contracts/${contractId}`, label: t("back.document") }}>
         <ProblemPage error={loaded.error} />
       </ResidentShell>
     );
@@ -38,7 +37,7 @@ export default async function ContractSignPage({ params }: { params: Promise<{ c
   const contract = loaded.data;
   if (!awaitsMySignature(contract)) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/contracts/${contractId}`, label: t("back.document") }}>
         <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="sign-unavailable">
           <Callout tone="info" title={t("sign.unavailableTitle")}>
             {contract.state === "pending_signature" || contract.state === "signed"
@@ -53,8 +52,7 @@ export default async function ContractSignPage({ params }: { params: Promise<{ c
     );
   }
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/contracts/${contract.id}`}>{t("back.document")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/contracts/${contract.id}`, label: t("back.document") }}>
       <ContractSignFlow contract={contract} reader={<ContractReader contract={contract} locale={locale} />} />
     </ResidentShell>
   );

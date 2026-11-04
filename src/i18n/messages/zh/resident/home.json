@@ -1,13 +1,10 @@
 {
   "greeting": "您好，{name}",
   "unit": {
-    "title": "您的房间",
     "unitCode": "房间 {code}",
     "building": "{name}",
     "operator": "由 {name} 管理",
     "since": "自 {date} 起入住",
-    "lease": "租约 {number} · {status}",
-    "summary": "{code} 室 · {building}",
     "managed": "由 {name} 管理 · 自 {date} 起入住"
   },
   "bills": {
@@ -28,7 +25,8 @@
     "access": "门禁密码",
     "rules": "楼宇规定",
     "contacts": "联系方式",
-    "more": "楼内服务"
+    "more": "楼内服务",
+    "waiting": "{count} 件待领取"
   },
   "noUnit": {
     "title": "此账户还没有房间",

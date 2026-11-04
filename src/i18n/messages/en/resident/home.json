@@ -1,13 +1,10 @@
 {
   "greeting": "Hello, {name}",
   "unit": {
-    "title": "Your unit",
     "unitCode": "Unit {code}",
     "building": "{name}",
     "operator": "Managed by {name}",
     "since": "Living here since {date}",
-    "lease": "Lease {number} · {status}",
-    "summary": "Unit {code} · {building}",
     "managed": "Managed by {name} · since {date}"
   },
   "bills": {
@@ -28,7 +25,8 @@
     "access": "Door codes",
     "rules": "House rules",
     "contacts": "Contacts",
-    "more": "Around the building"
+    "more": "Around the building",
+    "waiting": "{count, plural, one {# waiting} other {# waiting}}"
   },
   "noUnit": {
     "title": "No unit on this account yet",

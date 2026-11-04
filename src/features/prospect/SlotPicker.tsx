@@ -85,7 +85,9 @@ export function SlotPicker({
                 onClick={() => onChange(slot.startsAt)}
                 className={cn(
                   "rounded-card",
-                  selected ? "border-primary bg-primary text-primary-fg font-semibold" : "border-border bg-surface",
+                  selected
+                    ? "border-primary bg-primary-subtle text-primary-subtle-fg font-semibold"
+                    : "border-border bg-surface",
                 )}
                 data-testid="slot-time"
               >

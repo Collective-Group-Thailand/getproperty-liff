@@ -4,7 +4,13 @@
     "today": "ກຳນົດມື້ນີ້ ({date})",
     "inDays": "ກຳນົດໃນອີກ {days, plural, other {# ວັນ}} ({date})",
     "paid": "ຈ່າຍແລ້ວ",
-    "void": "ຍົກເລີກແລ້ວ"
+    "void": "ຍົກເລີກແລ້ວ",
+    "short": {
+      "overdue": "ຊ້າ {days, plural, other {# ວັນ}}",
+      "today": "ກຳນົດມື້ນີ້",
+      "inDays": "ກຳນົດໃນອີກ {days, plural, other {# ວັນ}}"
+    },
+    "on": "ຄົບກຳນົດ {date}"
   },
   "list": {
     "title": "ບິນ",
@@ -48,7 +54,8 @@
       "issued": "ວັນທີອອກ",
       "due": "ຄົບກຳນົດ",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · ຄົບກຳນົດ {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
     "quantityTimesPrice": "{quantity} × ฿{rate}",
     "estimated": "ນີ້ແມ່ນການປະເມີນ ຈະຖືກແກ້ໄຂໃນບິນຕໍ່ໄປເມື່ອອ່ານມິເຕີແລ້ວ.",
-    "photoOpen": "ເບິ່ງຮູບມິເຕີ",
     "photoAlt": "ຮູບມິເຕີ: {title}",
-    "photoCaption": "ຮູບທີ່ຖ່າຍຕອນອ່ານ",
-    "estimatedBadge": "ປະເມີນ"
+    "estimatedBadge": "ປະເມີນ",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "ໃຊ້ໄປ {units} × {rate} ບາດ",
+    "usedOnly": "ໃຊ້ໄປ {units}",
+    "source": "ທີ່ມາຂອງເລກມິເຕີ",
+    "periodLabel": "ໄລຍະທີ່ໃຊ້",
+    "details": "ລາຍລະອຽດ",
+    "photoOpenFor": "ຮູບ ແລະ ລາຍລະອຽດມິເຕີ: {title}",
+    "detailsOf": " ຂອງ{title}"
   },
   "explained": {
     "title": "ເປັນຫຍັງຍອດນີ້",

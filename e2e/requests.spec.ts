@@ -21,14 +21,15 @@ test.describe("service requests (D-072)", () => {
 
     await page.getByTestId("request-new").click();
     const form = page.getByTestId("request-form");
-    await expect(form.getByTestId("request-category").locator("option")).toHaveCount(9);
+    // Categories are one-tap icon tiles (radios), no system picker (redesign G2 r2).
+    await expect(form.getByTestId("request-category").getByRole("radio")).toHaveCount(8);
     await form.getByTestId("request-submit").click();
     await expect(form.getByText("โปรดเลือกประเภทของปัญหา")).toBeVisible();
     await expect(form.getByText("โปรดเขียนอธิบายปัญหาสั้น ๆ")).toBeVisible();
     await expectAxeClean(page);
 
-    await form.getByTestId("request-category").selectOption({ label: "ประปา" });
-    await form.getByRole("radio", { name: "ด่วนมาก" }).click();
+    await form.locator("label", { has: page.getByRole("radio", { name: "ประปา", exact: true }) }).click();
+    await form.locator("label", { has: page.getByRole("radio", { name: "ด่วนมาก", exact: true }) }).click();
     await form.getByTestId("request-description").fill("น้ำรั่วใต้อ่างล้างหน้า หยดตลอดเวลา");
     await form.getByTestId("request-photos-add").click();
     await form.locator('input[type="file"]').setInputFiles([
@@ -37,7 +38,8 @@ test.describe("service requests (D-072)", () => {
     ]);
     await form.getByTestId("camera-done").click();
     await expect(form.getByTestId("request-photos-list").getByRole("listitem")).toHaveCount(2);
-    await form.getByTestId("request-visit").selectOption("evening");
+    await form.locator("label", { has: page.getByTestId("request-visit-window") }).click();
+    await form.locator("label", { has: page.getByTestId("request-visit-evening") }).click();
     await expectNoHorizontalScroll(page);
     await expectAxeClean(page);
     await form.getByTestId("request-submit").click();
@@ -158,7 +160,9 @@ test.describe("service requests (D-072)", () => {
     await seedSession(context, baseURL!, subject("warranty", "norequests"));
     await page.goto("/requests/new");
     const form = page.getByTestId("request-form");
-    await form.getByTestId("request-category").selectOption({ label: "โครงสร้าง ประตู หน้าต่าง" });
+    await form
+      .locator("label", { has: page.getByRole("radio", { name: "โครงสร้าง ประตู หน้าต่าง", exact: true }) })
+      .click();
     await form.getByTestId("request-description").fill("ผนังห้องน้ำร้าว");
     await form.getByTestId("request-submit").click();
     await expect(page.getByTestId("request-warranty")).toContainText("ส่งต่อให้โครงการตามการรับประกัน");
@@ -208,7 +212,7 @@ test.describe("a landlord's repair (D-263)", () => {
     await seedSession(context, baseURL!, subject("decided", "norequests"));
     await page.goto("/requests/new");
     const form = page.getByTestId("request-form");
-    await form.getByTestId("request-category").selectOption({ index: 1 });
+    await form.getByTestId("request-category").locator("label").first().click();
     await form.getByTestId("request-description").fill("ท่อน้ำใต้ซิงก์แตก");
     await form.getByTestId("request-submit").click();
     const decision = page.getByTestId("request-decision");

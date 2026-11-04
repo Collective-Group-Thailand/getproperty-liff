@@ -31,8 +31,6 @@
     "requestPhotos": "Photos from the resident",
     "requestPhotoAlt": "Resident's photo {index}",
     "noRequestPhotos": "{count, plural, =0 {No photos from the resident} one {# photo from the resident} other {# photos from the resident}}",
-    "place": "Where",
-    "visit": "Visit window",
     "noVisit": "Not scheduled yet — the office will set a time",
     "preferredVisit": "Resident prefers",
     "visitPreference": {
@@ -49,7 +47,7 @@
       "inspection": "Inspection"
     },
     "doorCodes": "Door codes for this visit",
-    "doorCodesShow": "Show door codes",
+    "doorCodesShow": "Show code",
     "doorCodesHint": "Each time the codes are shown, it is recorded. They work only in the visit window.",
     "doorCodesNone": "No door codes for this visit",
     "doorCodeValid": "Valid {from} – {to}",
@@ -59,7 +57,19 @@
     "ratingNone": "The resident has not rated this work yet",
     "completedAt": "Completed {date}",
     "note": "Your note: {note}",
-    "ratingComment": "“{comment}”"
+    "ratingComment": "“{comment}”",
+    "lede": "{category} · {place}",
+    "progress": "Job progress",
+    "stepDone": "done",
+    "step": {
+      "accept": "Accept",
+      "start": "Start",
+      "close": "Close"
+    },
+    "appointment": "Appointment",
+    "resident": "Resident",
+    "message": "Message",
+    "doorCodesHidden": "Hidden — tap Show code to see it"
   },
   "actions": {
     "title": "Next step",
@@ -70,7 +80,6 @@
     "resume": "Parts arrived — resume",
     "complete": "Complete the work order",
     "completeNote": "What did you do? (optional)",
-    "completeNeedsPhoto": "Add at least one photo after the work first",
     "accepted": "Work order accepted",
     "checkedIn": "Work started — the resident sees \"in progress\"",
     "waiting": "The resident sees \"waiting for parts\"",
@@ -93,7 +102,9 @@
     "sent": "{count, plural, one {# photo} other {# photos}} sent",
     "queued": "{count, plural, one {# photo} other {# photos}} waiting to send — check your signal",
     "retry": "Try sending again",
-    "uploadedAlt": "{role} photo {index}"
+    "uploadedAlt": "{role} photo {index}",
+    "title": "Job photos",
+    "afterDone": "Photograph the finished work"
   },
   "costs": {
     "title": "Parts and costs",

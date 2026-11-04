@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -199,17 +200,19 @@ export function InspectionCountersign({ inspectionId }: { inspectionId: string }
       </Suspense>
       {tooLarge ? <Callout tone="warning">{draw("tooLarge")}</Callout> : null}
       {error ? <ProblemCallout error={error} /> : null}
-      <Button
-        size="lg"
-        block
-        iconStart={IconSign}
-        loading={busy}
-        disabled={!signature}
-        onClick={() => void send()}
-        data-testid="inspection-countersign-send"
-      >
-        {t("send")}
-      </Button>
+      <ActionDock>
+        <Button
+          size="lg"
+          block
+          iconStart={IconSign}
+          loading={busy}
+          disabled={!signature}
+          onClick={() => void send()}
+          data-testid="inspection-countersign-send"
+        >
+          {t("send")}
+        </Button>
+      </ActionDock>
     </Card>
   );
 }

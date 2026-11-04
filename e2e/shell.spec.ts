@@ -22,14 +22,15 @@ test.describe("resident shell", () => {
 
     const home = page.getByTestId("resident-home");
     await expect(home.getByRole("heading", { level: 1 })).toHaveText("สวัสดี สมชาย ใจดี");
-    await expect(page.getByTestId("unit-card")).toContainText("ห้อง A-201");
-    await expect(page.getByTestId("unit-card")).toContainText("ดูแลโดย หอพักตัวอย่าง");
+    // The unit is in the top bar; who runs it and since when is the greeting's lede (redesign G2 r2).
+    await expect(page.getByTestId("header-unit")).toHaveText("ห้อง A-201");
+    await expect(page.getByTestId("home-unit")).toContainText("ดูแลโดย หอพักตัวอย่าง");
     // Mock entitlements: bills (receipts), lease and the R2 modules (announcements, parcels; facilities with the
     // community module; door codes, house rules and contacts with the lease). Bills, usage and repairs are the bottom
-    // nav's, the lease sits under "my unit" (redesign G2).
+    // nav's; the lease is the first service tile (redesign G2 r2). A tile's name may end with its count ("2 waiting").
     await expect(page.getByTestId("unit-lease")).toContainText("สัญญาเช่า");
     for (const tile of ["ใบเสร็จ", "ประกาศ", "พัสดุ", "จองห้องส่วนกลาง", "รหัสประตู", "ระเบียบอาคาร", "เบอร์ติดต่อ"])
-      await expect(home.getByRole("link", { name: tile, exact: true })).toBeVisible();
+      await expect(home.getByRole("link", { name: new RegExp(`^${tile}`) })).toBeVisible();
 
     const nav = page.getByRole("navigation", { name: "เมนูด่วน" });
     await expect(nav.getByRole("link")).toHaveText(["หน้าแรก", "บิล", "การใช้", "แจ้งซ่อม", "ฉัน"]);
@@ -52,7 +53,7 @@ test.describe("resident shell", () => {
     await expectAxeClean(page);
     await sheet.getByRole("button", { name: /ห้อง B-105/ }).click();
     await expect(page.getByTestId("header-unit")).toHaveText("ห้อง B-105");
-    await expect(page.getByTestId("unit-card")).toContainText("อาคาร B");
+    await expect(page.getByTestId("header-building")).toHaveText("อาคาร B");
   });
 
   test("the language switcher re-renders in English and keeps the choice", async ({ page, context, baseURL }) => {

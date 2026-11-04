@@ -26,10 +26,13 @@ export function PhotoGallery({
   photos,
   label,
   testId = "photo-gallery",
+  columns = 3,
 }: {
   photos: GalleryPhoto[];
   label: string;
   testId?: string;
+  /** 2 in a half-width column (a work order's before / after). */
+  columns?: 2 | 3;
 }) {
   const t = useTranslations("common");
   const router = useRouter();
@@ -42,7 +45,12 @@ export function PhotoGallery({
   };
   return (
     <>
-      <ul className="grid grid-cols-3 gap-2" role="list" aria-label={label} data-testid={testId}>
+      <ul
+        className={columns === 2 ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-2"}
+        role="list"
+        aria-label={label}
+        data-testid={testId}
+      >
         {photos.map(({ id, url, alt }) => (
           <li key={id}>
             {url ? (

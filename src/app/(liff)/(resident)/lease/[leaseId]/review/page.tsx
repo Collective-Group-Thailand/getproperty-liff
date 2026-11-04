@@ -7,7 +7,6 @@ import { LazyReviewForm } from "@/features/resident/reviews/LazyReviewForm";
 import { reviewEntry } from "@/features/resident/reviews/model";
 import { MyReviewCard } from "@/features/resident/reviews/MyReviewCard";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { PurposeText } from "@/features/shared/consent/PurposeText";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { formatDate, formatPeriodKey } from "@/i18n/format";
@@ -35,12 +34,11 @@ export default async function LeaseReviewPage({
   const [{ leaseId }, query] = await Promise.all([params, searchParams]);
   const [t, locale] = await Promise.all([getTranslations("resident.reviews"), pageLocale()]);
   const [lease, view] = await Promise.all([loadLease(leaseId), loadReview(leaseId, locale)]);
-  const back = <BackLink href={`/lease/${leaseId}`}>{t("back")}</BackLink>;
+  const back = { href: `/lease/${leaseId}`, label: t("back") };
   const failure = lease.error ?? view.error;
   if (failure) {
     return (
-      <ResidentShell active={null}>
-        {back}
+      <ResidentShell active={null} back={back}>
         <ProblemPage error={failure} />
       </ResidentShell>
     );
@@ -51,8 +49,7 @@ export default async function LeaseReviewPage({
   const months = (key: string) => formatPeriodKey(key, locale);
 
   return (
-    <ResidentShell active={null}>
-      {back}
+    <ResidentShell active={null} back={back}>
       <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="review-page" data-kind={entry.kind}>
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title", { building: lease.data!.buildingName })}</h1>

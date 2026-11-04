@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, useTransition } from "react";
@@ -414,20 +415,22 @@ export function ESignFlow<R>({
             </div>
           ) : null}
           {error ? <ProblemCallout error={error} /> : null}
-          <Button
-            size="lg"
-            block
-            iconEnd={IconForward}
-            disabled={!reachedEnd || !confirmed || !readerReady}
-            onClick={() => {
-              setError(null);
-              setUpdated(false);
-              setStep("draw");
-            }}
-            data-testid="sign-read-next"
-          >
-            {t("read.next")}
-          </Button>
+          <ActionDock>
+            <Button
+              size="lg"
+              block
+              iconEnd={IconForward}
+              disabled={!reachedEnd || !confirmed || !readerReady}
+              onClick={() => {
+                setError(null);
+                setUpdated(false);
+                setStep("draw");
+              }}
+              data-testid="sign-read-next"
+            >
+              {t("read.next")}
+            </Button>
+          </ActionDock>
         </section>
       ) : null}
 
@@ -468,7 +471,7 @@ export function ESignFlow<R>({
           </Suspense>
           <p className="text-muted text-sm">{t("draw.uploadHint")}</p>
           {signatureError ? <Callout tone="warning">{signatureError}</Callout> : null}
-          <div className="flex gap-2">
+          <ActionDock className="flex-row">
             <Button
               variant="ghost"
               size="lg"
@@ -496,7 +499,7 @@ export function ESignFlow<R>({
             >
               {t("draw.next")}
             </Button>
-          </div>
+          </ActionDock>
         </section>
       ) : null}
 
@@ -532,17 +535,19 @@ export function ESignFlow<R>({
           ) : error ? (
             <ProblemCallout error={error} />
           ) : null}
-          <Button
-            type="submit"
-            size="lg"
-            block
-            loading={busy && !!challenge}
-            disabled={!challenge || code.length !== 6}
-            iconStart={IconSign}
-            data-testid="sign-submit"
-          >
-            {t("otp.submit")}
-          </Button>
+          <ActionDock>
+            <Button
+              type="submit"
+              size="lg"
+              block
+              loading={busy && !!challenge}
+              disabled={!challenge || code.length !== 6}
+              iconStart={IconSign}
+              data-testid="sign-submit"
+            >
+              {t("otp.submit")}
+            </Button>
+          </ActionDock>
           <div className="flex flex-col items-center gap-2">
             <Button
               type="button"

@@ -8,7 +8,6 @@ import { FacilityFacts } from "@/features/resident/community/Facilities";
 import { bookingDays, daySlots, slotState } from "@/features/resident/community/slots";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { currentTime } from "@/features/shared/time";
 import { formatDate } from "@/i18n/format";
@@ -46,8 +45,7 @@ export default async function FacilityPage({
   const loaded = await loadAvailability(facilityId, wanted);
   if (loaded.error) {
     return (
-      <ResidentShell active={null}>
-        <BackLink href="/facilities">{t("back")}</BackLink>
+      <ResidentShell active={null} back={{ href: "/facilities", label: t("back") }}>
         <ProblemPage error={loaded.error} />
       </ResidentShell>
     );
@@ -57,8 +55,7 @@ export default async function FacilityPage({
   const slots = daySlots(facility.bookingPolicy, date);
   const states = slots.map((slot) => slotState(slot, busy, now));
   return (
-    <ResidentShell active={null}>
-      <BackLink href="/facilities">{t("back")}</BackLink>
+    <ResidentShell active={null} back={{ href: "/facilities", label: t("back") }}>
       <div className="flex flex-col gap-4 pb-6" data-testid="facility">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{facility.name}</h1>
@@ -74,7 +71,9 @@ export default async function FacilityPage({
                   aria-current={day === date ? "date" : undefined}
                   className={cn(
                     "rounded-control border-border flex min-h-12 items-center border px-3 text-sm",
-                    day === date ? "bg-primary text-primary-fg border-primary font-semibold" : "bg-surface",
+                    day === date
+                      ? "bg-primary-subtle text-primary-subtle-fg border-primary font-semibold"
+                      : "bg-surface",
                   )}
                   data-testid="facility-day"
                 >

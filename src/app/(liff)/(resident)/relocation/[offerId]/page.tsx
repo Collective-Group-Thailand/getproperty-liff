@@ -9,7 +9,6 @@ import { LazyDestinationForm } from "@/features/resident/relocation/LazyDestinat
 import { destinationLabel } from "@/features/resident/relocation/model";
 import { OfferListings } from "@/features/resident/relocation/OfferListings";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { loadAreas } from "@/features/shared/recommendations/data";
 import { formatDate, formatTHB } from "@/i18n/format";
@@ -40,11 +39,10 @@ export default async function RelocationOfferPage({ params }: { params: Promise<
     loadAreas(),
     loadRentRecord(),
   ]);
-  const back = <BackLink href="/relocation">{t("back.relocation")}</BackLink>;
+  const back = { href: "/relocation", label: t("back.relocation") };
   if (offers.error) {
     return (
-      <ResidentShell active={null}>
-        {back}
+      <ResidentShell active={null} back={back}>
         <ProblemPage error={offers.error} />
       </ResidentShell>
     );
@@ -52,8 +50,7 @@ export default async function RelocationOfferPage({ params }: { params: Promise<
   const offer = offers.data.data.find((o) => o.id === offerId);
   if (!offer) {
     return (
-      <ResidentShell active={null}>
-        {back}
+      <ResidentShell active={null} back={back}>
         <div className="py-6" data-testid="relocation-offer-missing">
           <EmptyState
             icon={IconSearch}
@@ -75,8 +72,7 @@ export default async function RelocationOfferPage({ params }: { params: Promise<
   const shareable = record && record.months.length > 0 ? record : null;
 
   return (
-    <ResidentShell active={null}>
-      {back}
+    <ResidentShell active={null} back={back}>
       <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="relocation-offer" data-state={offer.state}>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">

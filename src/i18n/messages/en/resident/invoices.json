@@ -4,7 +4,13 @@
     "today": "Due today ({date})",
     "inDays": "Due in {days, plural, one {# day} other {# days}} ({date})",
     "paid": "Paid",
-    "void": "Cancelled"
+    "void": "Cancelled",
+    "short": {
+      "overdue": "{days, plural, one {# day} other {# days}} late",
+      "today": "Due today",
+      "inDays": "Due in {days, plural, one {# day} other {# days}}"
+    },
+    "on": "Due {date}"
   },
   "list": {
     "title": "Bills",
@@ -48,7 +54,8 @@
       "issued": "Issued",
       "due": "Due",
       "range": "{from} – {to}"
-    }
+    },
+    "statusDue": "{status} · due {date}"
   },
   "lines": {
     "groups": {
@@ -71,10 +78,16 @@
     "unitsTimesPrice": "{units} × ฿{rate} = {amount}",
     "quantityTimesPrice": "{quantity} × ฿{rate}",
     "estimated": "This is an estimate; it is corrected on the next bill once the meter is read.",
-    "photoOpen": "See the meter photo",
     "photoAlt": "Meter photo: {title}",
-    "photoCaption": "Photo taken at the reading",
-    "estimatedBadge": "Estimate"
+    "estimatedBadge": "Estimate",
+    "registers": "{from} → {to}",
+    "usedTimesRate": "used {units} × {rate} THB",
+    "usedOnly": "used {units}",
+    "source": "Reading source",
+    "periodLabel": "Period",
+    "details": "Details",
+    "photoOpenFor": "Meter photo and details: {title}",
+    "detailsOf": " of {title}"
   },
   "explained": {
     "title": "Why this amount",

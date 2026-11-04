@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { pageLocale } from "@/features/resident/lease/data";
 import { PrivacyView } from "@/features/resident/profile/PrivacyView";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
@@ -22,8 +21,7 @@ export default async function PrivacyPage() {
   const [t, locale, api] = await Promise.all([getTranslations("resident.profile"), pageLocale(), serverApi()]);
   const { data, error, response } = await api.GET("/v1/resident/me/privacy");
   return (
-    <ResidentShell active="me">
-      <BackLink href="/profile">{t("title")}</BackLink>
+    <ResidentShell active="me" back={{ href: "/profile", label: t("title") }}>
       {data ? (
         <PrivacyView privacy={data} locale={locale} />
       ) : (

@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -107,9 +108,11 @@ export function CertificateRequestForm({ leaseId, defaultLanguage }: { leaseId: 
           />
         </Field>
         {error && !error.fieldError("note") ? <ProblemCallout error={error} /> : null}
-        <Button type="submit" size="lg" block loading={busy} iconEnd={IconForward} data-testid="certificate-submit">
-          {t("submit")}
-        </Button>
+        <ActionDock>
+          <Button type="submit" size="lg" block loading={busy} iconEnd={IconForward} data-testid="certificate-submit">
+            {t("submit")}
+          </Button>
+        </ActionDock>
       </form>
     </Card>
   );

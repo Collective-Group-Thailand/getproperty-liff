@@ -1,13 +1,10 @@
 {
   "greeting": "សួស្តី {name}",
   "unit": {
-    "title": "បន្ទប់របស់អ្នក",
     "unitCode": "បន្ទប់ {code}",
     "building": "{name}",
     "operator": "គ្រប់គ្រងដោយ {name}",
     "since": "រស់នៅទីនេះតាំងពី {date}",
-    "lease": "កិច្ចសន្យា {number} · {status}",
-    "summary": "បន្ទប់ {code} · {building}",
     "managed": "គ្រប់គ្រងដោយ {name} · ចាប់ពី {date}"
   },
   "bills": {
@@ -28,7 +25,8 @@
     "access": "លេខកូដទ្វារ",
     "rules": "បទបញ្ជាអគារ",
     "contacts": "ទំនាក់ទំនង",
-    "more": "សេវាក្នុងអគារ"
+    "more": "សេវាក្នុងអគារ",
+    "waiting": "{count} កំពុងរង់ចាំ"
   },
   "noUnit": {
     "title": "គណនីនេះមិនទាន់មានបន្ទប់",

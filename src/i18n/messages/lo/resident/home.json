@@ -1,13 +1,10 @@
 {
   "greeting": "ສະບາຍດີ {name}",
   "unit": {
-    "title": "ຫ້ອງຂອງທ່ານ",
     "unitCode": "ຫ້ອງ {code}",
     "building": "{name}",
     "operator": "ດູແລໂດຍ {name}",
     "since": "ພັກຢູ່ທີ່ນີ້ຕັ້ງແຕ່ {date}",
-    "lease": "ສັນຍາ {number} · {status}",
-    "summary": "ຫ້ອງ {code} · {building}",
     "managed": "ດູແລໂດຍ {name} · ຕັ້ງແຕ່ {date}"
   },
   "bills": {
@@ -28,7 +25,8 @@
     "access": "ລະຫັດປະຕູ",
     "rules": "ລະບຽບອາຄານ",
     "contacts": "ເບີຕິດຕໍ່",
-    "more": "ບໍລິການໃນອາຄານ"
+    "more": "ບໍລິການໃນອາຄານ",
+    "waiting": "ລໍຖ້າຮັບ {count} ຊິ້ນ"
   },
   "noUnit": {
     "title": "ບັນຊີນີ້ຍັງບໍ່ມີຫ້ອງ",

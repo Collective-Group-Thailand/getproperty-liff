@@ -8,7 +8,7 @@ import { loadContract } from "@/features/resident/contracts/data";
 import { awaitsMySignature } from "@/features/resident/contracts/model";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
+import { ActionDock } from "@/features/shared/Screen";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { StatusBadge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
@@ -36,8 +36,7 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
   ]);
   if (loaded.error) {
     return (
-      <ResidentShell active={null}>
-        <BackLink href="/contracts">{t("back.list")}</BackLink>
+      <ResidentShell active={null} back={{ href: "/contracts", label: t("back.list") }}>
         <ProblemPage error={loaded.error} />
       </ResidentShell>
     );
@@ -46,10 +45,14 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
   const status = CONTRACT_STATUS[contract.state];
   const toSign = awaitsMySignature(contract);
   return (
-    <ResidentShell active={null}>
-      <BackLink href={contract.leaseId ? `/lease/${contract.leaseId}` : "/contracts"}>
-        {contract.leaseId ? t("back.lease") : t("back.list")}
-      </BackLink>
+    <ResidentShell
+      active={null}
+      back={
+        contract.leaseId
+          ? { href: `/lease/${contract.leaseId}`, label: t("back.lease") }
+          : { href: "/contracts", label: t("back.list") }
+      }
+    >
       <div
         className="flex flex-1 flex-col gap-6 pt-2 pb-8"
         data-testid="contract-detail"
@@ -70,17 +73,7 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
         </div>
 
         {toSign ? (
-          <Callout
-            tone="info"
-            title={t("detail.signTitle")}
-            action={
-              <Button asChild size="lg" block iconStart={IconSign}>
-                <Link href={`/contracts/${contract.id}/sign`} data-testid="contract-sign">
-                  {t("detail.signCta")}
-                </Link>
-              </Button>
-            }
-          >
+          <Callout tone="info" title={t("detail.signTitle")}>
             {t("detail.signBody")}
           </Callout>
         ) : contract.state === "pending_signature" ? (
@@ -114,6 +107,15 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
 
         {contract.nextActions.includes("download") ? (
           <ContractDocumentButton contractId={contract.id} signed={contract.state === "signed"} />
+        ) : null}
+        {toSign ? (
+          <ActionDock>
+            <Button asChild size="lg" block iconStart={IconSign}>
+              <Link href={`/contracts/${contract.id}/sign`} data-testid="contract-sign">
+                {t("detail.signCta")}
+              </Link>
+            </Button>
+          </ActionDock>
         ) : null}
       </div>
     </ResidentShell>

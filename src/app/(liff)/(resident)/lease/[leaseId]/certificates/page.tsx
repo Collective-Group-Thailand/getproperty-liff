@@ -4,7 +4,6 @@ import { CertificateRequestForm } from "@/features/resident/lease/CertificateReq
 import { CERTIFICATE_LEASE_STATES, CertificateList } from "@/features/resident/lease/Certificates";
 import { loadCertificates, loadLease, pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { Callout } from "@/ui/components/Callout";
 
@@ -28,7 +27,7 @@ export default async function CertificatesPage({ params }: { params: Promise<{ l
   const error = lease.error ?? certificates.error;
   if (error || !lease.data || !certificates.data) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back") }}>
         <ProblemPage error={error!} />
       </ResidentShell>
     );
@@ -36,8 +35,7 @@ export default async function CertificatesPage({ params }: { params: Promise<{ l
   const open = certificates.data.some((certificate) => certificate.state === "requested");
   const canAsk = CERTIFICATE_LEASE_STATES.includes(lease.data.status);
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${leaseId}`}>{t("back")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back") }}>
       <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="certificates-page">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>

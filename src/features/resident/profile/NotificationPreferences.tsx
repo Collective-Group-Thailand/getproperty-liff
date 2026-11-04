@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionDock } from "@/features/shared/Screen";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -76,9 +77,11 @@ export function NotificationPreferences({ initial }: { initial: NotificationPref
         ))}
       </ul>
       {error ? <ProblemCallout error={error} /> : null}
-      <Button type="submit" size="lg" block disabled={!dirty} loading={busy} data-testid="notifications-save">
-        {t("save")}
-      </Button>
+      <ActionDock>
+        <Button type="submit" size="lg" block disabled={!dirty} loading={busy} data-testid="notifications-save">
+          {t("save")}
+        </Button>
+      </ActionDock>
     </form>
   );
 }

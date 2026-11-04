@@ -17,7 +17,6 @@
     "lead": "Describe the problem and add photos — the office and the technician see exactly what you see.",
     "unit": "Unit",
     "category": "What kind of problem?",
-    "categoryPlaceholder": "Choose a type",
     "categoryMissing": "Choose the type of problem",
     "urgency": "How urgent is it?",
     "urgencyHint": "Urgent is for water leaking, no power, or a door that will not lock.",
@@ -46,10 +45,16 @@
     "uploading": "Sending photo {index} of {count}…",
     "submit": "Send the request",
     "noCategories": "This building does not take repair requests in the app yet. Please call the office.",
-    "sent": "Request {ref} sent. The office will be in touch."
+    "sent": "Request {ref} sent. The office will be in touch.",
+    "counter": "{count}/{max}",
+    "access": {
+      "anytime": "Any time",
+      "anytimeHint": "The office sends you the visit time to confirm in the app",
+      "window": "Pick a time of day",
+      "windowHint": "Tell the office when you are usually in"
+    }
   },
   "detail": {
-    "title": "Request {ref}",
     "back": "All repairs",
     "category": "Type",
     "unit": "Unit",
@@ -104,6 +109,15 @@
         "tenant": "You pay for the repair; it will be on your next bill"
       },
       "shared": "Shared: your {share}% will be on your next bill"
+    },
+    "lede": "{category} · Unit {unit} · {ref}",
+    "progress": "Request progress",
+    "stepDone": "done",
+    "step": {
+      "reported": "Reported",
+      "accepted": "Accepted",
+      "repair": "Repair",
+      "done": "Done"
     }
   },
   "cancel": {

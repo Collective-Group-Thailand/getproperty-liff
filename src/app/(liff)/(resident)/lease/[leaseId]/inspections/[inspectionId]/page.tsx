@@ -5,7 +5,6 @@ import { loadInspection, pageLocale } from "@/features/resident/lease/data";
 import { InspectionCountersign } from "@/features/resident/lease/InspectionCountersign";
 import { InspectionLines } from "@/features/resident/lease/Inspections";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { BackLink } from "@/features/shared/BackLink";
 import { ExternalLinkButton } from "@/features/shared/ExternalLinkButton";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { formatDate } from "@/i18n/format";
@@ -35,7 +34,7 @@ export default async function InspectionPage({
   ]);
   if (inspection.error) {
     return (
-      <ResidentShell active={null}>
+      <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back") }}>
         <ProblemPage error={inspection.error} />
       </ResidentShell>
     );
@@ -43,8 +42,7 @@ export default async function InspectionPage({
   const report = inspection.data;
   const status = INSPECTION_STATUS[report.status as ResidentInspectionStatus] ?? INSPECTION_STATUS.signed;
   return (
-    <ResidentShell active={null}>
-      <BackLink href={`/lease/${leaseId}`}>{t("back")}</BackLink>
+    <ResidentShell active={null} back={{ href: `/lease/${leaseId}`, label: t("back") }}>
       <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="inspection-page" data-status={report.status}>
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-2xl font-semibold">
