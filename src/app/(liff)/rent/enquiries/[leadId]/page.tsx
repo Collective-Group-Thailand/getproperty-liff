@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,12 +6,20 @@ import { directionsUrl } from "@/features/prospect/model";
 import { EnquiryThread } from "@/features/prospect/EnquiryThread";
 import { LazyRentRecordSharePanel } from "@/features/prospect/LazyRentRecordSharePanel";
 import { ViewingPanel } from "@/features/prospect/ViewingPanel";
-import { BackLink } from "@/features/shared/BackLink";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
+import { FACT_ROWS_CLASS, Screen, ScreenHeader } from "@/features/shared/Screen";
+import { formatDate, formatDateTime } from "@/i18n/format";
+import { isLocale } from "@/i18n/routing";
 import { problemFromParsed } from "@/lib/api/problem";
 import { serverApi } from "@/lib/api/server";
 import { requireProspect } from "@/lib/auth/guards";
+import { Badge } from "@/ui/components/Badge";
+import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
+import { Card } from "@/ui/components/Card";
+import { DescriptionList, type DescriptionItem } from "@/ui/components/DescriptionList";
+import { IconArchive } from "@/ui/icons/glyphs/archive";
+import { IconChat } from "@/ui/icons/glyphs/chat";
 
 export async function generateMetadata() {
   const t = await getTranslations("prospect.rent.mine");
@@ -20,7 +28,10 @@ export async function generateMetadata() {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** One enquiry (L5 5.1 §2): the owner's answers, my viewing (change, cancel, directions), writing to the owner. */
+/**
+ * One enquiry (L5 5.1 §2) in the record frame (redesign G2): the listing as the title with whether the enquiry is still
+ * open, what I told the owner, my viewing (change, cancel, directions), the conversation, then the listing link.
+ */
 export default async function EnquiryPage({
   params,
   searchParams,
@@ -43,7 +54,11 @@ export default async function EnquiryPage({
   const listing = enquiry.listing.available
     ? (await api.GET("/v1/public/listings/{slug}", { params: { path: { slug: enquiry.listing.slug } } })).data
     : undefined;
-  const [t, sv] = await Promise.all([getTranslations("prospect.rent"), getTranslations("prospect.selfViewing")]);
+  const [t, sv, current] = await Promise.all([
+    getTranslations("prospect.rent"),
+    getTranslations("prospect.selfViewing"),
+    getLocale(),
+  ]);
   const done =
     query.done === "sent"
       ? t("detail.sent")
@@ -52,24 +67,61 @@ export default async function EnquiryPage({
         : query.done === "left"
           ? sv("panel.left")
           : null;
+  const locale = isLocale(current) ? current : "th";
+  const facts: DescriptionItem[] = [
+    { id: "owner", term: t("detail.fact.owner"), description: enquiry.listing.ownerName },
+    { id: "sent", term: t("detail.fact.sent"), description: formatDateTime(enquiry.createdAt, locale) },
+    ...(enquiry.moveInDate
+      ? [{ id: "moveIn", term: t("detail.fact.moveIn"), description: formatDate(enquiry.moveInDate, locale) }]
+      : []),
+    ...(enquiry.termMonths
+      ? [
+          {
+            id: "term",
+            term: t("detail.fact.term"),
+            description: t("detail.termValue", { months: enquiry.termMonths }),
+          },
+        ]
+      : []),
+    ...(enquiry.occupants
+      ? [
+          {
+            id: "occupants",
+            term: t("detail.fact.occupants"),
+            description: t("detail.occupantsValue", { count: enquiry.occupants }),
+          },
+        ]
+      : []),
+  ];
   return (
-    <div className="flex flex-1 flex-col gap-6 pt-2 pb-8" data-testid="enquiry">
-      <BackLink href="/rent/enquiries">{t("mine.back")}</BackLink>
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-semibold">{enquiry.listing.titleTh}</h1>
-        <p className="text-muted text-sm">{enquiry.listing.ownerName}</p>
-        {enquiry.listing.available ? (
-          <Link href={`/rent/${enquiry.listing.slug}`} className="text-primary min-h-12 self-start py-3 font-medium">
-            {t("detail.listing")}
-          </Link>
-        ) : null}
-      </div>
+    <Screen testId="enquiry" data-open={enquiry.open || undefined}>
+      <ScreenHeader
+        back={{ href: "/rent/enquiries", label: t("mine.back") }}
+        title={enquiry.listing.titleTh}
+        lede={enquiry.listing.ownerName}
+        status={
+          <span data-testid="enquiry-status">
+            {enquiry.open ? (
+              <Badge tone="info" icon={IconChat}>
+                {t("mine.open")}
+              </Badge>
+            ) : (
+              <Badge tone="neutral" icon={IconArchive}>
+                {t("mine.closed")}
+              </Badge>
+            )}
+          </span>
+        }
+      />
       {done ? (
         <div data-testid="enquiry-done">
           <Callout tone="success">{done}</Callout>
         </div>
       ) : null}
       {!enquiry.open ? <Callout tone="info">{t("detail.closed")}</Callout> : null}
+      <Card as="section" padding="md" aria-label={t("detail.fact.title")} data-testid="enquiry-facts">
+        <DescriptionList layout="rows" items={facts} className={FACT_ROWS_CLASS} />
+      </Card>
       {enquiry.open ? (
         <ViewingPanel enquiry={enquiry} directions={listing ? directionsUrl(listing.address, listing.geo) : null} />
       ) : null}
@@ -81,6 +133,13 @@ export default async function EnquiryPage({
         />
       ) : null}
       <EnquiryThread enquiry={enquiry} />
-    </div>
+      {enquiry.listing.available ? (
+        <Button asChild variant="secondary" size="lg" block>
+          <Link href={`/rent/${enquiry.listing.slug}`} data-testid="enquiry-listing">
+            {t("detail.listing")}
+          </Link>
+        </Button>
+      ) : null}
+    </Screen>
   );
 }

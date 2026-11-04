@@ -12,7 +12,21 @@
     "sent": "ส่งข้อความทาง LINE แล้ว",
     "viewings": "นัดดูห้อง",
     "occupants": "{count, plural, other {# คน}}",
-    "term": "{months, plural, other {# เดือน}}"
+    "term": "{months, plural, other {# เดือน}}",
+    "status": {
+      "awaiting": "รอคุณตอบ",
+      "talking": "กำลังคุย",
+      "closed": "ปิดแล้ว"
+    },
+    "fact": {
+      "title": "ข้อมูลจากผู้สนใจ",
+      "received": "ส่งเข้ามาเมื่อ",
+      "moveIn": "วันที่อยากเข้าอยู่",
+      "term": "ระยะสัญญา",
+      "occupants": "จำนวนผู้อยู่",
+      "nationality": "สัญชาติ",
+      "notes": "หมายเหตุ"
+    }
   },
   "greeting": "สวัสดี {name}",
   "openConsole": "เปิดคอนโซลบนเว็บ",

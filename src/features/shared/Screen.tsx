@@ -284,6 +284,13 @@ export function Facts({
 }
 
 /**
+ * For the shared `DescriptionList layout="rows"` on a phone record: the term at the start and the value at the end of
+ * one line, like `Facts` (it stacks them below `sm` on its own).
+ */
+export const FACT_ROWS_CLASS =
+  "[&>div]:flex-row [&>div]:items-baseline [&>div]:justify-between [&>div]:gap-4 [&_dd]:text-end [&_dt]:shrink-0";
+
+/**
  * A document on paper (invoice, receipt, lease, notice, certificate): white sheet, hairline border, the issuer and
  * document kind on top, the number in mono, the key dates in a two-column grid, then the body. No stamp, no stripe.
  */

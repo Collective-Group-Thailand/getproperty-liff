@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { DescriptionList } from "./DescriptionList";
@@ -27,4 +27,6 @@ type Story = StoryObj<typeof DescriptionList>;
 
 export const TwoColumns: Story = {};
 export const ThreeColumns: Story = { args: { columns: 3 } };
+/** One fact per row, term beside its value (a settings card, an e-Tax record). */
+export const Rows: Story = { args: { layout: "rows" } };
 export const Dark: Story = { globals: { theme: "dark" } };

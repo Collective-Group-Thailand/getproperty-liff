@@ -30,5 +30,6 @@
       "failed": "Sharing is not possible in this browser."
     }
   },
-  "amount": "Amount received"
+  "amount": "Amount received",
+  "paidOn": "Paid · {date}"
 }

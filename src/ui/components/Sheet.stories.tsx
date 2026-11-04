@@ -1,4 +1,4 @@
-// copied from getproperty-web@08ff63b until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -41,4 +41,7 @@ function Demo(args: React.ComponentProps<typeof Sheet>) {
 export const Bottom: Story = { render: (args) => <Demo {...args} /> };
 export const Right: Story = {
   render: (args) => <Demo {...args} side="right" title="ตัวกรอง" description={undefined} />,
+};
+export const Left: Story = {
+  render: (args) => <Demo {...args} side="left" title="เมนูทั้งหมด" description={undefined} />,
 };

@@ -1,4 +1,4 @@
-// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import type { Locale } from "./routing";
 
 /**
@@ -237,6 +237,21 @@ export function formatRelativeTime(input: DateInput, locale: Locale = "th", now:
   return format.format(Math.round(seconds / (365 * 86400)), "year");
 }
 
+/**
+ * "6 ชม." / "45 นาที" / "3 วัน" — the length of a span (how far past an SLA, how long is left) in its largest whole
+ * unit; the sign is ignored (the caller says "past" or "left").
+ */
+export function formatDuration(milliseconds: number, locale: Locale = "th"): string {
+  const seconds = Math.abs(milliseconds) / 1000;
+  const [value, unit] =
+    Math.round(seconds / 60) < 60
+      ? [Math.max(1, Math.round(seconds / 60)), "minute"]
+      : seconds < 48 * 3600
+        ? [Math.round(seconds / 3600), "hour"]
+        : [Math.round(seconds / 86400), "day"];
+  return new Intl.NumberFormat(localeTag(locale), { style: "unit", unit, unitDisplay: "short" }).format(value);
+}
+
 /** Thai phone numbers as people read them: `081-234-5678`; a `+66` number is shown nationally. */
 export function formatPhone(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -244,4 +259,16 @@ export function formatPhone(value: string): string {
   if (national.length === 10) return `${national.slice(0, 3)}-${national.slice(3, 6)}-${national.slice(6)}`;
   if (national.length === 9) return `${national.slice(0, 2)}-${national.slice(2, 5)}-${national.slice(5)}`;
   return value;
+}
+
+/**
+ * A country (ISO 3166 alpha-2 from the API, e.g. a party's nationality) as its name in the reader's language:
+ * "เมียนมา", "Myanmar". An unknown code stays as sent rather than disappearing.
+ */
+export function formatCountry(code: string, locale: Locale = "th"): string {
+  try {
+    return new Intl.DisplayNames([localeTag(locale)], { type: "region" }).of(code.trim().toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
 }

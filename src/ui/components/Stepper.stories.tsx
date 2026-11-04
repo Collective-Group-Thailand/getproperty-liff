@@ -1,4 +1,4 @@
-// copied from getproperty-web@6a8ffcf until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Stepper } from "./Stepper";
@@ -23,3 +23,19 @@ type Story = StoryObj<typeof Stepper>;
 export const Middle: Story = {};
 export const First: Story = { args: { current: 0, progressText: "ขั้นที่ 1 จาก 5" } };
 export const Last: Story = { args: { current: 4, progressText: "ขั้นที่ 5 จาก 5" } };
+/** The phone wizard of the staff app: named segments, the current step's name as the title. */
+export const Bar: Story = { args: { variant: "bar" }, parameters: { viewport: { defaultViewport: "mobile1" } } };
+
+/** A short approval workflow with every step named under its dot (admin tariffs: entered → checked → published). */
+export const Labelled: Story = {
+  args: {
+    labelled: true,
+    current: 0,
+    progressText: "ขั้นที่ 1 จาก 3",
+    steps: [
+      { id: "entered", label: "บันทึกแล้ว" },
+      { id: "verified", label: "อีกคนตรวจแล้ว" },
+      { id: "published", label: "เผยแพร่แล้ว" },
+    ],
+  },
+};

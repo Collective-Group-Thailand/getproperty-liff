@@ -1,4 +1,4 @@
-// copied from getproperty-web@2005ad0 until collective-shared exists (D-155)
+// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Progress } from "./Progress";
@@ -21,3 +21,5 @@ export const NearlyFull: Story = {
 export const Over: Story = {
   args: { label: "พื้นที่จัดเก็บ", value: 100, max: 100, tone: "danger", valueText: "ใช้ไป 104% · เกินมา 0.2 GB" },
 };
+/** A thin meter beside other figures (a message quota, a time window). */
+export const Thin: Story = { args: { size: "sm" } };
