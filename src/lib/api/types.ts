@@ -53,6 +53,15 @@ export type ResidentLanguage = Schemas["ResidentLanguage"];
 export type ResidentLinkBody = Schemas["ResidentLinkDto"];
 export type ResidentLinked = Schemas["ResidentLinkedDto"];
 
+// JRL — units and roles (api JR, D-309, D-322).
+export type ResidentMeUnit = Schemas["ResidentMeUnitDto"];
+export type ResidentMeUnits = Schemas["ResidentMeUnitsDto"];
+export type ResidentUnitRole = Schemas["ResidentUnitRole"];
+export type ResidentUnitCapability = Schemas["ResidentUnitCapability"];
+export type ResidentUnitUsage = Schemas["ResidentUnitUsageDto"];
+export type UnitInvitationPreview = Schemas["UnitInvitationPreviewDto"];
+export type UnitInvitationAccepted = Schemas["UnitInvitationAcceptedDto"];
+
 // L3 — lease, e-signature, notice, deposit, usage, profile & privacy (B2.3, B2.4, B3.2, B1.3).
 export type ResidentLease = Schemas["ResidentLeaseDto"];
 export type LeaseParty = Schemas["LeasePartyViewDto"];

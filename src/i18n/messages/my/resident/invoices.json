@@ -25,7 +25,12 @@
     "noHistory": "ယခင် ဘေလ် မရှိသေးပါ။",
     "pages": "ဘေလ် စာမျက်နှာများ",
     "newer": "အသစ်များ",
-    "older": "အဟောင်းများ"
+    "older": "အဟောင်းများ",
+    "unitFilter": {
+      "label": "အခန်း ရွေးရန်",
+      "all": "{count, plural, other {အခန်းအားလုံး (#)}}",
+      "unit": "အခန်း {unit}"
+    }
   },
   "detail": {
     "metaTitle": "ဘေလ်",

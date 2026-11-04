@@ -16,7 +16,8 @@ export async function generateMetadata() {
 export default async function ContactsPage() {
   const actor = await getActor();
   if (actor.status !== "signed-in") return null;
-  if (!actor.unit) notFound();
+  // JR (D-322): every role on the unit, no lease needed.
+  if (!actor.unit || !actor.capabilities.has("contacts")) notFound();
   const loaded = await loadContacts(actor.unit.unitId);
   return (
     <ResidentShell active={null}>

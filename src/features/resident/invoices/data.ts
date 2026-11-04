@@ -13,19 +13,22 @@ export const PAGE_SIZE = 25;
  * `GET /v1/resident/invoices?unpaid=true` — everything still to pay, across my units and landlords (D-061). One
  * page of 100 is far more than a resident ever has open.
  */
-export async function loadOpenInvoices(): Promise<Loaded<InvoiceView[]>> {
+export async function loadOpenInvoices(unitId?: string): Promise<Loaded<InvoiceView[]>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/invoices", {
-    params: { query: { unpaid: true, perPage: 100 } },
+    params: { query: { unpaid: true, perPage: 100, ...(unitId ? { unitId } : {}) } },
   });
   return data ? { data: data.data } : { error: problemFromParsed(response, error) };
 }
 
-/** `GET /v1/resident/invoices?page=` — newest first, paid and open alike. */
-export async function loadInvoicePage(page: number): Promise<Loaded<{ items: InvoiceView[]; meta: PageMeta }>> {
+/** `GET /v1/resident/invoices?page=` — newest first, paid and open alike; JR: of one unit with `unitId`. */
+export async function loadInvoicePage(
+  page: number,
+  unitId?: string,
+): Promise<Loaded<{ items: InvoiceView[]; meta: PageMeta }>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/invoices", {
-    params: { query: { page, perPage: PAGE_SIZE } },
+    params: { query: { page, perPage: PAGE_SIZE, ...(unitId ? { unitId } : {}) } },
   });
   return data ? { data: { items: data.data, meta: data.meta } } : { error: problemFromParsed(response, error) };
 }

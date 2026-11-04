@@ -9,6 +9,9 @@
  *   …signer… / …moveout… / …manual…   lease, deposit and usage scenarios (`mocks/residence.ts`)
  *   …disabled…  the account is disabled (`auth.account_disabled`)
  *   …relocating… relocation help (`resident.relocation`, GL4) already granted
+ *   …coowner…   JRL: co-owner of C-1203 in a juristic condominium (ownership register, no occupancy, no lease) —
+ *               with …multi… also the lessee of A-201 (a renter who owns a condo elsewhere)
+ *   …family…    JRL: lives in A-201 as a family member — no lease, no bills of their own
  *
  * An SMS sign-in (`phone:<E.164>` / `tech-phone:<E.164>` accounts) links nothing by itself (D-226): the party the
  * office entered with that phone becomes a link request (`pendingUnits` / `technicianPending`) until the Owner
@@ -47,6 +50,20 @@ export interface MockAccount {
   pendingUnits: Unit[];
   /** D-226: a technician signed in by SMS whose party match waits for the Owner (no work orders until then). */
   technicianPending: boolean;
+  /** JRL (D-309): units a party of mine co-owns (ownership register) — with or without living there. */
+  owned: OwnedUnit[];
+}
+
+/** A unit of the ownership register (JR): what `/me/units` names, with the ownership's start. */
+export interface OwnedUnit {
+  unitId: string;
+  unitNo: string;
+  buildingId: string;
+  buildingName: string;
+  propertyId: string;
+  tenantId: string;
+  tenantName: string;
+  from: string;
 }
 
 export interface MockSession {
@@ -84,6 +101,18 @@ export const UNIT_B: Unit = {
   unitId: "9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a",
   unitNo: "B-105",
   validFrom: "2026-10-01",
+};
+
+/** JRL: a condominium unit of a juristic tenant (another tenant than A-201's and B-105's). */
+export const CONDO_UNIT: OwnedUnit = {
+  unitId: "c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  unitNo: "C-1203",
+  buildingId: "d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f70",
+  buildingName: "อาคาร C",
+  propertyId: "e5f6a7b8-c9d0-4e1f-8a2b-3c4d5e6f7081",
+  tenantId: "f6a7b8c9-d0e1-4f2a-8b3c-4d5e6f708192",
+  tenantName: "นิติบุคคลอาคารชุด ตัวอย่าง คอนโด",
+  from: "2026-01-15",
 };
 
 /** The resident purposes getproperty-api seeds (`prisma/seed/data/privacy.ts`), version 1. */
@@ -203,12 +232,23 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
     phone: init.phone,
     lineLinked: init.lineLinked,
     language: "th",
-    units: has("invitee") ? [] : has("multi") ? [UNIT_A, UNIT_B] : [UNIT_A],
+    units: has("invitee")
+      ? []
+      : has("coowner")
+        ? has("multi")
+          ? [UNIT_A]
+          : []
+        : has("family")
+          ? [{ ...UNIT_A, role: "family" }]
+          : has("multi")
+            ? [UNIT_A, UNIT_B]
+            : [UNIT_A],
     consents: consentsFor(!(has("newcomer") || has("invitee"))),
     disabled: has("disabled"),
     accepted: new Set(),
     pendingUnits: [],
     technicianPending: false,
+    owned: has("coowner") ? [CONDO_UNIT] : [],
   };
   if (has("relocating")) {
     // GL4: relocation help already on (Lighthouse `relocation-reviews`, e2e) — never the default (D-025).

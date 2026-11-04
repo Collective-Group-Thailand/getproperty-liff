@@ -837,6 +837,7 @@ export const OPERATIONS = [
     path: "/v1/resident/me/rent-record/shares/{shareId}/actions/revoke",
     idempotent: false,
   },
+  { operationId: "resident.units.list", method: "GET", path: "/v1/resident/me/units", idempotent: false },
   {
     operationId: "resident.messagingLinks.get",
     method: "GET",
@@ -979,6 +980,25 @@ export const OPERATIONS = [
   },
   { operationId: "resident.surveys.csat", method: "GET", path: "/v1/resident/surveys/csat", idempotent: false },
   { operationId: "resident.surveys.csatAnswer", method: "POST", path: "/v1/resident/surveys/csat", idempotent: true },
+  {
+    operationId: "resident.unitInvitations.preview",
+    method: "GET",
+    path: "/v1/resident/unit-invitations/{code}",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.unitInvitations.accept",
+    method: "POST",
+    path: "/v1/resident/unit-invitations/{code}/accept",
+    idempotent: true,
+  },
+  {
+    operationId: "resident.unitInvitations.requestOtp",
+    method: "POST",
+    path: "/v1/resident/unit-invitations/{code}/otp",
+    idempotent: false,
+  },
+  { operationId: "resident.units.usage", method: "GET", path: "/v1/resident/units/{unitId}/usage", idempotent: false },
   { operationId: "resident.uploads.presign", method: "POST", path: "/v1/resident/uploads", idempotent: false },
   { operationId: "technician.me.get", method: "GET", path: "/v1/technician/me", idempotent: false },
   {
@@ -1112,6 +1132,7 @@ export const IDEMPOTENT_OPERATIONS: readonly string[] = [
   "POST /v1/resident/service-requests",
   "POST /v1/resident/service-requests/{serviceRequestId}/messages",
   "POST /v1/resident/surveys/csat",
+  "POST /v1/resident/unit-invitations/{code}/accept",
   "POST /v1/technician/work-orders/{workOrderId}/actions/complete",
   "POST /v1/technician/work-orders/{workOrderId}/cost-lines",
   "POST /v1/technician/work-orders/{workOrderId}/messages",

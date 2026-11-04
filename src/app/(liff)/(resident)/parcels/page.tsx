@@ -24,7 +24,7 @@ export default async function ParcelsPage() {
       {loaded.error ? (
         <ProblemPage error={loaded.error} />
       ) : (
-        <ParcelList parcels={loaded.data} locale={locale} showUnit={actor.me.units.length > 1} />
+        <ParcelList parcels={loaded.data} locale={locale} showUnit={actor.units.length > 1} />
       )}
     </ResidentShell>
   );

@@ -25,7 +25,12 @@
     "noHistory": "No earlier bills yet.",
     "pages": "Bill pages",
     "newer": "Newer",
-    "older": "Older"
+    "older": "Older",
+    "unitFilter": {
+      "label": "Choose a unit",
+      "all": "{count, plural, one {All units (#)} other {All units (#)}}",
+      "unit": "Unit {unit}"
+    }
   },
   "detail": {
     "metaTitle": "Bill",

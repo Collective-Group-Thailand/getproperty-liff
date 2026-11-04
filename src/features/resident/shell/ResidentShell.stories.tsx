@@ -16,6 +16,7 @@ import { IconResident } from "@/ui/icons/glyphs/resident";
 
 import { ResidentShellView } from "./ResidentShellView";
 import { SettingsMenuView } from "./SettingsMenuView";
+import UnitSheet from "./UnitSheet";
 import { UnitSwitcherView, type SwitcherUnit } from "./UnitSwitcherView";
 
 /**
@@ -39,8 +40,21 @@ const withIntl: Decorator = (Story, context) => {
 };
 
 const UNITS: SwitcherUnit[] = [
-  { unitId: "a", unitNo: "A-201", buildingName: "อาคาร A", tenantName: "หอพักตัวอย่าง" },
-  { unitId: "b", unitNo: "B-105", buildingName: "อาคาร B", tenantName: "แมนชั่นตัวอย่าง" },
+  { unitId: "a", unitNo: "A-201", buildingName: "อาคาร A", tenantName: "หอพักตัวอย่าง", role: "tenant" },
+  { unitId: "b", unitNo: "B-105", buildingName: "อาคาร B", tenantName: "แมนชั่นตัวอย่าง", role: "tenant" },
+];
+
+/** JRL: a renter who also co-owns a condominium unit and lives with family in a third (role word per row). */
+const MIXED: SwitcherUnit[] = [
+  UNITS[0]!,
+  {
+    unitId: "c",
+    unitNo: "C-1203",
+    buildingName: "อาคาร C",
+    tenantName: "นิติบุคคลอาคารชุด ตัวอย่าง คอนโด",
+    role: "co_owner",
+  },
+  { unitId: "d", unitNo: "9/45", buildingName: "หมู่บ้านตัวอย่าง", tenantName: "นิติบุคคลหมู่บ้าน", role: "family" },
 ];
 
 const NAV: { key: keyof typeof navTh; href: string; icon: IconGlyph }[] = [
@@ -133,4 +147,13 @@ export const Entry: Story = {
 export const EntryDark: Story = {
   args: Entry.args,
   globals: { theme: "dark" },
+};
+
+/** JRL: the switcher's sheet — "all my units (3)", each with its building, operator and my role there. */
+export const UnitSheetWithRoles: Story = {
+  args: {
+    ...SignedIn.args,
+    unit: <UnitSwitcherView units={MIXED} currentId="c" onSelect={noop} />,
+    children: <UnitSheet open setOpen={noop} units={MIXED} current={MIXED[1]!} onSelect={noop} />,
+  },
 };

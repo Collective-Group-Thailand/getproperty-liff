@@ -66,5 +66,30 @@
   },
   "todo": {
     "title": "待办"
+  },
+  "owner": {
+    "lede": "共同业主 · 由 {name} 管理",
+    "feesTitle": "{period} 物业费",
+    "feesTitleNone": "本房间的物业费",
+    "feesBody": "物业法人开出物业费账单时，您会在 LINE 收到通知，并可在此支付",
+    "nothingDue": "没有待付的物业费",
+    "nothingDueBody": "已全部付清。新账单出来时会在 LINE 通知您。",
+    "documentsTitle": "本房间的文件",
+    "receipts": "收据",
+    "receiptsBody": "已付款项的收据",
+    "statements": "全部账单",
+    "statementsBody": "以往的物业费账单"
+  },
+  "notices": {
+    "title": "最新公告",
+    "all": "查看全部",
+    "none": "暂无公告",
+    "noneBody": "物业法人或楼宇管理处的公告会显示在这里"
+  },
+  "household": {
+    "parcelsTitle": "包裹",
+    "parcelsWaiting": "{count, plural, other {有 # 件包裹待领取}}",
+    "parcelsNone": "没有待领取的包裹",
+    "parcelsBody": "请到楼宇的包裹领取处领取"
   }
 }

@@ -66,5 +66,30 @@
   },
   "todo": {
     "title": "To do"
+  },
+  "owner": {
+    "lede": "Co-owner · managed by {name}",
+    "feesTitle": "Common fees, {period}",
+    "feesTitleNone": "Common fees for this unit",
+    "feesBody": "When the juristic person issues a common-fee bill you'll get a LINE message, and you can pay it here",
+    "nothingDue": "No common fees due",
+    "nothingDueBody": "All paid. When a new bill is ready, you'll hear about it in LINE.",
+    "documentsTitle": "Documents for this unit",
+    "receipts": "Receipts",
+    "receiptsBody": "Receipts for what you have paid",
+    "statements": "All bills",
+    "statementsBody": "Past common-fee bills"
+  },
+  "notices": {
+    "title": "Latest notices",
+    "all": "See all",
+    "none": "No notices yet",
+    "noneBody": "Notices from the juristic person or the building's office appear here"
+  },
+  "household": {
+    "parcelsTitle": "Parcels",
+    "parcelsWaiting": "{count, plural, one {# parcel waiting} other {# parcels waiting}}",
+    "parcelsNone": "No parcels waiting",
+    "parcelsBody": "Collect them at the building's parcel desk"
   }
 }

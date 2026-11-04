@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "选择房间",
-    "description": "{count, plural, other {此账户有 # 个房间}}",
+    "description": "{count, plural, other {我的全部房间（#）}}",
     "current": "已选房间",
     "unit": "房间 {unit}",
     "place": "{building} · {operator}",
-    "switch": " — 切换房间"
+    "switch": " — 切换房间",
+    "role": {
+      "co_owner": "共同业主",
+      "tenant": "承租人",
+      "co_tenant": "共同承租人",
+      "family": "家庭成员",
+      "payer": "租金付款人"
+    }
   },
   "envBadge": "{name} 环境"
 }

@@ -67,5 +67,71 @@
         "body": "关注 {name} 的 LINE 账号已与他人关联。请联系 {name} 处理"
       }
     }
+  },
+  "unitInvite": {
+    "title": "将房间添加到您的账户",
+    "lead": "楼宇管理处邀请您以共同业主身份使用此房间。确认前请核对信息。",
+    "preview": {
+      "unit": "房间 {unit}",
+      "name": "登记姓名",
+      "phone": "验证码发送至",
+      "noPhone": "登记中没有电话",
+      "until": "邀请有效期至",
+      "why": "6 位验证码将通过短信发送到管理处登记在共同业主名册上的电话。如果该号码不是您的，请联系楼宇管理处。",
+      "send": "发送验证码"
+    },
+    "code": {
+      "title": "输入验证码",
+      "lead": "6 位验证码已发送至 <mono>{phone}</mono>",
+      "digit": "第 {index} 位",
+      "valid": "验证码有效期至 {time}",
+      "submit": "确认并添加房间",
+      "resend": "重新发送验证码",
+      "resendIn": "{time} 后可重新获取"
+    },
+    "problem": {
+      "wrongCode": {
+        "title": "验证码不正确",
+        "body": "请核对短信后重试。",
+        "attempts": "{count, plural, other {请核对短信后重试。还可尝试 # 次。}}"
+      },
+      "codeExpired": {
+        "title": "验证码已过期",
+        "body": "请重新发送验证码并输入新的验证码。"
+      },
+      "tooManyAttempts": {
+        "title": "错误次数过多",
+        "body": "此验证码已失效，请重新发送验证码。"
+      },
+      "rateLimited": {
+        "title": "获取验证码过于频繁",
+        "body": "请稍候再试。"
+      },
+      "other": "操作未成功，请重试。"
+    },
+    "done": {
+      "title": "已添加房间 {unit}",
+      "body": "{building} 已在您的账户中。可在顶部栏切换各个房间。",
+      "continue": "前往房间 {unit}"
+    },
+    "closed": {
+      "home": "返回首页",
+      "notFound": {
+        "title": "找不到此邀请",
+        "body": "链接可能不完整。请从二维码或短信重新打开，或向楼宇管理处索取新的邀请。"
+      },
+      "notPending": {
+        "title": "此邀请已无法使用",
+        "body": "邀请已被使用、取消或已过期。请向楼宇管理处索取新的邀请。"
+      },
+      "partyMismatch": {
+        "title": "此业主已绑定其他 LINE 账户",
+        "body": "名册上的该姓名已被另一个 LINE 账户使用。如有误，请联系楼宇管理处。"
+      },
+      "phoneMissing": {
+        "title": "登记中没有手机号码",
+        "body": "管理处需先在共同业主名册上登记您的手机号码，才能发送验证码。"
+      }
+    }
   }
 }

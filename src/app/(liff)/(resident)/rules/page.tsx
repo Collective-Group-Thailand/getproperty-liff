@@ -17,7 +17,8 @@ export async function generateMetadata() {
 export default async function RulesPage() {
   const [actor, locale] = await Promise.all([getActor(), pageLocale()]);
   if (actor.status !== "signed-in") return null;
-  if (!actor.unit) notFound();
+  // JR (D-322): every role on the unit, no lease needed.
+  if (!actor.unit || !actor.capabilities.has("rules")) notFound();
   const loaded = await loadRules(actor.unit.unitId);
   return (
     <ResidentShell active={null}>

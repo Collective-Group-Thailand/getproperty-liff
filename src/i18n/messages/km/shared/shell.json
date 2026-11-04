@@ -27,11 +27,18 @@
   },
   "unitSwitcher": {
     "title": "ជ្រើសបន្ទប់",
-    "description": "{count, plural, other {គណនីនេះមានបន្ទប់ # បន្ទប់}}",
+    "description": "{count, plural, other {បន្ទប់ទាំងអស់របស់ខ្ញុំ (#)}}",
     "current": "បន្ទប់ដែលបានជ្រើស",
     "unit": "បន្ទប់ {unit}",
     "place": "{building} · {operator}",
-    "switch": " — ប្តូរបន្ទប់"
+    "switch": " — ប្តូរបន្ទប់",
+    "role": {
+      "co_owner": "សហម្ចាស់",
+      "tenant": "អ្នកជួល",
+      "co_tenant": "អ្នកជួលរួម",
+      "family": "សមាជិកគ្រួសារ",
+      "payer": "អ្នកបង់ថ្លៃជួល"
+    }
   },
   "envBadge": "បរិស្ថាន {name}"
 }

@@ -35,7 +35,8 @@ export default async function NewRequestPage({
   if (actor.status !== "signed-in") return null;
   if (!actor.entitlements.has("service_requests") || !actor.unit) notFound();
   const wanted = typeof params.unit === "string" ? params.unit : undefined;
-  const unit = actor.me.units.find((u) => u.unitId === wanted) ?? actor.unit;
+  const unit =
+    actor.units.find((u) => u.unitId === wanted && u.capabilities.includes("service_requests")) ?? actor.unit;
   const categories = await loadCategories(unit.unitId);
   return (
     <ResidentShell active="requests" back={{ href: "/requests", label: list("title") }}>
@@ -51,7 +52,9 @@ export default async function NewRequestPage({
         ) : (
           <NewRequestForm
             unitId={unit.unitId}
-            units={actor.me.units.map((u) => ({ value: u.unitId, label: `${u.unitNo} · ${u.buildingName}` }))}
+            units={actor.units
+              .filter((u) => u.capabilities.includes("service_requests"))
+              .map((u) => ({ value: u.unitId, label: `${u.unitNo} · ${u.buildingName}` }))}
             categories={categories.data.map((c) => ({
               value: c.id,
               key: c.key,

@@ -85,7 +85,8 @@ async function OpenInvoice({
 /**
  * Invoices (L2 2.1 §2): what is still to pay first — the one due soonest on top, each with its amount, due date in
  * words and a pay button — then the history by billing period (newest first, paged like the API). Receipts are one
- * tap away. With several units the unit is named on each invoice.
+ * tap away. With several units the unit is named on each invoice, and (JRL) a unit filter narrows the list to one of
+ * them (`?unit=` → the API's `unitId`) — all my units by default, so a bill is never hidden behind the unit switcher.
  */
 export async function InvoiceList({
   open,
@@ -96,7 +97,10 @@ export async function InvoiceList({
   today,
   showUnit,
   vapidKey,
+  unitFilter,
 }: {
+  /** JRL: the units to filter by (two or more) and the one chosen (`null` = all). */
+  unitFilter?: { units: { unitId: string; unitNo: string }[]; current: string | null };
   open: InvoiceView[];
   history: InvoiceView[];
   meta: PageMeta;
@@ -110,10 +114,37 @@ export async function InvoiceList({
   const root = await getTranslations();
   const past = history.filter((invoice) => !isOpen(invoice));
   const hasOlder = page * meta.perPage < meta.total;
+  const unitParam = unitFilter?.current ? `unit=${encodeURIComponent(unitFilter.current)}` : "";
+  const pageHref = (target: number) => {
+    const query = [target > 1 ? `page=${target}` : "", unitParam].filter(Boolean).join("&");
+    return query ? `/invoices?${query}` : "/invoices";
+  };
 
   return (
     <Screen testId="invoice-list">
       <ScreenHeader title={t("title")} />
+
+      {unitFilter && unitFilter.units.length > 1 ? (
+        <nav aria-label={t("unitFilter.label")} data-testid="invoice-unit-filter">
+          <ul className="bg-bg-subtle rounded-control relative flex gap-1 overflow-x-auto p-1" role="list">
+            {[
+              { unitId: null, label: t("unitFilter.all", { count: unitFilter.units.length }) },
+              ...unitFilter.units.map((u) => ({ unitId: u.unitId, label: t("unitFilter.unit", { unit: u.unitNo }) })),
+            ].map((option) => (
+              <li key={option.unitId ?? "all"} className="min-w-0 flex-1">
+                <Link
+                  href={option.unitId ? `/invoices?unit=${encodeURIComponent(option.unitId)}` : "/invoices"}
+                  aria-current={option.unitId === unitFilter.current ? "page" : undefined}
+                  className="rounded-control aria-[current=page]:bg-surface aria-[current=page]:shadow-card flex min-h-12 items-center justify-center px-3 text-sm font-medium whitespace-nowrap"
+                  data-testid="invoice-unit-option"
+                >
+                  {option.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
 
       {page === 1 ? (
         <Section title={t("openTitle")} titleId="open-title">
@@ -192,14 +223,14 @@ export async function InvoiceList({
           <nav aria-label={t("pages")} className="flex justify-between gap-2">
             {page > 1 ? (
               <Button asChild variant="ghost" size="lg" iconStart={IconChevronLeft}>
-                <Link href={page === 2 ? "/invoices" : `/invoices?page=${page - 1}`}>{t("newer")}</Link>
+                <Link href={pageHref(page - 1)}>{t("newer")}</Link>
               </Button>
             ) : (
               <span />
             )}
             {hasOlder ? (
               <Button asChild variant="ghost" size="lg">
-                <Link href={`/invoices?page=${page + 1}`}>
+                <Link href={pageHref(page + 1)}>
                   {t("older")}
                   <Icon icon={IconChevronRight} />
                 </Link>

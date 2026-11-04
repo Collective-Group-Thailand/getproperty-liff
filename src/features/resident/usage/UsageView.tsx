@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { formatDate, formatUnits, TIME_ZONE, type MeterUnit } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import type { ResidentUsage, UtilityUsage } from "@/lib/api/types";
+import type { ResidentUnitUsage, UtilityUsage } from "@/lib/api/types";
 import { Callout } from "@/ui/components/Callout";
 import { Button } from "@/ui/components/Button";
 import { ScreenHeader } from "@/features/shared/Screen";
@@ -17,7 +17,7 @@ import { alignByPosition, USAGE_RANGES, type UsageRange, type UsageWindow } from
 import { UsageFigure } from "./UsageFigure";
 
 /** The API's period totals and the "so far this billing cycle" estimate per utility (`ResidentUsageDto.summary`). */
-export type UsageSummary = ResidentUsage["summary"][number];
+export type UsageSummary = ResidentUnitUsage["summary"][number];
 
 const unitOf = (unit: "kwh" | "m3"): MeterUnit => (unit === "kwh" ? "kWh" : "m3");
 
@@ -45,8 +45,8 @@ export async function UsageView({
 }: {
   range: UsageRange;
   window: UsageWindow;
-  current: ResidentUsage;
-  previous: ResidentUsage | null;
+  current: ResidentUnitUsage;
+  previous: ResidentUnitUsage | null;
   locale: Locale;
 }) {
   const t = await getTranslations("resident.usage");
