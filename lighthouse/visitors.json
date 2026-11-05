@@ -1,0 +1,58 @@
+{
+  "extends": "./shared.json",
+  "$comment": "JL4 visitors, gate and SOS (D-315 \u2026 D-317, D-327, D-328): /visitors with a waiting visitor and a registered car, the barrier screen, the invite form, the house policy and home with the gate block. Mock resident `village` + `visitor` + `mycar` (house 88/12). The waiting visit has a stable mock id per unit (`mocks/gate.ts`). Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/visitors",
+        "http://localhost:3400/visits/718163d7-15f9-4dae-85e7-3616c8785d71",
+        "http://localhost:3400/visitors/open",
+        "http://localhost:3400/visitors/invites/new",
+        "http://localhost:3400/visitors/policy",
+        "http://localhost:3400/"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-visitors-village-visitor-mycar"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

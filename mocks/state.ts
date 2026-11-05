@@ -14,6 +14,8 @@
  *               JL1: …twounits… also co-owns C-1205; …annual… bills the common fee yearly in advance; …overdue…
  *               its due date has passed; …village… co-owns house 88/12 of a housing estate instead (ตร.วา)
  *   …family…    JRL: lives in A-201 as a family member — no lease, no bills of their own
+ *   …housefamily… JL4: lives in house 88/12 of the housing estate as a family member (gate: reads, answers, cannot
+ *               change the house policy or register cars); the gate words are in `mocks/gate.ts`
  *
  * An SMS sign-in (`phone:<E.164>` / `tech-phone:<E.164>` accounts) links nothing by itself (D-226): the party the
  * office entered with that phone becomes a link request (`pendingUnits` / `technicianPending`) until the Owner
@@ -148,6 +150,18 @@ export const VILLAGE_UNIT: OwnedUnit = {
   measures: { landAreaSqwa: "62.50", plotNo: "B-14" },
 };
 
+/** JL4: house 88/12 as an occupancy of a family member (`…housefamily…`). */
+export const VILLAGE_FAMILY: Unit = {
+  buildingId: VILLAGE_UNIT.buildingId,
+  buildingName: VILLAGE_UNIT.buildingName,
+  role: "family",
+  tenantId: VILLAGE_UNIT.tenantId,
+  tenantName: VILLAGE_UNIT.tenantName,
+  unitId: VILLAGE_UNIT.unitId,
+  unitNo: VILLAGE_UNIT.unitNo,
+  validFrom: "2025-06-01",
+};
+
 /** JL1: a second unit of the same condominium (`…coowner…twounits…`): two units on one statement. */
 export const CONDO_UNIT_SECOND: OwnedUnit = {
   ...CONDO_UNIT,
@@ -280,11 +294,13 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
         ? has("multi")
           ? [UNIT_A]
           : []
-        : has("family")
-          ? [{ ...UNIT_A, role: "family" }]
-          : has("multi")
-            ? [UNIT_A, UNIT_B]
-            : [UNIT_A],
+        : has("housefamily")
+          ? [VILLAGE_FAMILY]
+          : has("family")
+            ? [{ ...UNIT_A, role: "family" }]
+            : has("multi")
+              ? [UNIT_A, UNIT_B]
+              : [UNIT_A],
     consents: consentsFor(!(has("newcomer") || has("invitee"))),
     disabled: has("disabled"),
     accepted: new Set(),

@@ -85,6 +85,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 
 **Re-sync 2026-11-05 (JL1)** (icons only, from getproperty-web's committed **`3d513cf`**, main after JW1b): `curated.ts` gains JW1b's `pause`, `dispute`, `letter`, `legal`, `suspend-services`, `sms`, `send`, `repeat`; `pnpm icons` regenerated their glyph modules and `registry.ts`. Auto-pay draws `repeat` (J-DESIGN §3: not a sparkle). `format.ts` is **not** re-copied: web's `formatPeriodKey` now names quarter / half / year keys with words for `th` / `en` only, which does not type-check against this app's six locales — the period words live in `resident/fees.json` here (six locales) until web's table covers them; `shared:check` reports that drift as a warning.
 
+**JL4 (2026-11-05)**: `curated.ts` gains the JW4 gate glyphs (`car`, `truck`, `hammer`, `bell-ring`, `siren`, `flame`, `heart-pulse`, `shield-alert`, `cctv`, `id-card`, `log-in`) with the same keys and Lucide names as getproperty-web's JW4 working tree (not yet committed there) — `adapted` until the JW4 commit is re-synced; `pnpm icons` regenerated the glyphs and `registry.ts`.
+
 **Re-sync 2026-10-29** (from getproperty-web's committed **`c3a5aa7`**, GW6; `git archive c3a5aa7` → `SHARED_SOURCE=… pnpm shared:check --strict`: 293 copies, 279 same, 14 adapted, 0 drift — the concurrent web session's working-tree edits never reach this repo): `curated.ts` gains G9's `star` and `sparkles`; `pnpm icons` regenerated their glyph modules and `registry.ts`. The GL4 review stars (`src/features/resident/reviews/Stars.tsx`) now draw the synced `IconStar` instead of their own SVG path.
 
 
@@ -204,7 +206,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | verbatim | `3d513cf` |
+| `src/ui/icons/curated.ts` | adapted | `3d513cf` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
 | `src/ui/icons/glyphs/*.ts` | generated | `3d513cf` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |

@@ -182,5 +182,26 @@
     "requested": "Waiting for the office",
     "issued": "Issued",
     "refused": "Not issued"
+  },
+  "visit": {
+    "requested": "Waiting",
+    "approved": "Let in",
+    "denied": "Not let in",
+    "timed_out": "No answer",
+    "entered": "Inside",
+    "exited": "Left",
+    "cancelled": "Cancelled"
+  },
+  "visitInvite": {
+    "pending_approval": "Awaiting office",
+    "active": "Active",
+    "rejected": "Not approved",
+    "revoked": "Cancelled"
+  },
+  "incident": {
+    "open": "Sent",
+    "acknowledged": "Guard has it",
+    "resolved": "Closed",
+    "cancelled": "Cancelled"
   }
 }

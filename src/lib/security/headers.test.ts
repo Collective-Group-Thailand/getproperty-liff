@@ -72,7 +72,8 @@ describe("securityHeaders", () => {
     expect(headers["X-Robots-Tag"]).toBe("noindex, nofollow");
     expect(headers["X-Content-Type-Options"]).toBe("nosniff");
     expect(headers["Permissions-Policy"]).toContain("camera=(self)");
-    expect(headers["Permissions-Policy"]).toContain("geolocation=()");
+    // JL4: the barrier asks for the phone location (only when the estate requires it, D-328).
+    expect(headers["Permissions-Policy"]).toContain("geolocation=(self)");
     expect(headers["Strict-Transport-Security"]).toBeDefined();
     expect(headers["Content-Security-Policy"]).toBeUndefined();
     expect(securityHeaders({ dev: true }).some((h) => h.key === "Strict-Transport-Security")).toBe(false);

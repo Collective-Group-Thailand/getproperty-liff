@@ -6,6 +6,7 @@ import { PayLauncher } from "@/features/resident/pay/PayLauncher";
 import { dueState, needsAttention, openFirst } from "@/features/resident/invoices/model";
 import { LINK_CHECK_ATTRIBUTE } from "@/features/resident/home/linkDecision";
 import { LinkPendingLazy } from "@/features/resident/home/LinkPendingLazy";
+import { HomeGate, type HomeGateData } from "@/features/resident/visitors/HomeGate";
 import { formatDate, formatRelativeTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import type { InvoiceView } from "@/lib/api/types";
@@ -29,6 +30,7 @@ import { IconCalendarCheck } from "@/ui/icons/glyphs/calendar-check";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconContact } from "@/ui/icons/glyphs/contact";
 import { IconDoor } from "@/ui/icons/glyphs/door";
+import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconForward } from "@/ui/icons/glyphs/forward";
 import { IconKey } from "@/ui/icons/glyphs/key";
 import { IconLease } from "@/ui/icons/glyphs/lease";
@@ -156,7 +158,13 @@ export async function ResidentHome({
   kind = "resident",
   capabilities,
   notices = [],
+  gate = null,
+  usageTile = false,
 }: {
+  /** JL4: the gate of a juristic estate unit (waiting visitors, quick actions, SOS); `null` elsewhere. */
+  gate?: HomeGateData | null;
+  /** JL4: usage left the bottom nav for the visitors tab — it becomes a tile here. */
+  usageTile?: boolean;
   me: ResidentMe;
   unit: MyUnit | null;
   entitlements: ResidentNavEntitlements;
@@ -221,6 +229,9 @@ export async function ResidentHome({
             testId: "unit-lease",
           },
         ]
+      : []),
+    ...(usageTile
+      ? [{ key: "usage", href: "/usage", icon: IconElectric, label: t("tiles.usage"), testId: "home-usage-tile" }]
       : []),
     ...TILES.filter(
       (tile) =>
@@ -349,6 +360,8 @@ export async function ResidentHome({
               </div>
             </LinkPendingLazy>
           ) : null}
+
+          {gate ? <HomeGate gate={gate} today={today} locale={locale} /> : null}
 
           {kind === "household" && entitlements.has("parcels") ? (
             <Section title={t("household.parcelsTitle")} titleId="home-parcels-title" testId="home-parcels">

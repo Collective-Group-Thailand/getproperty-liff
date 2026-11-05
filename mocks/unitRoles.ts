@@ -8,7 +8,7 @@ import { createHash } from "node:crypto";
 
 import type { components } from "../src/lib/api/schema";
 import { residenceOf } from "./residence";
-import type { MockAccount, MockSession } from "./state";
+import { CONDO_UNIT, VILLAGE_UNIT, type MockAccount, type MockSession } from "./state";
 
 type Schemas = components["schemas"];
 type MeUnit = Schemas["ResidentMeUnitDto"];
@@ -44,10 +44,9 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
         unitNo: u.unitNo,
         buildingId: u.buildingId,
         buildingName: u.buildingName,
-        // The mock has no property; the building id stands in.
-        propertyId: u.buildingId,
-        propertyKind: "apartment",
-        legalForm: null,
+        // The mock has no property; the building id stands in — except a unit of a juristic estate (JL4
+        // `…housefamily…` lives in house 88/12 as a family member), which keeps that estate's property and kind.
+        ...placeOf(u.unitId, u.buildingId),
         tenantId: u.tenantId,
         tenantName: u.tenantName,
       },
@@ -86,6 +85,14 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
     unit.capabilities = capabilitiesOf(unit);
   }
   return out;
+}
+
+/** The property, kind and legal form of an occupied unit: a juristic estate's own, else an apartment of its building. */
+function placeOf(unitId: string, buildingId: string): Pick<MeUnit, "propertyId" | "propertyKind" | "legalForm"> {
+  const estate = [CONDO_UNIT, VILLAGE_UNIT].find((o) => o.unitId === unitId);
+  return estate
+    ? { propertyId: estate.propertyId, propertyKind: estate.propertyKind, legalForm: estate.legalForm }
+    : { propertyId: buildingId, propertyKind: "apartment", legalForm: null };
 }
 
 /** D-322: every role → the community six; bills unless family only; usage / access where I live; lease as its party. */

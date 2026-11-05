@@ -94,7 +94,7 @@ export function securityHeaders({ dev = false }: { dev?: boolean } = {}): { key:
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     { key: "X-Content-Type-Options", value: "nosniff" },
     // The camera is for service-request photos and payment slips (CameraCapture); nothing else.
-    { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(), payment=(), usb=()" },
+    { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(self), payment=(), usb=()" },
     // Resident pages are personal: never indexed.
     { key: "X-Robots-Tag", value: "noindex, nofollow" },
     ...(dev ? [] : [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]),

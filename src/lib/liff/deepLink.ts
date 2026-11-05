@@ -50,6 +50,11 @@ export const DEEP_LINK_ROOTS = [
   "fees",
   "statements",
   "units",
+  // JL4 (D-315, D-317, D-327, D-328): a visitor at the gate (`/visits/<id>?answer=…`, the household's LINE Flex), the
+  // gate screens (`/visitors`, `/visitors/open`) and my SOS (`/sos/<id>`, LINE `gate.incident.acknowledged`).
+  "visits",
+  "visitors",
+  "sos",
 ] as const;
 
 export function resolveLiffState(search: string | URLSearchParams | null | undefined): string {

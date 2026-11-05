@@ -8,6 +8,7 @@ import { CONTRACT_STATUS, RENEWAL_STATUS } from "./contract";
 import { ACCESS_RESULT, CREDENTIAL_STATUS } from "./credential";
 import { RELOCATION_STATUS, REVIEW_STATUS } from "./growth";
 import { DEPOSIT_STATUS } from "./deposit";
+import { INCIDENT_STATUS, INVITE_STATUS, VISIT_STATUS } from "./gate";
 import { CLEARANCE_STATUS, INSTALMENT_STATUS, MANDATE_STATUS, PAYMENT_PLAN_STATUS } from "./juristic";
 import { DSR_STATE } from "./dsr";
 import { INVOICE_STATUS } from "./invoice";
@@ -51,6 +52,9 @@ const MAPS = {
   instalment: INSTALMENT_STATUS,
   mandate: MANDATE_STATUS,
   clearance: CLEARANCE_STATUS,
+  visit: VISIT_STATUS,
+  visitInvite: INVITE_STATUS,
+  incident: INCIDENT_STATUS,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {
