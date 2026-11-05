@@ -1,0 +1,425 @@
+{
+  "title": "访客",
+  "lede": "{unit} · {gates}",
+  "time": "{time}",
+  "row": "{kind} · {time} · {gate}",
+  "rowNamed": "{kind} · {name} · {time}",
+  "kind": {
+    "guest": "客人",
+    "delivery": "送货",
+    "contractor": "技工 / 承包商",
+    "resident_vehicle": "住户车辆",
+    "other": "其他"
+  },
+  "notInUse": {
+    "title": "这里尚未启用门岗系统",
+    "body": "法人办公室启用后，您可以在此页面答复访客、创建通行证和报告紧急情况。"
+  },
+  "waiting": {
+    "title": "等待您答复（{count}）"
+  },
+  "today": {
+    "title": "今天",
+    "empty": "今天还没有访客"
+  },
+  "history": {
+    "link": "全部记录",
+    "title": "访客记录",
+    "retention": "门岗保存 {days} 天后删除",
+    "empty": "还没有访客",
+    "emptyBody": "有人来到门岗时，会显示在这里。",
+    "pages": "记录页",
+    "newer": "较新",
+    "older": "较早"
+  },
+  "invites": {
+    "title": "预约通行证",
+    "create": "创建通行证",
+    "empty": "提前把二维码发给客人或保洁，无需等您答复即可进入。",
+    "emptyFamily": "还没有通行证 — 由共有人或租户创建"
+  },
+  "household": {
+    "title": "此{kind, select, house {房屋} space {空间} other {房间}}的设置"
+  },
+  "privacy": "门岗记录的信息会在 {days} 天后删除",
+  "privacyMore": "了解详情",
+  "plate": {
+    "category": "字母部分",
+    "categoryHint": "例如 3กท",
+    "number": "号码",
+    "numberHint": "例如 8812",
+    "province": "府",
+    "provincePlaceholder": "选择府",
+    "error": {
+      "partial": "请填写完整车牌",
+      "category": "最多 4 个数字和泰文字母",
+      "number": "1–4 位数字",
+      "province": "请选择车牌所属府"
+    }
+  },
+  "visit": {
+    "metaTitle": "门岗访客",
+    "title": "{gate}有访客",
+    "titleDone": "{gate}的访客",
+    "waitingFor": "等待您答复",
+    "countdownLabel": "约剩 {minutes} 分钟",
+    "timeUp": "时间已到 — 门岗正在按您家的设置处理",
+    "policy": {
+      "allow_and_log": "{minutes} 分钟内未答复：保安放行并登记",
+      "deny": "{minutes} 分钟内未答复：保安不予放行",
+      "guard_calls": "{minutes} 分钟内未答复：保安会打电话给您"
+    },
+    "cardLabel": "访客",
+    "camera": "{gate}摄像头",
+    "photoAlt": "{gate}摄像头照片，{time}",
+    "noPhoto": "没有摄像头照片",
+    "noPhotoNoPlate": "没有照片和车牌",
+    "plate": "车牌",
+    "facts": {
+      "kind": "类型",
+      "name": "姓名",
+      "arrived": "到达时间",
+      "noName": "未提供"
+    },
+    "approve": "允许进入",
+    "callMe": "请保安打电话给我",
+    "deny": "不允许",
+    "remember": "记住这辆车 {days} 天",
+    "rememberNoDays": "记住这辆车",
+    "rememberHint": "下次直接进入，只通知您",
+    "household": "{kind, select, house {房屋} space {空间} other {房间}} {unit} 的每个人都收到了此消息 · 谁先答复都可以",
+    "calledNote": "已请保安打电话给您（{time}）— 仍可允许或不允许",
+    "linkAnswered": "此访客已有答复 — 见下方",
+    "confirm": {
+      "approve": {
+        "title": "允许 {plate} 进入？",
+        "titleNoPlate": "允许访客进入？",
+        "body": "{gate}的保安会立即放行。",
+        "confirm": "允许进入"
+      },
+      "deny": {
+        "title": "不允许 {plate} 进入？",
+        "titleNoPlate": "不允许访客进入？",
+        "body": "{gate}的保安会告知访客不能进入。",
+        "confirm": "不允许"
+      },
+      "call_me": {
+        "title": "请保安打电话给您？",
+        "titleNoPlate": "请保安打电话给您？",
+        "body": "{gate}的保安会拨打您留给办公室的号码，先沟通再决定。",
+        "confirm": "请求来电"
+      },
+      "cancel": "暂不答复"
+    },
+    "notFound": {
+      "title": "找不到此访客记录",
+      "body": "可能已按保存期限删除，或属于您未选择的住所。"
+    },
+    "result": {
+      "approved": {
+        "you": "您已允许进入",
+        "named": "{name} 已允许进入",
+        "nobody": "已允许进入"
+      },
+      "denied": {
+        "you": "您未允许进入",
+        "named": "{name} 未允许进入",
+        "nobody": "未允许进入"
+      },
+      "timedOut": {
+        "allow_and_log": "{minutes} 分钟内无人答复 — 保安已放行并登记",
+        "deny": "{minutes} 分钟内无人答复 — 保安未予放行",
+        "guard_calls": "{minutes} 分钟内无人答复 — 保安正在致电住户"
+      },
+      "entered": "已进入项目",
+      "exited": "已离开项目",
+      "cancelled": "门岗已取消此访客",
+      "call_me": "已请保安来电",
+      "waiting": "等待答复",
+      "at": "{time} · {gate}",
+      "someoneElse": "家里有人先答复了，所以您的答复未被采用。",
+      "markExit": "标记为已离开",
+      "all": "全部访客"
+    }
+  },
+  "open": {
+    "title": "开启道闸",
+    "lede": "选择要进入的车辆，然后开启",
+    "gate": "大门",
+    "car": "要进入的车辆",
+    "geofence": "需要手机位置以确认您在项目门口 — 仅用于本次核对，不会保存。",
+    "button": "开启道闸",
+    "buttonAt": "开启{gate}道闸",
+    "disabled": "办公室尚未开放通过应用开启道闸",
+    "disabledBody": "到达时请告知门岗保安。",
+    "noCarsTitle": "还没有住户车辆",
+    "noCars": "先登记住户车辆，才能通过应用开启道闸",
+    "noCarsFamily": "共有人或租户先登记住户车辆后，才能通过应用开启道闸",
+    "addCar": "登记车辆",
+    "back": "返回访客页面",
+    "state": {
+      "locating": "正在获取位置…",
+      "sending": "正在发送…",
+      "opening": "道闸正在开启…",
+      "sent": "已发送开启指令 · {time}",
+      "sentBody": "如果道闸没有抬起，可以再按一次。",
+      "rate_limited": "刚刚开启过 — 请等 {seconds} 秒",
+      "not_allowed": "无法通过应用开启 — 办公室已关闭此功能，或此车已不再登记",
+      "outside": "您离项目太远，到门口时再开启。",
+      "location_denied": "LINE 没有位置权限 — 请在手机设置中允许后重试",
+      "location_unavailable": "无法获取位置，请到空旷处重试。",
+      "no_estate_location": "项目尚未设置位置 — 请告知门岗保安",
+      "no_barrier": "此大门没有自动道闸",
+      "failed": "发送失败，请重试。"
+    }
+  },
+  "cars": {
+    "title": "车辆",
+    "lede": "住户车辆可通过应用开启道闸；记住的车辆直接进入，只通知您",
+    "summary": "住户车辆 {cars} 辆 · 记住 {remembered} 辆",
+    "household": "住户车辆",
+    "householdBody": "门岗知道这些是您家的车，可通过应用开启道闸。",
+    "noCars": "还没有登记车辆",
+    "familyNote": "由共有人或租户登记住户车辆",
+    "add": "添加住户车辆",
+    "label": "昵称（可选）",
+    "labelHint": "例如 妈妈的车",
+    "save": "保存车辆",
+    "cancel": "取消",
+    "remove": "删除车辆 {plate}",
+    "remembered": "记住的车辆",
+    "rememberedBody": "住户记住的访客车辆 — 在显示日期前可直接进入。",
+    "until": "至 {date}",
+    "noRemembered": "还没有记住任何访客车辆",
+    "forget": "不再记住 {plate}",
+    "confirm": {
+      "car": {
+        "title": "删除 {plate}？",
+        "body": "此车将无法通过应用开启道闸，来访时门岗会询问住户。",
+        "confirm": "删除车辆"
+      },
+      "remembered": {
+        "title": "不再记住 {plate}？",
+        "body": "下次门岗会先询问住户再放行。",
+        "confirm": "不再记住"
+      }
+    }
+  },
+  "policy": {
+    "title": "与门岗的约定",
+    "lede": "有人来访而家中无人答复时，门岗的处理方式",
+    "summary": {
+      "allow_and_log": "等 {minutes} 分钟，然后放行并登记",
+      "deny": "等 {minutes} 分钟，然后不予放行",
+      "guard_calls": "等 {minutes} 分钟，然后保安来电"
+    },
+    "wait": "等待答复多久",
+    "waitHint": "家中每个人同时收到消息",
+    "minutes": "{minutes} 分钟",
+    "action": "如果无人答复",
+    "actionHint": "{minutes} 分钟后",
+    "actions": {
+      "guard_calls": {
+        "title": "保安致电住户",
+        "hint": "您没看手机时最安全"
+      },
+      "allow_and_log": {
+        "title": "放行并登记",
+        "hint": "适合常有客人的家庭，可在记录中查看"
+      },
+      "deny": {
+        "title": "不予放行",
+        "hint": "访客需要先联系您"
+      }
+    },
+    "delivery": "送货",
+    "deliveryHint": "骑手和包裹",
+    "deliveries": {
+      "estate": "按办公室规定",
+      "ask": "先询问",
+      "skip": "直接放行"
+    },
+    "note": "给保安的留言",
+    "noteHint": "例如 直接按门铃（最多 300 字）",
+    "save": "保存约定",
+    "saved": "已保存 — 门岗将对下一位访客使用此约定",
+    "familyNote": "由共有人或租户更改此约定",
+    "privacy": "门岗记录的信息"
+  },
+  "invite": {
+    "title": "创建通行证",
+    "lede": "访客在门岗出示二维码即可直接进入",
+    "recordTitle": "通行证",
+    "kind": "谁会来",
+    "kinds": {
+      "guest": "客人",
+      "delivery": "送货",
+      "contractor": "技工 / 承包商",
+      "other": "其他"
+    },
+    "contractorNote": "技工或承包商的通行证需法人办公室批准后才能使用",
+    "when": "有效时间",
+    "fromTime": "时间",
+    "toTime": "时间",
+    "usage": "可使用次数",
+    "usageSingle": "一次",
+    "usageMulti": "多次",
+    "maxUsesHint": "2–100 次",
+    "nameHint": "门岗扫码时会看到此姓名",
+    "plate": "车牌",
+    "plateHint": "填写后，门岗会核对来车是否一致",
+    "noteHint": "最多 300 字",
+    "submit": "创建通行证",
+    "summary": "还需修改 {count} 项才能创建通行证",
+    "field": {
+      "fromDate": "开始日期",
+      "toDate": "结束日期",
+      "maxUses": "次数",
+      "visitorName": "访客姓名（可选）",
+      "plateCategory": "车牌字母部分",
+      "plateNumber": "车牌号码",
+      "plateProvince": "车牌所属府",
+      "note": "给门岗的备注（可选）"
+    },
+    "error": {
+      "required": "请选择日期和时间",
+      "order": "结束时间必须晚于开始时间",
+      "past": "该时间已过",
+      "range": "请输入 {min}–{max} 之间的数字",
+      "tooLong": "超过 {max} 个字符",
+      "partial": "请填写完整车牌",
+      "category": "最多 4 个数字和泰文字母",
+      "number": "1–4 位数字",
+      "province": "请选择车牌所属府",
+      "windowTooLong": "超过办公室允许的时长",
+      "windowTooLongDays": "最长 {days} 天"
+    },
+    "created": {
+      "title": "通行证已就绪",
+      "titleWaiting": "已提交办公室审批",
+      "body": "把此二维码发给访客，在门岗出示即可。",
+      "bodyWaiting": "办公室批准后二维码才生效 — 现在可以先发送。",
+      "qrLabel": "通行证二维码",
+      "once": "可使用一次",
+      "times": "可使用 {count} 次",
+      "once_warning": "此二维码只显示一次。发送前关闭此页面，需要重新创建通行证。",
+      "share": "通过 LINE 发给访客",
+      "done": "完成",
+      "message": "{place} 通行证\n{unit}\n有效时间 {window}\n在门岗出示二维码：{url}",
+      "outcome": {
+        "sent": "已通过 LINE 发送",
+        "shared": "已发送",
+        "copied": "已复制消息 — 粘贴到聊天中即可",
+        "failed": "发送失败，请重试。"
+      }
+    },
+    "pendingNote": "等待办公室批准 — 门岗暂不接受",
+    "rejected": "办公室未批准",
+    "usedSingle": "一次 · 已使用 {uses} 次",
+    "usedMulti": "已使用 {uses}/{max} 次",
+    "qrGone": "二维码只在创建时显示一次。如访客遗失，请取消后重新创建。",
+    "revoke": {
+      "button": "取消通行证",
+      "title": "取消{name}的通行证？",
+      "body": "门岗将不再接受此二维码。",
+      "confirm": "取消通行证",
+      "cancel": "保留"
+    },
+    "plateAdd": "填写车牌"
+  },
+  "pass": {
+    "title": "通行证",
+    "heading": "{place} 通行证",
+    "lede": "在门岗出示此二维码",
+    "qrLabel": "通行证二维码",
+    "unit": "前往",
+    "window": "有效",
+    "brightness": "如扫码器读不出，请调高屏幕亮度",
+    "invalid": {
+      "title": "通行证链接不完整",
+      "body": "请让邀请人重新发送。"
+    }
+  },
+  "sos": {
+    "entry": "紧急",
+    "title": "报告紧急情况",
+    "description": "所有门岗和办公室会立即收到并赶到{unit}",
+    "close": "关闭",
+    "kindLegend": "发生了什么",
+    "kind": {
+      "medical": "急病",
+      "fire": "火灾",
+      "intrusion": "入侵",
+      "other": "其他紧急情况"
+    },
+    "note": "详情（可选）",
+    "noteHint": "例如 父亲晕倒，楼上卧室",
+    "hold": "长按以报告",
+    "holding": "继续按住… 松开即取消",
+    "chooseFirst": "请先选择情况",
+    "tapHint": "按住直到圆圈填满（1.5 秒），防止误报",
+    "accessible": "报告紧急情况（在对话框中确认）",
+    "confirm": {
+      "title": "报告{kind}？",
+      "body": "所有门岗和办公室会立即收到并赶到{unit}。",
+      "send": "报告",
+      "cancel": "暂不报告"
+    },
+    "live": {
+      "open": "已报告紧急情况 — 等待保安受理",
+      "acknowledged": "保安已受理，正在赶来"
+    },
+    "status": {
+      "title": {
+        "open": "已报告",
+        "acknowledged": "保安已受理",
+        "resolved": "已结束",
+        "cancelled": "已取消报告"
+      },
+      "lede": "{kind} · {unit} · {time}",
+      "existing": "您已报告过 — 这是仍在处理中的那一条。",
+      "cancelledAt": "取消于 {time}",
+      "steps": {
+        "sent": "已发送到所有门岗和办公室",
+        "acknowledged": "保安受理",
+        "acknowledgedWaiting": "等待保安受理",
+        "resolved": "已结束",
+        "resolvedWaiting": "处理完毕后由保安或办公室结束"
+      },
+      "note": "详情：{note}",
+      "hotline": {
+        "medical": "拨打 {number}（急救）",
+        "fire": "拨打 {number}（消防）",
+        "intrusion": "拨打 {number}（警察）",
+        "other": "拨打 {number}（警察）"
+      },
+      "back": "返回访客页面",
+      "notFound": {
+        "title": "找不到此紧急报告",
+        "body": "可能属于您未选择的住所。"
+      },
+      "cancel": {
+        "button": "取消报告（误按）",
+        "left": "还可取消 {time}",
+        "title": "取消紧急报告？",
+        "body": "门岗和办公室会收到取消通知。如果仍需要帮助，请不要取消。",
+        "confirm": "取消报告",
+        "keep": "保留",
+        "reason": "误按"
+      }
+    },
+    "liveOpen": "查看状态"
+  },
+  "home": {
+    "title": "门岗和访客",
+    "all": "全部",
+    "waiting": "{who} 在{gate}等您答复",
+    "waitingMeta": "到达 {time}",
+    "open": "开启道闸",
+    "openMeta": "适用于已登记的车辆",
+    "invite": "创建通行证",
+    "inviteMeta": "提前把二维码发给客人",
+    "sos": "报告紧急情况",
+    "sosHint": "所有门岗和办公室立即收到"
+  }
+}

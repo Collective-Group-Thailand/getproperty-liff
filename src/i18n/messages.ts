@@ -40,6 +40,7 @@ export const MESSAGE_FILES = {
     "community",
     "access",
     "usage",
+    "visitors",
   ],
   technician: ["auth", "workOrders"],
   /**

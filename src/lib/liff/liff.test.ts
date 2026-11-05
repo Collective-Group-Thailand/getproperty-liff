@@ -199,6 +199,10 @@ describe("case-sensitive paths (api release fixes, review #7)", () => {
     expect(safeInternalPath("/Requests/abc")).toBe("/");
     expect(safeInternalPath("/INVOICES")).toBe("/");
     expect(safeInternalPath("/requests/abc")).toBe("/requests/abc");
+    // JL4: the household's LINE buttons keep their answer (the screen confirms it, never acts on it).
+    expect(safeInternalPath("/visits/3b24?answer=approve")).toBe("/visits/3b24?answer=approve");
+    expect(safeInternalPath("/sos/3b24")).toBe("/sos/3b24");
+    expect(safeInternalPath("/pass#t=gpv1.x")).toBe("/");
   });
 });
 

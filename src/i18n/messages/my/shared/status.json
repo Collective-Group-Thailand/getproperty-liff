@@ -182,5 +182,26 @@
     "requested": "ရုံးထုတ်ပေးရန်စောင့်",
     "issued": "ထုတ်ပြီး",
     "refused": "မထုတ်ပေး"
+  },
+  "visit": {
+    "requested": "စောင့်နေသည်",
+    "approved": "ဝင်ခွင့်ပြုပြီး",
+    "denied": "ဝင်ခွင့်မပြု",
+    "timed_out": "မဖြေ",
+    "entered": "အတွင်းရှိ",
+    "exited": "ထွက်ပြီး",
+    "cancelled": "ပယ်ဖျက်ပြီး"
+  },
+  "visitInvite": {
+    "pending_approval": "ရုံး စောင့်နေသည်",
+    "active": "သုံးနိုင်",
+    "rejected": "အတည်မပြု",
+    "revoked": "ပယ်ဖျက်ပြီး"
+  },
+  "incident": {
+    "open": "ပို့ပြီး",
+    "acknowledged": "လုံခြုံရေး လက်ခံပြီး",
+    "resolved": "ပြီးဆုံး",
+    "cancelled": "ပယ်ဖျက်ပြီး"
   }
 }

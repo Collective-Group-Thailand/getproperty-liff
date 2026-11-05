@@ -4,6 +4,7 @@ import { isLocale } from "@/i18n/routing";
 import type { ResidentEntitlement } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
 import { kindWords } from "@/features/resident/fees/model";
+import { gateUnit } from "@/features/resident/visitors/model";
 import { homeKindOf, primaryRole } from "@/lib/auth/units";
 import { serverEnv } from "@/lib/env";
 import type { NavItem } from "@/ui/components/AppShell";
@@ -12,25 +13,50 @@ import { IconBill } from "@/ui/icons/glyphs/bill";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconHome } from "@/ui/icons/glyphs/home";
 import { IconResident } from "@/ui/icons/glyphs/resident";
+import { IconShield } from "@/ui/icons/glyphs/shield";
 import { IconTicket } from "@/ui/icons/glyphs/ticket";
 
 import { ResidentShellView } from "./ResidentShellView";
 import { SettingsMenu } from "./SettingsMenu";
 import { UnitSwitcher } from "./UnitSwitcher";
 
-export type ResidentNavKey = "home" | "bills" | "usage" | "requests" | "me";
+export type ResidentNavKey = "home" | "bills" | "visitors" | "usage" | "requests" | "me";
 
 /**
  * Bottom nav entries and the entitlement each needs (`ResidentMeDto.entitlements`, D-063) — for the unit on screen
  * (JRL: `actor.entitlements` is already narrowed by its capabilities, D-322). Home and Me are always there.
  */
-export const RESIDENT_NAV: { key: ResidentNavKey; href: string; icon: IconGlyph; needs?: ResidentEntitlement }[] = [
+export const RESIDENT_NAV: {
+  key: ResidentNavKey;
+  href: string;
+  icon: IconGlyph;
+  needs?: ResidentEntitlement | "gate";
+}[] = [
   { key: "home", href: "/", icon: IconHome },
   { key: "bills", href: "/invoices", icon: IconBill, needs: "bills" },
+  // JL4: a unit of a juristic estate on which I hold a gate role (contract request #49: no `gate` capability yet).
+  { key: "visitors", href: "/visitors", icon: IconShield, needs: "gate" },
   { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
   { key: "requests", href: "/requests", icon: IconTicket, needs: "service_requests" },
   { key: "me", href: "/profile", icon: IconResident },
 ];
+
+/**
+ * The bottom nav for the unit on screen: five items at most (360 px). Visitors sit third (J-DESIGN §3 Stitch); when a
+ * gate unit also has usage, usage leaves the bar for a home tile — a household checks the gate daily, the meters
+ * monthly.
+ */
+export function residentNav(entitlements: ReadonlySet<ResidentEntitlement>, gate: boolean) {
+  const shown = RESIDENT_NAV.filter((item) =>
+    !item.needs ? true : item.needs === "gate" ? gate : entitlements.has(item.needs),
+  );
+  return shown.length > 5 ? shown.filter((item) => item.key !== "usage") : shown;
+}
+
+/** True when `residentNav` left usage out of the bar (home then shows it as a tile). */
+export function usageOffNav(entitlements: ReadonlySet<ResidentEntitlement>, gate: boolean): boolean {
+  return entitlements.has("usage") && !residentNav(entitlements, gate).some((item) => item.key === "usage");
+}
 
 /**
  * The resident app frame, from `/v1/resident/me`: unit code + building name in the header (with the switcher
@@ -66,7 +92,7 @@ export async function ResidentShell({
   // JL1: a co-owner's bills are the common fees — the bills tab opens `/fees` on a unit whose home is the owner's.
   const ownerHome = actor.status === "signed-in" && homeKindOf(actor.unit) === "owner";
   const items: NavItem[] = full
-    ? RESIDENT_NAV.filter((item) => !item.needs || actor.entitlements.has(item.needs)).map((item) => ({
+    ? residentNav(actor.entitlements, gateUnit(actor.unit)).map((item) => ({
         href: item.key === "bills" && ownerHome ? "/fees" : item.href,
         label: nav(item.key),
         icon: <Icon icon={item.icon} />,

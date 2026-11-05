@@ -182,5 +182,26 @@
     "requested": "រង់ចាំការិយាល័យចេញ",
     "issued": "បានចេញ",
     "refused": "មិនចេញ"
+  },
+  "visit": {
+    "requested": "រង់ចាំចម្លើយ",
+    "approved": "បានអនុញ្ញាត",
+    "denied": "មិនអនុញ្ញាត",
+    "timed_out": "គ្មានអ្នកឆ្លើយ",
+    "entered": "នៅក្នុងគម្រោង",
+    "exited": "បានចេញ",
+    "cancelled": "បានលុបចោល"
+  },
+  "visitInvite": {
+    "pending_approval": "រង់ចាំការិយាល័យ",
+    "active": "ប្រើបាន",
+    "rejected": "មិនអនុម័ត",
+    "revoked": "បានលុបចោល"
+  },
+  "incident": {
+    "open": "បានរាយការណ៍",
+    "acknowledged": "សន្តិសុខបានទទួល",
+    "resolved": "បានបញ្ចប់",
+    "cancelled": "បានលុបចោល"
   }
 }

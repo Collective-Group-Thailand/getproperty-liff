@@ -182,5 +182,26 @@
     "requested": "ລໍຖ້າຫ້ອງການອອກ",
     "issued": "ອອກແລ້ວ",
     "refused": "ບໍ່ອອກ"
+  },
+  "visit": {
+    "requested": "ລໍຖ້າຕອບ",
+    "approved": "ອະນຸຍາດແລ້ວ",
+    "denied": "ບໍ່ອະນຸຍາດ",
+    "timed_out": "ບໍ່ມີໃຜຕອບ",
+    "entered": "ຢູ່ໃນໂຄງການ",
+    "exited": "ອອກແລ້ວ",
+    "cancelled": "ຍົກເລີກ"
+  },
+  "visitInvite": {
+    "pending_approval": "ລໍນິຕິບຸກຄົນອະນຸມັດ",
+    "active": "ໃຊ້ໄດ້",
+    "rejected": "ບໍ່ອະນຸມັດ",
+    "revoked": "ຍົກເລີກແລ້ວ"
+  },
+  "incident": {
+    "open": "ແຈ້ງແລ້ວ",
+    "acknowledged": "ຍາມຮັບເລື່ອງ",
+    "resolved": "ຈົບແລ້ວ",
+    "cancelled": "ຍົກເລີກແລ້ວ"
   }
 }

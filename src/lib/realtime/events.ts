@@ -39,6 +39,10 @@ export function routesFor(type: string): readonly string[] {
   if (type.startsWith("parcel.")) return ["/parcels", "/"];
   if (type === "facility_booking.changed") return ["/facilities"];
   if (type.startsWith("access.credential_")) return ["/access"];
+  // JL4: the unit's gate (`unit:<id>`) — a visitor asks, another member answers, the policy applies, the guard takes
+  // an SOS. The visit, the gate screens and home are server-rendered: refresh them.
+  if (type.startsWith("gate.visit.")) return ["/visits", "/visitors", "/"];
+  if (type.startsWith("gate.incident.")) return ["/sos", "/visitors", "/"];
   return [];
 }
 

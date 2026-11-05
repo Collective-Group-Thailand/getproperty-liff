@@ -55,6 +55,10 @@ describe("realtime → query invalidation", () => {
     expect(routesFor("facility_booking.changed")).toEqual(["/facilities"]);
     expect(routesFor("access.credential_revoked")).toEqual(["/access"]);
     expect(routesFor("invoice.paid")).toEqual([]);
+    // JL4: the unit's gate — a visit answered elsewhere or timed out, an SOS taken by the guard.
+    expect(routesFor("gate.visit.answered")).toEqual(["/visits", "/visitors", "/"]);
+    expect(routesFor("gate.incident.acknowledged")).toEqual(["/sos", "/visitors", "/"]);
+    expect(pathMatches("/visits/3b24", routesFor("gate.visit.timed_out"))).toBe(true);
     // A thread message re-reads the thread only (D-218), never the whole request page.
     expect(routesFor(MESSAGE_EVENT)).toEqual([]);
     expect(pathMatches("/requests/3b24", ["/requests"])).toBe(true);

@@ -1,0 +1,425 @@
+{
+  "title": "Visitors",
+  "lede": "{unit} · {gates}",
+  "time": "{time}",
+  "row": "{kind} · {time} · {gate}",
+  "rowNamed": "{kind} · {name} · {time}",
+  "kind": {
+    "guest": "Guest",
+    "delivery": "Delivery",
+    "contractor": "Contractor",
+    "resident_vehicle": "Household car",
+    "other": "Other"
+  },
+  "notInUse": {
+    "title": "The gate system is not in use here yet",
+    "body": "Once the juristic office turns it on, you can answer visitors, create passes and raise an emergency from this page."
+  },
+  "waiting": {
+    "title": "Waiting for your answer ({count})"
+  },
+  "today": {
+    "title": "Today",
+    "empty": "No visitors yet today"
+  },
+  "history": {
+    "link": "All history",
+    "title": "Visitor history",
+    "retention": "The gate keeps this for {days} days, then deletes it",
+    "empty": "No visitors yet",
+    "emptyBody": "When someone comes to the gate, they appear here.",
+    "pages": "History pages",
+    "newer": "Newer",
+    "older": "Older"
+  },
+  "invites": {
+    "title": "Passes",
+    "create": "Create a pass",
+    "empty": "Send a guest or a housekeeper a QR in advance — they get in without waiting for your answer.",
+    "emptyFamily": "No passes yet — a co-owner or renter creates them"
+  },
+  "household": {
+    "title": "Settings for {kind, select, house {this house} space {this space} other {this room}}"
+  },
+  "privacy": "What the gate records is deleted after {days} days",
+  "privacyMore": "Read more",
+  "plate": {
+    "category": "Letters",
+    "categoryHint": "e.g. 3กท",
+    "number": "Number",
+    "numberHint": "e.g. 8812",
+    "province": "Province",
+    "provincePlaceholder": "Choose a province",
+    "error": {
+      "partial": "Enter the whole plate",
+      "category": "Up to 4 digits and Thai letters",
+      "number": "1–4 digits",
+      "province": "Choose the plate's province"
+    }
+  },
+  "visit": {
+    "metaTitle": "Visitor at the gate",
+    "title": "Visitor at {gate}",
+    "titleDone": "Visitor at {gate}",
+    "waitingFor": "Waiting for you",
+    "countdownLabel": "About {minutes} minutes left",
+    "timeUp": "Time is up — the gate is following your house's setting",
+    "policy": {
+      "allow_and_log": "No answer in {minutes} min: the guard lets them in and logs it",
+      "deny": "No answer in {minutes} min: the guard turns them away",
+      "guard_calls": "No answer in {minutes} min: the guard calls you"
+    },
+    "cardLabel": "Visitor",
+    "camera": "{gate} camera",
+    "photoAlt": "Camera photo at {gate}, {time}",
+    "noPhoto": "No camera photo",
+    "noPhotoNoPlate": "No photo or plate",
+    "plate": "Plate",
+    "facts": {
+      "kind": "Type",
+      "name": "Name",
+      "arrived": "Arrived",
+      "noName": "Not given"
+    },
+    "approve": "Let them in",
+    "callMe": "Ask the guard to call me",
+    "deny": "Don't let in",
+    "remember": "Remember this car for {days} days",
+    "rememberNoDays": "Remember this car",
+    "rememberHint": "Next time it gets in at once — you are just told",
+    "household": "Everyone in {kind, select, house {the house} space {the space} other {the room}} {unit} got this message · whoever answers first decides",
+    "calledNote": "You asked the guard to call ({time}) — you can still let them in or not",
+    "linkAnswered": "This visit has been answered — see below",
+    "confirm": {
+      "approve": {
+        "title": "Let {plate} in?",
+        "titleNoPlate": "Let the visitor in?",
+        "body": "The guard at {gate} lets them in at once.",
+        "confirm": "Let them in"
+      },
+      "deny": {
+        "title": "Turn {plate} away?",
+        "titleNoPlate": "Turn the visitor away?",
+        "body": "The guard at {gate} tells the visitor they cannot come in.",
+        "confirm": "Don't let in"
+      },
+      "call_me": {
+        "title": "Ask the guard to call you?",
+        "titleNoPlate": "Ask the guard to call you?",
+        "body": "The guard at {gate} calls the number the office has for you, so you can talk before deciding.",
+        "confirm": "Ask for a call"
+      },
+      "cancel": "Not now"
+    },
+    "notFound": {
+      "title": "Visit not found",
+      "body": "It may have been deleted after the retention period, or it belongs to a place you have not chosen."
+    },
+    "result": {
+      "approved": {
+        "you": "You let them in",
+        "named": "{name} let them in",
+        "nobody": "Let in"
+      },
+      "denied": {
+        "you": "You turned them away",
+        "named": "{name} turned them away",
+        "nobody": "Turned away"
+      },
+      "timedOut": {
+        "allow_and_log": "No answer in {minutes} min — the guard let them in and logged it",
+        "deny": "No answer in {minutes} min — the guard turned them away",
+        "guard_calls": "No answer in {minutes} min — the guard is calling the household"
+      },
+      "entered": "Inside the estate",
+      "exited": "Left the estate",
+      "cancelled": "The gate cancelled this visit",
+      "call_me": "The guard was asked to call",
+      "waiting": "Waiting for an answer",
+      "at": "{time} · {gate}",
+      "someoneElse": "Someone in your household answered first, so your answer was not used.",
+      "markExit": "Mark as left",
+      "all": "All visitors"
+    }
+  },
+  "open": {
+    "title": "Open the barrier",
+    "lede": "Choose the car that is coming in, then open",
+    "gate": "Gate",
+    "car": "Car coming in",
+    "geofence": "Your phone's location confirms you are at the estate — used for this check only, never stored.",
+    "button": "Open the barrier",
+    "buttonAt": "Open the barrier at {gate}",
+    "disabled": "The office has not turned on opening from the app",
+    "disabledBody": "Tell the guard at the gate when you arrive.",
+    "noCarsTitle": "No household car yet",
+    "noCars": "Register a household car to open the barrier from the app",
+    "noCarsFamily": "A co-owner or renter registers the household's cars before the barrier can be opened from the app",
+    "addCar": "Register a car",
+    "back": "Back to visitors",
+    "state": {
+      "locating": "Finding your location…",
+      "sending": "Sending…",
+      "opening": "The barrier is opening…",
+      "sent": "Open command sent · {time}",
+      "sentBody": "If the barrier does not lift, press again.",
+      "rate_limited": "It was just opened — wait {seconds} s",
+      "not_allowed": "Cannot open from the app — the office turned it off, or this car is no longer registered",
+      "outside": "You are too far from the estate. Open it when you are at the gate.",
+      "location_denied": "LINE may not use your location — allow it in your phone's settings, then try again",
+      "location_unavailable": "Could not find your location. Try again in the open.",
+      "no_estate_location": "The estate has no location set — tell the guard at the gate",
+      "no_barrier": "This gate has no automatic barrier",
+      "failed": "Could not send. Try again."
+    }
+  },
+  "cars": {
+    "title": "Cars",
+    "lede": "Household cars open the barrier from the app; remembered cars get in and you are just told",
+    "summary": "{cars} household · {remembered} remembered",
+    "household": "Household cars",
+    "householdBody": "The gate knows these are yours, and they open the barrier from the app.",
+    "noCars": "No car registered yet",
+    "familyNote": "A co-owner or renter registers the household's cars",
+    "add": "Add a household car",
+    "label": "Nickname (optional)",
+    "labelHint": "e.g. Mum's car",
+    "save": "Save car",
+    "cancel": "Cancel",
+    "remove": "Remove car {plate}",
+    "remembered": "Remembered cars",
+    "rememberedBody": "Visitor cars your household remembered — they get in until the date shown.",
+    "until": "until {date}",
+    "noRemembered": "No visitor car remembered yet",
+    "forget": "Forget car {plate}",
+    "confirm": {
+      "car": {
+        "title": "Remove {plate}?",
+        "body": "It can no longer open the barrier from the app, and the gate will ask the household when it comes.",
+        "confirm": "Remove car"
+      },
+      "remembered": {
+        "title": "Forget {plate}?",
+        "body": "Next time the gate asks the household before letting it in.",
+        "confirm": "Forget"
+      }
+    }
+  },
+  "policy": {
+    "title": "Agreement with the gate",
+    "lede": "What the gate does when someone comes and nobody at home answers",
+    "summary": {
+      "allow_and_log": "Wait {minutes} min, then let in and log",
+      "deny": "Wait {minutes} min, then turn away",
+      "guard_calls": "Wait {minutes} min, then the guard calls"
+    },
+    "wait": "How long to wait for an answer",
+    "waitHint": "Everyone in the household gets the message at the same time",
+    "minutes": "{minutes} min",
+    "action": "If nobody answers",
+    "actionHint": "After {minutes} min",
+    "actions": {
+      "guard_calls": {
+        "title": "The guard calls the household",
+        "hint": "Safest when you are not looking at your phone"
+      },
+      "allow_and_log": {
+        "title": "Let in and log it",
+        "hint": "Handy for a home with frequent guests; it stays in the history"
+      },
+      "deny": {
+        "title": "Turn away",
+        "hint": "The visitor has to reach you first"
+      }
+    },
+    "delivery": "Deliveries",
+    "deliveryHint": "Riders and parcels",
+    "deliveries": {
+      "estate": "Office's rule",
+      "ask": "Ask first",
+      "skip": "Let in"
+    },
+    "note": "Note for the guard",
+    "noteHint": "e.g. Ring the doorbell (up to 300 characters)",
+    "save": "Save agreement",
+    "saved": "Saved — the gate uses it for the next visitor",
+    "familyNote": "A co-owner or renter changes this agreement",
+    "privacy": "What the gate records"
+  },
+  "invite": {
+    "title": "Create a pass",
+    "lede": "The visitor shows the QR at the gate and comes straight in",
+    "recordTitle": "Pass",
+    "kind": "Who is coming",
+    "kinds": {
+      "guest": "Guest",
+      "delivery": "Delivery",
+      "contractor": "Contractor",
+      "other": "Other"
+    },
+    "contractorNote": "A contractor's pass works once the juristic office approves it",
+    "when": "When it works",
+    "fromTime": "Time",
+    "toTime": "Time",
+    "usage": "How many times",
+    "usageSingle": "Once",
+    "usageMulti": "Several times",
+    "maxUsesHint": "2–100 times",
+    "nameHint": "The gate sees this name when scanning",
+    "plate": "Plate",
+    "plateHint": "If given, the gate checks it matches the car",
+    "noteHint": "Up to 300 characters",
+    "submit": "Create pass",
+    "summary": "Fix {count} more fields to create the pass",
+    "field": {
+      "fromDate": "From",
+      "toDate": "Until",
+      "maxUses": "Number of times",
+      "visitorName": "Visitor's name (optional)",
+      "plateCategory": "Plate letters",
+      "plateNumber": "Plate number",
+      "plateProvince": "Plate province",
+      "note": "Note for the gate (optional)"
+    },
+    "error": {
+      "required": "Choose a date and time",
+      "order": "The end must be after the start",
+      "past": "This time has already passed",
+      "range": "Enter a number from {min} to {max}",
+      "tooLong": "Longer than {max} characters",
+      "partial": "Enter the whole plate",
+      "category": "Up to 4 digits and Thai letters",
+      "number": "1–4 digits",
+      "province": "Choose the plate's province",
+      "windowTooLong": "Longer than the office allows",
+      "windowTooLongDays": "At most {days} days"
+    },
+    "created": {
+      "title": "Your pass is ready",
+      "titleWaiting": "Sent to the office for approval",
+      "body": "Send this QR to your visitor; they show it at the gate.",
+      "bodyWaiting": "The QR works once the office approves it — you can send it now.",
+      "qrLabel": "Pass QR code",
+      "once": "Works once",
+      "times": "Works {count} times",
+      "once_warning": "This QR is shown only once. If you close this page before sending it, create a new pass.",
+      "share": "Send to the visitor on LINE",
+      "done": "Done",
+      "message": "Pass for {place}\n{unit}\nValid {window}\nShow the QR at the gate: {url}",
+      "outcome": {
+        "sent": "Sent on LINE",
+        "shared": "Sent",
+        "copied": "Message copied — paste it into the chat",
+        "failed": "Could not send. Try again."
+      }
+    },
+    "pendingNote": "Waiting for the office — the gate does not accept it yet",
+    "rejected": "The office did not approve it",
+    "usedSingle": "Once · used {uses} times",
+    "usedMulti": "Used {uses} of {max} times",
+    "qrGone": "The QR is shown only once, when the pass is made. If the visitor loses it, cancel the pass and create a new one.",
+    "revoke": {
+      "button": "Cancel pass",
+      "title": "Cancel the pass for {name}?",
+      "body": "The gate will no longer accept this QR.",
+      "confirm": "Cancel pass",
+      "cancel": "Keep it"
+    },
+    "plateAdd": "Add a car plate"
+  },
+  "pass": {
+    "title": "Pass",
+    "heading": "Pass for {place}",
+    "lede": "Show this QR at the gate",
+    "qrLabel": "Pass QR code",
+    "unit": "Going to",
+    "window": "Valid",
+    "brightness": "Turn the screen brightness up if the scanner cannot read it",
+    "invalid": {
+      "title": "This pass link is incomplete",
+      "body": "Ask the person who invited you to send it again."
+    }
+  },
+  "sos": {
+    "entry": "Emergency",
+    "title": "Report an emergency",
+    "description": "Every gate and the office are alerted at once and come to {unit}",
+    "close": "Close",
+    "kindLegend": "What is happening",
+    "kind": {
+      "medical": "Medical",
+      "fire": "Fire",
+      "intrusion": "Intruder",
+      "other": "Other emergency"
+    },
+    "note": "Details (optional)",
+    "noteHint": "e.g. Dad collapsed, upstairs bedroom",
+    "hold": "Press and hold to send",
+    "holding": "Keep holding… release to cancel",
+    "chooseFirst": "Choose what is happening first",
+    "tapHint": "Hold until the ring is full (1.5 s) — this prevents accidental alerts",
+    "accessible": "Send emergency (confirm in a dialog)",
+    "confirm": {
+      "title": "Report {kind}?",
+      "body": "Every gate and the office are alerted at once and come to {unit}.",
+      "send": "Send emergency",
+      "cancel": "Not now"
+    },
+    "live": {
+      "open": "Emergency sent — waiting for the guard",
+      "acknowledged": "The guard has it and is on the way"
+    },
+    "status": {
+      "title": {
+        "open": "Emergency sent",
+        "acknowledged": "The guard has it",
+        "resolved": "Closed",
+        "cancelled": "Emergency cancelled"
+      },
+      "lede": "{kind} · {unit} · {time}",
+      "existing": "You already reported this — this is the one still open.",
+      "cancelledAt": "Cancelled at {time}",
+      "steps": {
+        "sent": "Sent to every gate and the office",
+        "acknowledged": "The guard takes it",
+        "acknowledgedWaiting": "Waiting for the guard",
+        "resolved": "Closed",
+        "resolvedWaiting": "The guard or the office closes it when all is well"
+      },
+      "note": "Details: {note}",
+      "hotline": {
+        "medical": "Call {number} (medical emergency)",
+        "fire": "Call {number} (fire)",
+        "intrusion": "Call {number} (police)",
+        "other": "Call {number} (police)"
+      },
+      "back": "Back to visitors",
+      "notFound": {
+        "title": "Emergency not found",
+        "body": "It may belong to a place you have not chosen."
+      },
+      "cancel": {
+        "button": "Cancel the alert (sent by mistake)",
+        "left": "You can cancel for {time}",
+        "title": "Cancel the emergency?",
+        "body": "The gate and the office are told it was cancelled. If you still need help, do not cancel.",
+        "confirm": "Cancel the alert",
+        "keep": "Keep it",
+        "reason": "Sent by mistake"
+      }
+    },
+    "liveOpen": "See status"
+  },
+  "home": {
+    "title": "Gate and visitors",
+    "all": "All",
+    "waiting": "{who} is waiting for you at {gate}",
+    "waitingMeta": "Arrived {time}",
+    "open": "Open the barrier",
+    "openMeta": "For your registered cars",
+    "invite": "Create a pass",
+    "inviteMeta": "Send a guest a QR in advance",
+    "sos": "Report an emergency",
+    "sosHint": "Every gate and the office are alerted at once"
+  }
+}

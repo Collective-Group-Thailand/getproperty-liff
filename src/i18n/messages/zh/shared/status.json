@@ -182,5 +182,26 @@
     "requested": "等待办公室开具",
     "issued": "已开具",
     "refused": "未开具"
+  },
+  "visit": {
+    "requested": "等待答复",
+    "approved": "已允许",
+    "denied": "未允许",
+    "timed_out": "无人答复",
+    "entered": "在项目内",
+    "exited": "已离开",
+    "cancelled": "已取消"
+  },
+  "visitInvite": {
+    "pending_approval": "等待办公室批准",
+    "active": "有效",
+    "rejected": "未批准",
+    "revoked": "已取消"
+  },
+  "incident": {
+    "open": "已报告",
+    "acknowledged": "保安已受理",
+    "resolved": "已结束",
+    "cancelled": "已取消"
   }
 }

@@ -13,6 +13,7 @@ import { billingHandlers } from "./billing";
 import { communityHandlers } from "./community";
 import { libraryContractHandlers } from "./contracts";
 import { contractHandlers, exampleHandlers } from "./handlers";
+import { gateHandlers } from "./gate";
 import { identityHandlers } from "./identity";
 import { juristicHandlers } from "./juristic";
 import { landlordHandlers } from "./landlord";
@@ -31,6 +32,7 @@ const handlers = [
   ...unitHandlers,
   ...billingHandlers,
   ...juristicHandlers,
+  ...gateHandlers,
   ...uploadHandlers,
   ...serviceHandlers,
   ...communityHandlers,

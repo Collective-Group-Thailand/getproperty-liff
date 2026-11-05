@@ -182,5 +182,26 @@
     "requested": "รอสำนักงานออก",
     "issued": "ออกแล้ว",
     "refused": "ไม่ออก"
+  },
+  "visit": {
+    "requested": "รอตอบ",
+    "approved": "อนุญาตแล้ว",
+    "denied": "ไม่อนุญาต",
+    "timed_out": "ไม่มีใครตอบ",
+    "entered": "อยู่ในโครงการ",
+    "exited": "ออกแล้ว",
+    "cancelled": "ยกเลิก"
+  },
+  "visitInvite": {
+    "pending_approval": "รอนิติฯ อนุมัติ",
+    "active": "ใช้ได้",
+    "rejected": "ไม่อนุมัติ",
+    "revoked": "ยกเลิกแล้ว"
+  },
+  "incident": {
+    "open": "แจ้งแล้ว",
+    "acknowledged": "รปภ. รับเรื่อง",
+    "resolved": "จบแล้ว",
+    "cancelled": "ยกเลิกแล้ว"
   }
 }
