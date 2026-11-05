@@ -46,6 +46,8 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
         buildingName: u.buildingName,
         // The mock has no property; the building id stands in.
         propertyId: u.buildingId,
+        propertyKind: "apartment",
+        legalForm: null,
         tenantId: u.tenantId,
         tenantName: u.tenantName,
       },
@@ -62,8 +64,9 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
     );
   }
   for (const o of account.owned) {
-    const { from, ...base } = o;
-    add(base, [
+    const { from, measures, ...base } = o;
+    // CONTRACT-REQUEST #42: the register's measures of the unit (not in the contract yet).
+    add({ ...base, ...measures }, [
       { role: "co_owner", source: "ownership", partyId: partyId(account, o.unitId), leaseId: null, from, to: null },
     ]);
   }

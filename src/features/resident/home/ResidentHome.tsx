@@ -282,7 +282,8 @@ export async function ResidentHome({
               <PayLauncher invoice={hero} label={t("invoice.pay")} testId="home-pay" vapidKey={vapidKey} />
               <div className="flex flex-wrap items-center justify-between gap-x-4">
                 <Link
-                  href={`/invoices/${hero.id}`}
+                  href={kind === "owner" ? "/fees" : `/invoices/${hero.id}`}
+                  data-testid="home-invoice-details"
                   className="text-primary-subtle-fg inline-flex min-h-11 items-center gap-1 text-sm font-medium"
                 >
                   {t("invoice.details")}
@@ -301,7 +302,10 @@ export async function ResidentHome({
           </Card>
         ) : (
           <Card as="section" aria-labelledby="bills-title" padding="none" data-testid="home-no-invoice">
-            <Link href="/invoices" className="flex min-h-16 items-center gap-3 px-4 py-4">
+            <Link
+              href={kind === "owner" ? "/fees" : "/invoices"}
+              className="flex min-h-16 items-center gap-3 px-4 py-4"
+            >
               <span className="grid size-6 shrink-0 place-items-center text-xl" aria-hidden="true">
                 <Icon
                   icon={openInvoices ? IconCheckCircle : IconBill}
@@ -413,8 +417,9 @@ export async function ResidentHome({
                   },
                   {
                     key: "bills",
-                    href: "/invoices",
+                    href: "/fees",
                     icon: IconBill,
+                    testId: "home-fees",
                     title: t("owner.statements"),
                     meta: t("owner.statementsBody"),
                   },

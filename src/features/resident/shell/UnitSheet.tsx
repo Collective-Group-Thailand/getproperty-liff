@@ -50,7 +50,7 @@ export default function UnitSheet({ open, setOpen, units, current, onSelect }: U
               >
                 <Icon icon={IconRoom} className="shrink-0 text-xl" />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-semibold">{t("unit", { unit: unit.unitNo })}</span>
+                  <span className="font-semibold">{t("unit", { unit: unit.unitNo, kind: unit.kind ?? "room" })}</span>
                   <span className="text-muted text-sm">
                     {t("place", { building: unit.buildingName, operator: unit.tenantName })}
                   </span>

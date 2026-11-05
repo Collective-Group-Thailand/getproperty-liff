@@ -102,6 +102,8 @@ export function myUnits(me: Pick<ResidentMe, "units">, listed: ResidentMeUnit[] 
       buildingId: u.buildingId,
       buildingName: u.buildingName,
       propertyId: "",
+      propertyKind: null,
+      legalForm: null,
       tenantId: u.tenantId,
       tenantName: u.tenantName,
       roles: [

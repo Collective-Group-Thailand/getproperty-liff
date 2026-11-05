@@ -1,0 +1,270 @@
+{
+  "title": "我的物业费",
+  "state": {
+    "open": "待支付",
+    "paid": "已付清"
+  },
+  "pay": "用 PromptPay 二维码支付",
+  "slip": "上传转账凭证",
+  "autopayLink": "设置自动扣款",
+  "autopay": {
+    "title": "自动扣款",
+    "lede": "{unit} 的预付物业费账单（季度、半年或年度）",
+    "choose": "选择扣款方式",
+    "method": {
+      "direct_debit": "银行账户扣款",
+      "card_token": "信用卡或借记卡"
+    },
+    "methodBody": {
+      "direct_debit": "账单开出时从您的账户扣款",
+      "card_token": "账单开出时从您的卡扣款"
+    },
+    "how": "将打开支付服务商的页面供您确认。确认后，每张预付账单开出时扣款一次。可随时取消。",
+    "start": "设置自动扣款",
+    "activeBody": "自 {date} 起已开启。预付账单开出时扣款。",
+    "pendingBody": "等待您在支付服务商页面确认",
+    "openAgain": "再次打开确认页面",
+    "unavailable": {
+      "title": "本楼暂未提供此服务",
+      "body": "本楼暂不支持自动扣款，请照常使用 PromptPay 二维码或上传凭证支付。"
+    },
+    "cancel": {
+      "cta": "取消自动扣款",
+      "title": "取消自动扣款？",
+      "body": "之后的账单不再自动扣款，请用二维码或凭证自行支付。",
+      "confirm": "取消扣款",
+      "keep": "保留"
+    }
+  },
+  "payFirst": "每个单位有各自的账单，请逐张支付，先付最早到期的 {unit}。",
+  "empty": {
+    "title": "暂无物业费账单",
+    "body": "法人办公室开出账单后，您会在 LINE 收到通知，并可在此支付。"
+  },
+  "period": {
+    "year": "{year}年",
+    "half": "{year}年{n, select, 1 {上半年} other {下半年}}",
+    "quarter": "{year}年第{n}季度",
+    "month": "{month}",
+    "range": "{start} – {end}"
+  },
+  "paper": {
+    "title": "物业费 {period}",
+    "unitsLabel": "按单位列出",
+    "line": {
+      "common_fee": "物业费",
+      "fund": "维修基金"
+    },
+    "invoice": "账单 {number}",
+    "totalDue": "{count, plural, =1 {应付金额} other {应付金额（# 张账单）}}",
+    "totalPaid": "{count, plural, =1 {已付金额} other {已付 # 张账单}}"
+  },
+  "due": {
+    "on": "到期日 {date}",
+    "soon": "到期日 {date} · 还有 {days} 天",
+    "today": "今天到期（{date}）",
+    "late": "已过期 {days} 天 · 到期日 {date}",
+    "paid": "已付清"
+  },
+  "kind": {
+    "unit": {
+      "condo": "公寓单位 {unit}",
+      "house": "住宅 {unit}",
+      "space": "租赁空间 {unit}",
+      "room": "房间 {unit}"
+    },
+    "size": {
+      "sqm": "{value} 平方米",
+      "sqwa": "{value} 平方哇"
+    },
+    "share": "产权比例 {value}%",
+    "plot": "地块 {plot}"
+  },
+  "budget": {
+    "title": "本年度预算",
+    "year": "{year}年",
+    "approved": "批准的收入预算",
+    "billed": "已开账单",
+    "spent": "已支出",
+    "asOf": "截至 {date} · 预算年度 {from} – {to}",
+    "pct": "（{value}）"
+  },
+  "documents": {
+    "title": "文件与财务",
+    "titleFor": "文件与财务 · {unit}",
+    "receipt": "收据 {period}",
+    "receiptBody": "已支付 · {number}",
+    "download": "下载",
+    "statements": "月度对账单",
+    "statementsBody": "最新 {month} · 应付 {amount}",
+    "statementsNone": "法人办公室每月初发送",
+    "plan": "分期付款",
+    "planBody": "把应付金额分成每月分期",
+    "clearance": "无欠款证明",
+    "clearanceBody": "用于办理产权过户",
+    "clearanceAction": "申请",
+    "allBills": "全部账单",
+    "allBillsBody": "所有单位、所有周期"
+  },
+  "statements": {
+    "title": "月度对账单",
+    "lede": "所有单位的上期结转、本期费用、已付款和应付金额",
+    "empty": "暂无对账单",
+    "emptyBody": "法人办公室每月初发送对账单，您会在 LINE 收到通知。",
+    "toFees": "前往物业费",
+    "nothingDue": "无应付金额",
+    "toPay": "应付",
+    "pages": "页",
+    "newer": "较新",
+    "older": "较早",
+    "paperTitle": "对账单 {month}",
+    "to": "致",
+    "units": "单位",
+    "issued": "开具日期",
+    "period": "周期",
+    "opening": "上期结转",
+    "charges": "本月费用",
+    "credits": "贷记单",
+    "payments": "已付款",
+    "closing": "月末余额",
+    "amountDue": "应付金额",
+    "openTitle": "仍需支付的账单",
+    "dueOn": "到期日 {date}",
+    "payNow": "前往支付物业费",
+    "nothingDueBody": "本对账单无应付金额。",
+    "pdf": "下载 PDF"
+  },
+  "plans": {
+    "title": "分期付款",
+    "instalments": "{count, plural, other {分 # 期}}",
+    "waiting": "等待法人办公室审核",
+    "principal": "分期金额 {amount}",
+    "next": "下一期：第 {seq} 期 · {date} · {amount}",
+    "view": "查看详情",
+    "askTitle": "按月分期支付",
+    "askBody": "请法人办公室把本单位的应付金额分成每月分期。批准后，每期会随月度账单一起开出。",
+    "ask": "申请分期",
+    "earlier": "以往的分期",
+    "requestedOn": "申请于 {date}",
+    "sentTitle": "申请已发送",
+    "sentBody": "法人办公室审核后会在 LINE 通知您。在此期间您可以撤回申请。",
+    "decided": {
+      "rejected": "办公室未批准此分期",
+      "rejectedBody": "请联系法人办公室商量其他方式。",
+      "defaulted": "此分期已提前结束",
+      "defaultedBody": "有一期已过期，剩余金额已计入下一张账单。"
+    },
+    "paperTitle": "分期付款计划",
+    "approvedPrincipal": "分期金额",
+    "proposedPrincipal": "申请分期金额",
+    "firstDue": "第一期",
+    "requested": "申请日期",
+    "approved": "批准日期",
+    "table": "分期明细",
+    "seq": "期数",
+    "dueOn": "到期日",
+    "amount": "金额",
+    "proposedNote": "各期金额为申请时的数字，办公室批准时确认。",
+    "note": "备注：{note}",
+    "toFees": "返回物业费",
+    "withdraw": {
+      "cta": "撤回分期申请",
+      "title": "撤回此申请？",
+      "body": "办公室将不再审核此申请。应付金额不变，之后可以再次申请。",
+      "confirm": "撤回",
+      "cancel": "保留"
+    },
+    "form": {
+      "title": "申请分期付款",
+      "lede": "{unit}",
+      "fix": "请检查以下内容",
+      "openExists": "本单位已有分期",
+      "openExistsBody": "每个单位同一时间只能有一个进行中的分期。",
+      "toPlans": "查看现有分期",
+      "nothingDue": "没有需要分期的金额",
+      "nothingDueBody": "本单位目前没有应付金额。",
+      "instalments": "期数",
+      "instalmentsHint": "按月分期，至少 2 期，最多期数由办公室规定。",
+      "less": "减少期数",
+      "more": "增加期数",
+      "months": "期（月）",
+      "firstDue": "第一期到期日（可选）",
+      "firstDueHint": "不选择时，第一期于下月 1 日到期。",
+      "note": "给办公室的备注（可选）",
+      "noteHint": "例如原因，或方便付款的时间",
+      "how": "法人办公室审核后会在 LINE 通知您。批准时，当时的应付金额会被分成各期。",
+      "submit": "发送分期申请",
+      "errors": {
+        "instalments": {
+          "required": "请输入期数",
+          "integer": "期数须为整数",
+          "min": "至少 {min} 期"
+        },
+        "firstDueOn": {
+          "past": "请选择今天之后的日期"
+        },
+        "note": {
+          "tooLong": "不超过 {max} 个字符"
+        }
+      }
+    }
+  },
+  "clearance": {
+    "title": "无欠款证明",
+    "askTitle": "申请无欠款证明",
+    "askBody": "用于在土地厅办理产权过户。本单位在所选日期没有应付金额时立即开具。",
+    "ask": "申请证明",
+    "mine": "我的申请和证明",
+    "requestOf": "{date} 的申请",
+    "asOfLine": "截至 {date}",
+    "paperTitle": "无欠款证明",
+    "asOf": "截至日期",
+    "validUntil": "有效期至",
+    "holder": "申请人",
+    "issued": "开具日期",
+    "notYet": "尚未开具",
+    "issuedBody": "截至 {date}，本单位没有应付金额。",
+    "codeHint": "验证码",
+    "codeOnce": "验证码（只显示一次，买方或土地厅可用来核验）：",
+    "requestedTitle": "等待办公室开具",
+    "requestedBody": "此证明收费 {fee}，将计入下一张账单。付清后办公室会开具证明。",
+    "refusedTitle": "办公室未开具此证明",
+    "refusedBody": "请联系法人办公室询问。",
+    "download": "下载 PDF",
+    "toList": "查看全部申请",
+    "share": {
+      "button": "转发",
+      "text": "无欠款证明 {number} · {unit} · 截至 {date} · 有效期至 {valid}",
+      "verify": "核验：{url}",
+      "fileName": "无欠款证明",
+      "outcome": {
+        "sent": "已发送",
+        "shared": "已转发",
+        "copied": "已复制文字，可粘贴到聊天中",
+        "opened": "已打开文件，可在打开的页面保存或转发",
+        "failed": "转发失败，请重试"
+      }
+    },
+    "outstanding": {
+      "title": "暂时无法开具证明",
+      "body": "截至 {date}，{unit} 仍有应付金额",
+      "bodyNoAmount": "截至 {date}，{unit} 仍有应付金额",
+      "next": "付清后再次申请即可立即开具。本次申请未被保存。",
+      "pay": "先去支付",
+      "plan": "改为申请分期"
+    },
+    "form": {
+      "title": "申请证明",
+      "asOf": "截至日期（例如过户日）",
+      "asOfHint": "可选今天至 {latest}",
+      "language": "证明的语言",
+      "languages": {
+        "th": "ไทย",
+        "en": "English"
+      },
+      "how": "系统核对本单位在所选日期的余额。若无应付金额，证明会连同验证码立即开具。",
+      "submit": "申请证明"
+    },
+    "codeMasked": "••••{hint}"
+  }
+}

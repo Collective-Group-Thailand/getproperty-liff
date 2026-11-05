@@ -29,7 +29,7 @@
     "title": "选择房间",
     "description": "{count, plural, other {我的全部房间（#）}}",
     "current": "已选房间",
-    "unit": "房间 {unit}",
+    "unit": "{kind, select, house {住宅 {unit}} space {租赁空间 {unit}} other {房间 {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — 切换房间",
     "role": {

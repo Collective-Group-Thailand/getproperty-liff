@@ -157,5 +157,30 @@
     "dismissed": "ပိတ်ပြီး",
     "withdrawn": "ရပ်ထားသည်",
     "closed": "ပြီးဆုံးပြီး"
+  },
+  "paymentPlan": {
+    "proposed": "စိစစ်နေဆဲ",
+    "active": "အရစ်ကျနေဆဲ",
+    "completed": "ပြီးဆုံးပြီ",
+    "defaulted": "စောစီးစွာ ပြီးဆုံး",
+    "cancelled": "ပယ်ဖျက်ပြီး",
+    "rejected": "အတည်မပြု"
+  },
+  "instalment": {
+    "scheduled": "မရောက်သေး",
+    "billed": "ငွေတောင်းခံလွှာတွင်ပါ",
+    "paid": "ပေးပြီး",
+    "cancelled": "ပယ်ဖျက်ပြီး"
+  },
+  "mandate": {
+    "pending": "အတည်ပြုရန်စောင့်",
+    "active": "အလိုအလျောက်ဖြတ်မှု ဖွင့်ထား",
+    "revoked": "ပယ်ဖျက်ပြီး",
+    "failed": "မသတ်မှတ်နိုင်"
+  },
+  "clearance": {
+    "requested": "ရုံးထုတ်ပေးရန်စောင့်",
+    "issued": "ထုတ်ပြီး",
+    "refused": "မထုတ်ပေး"
   }
 }

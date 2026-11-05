@@ -72,13 +72,13 @@
     "feesTitle": "{period} 物业费",
     "feesTitleNone": "本房间的物业费",
     "feesBody": "物业法人开出物业费账单时，您会在 LINE 收到通知，并可在此支付",
-    "nothingDue": "没有待付的物业费",
+    "nothingDue": "无应付金额",
     "nothingDueBody": "已全部付清。新账单出来时会在 LINE 通知您。",
     "documentsTitle": "本房间的文件",
     "receipts": "收据",
     "receiptsBody": "已付款项的收据",
-    "statements": "全部账单",
-    "statementsBody": "以往的物业费账单"
+    "statements": "我的物业费",
+    "statementsBody": "对账单、分期付款和无欠款证明"
   },
   "notices": {
     "title": "最新公告",

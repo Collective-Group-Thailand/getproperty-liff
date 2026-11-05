@@ -56,6 +56,14 @@ export type ResidentLinked = Schemas["ResidentLinkedDto"];
 // JRL — units and roles (api JR, D-309, D-322).
 export type ResidentMeUnit = Schemas["ResidentMeUnitDto"];
 export type ResidentMeUnits = Schemas["ResidentMeUnitsDto"];
+/** JL1 (D-302): what the place is — the app names the unit by it (J-DESIGN §1.3). */
+export type PropertyKind = Schemas["PropertyKind"];
+/** JL1 (D-304 … D-308, D-325, D-326): a co-owner's money with the juristic office. */
+export type Statement = Schemas["StatementDto"];
+export type BudgetActual = Schemas["BudgetActualIncomeDto"];
+export type PaymentPlan = Schemas["PaymentPlanDto"];
+export type PaymentMandate = Schemas["PaymentMandateDto"];
+export type DebtClearance = Schemas["DebtClearanceDto"];
 export type ResidentUnitRole = Schemas["ResidentUnitRole"];
 export type ResidentUnitCapability = Schemas["ResidentUnitCapability"];
 export type ResidentUnitUsage = Schemas["ResidentUnitUsageDto"];

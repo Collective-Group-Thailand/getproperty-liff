@@ -281,6 +281,7 @@ the phone OTP form loads only for a prospect without a verified phone; the door-
 
 | Set | URL | Initial JS | Budget |
 |---|---|---|---|
+| `common-fees` (JL1) | `/fees`, `/statements`, `/units/<id>/payment-plans/new`, `/units/<id>/debt-clearances/new`, `/units/<id>/auto-pay` | 175.4, 174.5, 177.9, 178.8, 178.8 KB | 180 KB |
 | `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` (self viewing, window open) | 176.5, 175.3, 179.6 KB | 180 KB |
 | other sets | as in the GL3 table | unchanged (±0.1 KB) | 180 KB |
 

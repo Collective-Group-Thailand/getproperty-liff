@@ -157,5 +157,30 @@
     "dismissed": "Closed",
     "withdrawn": "Stopped",
     "closed": "Ended"
+  },
+  "paymentPlan": {
+    "proposed": "Under review",
+    "active": "In progress",
+    "completed": "Completed",
+    "defaulted": "Ended early",
+    "cancelled": "Cancelled",
+    "rejected": "Not approved"
+  },
+  "instalment": {
+    "scheduled": "Scheduled",
+    "billed": "On a bill",
+    "paid": "Paid",
+    "cancelled": "Cancelled"
+  },
+  "mandate": {
+    "pending": "Waiting for confirmation",
+    "active": "Auto-pay on",
+    "revoked": "Cancelled",
+    "failed": "Not set up"
+  },
+  "clearance": {
+    "requested": "Waiting for the office",
+    "issued": "Issued",
+    "refused": "Not issued"
   }
 }

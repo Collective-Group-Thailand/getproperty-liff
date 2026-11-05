@@ -225,7 +225,13 @@ export function SlipPanel({
               {t("pdf", { name: chosen.name })}
             </p>
           )}
-          {error ? <ProblemCallout error={error} /> : null}
+          {error?.code === "payment.duplicate_slip" ? (
+            <Callout tone="warning" title={t("outcome.platformDuplicateTitle")}>
+              {t("outcome.platformDuplicateBody")}
+            </Callout>
+          ) : error ? (
+            <ProblemCallout error={error} />
+          ) : null}
           <Button
             size="lg"
             block
@@ -315,7 +321,15 @@ function SlipOutcome({ outcome, unknown }: { outcome: SlipView; unknown: boolean
         </Callout>
       );
     case "rejected":
-      return (
+      // J1.2a (D-308): the transfer already paid a bill at another building on getproperty (`payment.duplicate_slip`) —
+      // said plainly, with what to do; never an accusation.
+      return outcome.reasons.includes("duplicate_reference_platform") ? (
+        <div data-testid="slip-platform-duplicate">
+          <Callout tone="warning" title={t("platformDuplicateTitle")}>
+            {t("platformDuplicateBody")}
+          </Callout>
+        </div>
+      ) : (
         <Callout tone="danger" title={t("rejectedTitle")}>
           {t("rejectedBody")}
         </Callout>

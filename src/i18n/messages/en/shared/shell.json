@@ -29,7 +29,7 @@
     "title": "Choose a unit",
     "description": "{count, plural, one {All my units (#)} other {All my units (#)}}",
     "current": "Selected unit",
-    "unit": "Unit {unit}",
+    "unit": "{kind, select, house {House {unit}} space {Space {unit}} other {Unit {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — switch unit",
     "role": {

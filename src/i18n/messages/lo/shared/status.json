@@ -157,5 +157,30 @@
     "dismissed": "ປິດແລ້ວ",
     "withdrawn": "ຢຸດແລ້ວ",
     "closed": "ສິ້ນສຸດແລ້ວ"
+  },
+  "paymentPlan": {
+    "proposed": "ລໍຖ້າພິຈາລະນາ",
+    "active": "ກຳລັງຜ່ອນ",
+    "completed": "ຜ່ອນຄົບແລ້ວ",
+    "defaulted": "ສິ້ນສຸດກ່ອນຄົບ",
+    "cancelled": "ຍົກເລີກແລ້ວ",
+    "rejected": "ບໍ່ອະນຸມັດ"
+  },
+  "instalment": {
+    "scheduled": "ຍັງບໍ່ເຖິງຮອບ",
+    "billed": "ຢູ່ໃນໃບແຈ້ງ",
+    "paid": "ຊຳລະແລ້ວ",
+    "cancelled": "ຍົກເລີກ"
+  },
+  "mandate": {
+    "pending": "ລໍຖ້າຢືນຢັນ",
+    "active": "ຫັກອັດຕະໂນມັດເປີດຢູ່",
+    "revoked": "ຍົກເລີກແລ້ວ",
+    "failed": "ຕັ້ງບໍ່ສຳເລັດ"
+  },
+  "clearance": {
+    "requested": "ລໍຖ້າຫ້ອງການອອກ",
+    "issued": "ອອກແລ້ວ",
+    "refused": "ບໍ່ອອກ"
   }
 }

@@ -29,7 +29,7 @@
     "title": "ជ្រើសបន្ទប់",
     "description": "{count, plural, other {បន្ទប់ទាំងអស់របស់ខ្ញុំ (#)}}",
     "current": "បន្ទប់ដែលបានជ្រើស",
-    "unit": "បន្ទប់ {unit}",
+    "unit": "{kind, select, house {ផ្ទះ {unit}} space {ទីតាំង {unit}} other {បន្ទប់ {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — ប្តូរបន្ទប់",
     "role": {

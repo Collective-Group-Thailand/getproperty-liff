@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { InvoiceView } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { IconQr } from "@/ui/icons/glyphs/qr";
+import { IconUpload } from "@/ui/icons/glyphs/upload";
 import { lazyOverlay } from "@/ui/lib/lazy";
 
 import type { PaySheetProps } from "./PaySheet";
@@ -28,6 +29,8 @@ export function PayLauncher({
   testId = "invoice-pay",
   className,
   vapidKey,
+  slipLabel,
+  slipTestId = "invoice-slip",
 }: {
   invoice: InvoiceView;
   label: string;
@@ -39,8 +42,15 @@ export function PayLauncher({
   testId?: string;
   className?: string;
   vapidKey?: string;
+  /**
+   * JL1: an outlined "attach the transfer slip" under the pay button that opens the same sheet on the slip step (the
+   * existing slip flow, D-043). Omitted: the slip stays reachable from inside the QR sheet only.
+   */
+  slipLabel?: string;
+  slipTestId?: string;
 }) {
   const [open, setOpen] = useState(autoOpen);
+  const [mode, setMode] = useState<"qr" | "slip">("qr");
   return (
     <>
       {payable ? (
@@ -50,13 +60,33 @@ export function PayLauncher({
           block
           iconStart={IconQr}
           className={className}
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setMode("qr");
+            setOpen(true);
+          }}
           data-testid={testId}
         >
           {label}
         </Button>
       ) : null}
+      {payable && slipLabel ? (
+        <Button
+          size="lg"
+          variant="secondary"
+          block
+          iconStart={IconUpload}
+          onClick={() => {
+            setMode("slip");
+            setOpen(true);
+          }}
+          data-testid={slipTestId}
+        >
+          {slipLabel}
+        </Button>
+      ) : null}
       <PaySheet
+        key={mode}
+        initialMode={mode}
         open={open}
         onOpenChange={setOpen}
         invoiceId={invoice.id}

@@ -35,6 +35,8 @@ export interface PaySheetProps {
   initial: InvoiceView;
   /** `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, for the push offer after the first payment. */
   vapidKey?: string;
+  /** JL1: open on the slip step (the outlined "attach the transfer slip" beside the pay button). */
+  initialMode?: "qr" | "slip";
 }
 
 /**
@@ -62,9 +64,10 @@ function PayFlow({
   vapidKey,
   onClose,
   onPaid,
+  initialMode = "qr",
 }: Omit<PaySheetProps, "open" | "onOpenChange" | "invoiceNumber"> & { onClose: () => void; onPaid: () => void }) {
   const t = useTranslations("resident.pay");
-  const [mode, setMode] = useState<Mode>("qr");
+  const [mode, setMode] = useState<Mode>(initialMode);
 
   const invoice = useQuery({
     queryKey: qk.resident.invoice(invoiceId),
@@ -147,7 +150,15 @@ function PayFlow({
  * with a slip is the fallback (D-043). Loaded on first open, with TanStack Query and the QR encoder (D-179); the
  * page behind it is rendered again when the sheet closes after a payment.
  */
-export default function PaySheet({ open, onOpenChange, invoiceId, invoiceNumber, initial, vapidKey }: PaySheetProps) {
+export default function PaySheet({
+  open,
+  onOpenChange,
+  invoiceId,
+  invoiceNumber,
+  initial,
+  vapidKey,
+  initialMode,
+}: PaySheetProps) {
   const t = useTranslations("resident.pay");
   const common = useTranslations("common");
   const router = useRouter();
@@ -173,6 +184,7 @@ export default function PaySheet({ open, onOpenChange, invoiceId, invoiceNumber,
             invoiceId={invoiceId}
             initial={initial}
             vapidKey={vapidKey}
+            initialMode={initialMode}
             onClose={() => change(false)}
             onPaid={() => {
               paidHere.current = true;

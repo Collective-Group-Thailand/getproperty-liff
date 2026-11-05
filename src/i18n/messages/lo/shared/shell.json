@@ -29,7 +29,7 @@
     "title": "ເລືອກຫ້ອງ",
     "description": "{count, plural, other {ຫ້ອງທັງໝົດຂອງຂ້ອຍ (#)}}",
     "current": "ຫ້ອງທີ່ເລືອກ",
-    "unit": "ຫ້ອງ {unit}",
+    "unit": "{kind, select, house {ເຮືອນ {unit}} space {ພື້ນທີ່ {unit}} other {ຫ້ອງ {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — ປ່ຽນຫ້ອງ",
     "role": {

@@ -34,6 +34,8 @@ afterEach(() => {
 });
 
 const preview: UnitInvitationPreview = {
+  propertyKind: "condo",
+  legalForm: "condo_act",
   tenantName: "Sample Condo Juristic Person",
   buildingName: "Building C",
   unitNo: "C-1203",
