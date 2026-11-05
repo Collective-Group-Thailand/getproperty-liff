@@ -29,7 +29,7 @@
     "title": "เลือกห้อง",
     "description": "{count, plural, other {ทุกห้องของฉัน (#)}}",
     "current": "ห้องที่เลือกอยู่",
-    "unit": "ห้อง {unit}",
+    "unit": "{kind, select, house {บ้าน {unit}} space {พื้นที่ {unit}} other {ห้อง {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — เปลี่ยนห้อง",
     "role": {

@@ -157,5 +157,30 @@
     "dismissed": "ปิดแล้ว",
     "withdrawn": "หยุดแล้ว",
     "closed": "สิ้นสุดแล้ว"
+  },
+  "paymentPlan": {
+    "proposed": "รอพิจารณา",
+    "active": "กำลังผ่อน",
+    "completed": "ผ่อนครบแล้ว",
+    "defaulted": "สิ้นสุดก่อนครบ",
+    "cancelled": "ยกเลิกแล้ว",
+    "rejected": "ไม่อนุมัติ"
+  },
+  "instalment": {
+    "scheduled": "ยังไม่ถึงรอบ",
+    "billed": "อยู่ในใบแจ้ง",
+    "paid": "ชำระแล้ว",
+    "cancelled": "ยกเลิก"
+  },
+  "mandate": {
+    "pending": "รอยืนยัน",
+    "active": "หักอัตโนมัติเปิดอยู่",
+    "revoked": "ยกเลิกแล้ว",
+    "failed": "ตั้งไม่สำเร็จ"
+  },
+  "clearance": {
+    "requested": "รอสำนักงานออก",
+    "issued": "ออกแล้ว",
+    "refused": "ไม่ออก"
   }
 }

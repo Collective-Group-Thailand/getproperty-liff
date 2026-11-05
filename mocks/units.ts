@@ -120,6 +120,8 @@ export const unitHandlers: HttpHandler[] = [
       tenantName: found.unit.tenantName,
       buildingName: found.unit.buildingName,
       unitNo: found.unit.unitNo,
+      propertyKind: found.unit.propertyKind,
+      legalForm: found.unit.legalForm,
       partyDisplayName: "สม••••••",
       phoneMasked: found.kind === "nophone" ? null : "+66•••••1234",
       expiresAt: bangkokIso(Date.now() + 14 * 86_400_000),

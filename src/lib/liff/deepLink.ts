@@ -44,6 +44,12 @@ export const DEEP_LINK_ROOTS = [
   // JRL (D-322): a co-owner's unit invitation — `/link/unit?code=…` (the API's link) or `/join/<code>`.
   "join",
   "consent",
+  // JL1 (D-306 … D-308, D-325, D-326): a co-owner's common fees, statements (`/statements/<id>`, LINE
+  // `juristic.statement.ready`), payment plans and debt-clearance certificates (`/units/<id>/payment-plans`,
+  // `/units/<id>/debt-clearances`).
+  "fees",
+  "statements",
+  "units",
 ] as const;
 
 export function resolveLiffState(search: string | URLSearchParams | null | undefined): string {

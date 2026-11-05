@@ -14,6 +14,7 @@ import { communityHandlers } from "./community";
 import { libraryContractHandlers } from "./contracts";
 import { contractHandlers, exampleHandlers } from "./handlers";
 import { identityHandlers } from "./identity";
+import { juristicHandlers } from "./juristic";
 import { landlordHandlers } from "./landlord";
 import { linkHandlers } from "./links";
 import { prospectHandlers } from "./prospect";
@@ -29,6 +30,7 @@ import { uploadHandlers } from "./uploads";
 const handlers = [
   ...unitHandlers,
   ...billingHandlers,
+  ...juristicHandlers,
   ...uploadHandlers,
   ...serviceHandlers,
   ...communityHandlers,

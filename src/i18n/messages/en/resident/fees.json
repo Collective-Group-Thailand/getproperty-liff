@@ -1,0 +1,270 @@
+{
+  "title": "My common fees",
+  "state": {
+    "open": "To pay",
+    "paid": "All paid"
+  },
+  "pay": "Pay with PromptPay QR",
+  "slip": "Attach a transfer slip",
+  "autopayLink": "Set up auto-pay",
+  "autopay": {
+    "title": "Auto-pay",
+    "lede": "Advance common-fee bills (quarterly, half-yearly or yearly) of {unit}",
+    "choose": "How to pay",
+    "method": {
+      "direct_debit": "Bank account debit",
+      "card_token": "Credit or debit card"
+    },
+    "methodBody": {
+      "direct_debit": "Debited from your account when a bill is issued",
+      "card_token": "Charged to your card when a bill is issued"
+    },
+    "how": "The payment provider's page opens for you to confirm. After that each advance bill is charged once when it is issued. Cancel at any time.",
+    "start": "Set up auto-pay",
+    "activeBody": "On since {date}. Advance bills are charged when issued.",
+    "pendingBody": "Waiting for you to confirm on the payment provider's page",
+    "openAgain": "Open the confirmation page again",
+    "unavailable": {
+      "title": "Not offered in this building yet",
+      "body": "This building has no auto-pay yet. Pay with the PromptPay QR or attach a slip as usual."
+    },
+    "cancel": {
+      "cta": "Cancel auto-pay",
+      "title": "Cancel auto-pay?",
+      "body": "Bills from now on are not charged automatically; pay them with the QR or a slip.",
+      "confirm": "Cancel auto-pay",
+      "keep": "Keep it"
+    }
+  },
+  "payFirst": "Each unit has its own bill. Pay one at a time, starting with {unit}, which is due first.",
+  "empty": {
+    "title": "No common-fee bills yet",
+    "body": "When the juristic person issues a bill you'll get a LINE message, and you can pay it here."
+  },
+  "period": {
+    "year": "{year}",
+    "half": "{n, select, 1 {First half} other {Second half}} {year}",
+    "quarter": "Q{n} {year}",
+    "month": "{month}",
+    "range": "{start} – {end}"
+  },
+  "paper": {
+    "title": "Common fees, {period}",
+    "unitsLabel": "By unit",
+    "line": {
+      "common_fee": "Common fee",
+      "fund": "Sinking fund"
+    },
+    "invoice": "Bill {number}",
+    "totalDue": "{count, plural, =1 {Amount to pay} other {Amount to pay, # bills}}",
+    "totalPaid": "{count, plural, =1 {Amount paid} other {# bills paid}}"
+  },
+  "due": {
+    "on": "Due {date}",
+    "soon": "Due {date} · in {days, plural, one {# day} other {# days}}",
+    "today": "Due today ({date})",
+    "late": "{days, plural, one {# day} other {# days}} past due · due {date}",
+    "paid": "All paid"
+  },
+  "kind": {
+    "unit": {
+      "condo": "Unit {unit}",
+      "house": "House {unit}",
+      "space": "Space {unit}",
+      "room": "Room {unit}"
+    },
+    "size": {
+      "sqm": "{value} m²",
+      "sqwa": "{value} sq. wa"
+    },
+    "share": "Ownership ratio {value}%",
+    "plot": "Plot {plot}"
+  },
+  "budget": {
+    "title": "This year's budget",
+    "year": "{year}",
+    "approved": "Approved income",
+    "billed": "Billed so far",
+    "spent": "Spent so far",
+    "asOf": "As of {date} · budget year {from} – {to}",
+    "pct": "({value})"
+  },
+  "documents": {
+    "title": "Documents and money",
+    "titleFor": "Documents and money · {unit}",
+    "receipt": "Receipt, {period}",
+    "receiptBody": "Paid · {number}",
+    "download": "Download",
+    "statements": "Monthly statements",
+    "statementsBody": "Latest {month} · to pay {amount}",
+    "statementsNone": "The juristic office sends one at the start of each month",
+    "plan": "Payment plan",
+    "planBody": "Split what you owe into monthly instalments",
+    "clearance": "Debt clearance certificate",
+    "clearanceBody": "For transferring ownership",
+    "clearanceAction": "Request",
+    "allBills": "All bills",
+    "allBillsBody": "Every unit, every period"
+  },
+  "statements": {
+    "title": "Monthly statements",
+    "lede": "Brought forward, charges, payments and the amount to pay for all your units",
+    "empty": "No statements yet",
+    "emptyBody": "The juristic office sends a statement at the start of each month; you'll get a LINE message.",
+    "toFees": "Go to common fees",
+    "nothingDue": "Nothing to pay",
+    "toPay": "To pay",
+    "pages": "Pages",
+    "newer": "Newer",
+    "older": "Older",
+    "paperTitle": "Statement, {month}",
+    "to": "To",
+    "units": "Units",
+    "issued": "Issued",
+    "period": "Period",
+    "opening": "Brought forward",
+    "charges": "Charged this month",
+    "credits": "Credit notes",
+    "payments": "Paid",
+    "closing": "Balance at month end",
+    "amountDue": "Amount to pay",
+    "openTitle": "Bills still to pay",
+    "dueOn": "Due {date}",
+    "payNow": "Go to common fees",
+    "nothingDueBody": "Nothing to pay on this statement.",
+    "pdf": "Download PDF"
+  },
+  "plans": {
+    "title": "Payment plan",
+    "instalments": "{count, plural, one {# instalment} other {# instalments}}",
+    "waiting": "Waiting for the juristic office",
+    "principal": "Amount in the plan {amount}",
+    "next": "Next: instalment {seq} · {date} · {amount}",
+    "view": "View details",
+    "askTitle": "Pay in monthly instalments",
+    "askBody": "Ask the juristic office to split what this unit owes into monthly instalments. Once approved, each instalment comes with your monthly bill.",
+    "ask": "Ask for a payment plan",
+    "earlier": "Earlier plans",
+    "requestedOn": "Requested {date}",
+    "sentTitle": "Request sent",
+    "sentBody": "The juristic office will review it and tell you in LINE. You can withdraw it meanwhile.",
+    "decided": {
+      "rejected": "The office did not approve this plan",
+      "rejectedBody": "Contact the juristic office to talk about other options.",
+      "defaulted": "This plan ended early",
+      "defaultedBody": "An instalment went past its due date, so the rest is on your next bill."
+    },
+    "paperTitle": "Payment plan",
+    "approvedPrincipal": "Amount in the plan",
+    "proposedPrincipal": "Amount requested",
+    "firstDue": "First instalment",
+    "requested": "Requested",
+    "approved": "Approved",
+    "table": "Instalments",
+    "seq": "No.",
+    "dueOn": "Due",
+    "amount": "Amount",
+    "proposedNote": "Instalment amounts are as requested; the office confirms them when it approves.",
+    "note": "Note: {note}",
+    "toFees": "Back to common fees",
+    "withdraw": {
+      "cta": "Withdraw the request",
+      "title": "Withdraw this request?",
+      "body": "The office will not review it. What you owe stays the same, and you can ask again later.",
+      "confirm": "Withdraw",
+      "cancel": "Keep it"
+    },
+    "form": {
+      "title": "Ask for a payment plan",
+      "lede": "{unit}",
+      "fix": "Please check these",
+      "openExists": "This unit already has a plan",
+      "openExistsBody": "A unit can have one open plan at a time.",
+      "toPlans": "See the plan",
+      "nothingDue": "Nothing to split",
+      "nothingDueBody": "This unit has nothing to pay right now.",
+      "instalments": "Number of instalments",
+      "instalmentsHint": "Monthly, at least 2. The office sets the most it allows.",
+      "less": "Fewer instalments",
+      "more": "More instalments",
+      "months": "monthly",
+      "firstDue": "First instalment due (optional)",
+      "firstDueHint": "Left empty, the first instalment is due on the 1st of next month.",
+      "note": "Note to the office (optional)",
+      "noteHint": "For example the reason, or when paying suits you",
+      "how": "The juristic office reviews it and tells you in LINE. When approved, what you owe at that time is split into the instalments.",
+      "submit": "Send the request",
+      "errors": {
+        "instalments": {
+          "required": "Enter the number of instalments",
+          "integer": "Use a whole number",
+          "min": "At least {min} instalments"
+        },
+        "firstDueOn": {
+          "past": "Choose a day after today"
+        },
+        "note": {
+          "tooLong": "At most {max} characters"
+        }
+      }
+    }
+  },
+  "clearance": {
+    "title": "Debt clearance certificate",
+    "askTitle": "Ask for a debt clearance certificate",
+    "askBody": "For the ownership transfer at the land office. Issued at once when this unit has nothing to pay on the day you choose.",
+    "ask": "Ask for the certificate",
+    "mine": "My requests and certificates",
+    "requestOf": "Request of {date}",
+    "asOfLine": "As of {date}",
+    "paperTitle": "Debt clearance certificate",
+    "asOf": "As of",
+    "validUntil": "Valid until",
+    "holder": "Requested by",
+    "issued": "Issued",
+    "notYet": "Not yet",
+    "issuedBody": "This unit has nothing to pay as of {date}.",
+    "codeHint": "Verification code",
+    "codeOnce": "Verification code (shown once; the buyer or the land office can check it):",
+    "requestedTitle": "Waiting for the office",
+    "requestedBody": "This certificate has a fee of {fee}, which comes on your next bill. Once it is paid the office issues the certificate.",
+    "refusedTitle": "The office did not issue this certificate",
+    "refusedBody": "Contact the juristic office to ask why.",
+    "download": "Download PDF",
+    "toList": "See all requests",
+    "share": {
+      "button": "Share",
+      "text": "Debt clearance certificate {number} · {unit} · as of {date} · valid until {valid}",
+      "verify": "Verify at {url}",
+      "fileName": "debt-clearance-certificate",
+      "outcome": {
+        "sent": "Sent",
+        "shared": "Shared",
+        "copied": "Text copied; paste it in a chat",
+        "opened": "File opened; save or share it from there",
+        "failed": "Could not share; try again"
+      }
+    },
+    "outstanding": {
+      "title": "The certificate can't be issued yet",
+      "body": "{unit} still has an amount to pay as of {date}",
+      "bodyNoAmount": "{unit} still has an amount to pay as of {date}",
+      "next": "Pay it in full, then ask again; the certificate is issued at once. This request was not kept.",
+      "pay": "Pay first",
+      "plan": "Ask for a payment plan instead"
+    },
+    "form": {
+      "title": "Ask for the certificate",
+      "asOf": "As of (for example the transfer day)",
+      "asOfHint": "From today up to {latest}",
+      "language": "Language of the certificate",
+      "languages": {
+        "th": "ไทย",
+        "en": "English"
+      },
+      "how": "We check this unit's balance on the day you choose. If there is nothing to pay, the certificate is issued at once with a verification code.",
+      "submit": "Ask for the certificate"
+    },
+    "codeMasked": "••••{hint}"
+  }
+}

@@ -83,6 +83,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 
 **Re-sync 2026-10-25** (from getproperty-web **`2005ad0`**, `pnpm shared:check`: 291 copies, 0 drift): Anuphan is now the only UI typeface here too (web switched on 2026-10-24: `src/ui/fonts/index.ts`, `.storybook/fonts.css`, `scripts/copy-fonts.ts`, the README; the two Noto Sans Thai files and their rows are gone), `Progress` gained `tone`, the scroll wrappers of `Tabs` / `SimpleTable` / `CameraCapture` / `ImageViewer` became `relative`, `CountBadge`, `cn`, the type scale and `tokens.css`, `format.ts` (+ test), `curated.ts` (+ `book`, `calculator`, `globe`, `percent`, `printer` glyphs, regenerated with `pnpm icons`) and `design-system.md`; `Tokens.mdx` names Anuphan (fixed in getproperty-web first, `a2bd4b6`).
 
+**Re-sync 2026-11-05 (JL1)** (icons only, from getproperty-web's committed **`3d513cf`**, main after JW1b): `curated.ts` gains JW1b's `pause`, `dispute`, `letter`, `legal`, `suspend-services`, `sms`, `send`, `repeat`; `pnpm icons` regenerated their glyph modules and `registry.ts`. Auto-pay draws `repeat` (J-DESIGN §3: not a sparkle). `format.ts` is **not** re-copied: web's `formatPeriodKey` now names quarter / half / year keys with words for `th` / `en` only, which does not type-check against this app's six locales — the period words live in `resident/fees.json` here (six locales) until web's table covers them; `shared:check` reports that drift as a warning.
+
 **Re-sync 2026-10-29** (from getproperty-web's committed **`c3a5aa7`**, GW6; `git archive c3a5aa7` → `SHARED_SOURCE=… pnpm shared:check --strict`: 293 copies, 279 same, 14 adapted, 0 drift — the concurrent web session's working-tree edits never reach this repo): `curated.ts` gains G9's `star` and `sparkles`; `pnpm icons` regenerated their glyph modules and `registry.ts`. The GL4 review stars (`src/features/resident/reviews/Stars.tsx`) now draw the synced `IconStar` instead of their own SVG path.
 
 
@@ -202,11 +204,11 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | verbatim | `c3a5aa7` |
+| `src/ui/icons/curated.ts` | verbatim | `3d513cf` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/glyphs/*.ts` | generated | `c3a5aa7` |
+| `src/ui/icons/glyphs/*.ts` | generated | `3d513cf` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/registry.ts` | generated | `c3a5aa7` |
+| `src/ui/icons/registry.ts` | generated | `3d513cf` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
 | `src/ui/lib/cn.ts` | verbatim | `e0750d8` |

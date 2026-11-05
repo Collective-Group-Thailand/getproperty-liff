@@ -157,5 +157,30 @@
     "dismissed": "បានបិទ",
     "withdrawn": "បានបញ្ឈប់",
     "closed": "បានបញ្ចប់"
+  },
+  "paymentPlan": {
+    "proposed": "កំពុងពិចារណា",
+    "active": "កំពុងរំលស់",
+    "completed": "រំលស់គ្រប់ហើយ",
+    "defaulted": "បញ្ចប់មុនពេល",
+    "cancelled": "បានបោះបង់",
+    "rejected": "មិនអនុម័ត"
+  },
+  "instalment": {
+    "scheduled": "មិនទាន់ដល់ជុំ",
+    "billed": "នៅក្នុងវិក្កយបត្រ",
+    "paid": "បានបង់",
+    "cancelled": "បានបោះបង់"
+  },
+  "mandate": {
+    "pending": "រង់ចាំបញ្ជាក់",
+    "active": "កាត់ស្វ័យប្រវត្តិកំពុងបើក",
+    "revoked": "បានបោះបង់",
+    "failed": "កំណត់មិនបានសម្រេច"
+  },
+  "clearance": {
+    "requested": "រង់ចាំការិយាល័យចេញ",
+    "issued": "បានចេញ",
+    "refused": "មិនចេញ"
   }
 }

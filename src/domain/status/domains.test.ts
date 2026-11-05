@@ -8,6 +8,7 @@ import { CONTRACT_STATUS, RENEWAL_STATUS } from "./contract";
 import { ACCESS_RESULT, CREDENTIAL_STATUS } from "./credential";
 import { RELOCATION_STATUS, REVIEW_STATUS } from "./growth";
 import { DEPOSIT_STATUS } from "./deposit";
+import { CLEARANCE_STATUS, INSTALMENT_STATUS, MANDATE_STATUS, PAYMENT_PLAN_STATUS } from "./juristic";
 import { DSR_STATE } from "./dsr";
 import { INVOICE_STATUS } from "./invoice";
 import { LEASE_STATUS } from "./lease";
@@ -46,6 +47,10 @@ const MAPS = {
   review: REVIEW_STATUS,
   relocation: RELOCATION_STATUS,
   viewingAccess: VIEWING_ACCESS_STATUS,
+  paymentPlan: PAYMENT_PLAN_STATUS,
+  instalment: INSTALMENT_STATUS,
+  mandate: MANDATE_STATUS,
+  clearance: CLEARANCE_STATUS,
 };
 
 function lookup(messages: Record<string, unknown>, key: string): unknown {
@@ -61,6 +66,12 @@ describe("domain status maps", () => {
       expect(typeof lookup(th, meta.labelKey), meta.labelKey).toBe("string");
       expect(typeof lookup(en, meta.labelKey), meta.labelKey).toBe("string");
       expect(Object.values(ICONS)).toContain(meta.icon);
+    }
+  });
+
+  it("never shames a co-owner in red (J-DESIGN §1.2)", () => {
+    for (const map of [PAYMENT_PLAN_STATUS, INSTALMENT_STATUS, MANDATE_STATUS, CLEARANCE_STATUS]) {
+      expect(Object.values(map).some((meta) => meta.tone === "danger")).toBe(false);
     }
   });
 

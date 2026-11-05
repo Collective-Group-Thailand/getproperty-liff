@@ -1,0 +1,57 @@
+{
+  "extends": "./shared.json",
+  "$comment": "JL1 my common fees (D-304 … D-308, D-325, D-326): /fees as paper across two co-owned units billed yearly, the statements list, the payment-plan request, the debt-clearance request and auto-pay. Mock resident `coowner` + `twounits` + `annual` (C-1203 and C-1205, gp_unit = C-1203). Same device, network and budgets as resident.json.",
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3400/fees",
+        "http://localhost:3400/statements",
+        "http://localhost:3400/units/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f/payment-plans/new",
+        "http://localhost:3400/units/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f/debt-clearances/new",
+        "http://localhost:3400/units/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f/auto-pay"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 360,
+          "height": 780,
+          "deviceScaleFactor": 2.625,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4
+        },
+        "extraHeaders": {
+          "Cookie": "__Host-gp_rt=mock-rt.seed.Ulighthouse-fees-coowner-twounits-annual; gp_unit=c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 2000
+          }
+        ],
+        "cumulative-layout-shift": [
+          "warn",
+          {
+            "maxNumericValue": 0.05
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 184320
+          }
+        ]
+      }
+    }
+  }
+}

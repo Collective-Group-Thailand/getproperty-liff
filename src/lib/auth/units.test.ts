@@ -22,6 +22,8 @@ function unit(roles: Role[], capabilities: ResidentMeUnit["capabilities"], extra
     roles,
     capabilities,
     leaseIds: [],
+    propertyKind: null,
+    legalForm: null,
     ...extra,
   } satisfies ResidentMeUnit;
 }

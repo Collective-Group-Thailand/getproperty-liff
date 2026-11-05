@@ -12,6 +12,8 @@ const UnitSheet = lazy(() => import("./UnitSheet"));
 export interface SwitcherUnit {
   unitId: string;
   unitNo: string;
+  /** JL1 (J-DESIGN §1.3): the word for the place by its kind — `house`, `space`, else a room. */
+  kind?: "condo" | "house" | "space" | "room";
   buildingName: string;
   tenantName: string;
   /** JRL: the role word of the row (co-owner, tenant, co-tenant, payer, family); `null` says nothing. */
@@ -40,7 +42,7 @@ export function UnitSwitcherView({ units, currentId, onSelect }: UnitSwitcherVie
   const label = (
     <span className="flex min-w-0 flex-col items-start leading-tight">
       <span className="truncate text-base font-semibold" data-testid="header-unit">
-        {t("unit", { unit: current.unitNo })}
+        {t("unit", { unit: current.unitNo, kind: current.kind ?? "room" })}
       </span>
       <span className="text-muted truncate text-xs" data-testid="header-building">
         {current.buildingName}

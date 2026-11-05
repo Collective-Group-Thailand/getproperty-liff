@@ -30,6 +30,8 @@ const withIntl: Decorator = (Story, context) => {
 
 const noop = () => undefined;
 const preview = {
+  propertyKind: "condo" as const,
+  legalForm: "condo_act" as const,
   tenantName: "นิติบุคคลอาคารชุด ตัวอย่าง คอนโด",
   buildingName: "อาคาร C",
   unitNo: "C-1203",

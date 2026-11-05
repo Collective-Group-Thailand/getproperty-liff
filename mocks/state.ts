@@ -11,6 +11,8 @@
  *   …relocating… relocation help (`resident.relocation`, GL4) already granted
  *   …coowner…   JRL: co-owner of C-1203 in a juristic condominium (ownership register, no occupancy, no lease) —
  *               with …multi… also the lessee of A-201 (a renter who owns a condo elsewhere)
+ *               JL1: …twounits… also co-owns C-1205; …annual… bills the common fee yearly in advance; …overdue…
+ *               its due date has passed; …village… co-owns house 88/12 of a housing estate instead (ตร.วา)
  *   …family…    JRL: lives in A-201 as a family member — no lease, no bills of their own
  *
  * An SMS sign-in (`phone:<E.164>` / `tech-phone:<E.164>` accounts) links nothing by itself (D-226): the party the
@@ -64,6 +66,16 @@ export interface OwnedUnit {
   tenantId: string;
   tenantName: string;
   from: string;
+  /** CR #41 (done): what the place is and the law its juristic management runs under. */
+  propertyKind: components["schemas"]["PropertyKind"] | null;
+  legalForm: components["schemas"]["BuildingLegalForm"] | null;
+  /** CONTRACT-REQUEST #42: the unit's measures from the register (`areaSqm`, `ownershipRatioPct`, `landAreaSqwa`, `plotNo`). */
+  measures?: {
+    areaSqm?: string | null;
+    ownershipRatioPct?: string | null;
+    landAreaSqwa?: string | null;
+    plotNo?: string | null;
+  };
 }
 
 export interface MockSession {
@@ -113,6 +125,36 @@ export const CONDO_UNIT: OwnedUnit = {
   tenantId: "f6a7b8c9-d0e1-4f2a-8b3c-4d5e6f708192",
   tenantName: "นิติบุคคลอาคารชุด ตัวอย่าง คอนโด",
   from: "2026-01-15",
+  propertyKind: "condo",
+  legalForm: "condo_act",
+  measures: { areaSqm: "42.50", ownershipRatioPct: "0.3412" },
+};
+
+/**
+ * JL1: a house plot of a housing estate (D-302 `village`, land allocation act) — `…village…` accounts co-own it; the
+ * common fee is billed by land area (ตร.วา, `per_sqwa`).
+ */
+export const VILLAGE_UNIT: OwnedUnit = {
+  unitId: "b7c8d9e0-f1a2-4b3c-8d4e-5f6a7b8c9d0e",
+  unitNo: "88/12",
+  buildingId: "c8d9e0f1-a2b3-4c4d-8e5f-6a7b8c9d0e1f",
+  buildingName: "ซอย 3",
+  propertyId: "d9e0f1a2-b3c4-4d5e-8f6a-7b8c9d0e1f2a",
+  tenantId: "e0f1a2b3-c4d5-4e6f-8a7b-8c9d0e1f2a3b",
+  tenantName: "นิติบุคคลหมู่บ้านจัดสรร ตัวอย่าง วิลเลจ",
+  from: "2025-06-01",
+  propertyKind: "village",
+  legalForm: "land_allocation_act",
+  measures: { landAreaSqwa: "62.50", plotNo: "B-14" },
+};
+
+/** JL1: a second unit of the same condominium (`…coowner…twounits…`): two units on one statement. */
+export const CONDO_UNIT_SECOND: OwnedUnit = {
+  ...CONDO_UNIT,
+  unitId: "c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e70",
+  unitNo: "C-1205",
+  from: "2026-03-01",
+  measures: { areaSqm: "35.00", ownershipRatioPct: "0.2810" },
 };
 
 /** The resident purposes getproperty-api seeds (`prisma/seed/data/privacy.ts`), version 1. */
@@ -234,7 +276,7 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
     language: "th",
     units: has("invitee")
       ? []
-      : has("coowner")
+      : has("coowner") || has("village")
         ? has("multi")
           ? [UNIT_A]
           : []
@@ -248,7 +290,13 @@ export function accountFor(subject: string, init: { displayName: string; phone: 
     accepted: new Set(),
     pendingUnits: [],
     technicianPending: false,
-    owned: has("coowner") ? [CONDO_UNIT] : [],
+    owned: has("village")
+      ? [VILLAGE_UNIT]
+      : has("coowner")
+        ? has("twounits")
+          ? [CONDO_UNIT, CONDO_UNIT_SECOND]
+          : [CONDO_UNIT]
+        : [],
   };
   if (has("relocating")) {
     // GL4: relocation help already on (Lighthouse `relocation-reviews`, e2e) — never the default (D-025).

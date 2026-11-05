@@ -157,5 +157,30 @@
     "dismissed": "已关闭",
     "withdrawn": "已停止",
     "closed": "已结束"
+  },
+  "paymentPlan": {
+    "proposed": "审核中",
+    "active": "分期中",
+    "completed": "已付完",
+    "defaulted": "提前结束",
+    "cancelled": "已取消",
+    "rejected": "未批准"
+  },
+  "instalment": {
+    "scheduled": "未到期",
+    "billed": "已入账单",
+    "paid": "已支付",
+    "cancelled": "已取消"
+  },
+  "mandate": {
+    "pending": "待确认",
+    "active": "自动扣款已开启",
+    "revoked": "已取消",
+    "failed": "设置未成功"
+  },
+  "clearance": {
+    "requested": "等待办公室开具",
+    "issued": "已开具",
+    "refused": "未开具"
   }
 }

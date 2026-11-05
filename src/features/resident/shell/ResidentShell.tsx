@@ -3,7 +3,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { isLocale } from "@/i18n/routing";
 import type { ResidentEntitlement } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
-import { primaryRole } from "@/lib/auth/units";
+import { kindWords } from "@/features/resident/fees/model";
+import { homeKindOf, primaryRole } from "@/lib/auth/units";
 import { serverEnv } from "@/lib/env";
 import type { NavItem } from "@/ui/components/AppShell";
 import { Icon, type IconGlyph } from "@/ui/icons";
@@ -62,9 +63,11 @@ export async function ResidentShell({
   const signedIn = actor.status === "signed-in";
   const full = chrome === "full" && signedIn && actor.unit !== null;
 
+  // JL1: a co-owner's bills are the common fees — the bills tab opens `/fees` on a unit whose home is the owner's.
+  const ownerHome = actor.status === "signed-in" && homeKindOf(actor.unit) === "owner";
   const items: NavItem[] = full
     ? RESIDENT_NAV.filter((item) => !item.needs || actor.entitlements.has(item.needs)).map((item) => ({
-        href: item.href,
+        href: item.key === "bills" && ownerHome ? "/fees" : item.href,
         label: nav(item.key),
         icon: <Icon icon={item.icon} />,
         active: item.key === active,
@@ -85,7 +88,10 @@ export async function ResidentShell({
         back
           ? {
               ...back,
-              context: signedIn && actor.unit ? t("unitSwitcher.unit", { unit: actor.unit.unitNo }) : undefined,
+              context:
+                signedIn && actor.unit
+                  ? t("unitSwitcher.unit", { unit: actor.unit.unitNo, kind: kindWords(actor.unit.propertyKind).unit })
+                  : undefined,
             }
           : undefined
       }
@@ -98,6 +104,7 @@ export async function ResidentShell({
             units={actor.units.map((unit) => ({
               unitId: unit.unitId,
               unitNo: unit.unitNo,
+              kind: kindWords(unit.propertyKind).unit,
               buildingName: unit.buildingName,
               tenantName: unit.tenantName,
               role: primaryRole(unit),

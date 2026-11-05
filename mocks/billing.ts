@@ -260,36 +260,66 @@ function monthInvoice(
 }
 
 /**
- * JRL: one month of common fees of a co-owned unit (D-J06: billed to the co-owner) — a juristic tenant's bill with
- * the common fee by ownership ratio and the sinking fund (the mock's figures, never computed by the app).
+ * The mock engine's common-fee figures per owned unit (the API computes them from the register and the budget —
+ * the app never does): `[common fee, fund]` per month and per year.
+ */
+const FEE_FIGURES: Record<string, { month: [string, string, string]; year: [string, string, string]; basis: string }> =
+  {
+    "C-1203": {
+      month: ["1912.50", "212.50", "2125.00"],
+      year: ["22950.00", "2550.00", "25500.00"],
+      basis: "42.50 ตร.ม.",
+    },
+    "C-1205": {
+      month: ["1575.00", "175.00", "1750.00"],
+      year: ["18900.00", "2100.00", "21000.00"],
+      basis: "35.00 ตร.ม.",
+    },
+    "C-0805": {
+      month: ["1575.00", "175.00", "1750.00"],
+      year: ["18900.00", "2100.00", "21000.00"],
+      basis: "35.00 ตร.ม.",
+    },
+    "88/12": {
+      month: ["1687.50", "187.50", "1875.00"],
+      year: ["20250.00", "2250.00", "22500.00"],
+      basis: "62.50 ตร.วา",
+    },
+  };
+
+/**
+ * JRL / JL1: common fees of a co-owned unit (D-J06: billed to the co-owner) — a juristic tenant's bill with the common
+ * fee by ownership ratio (condo) or land area (village) and the sinking fund; monthly, or yearly in advance (J1.1a,
+ * period key `YYYY`). The mock's figures, never computed by the app.
  */
 function commonFeeInvoice(
   subject: string,
   unit: OwnedUnit,
   start: string,
-  options: { open: boolean; dueDate: string; issuedAt: string; slot: string },
+  options: { open: boolean; dueDate: string; issuedAt: string; slot: string; yearly?: boolean },
 ): MockInvoice {
   invoiceSeq += 1;
-  const end = monthEnd(start);
+  const end = options.yearly ? `${start.slice(0, 4)}-12-31` : monthEnd(start);
+  const figures = FEE_FIGURES[unit.unitNo] ?? FEE_FIGURES["C-1203"]!;
+  const [fee, fund, total] = options.yearly ? figures.year : figures.month;
   const lines: BaseLine[] = [
     line(1, "common_fee", {
-      description: `ค่าส่วนกลาง ห้อง ${unit.unitNo} (42.50 ตร.ม. × 45 บาท)`,
-      amount: "1912.50",
-      unit: "month",
-      unitPrice: "1912.5000",
+      description: `ค่าส่วนกลาง ${unit.unitNo} (${figures.basis})`,
+      amount: fee,
+      unit: options.yearly ? "year" : "month",
+      unitPrice: `${fee}00`,
       periodFrom: start,
       periodTo: end,
     }),
     line(2, "fund", {
       description: "เงินกองทุนสำรอง",
-      amount: "212.50",
-      unit: "month",
-      unitPrice: "212.5000",
+      amount: fund,
+      unit: options.yearly ? "year" : "month",
+      unitPrice: `${fund}00`,
       periodFrom: start,
       periodTo: end,
     }),
   ];
-  const total = "2125.00";
   return {
     unitId: unit.unitId,
     extras: [
@@ -369,26 +399,34 @@ export function billingOf(account: MockAccount): MockBilling {
     held: [],
   };
   billings.set(account.userId, billing);
-  // JRL: a co-owner's common fees (one paid month with its receipt, the current month open), billed to them.
+  // JRL: a co-owner's common fees (one paid period with its receipt, the current one open), billed to them. JL1:
+  // `…annual…` bills them yearly in advance (last year paid, next year open); `…overdue…` / `…duesoon…` move the due date.
+  const yearly = has("annual");
+  const year = Number(bangkokDate(now).slice(0, 4));
   for (const owned of account.owned) {
-    const paidIssued = Date.parse(`${monthStart(now, -1)}T09:00:00+07:00`);
-    const paid = commonFeeInvoice(account.subject, owned, monthStart(now, -2), {
+    const paidIssued = yearly
+      ? Date.parse(`${year - 1}-12-20T09:00:00+07:00`)
+      : Date.parse(`${monthStart(now, -1)}T09:00:00+07:00`);
+    const paid = commonFeeInvoice(account.subject, owned, yearly ? `${year}-01-01` : monthStart(now, -2), {
       open: false,
       issuedAt: bangkokIso(paidIssued),
       dueDate: bangkokDate(paidIssued + 15 * DAY),
       slot: "fees-paid",
+      yearly,
     });
     billing.invoices.unshift(paid);
     receiptFor(paid, paidIssued + 4 * DAY, billing);
     if (!has("paidup")) {
-      billing.invoices.unshift(
-        commonFeeInvoice(account.subject, owned, monthStart(now, -1), {
-          open: true,
-          issuedAt: bangkokIso(now - 3 * DAY),
-          dueDate: bangkokDate(now + 12 * DAY),
-          slot: "fees-open",
-        }),
-      );
+      const due = has("overdue") ? now - 12 * DAY : has("duesoon") ? now + 5 * DAY : now + 12 * DAY;
+      const open = commonFeeInvoice(account.subject, owned, yearly ? `${year + 1}-01-01` : monthStart(now, -1), {
+        open: true,
+        issuedAt: bangkokIso(Math.min(now, due) - 3 * DAY),
+        dueDate: bangkokDate(due),
+        slot: "fees-open",
+        yearly,
+      });
+      if (has("overdue")) open.dto.status = "overdue";
+      billing.invoices.unshift(open);
     }
   }
   // A family member is not billed (the lessee or the payer is, D-J08).
@@ -596,6 +634,21 @@ function verifySlip(account: MockAccount, billing: MockBilling, slip: MockSlip, 
       reasons.push("duplicate_reference");
       duplicate = true;
     }
+    // J1.2a (D-308): a transfer reference already booked at another building on getproperty is rejected at once;
+    // a slip dated outside `payments.slip_max_age_days` waits for the office. Mock: by the reference's prefix.
+    if (slip.transRef?.startsWith("PLATFORM")) {
+      slip.reasons = ["duplicate_reference_platform"];
+      slip.status = "rejected";
+      slip.decidedAt = bangkokIso(Date.now());
+      notify(
+        billing,
+        "slip.duplicate_rejected",
+        "สลิปนี้เคยใช้ชำระแล้ว",
+        "การโอนครั้งนี้เคยใช้ชำระบิลอื่นใน getproperty แล้ว ส่งสลิปของการโอนครั้งใหม่ได้เลย",
+      );
+      return;
+    }
+    if (slip.transRef?.startsWith("OLD")) reasons.push("date_out_of_window");
     const receiver = (parsed.receiverAccount ?? "").replace(/\D/g, "");
     if (receiver.slice(-4) !== MOCK_ACCOUNT.last4) reasons.push("receiver_mismatch");
     const amount = parsed.amount ? Number(parsed.amount).toFixed(2) : null;

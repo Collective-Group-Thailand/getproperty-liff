@@ -29,7 +29,7 @@
     "title": "အခန်း ရွေးရန်",
     "description": "{count, plural, other {ကျွန်ုပ်၏ အခန်းအားလုံး (#)}}",
     "current": "ရွေးထားသော အခန်း",
-    "unit": "အခန်း {unit}",
+    "unit": "{kind, select, house {အိမ် {unit}} space {နေရာ {unit}} other {အခန်း {unit}}}",
     "place": "{building} · {operator}",
     "switch": " — အခန်း ပြောင်းရန်",
     "role": {

@@ -109,12 +109,16 @@
         "amount_above_due": "The amount on the slip is more than what is due.",
         "amount_below_due": "The amount on the slip is less than what is due.",
         "amount_unreadable": "The amount on the slip could not be read.",
-        "possible_qr_duplicate": "A QR payment of the same amount for this bill was already received. The office will check that it is not the same transfer."
+        "possible_qr_duplicate": "A QR payment of the same amount for this bill was already received. The office will check that it is not the same transfer.",
+        "date_out_of_window": "The slip is dated outside the accepted window; the office will check it",
+        "duplicate_reference_platform": "This transfer has already paid another bill on getproperty"
       },
       "duplicateTitle": "This slip was sent before",
       "duplicateBody": "One transfer can pay only once. If you made a new transfer, send that slip.",
       "rejectedTitle": "The slip was not accepted",
-      "rejectedBody": "The office did not accept this slip. Contact the building office or pay with the QR."
+      "rejectedBody": "The office did not accept this slip. Contact the building office or pay with the QR.",
+      "platformDuplicateTitle": "This slip has already been used",
+      "platformDuplicateBody": "This transfer already paid a bill at another building on getproperty, so it can't be used again. If you made a new transfer for this bill, send the slip of that transfer."
     }
   },
   "copyAccount": "Copy account number",

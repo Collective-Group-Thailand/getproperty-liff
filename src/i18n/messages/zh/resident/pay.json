@@ -109,12 +109,16 @@
         "amount_above_due": "凭证金额高于应付金额。",
         "amount_below_due": "凭证金额低于应付金额。",
         "amount_unreadable": "无法读取凭证上的金额。",
-        "possible_qr_duplicate": "此账单已收到一笔相同金额的二维码付款。管理处将核实这不是同一笔转账。"
+        "possible_qr_duplicate": "此账单已收到一笔相同金额的二维码付款。管理处将核实这不是同一笔转账。",
+        "date_out_of_window": "凭证日期不在可接受的范围内，管理员将核查",
+        "duplicate_reference_platform": "此笔转账已在 getproperty 支付过其他账单"
       },
       "duplicateTitle": "此凭证之前已提交",
       "duplicateBody": "一笔转账只能付款一次。如果您进行了新的转账，请发送那张凭证。",
       "rejectedTitle": "凭证未通过",
-      "rejectedBody": "管理处未接受此凭证。请联系楼宇管理处或使用二维码付款。"
+      "rejectedBody": "管理处未接受此凭证。请联系楼宇管理处或使用二维码付款。",
+      "platformDuplicateTitle": "此凭证已被使用",
+      "platformDuplicateBody": "此笔转账已在 getproperty 的另一栋楼支付过账单，不能重复使用。如果您为此账单另行转账，请上传新转账的凭证。"
     }
   },
   "copyAccount": "复制账号",

@@ -72,13 +72,13 @@
     "feesTitle": "Common fees, {period}",
     "feesTitleNone": "Common fees for this unit",
     "feesBody": "When the juristic person issues a common-fee bill you'll get a LINE message, and you can pay it here",
-    "nothingDue": "No common fees due",
+    "nothingDue": "Nothing to pay",
     "nothingDueBody": "All paid. When a new bill is ready, you'll hear about it in LINE.",
     "documentsTitle": "Documents for this unit",
     "receipts": "Receipts",
     "receiptsBody": "Receipts for what you have paid",
-    "statements": "All bills",
-    "statementsBody": "Past common-fee bills"
+    "statements": "My common fees",
+    "statementsBody": "Statements, payment plans and the debt clearance certificate"
   },
   "notices": {
     "title": "Latest notices",

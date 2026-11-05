@@ -33,7 +33,9 @@ export default async function InvoicesPage({
   const page = pageOf(params.page);
   const actor = await getActor();
   const billed = actor.status === "signed-in" ? actor.units.filter((u) => u.capabilities.includes("invoices")) : [];
-  const wanted = typeof params.unit === "string" ? params.unit : null;
+  // `?unitId=` is the API's own word (the LINE messages of JL1 link `/invoices?unitId=`); `?unit=` the filter's.
+  const raw = params.unit ?? params.unitId;
+  const wanted = typeof raw === "string" ? raw : null;
   const unitId = billed.some((u) => u.unitId === wanted) ? wanted : null;
   const [locale, open, history] = await Promise.all([
     pageLocale(),

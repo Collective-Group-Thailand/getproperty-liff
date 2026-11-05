@@ -24,6 +24,7 @@ export const MESSAGE_FILES = {
     "consent",
     "contracts",
     "deposit",
+    "fees",
     "home",
     "invoices",
     "lease",
