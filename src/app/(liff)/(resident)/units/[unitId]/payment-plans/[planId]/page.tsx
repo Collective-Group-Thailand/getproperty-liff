@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { billedUnitOr404, loadPlans } from "@/features/resident/fees/data";
+import { billedUnitOr404, loadPlan } from "@/features/resident/fees/data";
 import { PlanRecord } from "@/features/resident/fees/Plans";
 import { unitName } from "@/features/resident/fees/words";
 import { pageLocale } from "@/features/resident/lease/data";
@@ -13,7 +13,7 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-/** One payment plan with its instalments (JL1, D-325). The contract has no single-plan read: it comes from the list. */
+/** One payment plan with its instalments (JL1, D-325), read by id (CR #48) — the LINE messages link here. */
 export default async function PlanPage({
   params,
   searchParams,
@@ -23,13 +23,17 @@ export default async function PlanPage({
 }) {
   const [{ unitId, planId }, query] = await Promise.all([params, searchParams]);
   const unit = await billedUnitOr404(unitId);
-  const [t, locale, plans] = await Promise.all([getTranslations("resident.fees"), pageLocale(), loadPlans(unitId)]);
-  const plan = plans.data?.find((p) => p.id === planId);
-  if (plans.data && !plan) notFound();
+  const [t, locale, loaded] = await Promise.all([
+    getTranslations("resident.fees"),
+    pageLocale(),
+    loadPlan(unitId, planId),
+  ]);
+  if (loaded.data === null) notFound();
+  const plan = loaded.data;
   return (
     <ResidentShell active="bills" back={{ href: `/units/${unitId}/payment-plans`, label: t("plans.title") }}>
-      {plans.error || !plan ? (
-        <ProblemPage error={plans.error!} />
+      {loaded.error || !plan ? (
+        <ProblemPage error={loaded.error!} />
       ) : (
         <PlanRecord
           unitId={unitId}

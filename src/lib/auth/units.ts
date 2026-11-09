@@ -104,6 +104,12 @@ export function myUnits(me: Pick<ResidentMe, "units">, listed: ResidentMeUnit[] 
       propertyId: "",
       propertyKind: null,
       legalForm: null,
+      areaSqm: null,
+      ownershipRatio: null,
+      landAreaSqwa: null,
+      plotNo: null,
+      // Conservative while `/me/units` is unreadable: no auto-pay link, no gate tab (not in ALL_CAPABILITIES).
+      recurringAvailable: false,
       tenantId: u.tenantId,
       tenantName: u.tenantName,
       roles: [

@@ -69,7 +69,8 @@ describe("JL4 mock: visitors, gate, SOS", () => {
       gateName: "ป้อม 1",
       hasPhoto: true,
     });
-    expect(visit.policy.rememberDays).toBe(30);
+    const gate = (await b.call("GET", `/v1/resident/units/${V}/gate`)).body;
+    expect(gate).toMatchObject({ rememberDays: 30, inviteMaxDays: 30 });
     await b.call("POST", `/v1/resident/__mock/visits/${visit.id}/answer`, { answer: "approve", name: "คุณวิภา" });
     const late = await b.call("POST", `/v1/resident/visits/${visit.id}/actions/deny`, {}, idem());
     expect(late.body.accepted).toBe(false);
@@ -112,12 +113,40 @@ describe("JL4 mock: visitors, gate, SOS", () => {
     await family.signIn("Umock-jl4-housefamily");
     const units = (await family.call("GET", "/v1/resident/me/units")).body.units;
     expect(units[0]).toMatchObject({ unitNo: "88/12", propertyKind: "village", legalForm: "land_allocation_act" });
+    expect(units[0].capabilities).toContain("gate");
     expect((await family.call("GET", `/v1/resident/units/${V}/gate`)).body.canEdit).toBe(false);
     expect((await family.call("PUT", `/v1/resident/units/${V}/gate-policy`, { timeoutSeconds: 120 })).status).toBe(403);
     const car = { plate: { category: "กข", number: "12", province: "ชลบุรี" } };
     expect((await family.call("POST", `/v1/resident/units/${V}/vehicles`, car, idem())).status).toBe(403);
     expect((await owner.call("POST", `/v1/resident/units/${V}/vehicles`, car, idem())).status).toBe(201);
     expect((await owner.call("POST", `/v1/resident/units/${V}/vehicles`, car, idem())).status).toBe(409);
+  });
+
+  it("the gate capability (CR #49) and one pass by id (CR #52)", async () => {
+    const none = browser();
+    await none.signIn("Umock-jl4-village-nogate");
+    const [unit] = (await none.call("GET", "/v1/resident/me/units")).body.units;
+    expect(unit.capabilities).not.toContain("gate");
+    expect((await none.call("GET", `/v1/resident/units/${V}/gate`)).status).toBe(404);
+
+    const b = browser();
+    await b.signIn("Umock-jl4-village");
+    const start = Date.now() + 3_600_000;
+    const created = await b.call(
+      "POST",
+      `/v1/resident/units/${V}/visit-invites`,
+      {
+        usage: "single",
+        visitorKind: "guest",
+        validFrom: new Date(start).toISOString(),
+        validTo: new Date(start + 3_600_000).toISOString(),
+      },
+      idem(),
+    );
+    const one = await b.call("GET", `/v1/resident/units/${V}/visit-invites/${created.body.id}`);
+    expect(one.body).toMatchObject({ id: created.body.id, state: "active" });
+    expect(one.body.token).toBeUndefined();
+    expect((await b.call("GET", `/v1/resident/units/${V}/visit-invites/${crypto.randomUUID()}`)).status).toBe(404);
   });
 
   it("invites: token once, contractor waits for the office, window ≤ 30 days, revoke", async () => {

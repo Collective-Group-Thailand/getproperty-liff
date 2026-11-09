@@ -11,6 +11,7 @@ import type {
   PageMeta,
   PaymentMandate,
   PaymentPlan,
+  PaymentPlanOptions,
   Statement,
 } from "@/lib/api/types";
 import { getActor } from "@/lib/auth/actor";
@@ -68,6 +69,37 @@ export async function loadPlans(unitId: string): Promise<Loaded<PaymentPlan[]>> 
   return data ? { data } : { error: problemFromParsed(response, error) };
 }
 
+/** The office's limits for a plan request and what would be split now (CR #45, D-335). */
+export async function loadPlanOptions(unitId: string): Promise<Loaded<PaymentPlanOptions>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/payment-plan-requests/options", {
+    params: { path: { unitId } },
+  });
+  return data ? { data } : { error: problemFromParsed(response, error) };
+}
+
+/** One payment plan of the unit (CR #48, D-335); `null` when it is not mine (404). */
+export async function loadPlan(unitId: string, planId: string): Promise<Loaded<PaymentPlan | null>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/payment-plans/{planId}", {
+    params: { path: { unitId, planId } },
+  });
+  if (data) return { data };
+  if (response.status === 404) return { data: null };
+  return { error: problemFromParsed(response, error) };
+}
+
+/** One debt-clearance request or certificate of the unit (CR #48, D-335); `null` when it is not mine (404). */
+export async function loadClearance(unitId: string, debtClearanceId: string): Promise<Loaded<DebtClearance | null>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/debt-clearances/{debtClearanceId}", {
+    params: { path: { unitId, debtClearanceId } },
+  });
+  if (data) return { data };
+  if (response.status === 404) return { data: null };
+  return { error: problemFromParsed(response, error) };
+}
+
 export async function loadClearances(unitId: string): Promise<Loaded<DebtClearance[]>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/debt-clearances", {
@@ -87,22 +119,15 @@ export async function loadStatementPage(page: number): Promise<Loaded<{ items: S
   return data ? { data: { items: data.data, meta: data.meta } } : { error: problemFromParsed(response, error) };
 }
 
-/**
- * One statement by id: the contract has no `GET /v1/resident/statements/{id}` (contract request #48), so it is looked
- * up in my newest 300 (25 years of monthly statements); `null` when it is not among them.
- */
+/** One statement by id (CR #48, D-335); `null` when it is not mine (404). */
 export async function loadStatement(statementId: string): Promise<Loaded<Statement | null>> {
   const api = await serverApi();
-  for (let page = 1; page <= 3; page += 1) {
-    const { data, error, response } = await api.GET("/v1/resident/statements", {
-      params: { query: { page, perPage: 100 } },
-    });
-    if (!data) return { error: problemFromParsed(response, error) };
-    const found = data.data.find((statement) => statement.id === statementId);
-    if (found) return { data: found };
-    if (page * data.meta.perPage >= data.meta.total) break;
-  }
-  return { data: null };
+  const { data, error, response } = await api.GET("/v1/resident/statements/{statementId}", {
+    params: { path: { statementId } },
+  });
+  if (data) return { data };
+  if (response.status === 404) return { data: null };
+  return { error: problemFromParsed(response, error) };
 }
 
 /**

@@ -41,6 +41,7 @@ export default async function NewInvitePage() {
             place={unit.tenantName}
             now={requestTime()}
             locale={locale}
+            maxDays={gate.data?.inviteMaxDays}
           />
         </Screen>
       )}

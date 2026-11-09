@@ -34,7 +34,7 @@ export const RESIDENT_NAV: {
 }[] = [
   { key: "home", href: "/", icon: IconHome },
   { key: "bills", href: "/invoices", icon: IconBill, needs: "bills" },
-  // JL4: a unit of a juristic estate on which I hold a gate role (contract request #49: no `gate` capability yet).
+  // JL4: the unit on screen has the API's `gate` capability (CR #49, D-335).
   { key: "visitors", href: "/visitors", icon: IconShield, needs: "gate" },
   { key: "usage", href: "/usage", icon: IconElectric, needs: "usage" },
   { key: "requests", href: "/requests", icon: IconTicket, needs: "service_requests" },

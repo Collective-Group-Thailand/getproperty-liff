@@ -29,7 +29,12 @@ export default async function AutoPayPage({ params }: { params: Promise<{ unitId
       ) : (
         <Screen testId="autopay">
           <ScreenHeader title={t("autopay.title")} lede={t("autopay.lede", { unit: unitName(t, unit) })} flush />
-          <AutoPay unitId={unitId} mandates={mandates.data} locale={locale} />
+          <AutoPay
+            unitId={unitId}
+            mandates={mandates.data}
+            locale={locale}
+            initialUnavailable={!unit.recurringAvailable}
+          />
         </Screen>
       )}
     </ResidentShell>

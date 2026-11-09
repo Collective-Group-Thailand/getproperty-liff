@@ -58,11 +58,10 @@ const visit: ResidentVisit = {
 const roles = (...r: string[]) => r.map((role) => ({ role })) as { role: "co_owner" }[];
 
 describe("who sees and edits the gate", () => {
-  it("shows the visitors tab on a juristic estate for gate roles, never payer-only or a rental", () => {
-    expect(gateUnit({ legalForm: "land_allocation_act", roles: roles("co_owner") })).toBe(true);
-    expect(gateUnit({ legalForm: "condo_act", roles: roles("family") })).toBe(true);
-    expect(gateUnit({ legalForm: "condo_act", roles: roles("payer") })).toBe(false);
-    expect(gateUnit({ legalForm: null, roles: roles("tenant") })).toBe(false);
+  it("shows the visitors tab from the API's gate capability (CR #49), never inferred from the estate", () => {
+    expect(gateUnit({ capabilities: ["invoices", "gate"] })).toBe(true);
+    expect(gateUnit({ capabilities: ["invoices", "notices"] })).toBe(false);
+    expect(gateUnit({ capabilities: [] })).toBe(false);
     expect(gateUnit(null)).toBe(false);
   });
 
@@ -99,10 +98,10 @@ describe("countdown and the house policy line", () => {
     expect(policyLine({ ...visit, respondBy: "2026-11-05T22:41:20+07:00" }).minutes).toBe(1);
   });
 
-  it("reads the remember-days extra only when the API sends it (contract request #50)", () => {
+  it("reads remember days from the unit's gate (CR #50); none when the gate could not be read", () => {
     expect(rememberDays({ rememberDays: 30 })).toBe(30);
-    expect(rememberDays({})).toBeNull();
-    expect(rememberDays({ rememberDays: "30" })).toBeNull();
+    expect(rememberDays({ rememberDays: 0 })).toBeNull();
+    expect(rememberDays(null)).toBeNull();
   });
 });
 
@@ -189,6 +188,13 @@ describe("invite validation", () => {
     expect(validateInvite({ ...draft, toTime: "08:30", fromTime: "09:00" }, now).errors).toEqual({ toDate: "order" });
     expect(validateInvite({ ...draft, fromTime: "06:00", toTime: "07:00" }, now).errors).toEqual({ toDate: "past" });
     expect(validateInvite({ ...draft, fromDate: "" }, now).errors.fromDate).toBe("required");
+  });
+
+  it("refuses a window longer than the estate's inviteMaxDays (CR #51) only when it is known", () => {
+    const long = { ...draft, toDate: "2026-12-07", toTime: "09:01" };
+    expect(validateInvite(long, now, 30).errors).toEqual({ toDate: "window" });
+    expect(validateInvite({ ...long, toDate: "2026-12-06", toTime: "09:00" }, now, 30).errors).toEqual({});
+    expect(validateInvite(long, now).errors).toEqual({});
   });
 
   it("multi-use takes 2–100 uses", () => {

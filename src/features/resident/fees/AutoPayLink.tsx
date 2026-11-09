@@ -1,27 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
 
 import { Icon } from "@/ui/icons";
 import { IconRepeat } from "@/ui/icons/glyphs/repeat";
 
-import { recurringOffUnits } from "./recurring";
-
-const subscribe = () => () => undefined;
-
 /**
- * "Set up yearly auto-pay" as a quiet text link with the repeat icon (J-DESIGN §3: not a sparkle) — hidden on a device
- * where the API already said the channel is not offered for this unit (contract request #44).
+ * "Set up yearly auto-pay" as a quiet text link with the repeat icon (J-DESIGN §3: not a sparkle). The caller renders
+ * it only where the API says auto-pay can be set up (`ResidentMeUnitDto.recurringAvailable`, CR #44, D-335).
  */
 export function AutoPayLink({ unitId, label, meta }: { unitId: string; label: string; meta?: string }) {
-  // Device storage, read after hydration (the server renders the link; a hidden one is the rare case).
-  const hidden = useSyncExternalStore(
-    subscribe,
-    () => recurringOffUnits().includes(unitId),
-    () => false,
-  );
-  if (hidden) return null;
   return (
     <Link
       href={`/units/${unitId}/auto-pay`}

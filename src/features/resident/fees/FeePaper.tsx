@@ -11,7 +11,7 @@ import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
 import { IconClock } from "@/ui/icons/glyphs/clock";
 import { IconWarning } from "@/ui/icons/glyphs/warning";
 
-import { feeDueTone, unitFacts, type FeeStatement, type UnitMeasures } from "./model";
+import { feeDueTone, measuresOf, unitFacts, type FeeStatement, type UnitMeasures } from "./model";
 import { periodName } from "./words";
 
 export interface PaperUnit {
@@ -62,7 +62,7 @@ export async function FeePaper({
 
       <ul className="border-border mx-5 border-t" aria-label={t("paper.unitsLabel")}>
         {statement.units.map(({ unitId, unitNo, invoice }) => {
-          const place = (unitId && units.get(unitId)) || { kind: null, measures: {} };
+          const place = (unitId && units.get(unitId)) || { kind: null, measures: measuresOf(null) };
           const facts = unitFacts(place.kind, place.measures);
           const amount = statement.open ? invoice.balance : invoice.total;
           return (

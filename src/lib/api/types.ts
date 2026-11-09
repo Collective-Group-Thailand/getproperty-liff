@@ -62,6 +62,7 @@ export type PropertyKind = Schemas["PropertyKind"];
 export type Statement = Schemas["StatementDto"];
 export type BudgetActual = Schemas["BudgetActualIncomeDto"];
 export type PaymentPlan = Schemas["PaymentPlanDto"];
+export type PaymentPlanOptions = Schemas["PaymentPlanOptionsDto"];
 export type PaymentMandate = Schemas["PaymentMandateDto"];
 export type DebtClearance = Schemas["DebtClearanceDto"];
 export type ResidentUnitRole = Schemas["ResidentUnitRole"];

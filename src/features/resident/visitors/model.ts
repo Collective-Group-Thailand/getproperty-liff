@@ -2,6 +2,7 @@ import type {
   GatePolicyAction,
   InviteVisitorKind,
   Plate,
+  ResidentUnitCapability,
   ResidentUnitRole,
   ResidentVisit,
   VisitInviteCreate,
@@ -13,19 +14,17 @@ import type {
  * what the result card says, the `?answer=` deep link and the invite form. No I/O; the screens and the tests share it.
  */
 
-/** Roles that hold a gate role on a unit (D-327): the household and family; a payer-only party gets nothing. */
-const GATE_ROLES: ReadonlySet<ResidentUnitRole> = new Set(["co_owner", "tenant", "co_tenant", "family"]);
 /** Roles that set the house policy, create invites and register cars (D-327, D-328): not family. */
 const HOUSEHOLD_ROLES: ReadonlySet<ResidentUnitRole> = new Set(["co_owner", "tenant", "co_tenant"]);
 
 type Roles = { roles: readonly { role: ResidentUnitRole }[] };
 
 /**
- * The visitors tab for this unit — **contract request #49** (no `gate` capability yet): a unit of a juristic estate
- * (`legalForm` set, D-302) on which I hold a gate role. An estate without gates gets a calm "not in use" page.
+ * The visitors tab for this unit: the API's `gate` capability (CR #49, D-335) — the unit's estate has an active gate
+ * and I hold a gate role (co-owner, tenant, co-tenant, family).
  */
-export function gateUnit(unit: (Roles & { legalForm: string | null }) | null | undefined): boolean {
-  return Boolean(unit && unit.legalForm !== null && unit.roles.some((r) => GATE_ROLES.has(r.role)));
+export function gateUnit(unit: { capabilities: readonly ResidentUnitCapability[] } | null | undefined): boolean {
+  return Boolean(unit?.capabilities.includes("gate"));
 }
 
 /** May I set the policy, create invites and register cars? The API's `canEdit` wins when it is known. */
@@ -73,10 +72,12 @@ export function policyLine(
   return { action, minutes: Math.max(1, Math.round(seconds / 60)) };
 }
 
-/** Contract request #50: `gate.remember_days`, when the API sends it (optional extra); `null` → no number in the copy. */
-export function rememberDays(source: object | null | undefined): number | null {
-  if (!source) return null;
-  const value = (source as Record<string, unknown>).rememberDays;
+/**
+ * The estate's `gate.remember_days` from `ResidentGateDto.rememberDays` (CR #50, D-335); `null` when the unit's gate
+ * could not be read (the copy then names no number).
+ */
+export function rememberDays(gate: { rememberDays: number } | null | undefined): number | null {
+  const value = gate?.rememberDays;
   return typeof value === "number" && Number.isInteger(value) && value > 0 ? value : null;
 }
 
@@ -226,7 +227,7 @@ export type InviteField =
   "fromDate" | "toDate" | "maxUses" | "visitorName" | "note" | "plateCategory" | "plateNumber" | "plateProvince";
 
 export type InviteError =
-  "required" | "order" | "past" | "range" | "tooLong" | "partial" | "category" | "number" | "province";
+  "required" | "order" | "past" | "window" | "range" | "tooLong" | "partial" | "category" | "number" | "province";
 
 export const INVITE_LIMITS = { minUses: 2, maxUses: 100, defaultUses: 10, name: 120, note: 300 } as const;
 
@@ -239,12 +240,14 @@ export function bangkokInstant(date: string, time: string): string | null {
 
 /**
  * The invite form's own checks (the contract's limits): a window in order and not already over, uses 2–100 for a
- * multi-use invite, a full plate or none, name ≤ 120, note ≤ 300. The longest window (`gate.invite_max_days`) is the
- * API's 422 at the field (contract request #51). Returns the errors by field, or the body to send.
+ * multi-use invite, a full plate or none, name ≤ 120, note ≤ 300, and a window no longer than the estate's
+ * `gate.invite_max_days` (`ResidentGateDto.inviteMaxDays`, CR #51) when known — the API's 422 still answers otherwise.
+ * Returns the errors by field, or the body to send.
  */
 export function validateInvite(
   draft: InviteDraft,
   now: number,
+  maxDays?: number | null,
 ): { errors: Partial<Record<InviteField, InviteError>>; body: VisitInviteCreate | null } {
   const errors: Partial<Record<InviteField, InviteError>> = {};
   const from = bangkokInstant(draft.fromDate, draft.fromTime);
@@ -253,6 +256,7 @@ export function validateInvite(
   if (!to) errors.toDate = "required";
   else if (from && Date.parse(to) <= Date.parse(from)) errors.toDate = "order";
   else if (Date.parse(to) <= now) errors.toDate = "past";
+  else if (from && maxDays && Date.parse(to) - Date.parse(from) > maxDays * 86_400_000) errors.toDate = "window";
 
   let maxUses: number | undefined;
   if (draft.usage === "multi") {

@@ -88,6 +88,7 @@ describe("M1 — a dropped connection is shown and the screen recovers", () => {
         required: true,
         granted: null,
         grantedVersion: null,
+        lastGranted: null,
         language: "en",
         capturedAt: null,
         effectiveFrom: "2026-01-01T00:00:00Z",

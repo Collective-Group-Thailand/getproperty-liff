@@ -119,6 +119,7 @@
     "title": "{count, plural, =0 {那里的房源} other {那里有 # 套房源}}",
     "lead": "可直接在这里联系房东。",
     "leadRecord": "可直接在这里联系房东——如愿意，也可一并发送您的租金记录。",
+    "enquiredBadge": "已咨询",
     "enquired": "{count, plural, other {您已通过此推荐咨询了 # 套房源}}",
     "emptyTitle": "那里暂无房源",
     "emptyBody": "试试附近区域或提高预算。新发布的房源会出现在这里。",

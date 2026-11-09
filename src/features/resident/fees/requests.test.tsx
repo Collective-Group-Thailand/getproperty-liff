@@ -59,6 +59,27 @@ describe("PlanRequestForm", () => {
     expect(nav.push).toHaveBeenCalledWith("/units/u1/payment-plans/plan-1?sent=1");
   });
 
+  it("checks the office's range from the options (CR #45) and names what would be split", async () => {
+    const options = {
+      minInstalments: 2,
+      maxInstalments: 12,
+      earliestFirstDueOn: "2026-11-05",
+      latestFirstDueOn: "2027-02-05",
+      defaultFirstDueOn: "2026-12-01",
+      proposedPrincipal: "25500.00",
+    };
+    wrap(<PlanRequestForm unitId="u1" today="2026-11-05" options={options} />);
+    expect(screen.getByTestId("plan-principal").textContent).toContain("25,500.00");
+    expect(screen.getByText("Monthly, 2–12 instalments as the office allows.")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("plan-instalments"), { target: { value: "13" } });
+    fireEvent.change(screen.getByTestId("plan-first-due"), { target: { value: "2027-03-01" } });
+    await act(async () => fireEvent.click(screen.getByTestId("plan-submit")));
+    const summary = screen.getByTestId("plan-form-summary").textContent;
+    expect(summary).toContain("At most 12 instalments");
+    expect(summary).toContain("Choose a date no later than");
+    expect(api.POST).not.toHaveBeenCalled();
+  });
+
   it("points to the plan already open", async () => {
     api.POST.mockResolvedValueOnce(problem(409, "payment_plan.open_exists"));
     wrap(<PlanRequestForm unitId="u1" today="2026-11-05" />);

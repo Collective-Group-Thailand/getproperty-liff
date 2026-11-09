@@ -174,12 +174,12 @@ describe("kind vocabulary (J-DESIGN §1.3)", () => {
   });
 
   it("prints the size in the kind's unit and the share only for a condominium", () => {
-    const condo = measuresOf({ areaSqm: "42.50", ownershipRatioPct: "0.3412" });
-    expect(unitFacts("condo", condo)).toEqual({ size: { value: "42.50", unit: "sqm" }, share: "0.3412", plot: null });
+    const condo = measuresOf({ areaSqm: "42.50", ownershipRatio: "0.003412" });
+    expect(unitFacts("condo", condo)).toEqual({ size: { value: "42.50", unit: "sqm" }, share: "0.003412", plot: null });
     const plot = measuresOf({ landAreaSqwa: "62.50", plotNo: "B-14", areaSqm: "180.00" });
     expect(unitFacts("village", plot)).toEqual({ size: { value: "62.50", unit: "sqwa" }, share: null, plot: "B-14" });
     expect(unitFacts("condo", measuresOf({}))).toEqual({ size: null, share: null, plot: null });
-    expect(measuresOf({ areaSqm: 42 })).toMatchObject({ areaSqm: null });
+    expect(measuresOf(null)).toEqual({ areaSqm: null, ownershipRatio: null, landAreaSqwa: null, plotNo: null });
   });
 });
 
@@ -208,6 +208,20 @@ describe("payment plan request validation", () => {
     expect(validatePlanDraft(draft({ firstDueOn: "2026-11-05" }), today).firstDueOn).toBe("past");
     expect(validatePlanDraft(draft({ firstDueOn: "2026-12-01" }), today).firstDueOn).toBeUndefined();
     expect(validatePlanDraft(draft({ note: "x".repeat(1001) }), today).note).toBe("tooLong");
+  });
+
+  it("checks the office's range from the request options (CR #45)", () => {
+    const limits = {
+      minInstalments: 2,
+      maxInstalments: 12,
+      earliestFirstDueOn: "2026-11-05",
+      latestFirstDueOn: "2027-02-05",
+    };
+    expect(validatePlanDraft(draft({ instalments: "12" }), today, limits)).toEqual({});
+    expect(validatePlanDraft(draft({ instalments: "13" }), today, limits).instalments).toBe("max");
+    expect(validatePlanDraft(draft({ firstDueOn: "2026-11-05" }), today, limits).firstDueOn).toBeUndefined();
+    expect(validatePlanDraft(draft({ firstDueOn: "2026-11-04" }), today, limits).firstDueOn).toBe("past");
+    expect(validatePlanDraft(draft({ firstDueOn: "2027-02-06" }), today, limits).firstDueOn).toBe("late");
   });
 
   it("sends nulls for what was left empty", () => {

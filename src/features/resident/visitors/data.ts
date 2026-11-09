@@ -69,6 +69,17 @@ export async function loadInvites(unitId: string): Promise<Loaded<VisitInvite[]>
   return data ? { data } : { error: problemFromParsed(response, error) };
 }
 
+/** One pass of the unit (CR #52, D-335); `null` when it is not the unit's (404). */
+export async function loadInvite(unitId: string, inviteId: string): Promise<Loaded<VisitInvite | null>> {
+  const api = await serverApi();
+  const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/visit-invites/{inviteId}", {
+    params: { path: { unitId, inviteId } },
+  });
+  if (data) return { data };
+  if (response.status === 404) return { data: null };
+  return { error: problemFromParsed(response, error) };
+}
+
 export async function loadRemembered(unitId: string): Promise<Loaded<RememberedVehicle[]>> {
   const api = await serverApi();
   const { data, error, response } = await api.GET("/v1/resident/units/{unitId}/remembered-vehicles", {

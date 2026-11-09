@@ -119,6 +119,7 @@
     "title": "{count, plural, =0 {Places there} one {# place there} other {# places there}}",
     "lead": "Ask an owner directly from here.",
     "leadRecord": "Ask an owner directly from here — and send your rent record with it if you want.",
+    "enquiredBadge": "Asked",
     "enquired": "{count, plural, one {You asked about # place from this offer} other {You asked about # places from this offer}}",
     "emptyTitle": "No places there yet",
     "emptyBody": "Try a nearby area or a higher budget. New listings appear here as they are published.",

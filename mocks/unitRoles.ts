@@ -15,6 +15,12 @@ type MeUnit = Schemas["ResidentMeUnitDto"];
 type Role = Schemas["ResidentUnitRoleDto"];
 
 const IN_FORCE = new Set(["active", "notice_given", "ending"]);
+/** Roles that see the gate of their estate (D-322, D-327). */
+const GATE_ROLES = new Set<Schemas["ResidentUnitRole"]>(["co_owner", "tenant", "co_tenant", "family"]);
+/** Roles that may set up auto-pay (`recurringAvailable`, D-335). */
+const RECURRING_ROLES = new Set<Schemas["ResidentUnitRole"]>(["co_owner", "payer", "tenant"]);
+/** No register measures (an apartment room, an occupancy without the register's figures). */
+const NO_MEASURES = { areaSqm: null, ownershipRatio: null, landAreaSqwa: null, plotNo: null };
 const OCCUPANCY: Record<Schemas["OccupancyRole"], Schemas["ResidentUnitRole"]> = {
   tenant: "tenant",
   co_tenant: "co_tenant",
@@ -22,6 +28,10 @@ const OCCUPANCY: Record<Schemas["OccupancyRole"], Schemas["ResidentUnitRole"]> =
   family: "family",
   staff: "family",
 };
+
+function has(account: MockAccount, word: string): boolean {
+  return account.subject.toLowerCase().includes(word);
+}
 
 /** A stable party id per account and unit (the mock does not model parties). */
 function partyId(account: MockAccount, unitId: string): string {
@@ -32,10 +42,14 @@ function partyId(account: MockAccount, unitId: string): string {
 export function myUnitsOf(account: MockAccount): MeUnit[] {
   const leases = residenceOf(account).leases.filter(({ dto }) => IN_FORCE.has(dto.status));
   const out: MeUnit[] = [];
-  const add = (base: Omit<MeUnit, "roles" | "capabilities" | "leaseIds">, roles: Role[]) => {
+  const add = (
+    base: Omit<MeUnit, "roles" | "capabilities" | "leaseIds" | "recurringAvailable" | keyof typeof NO_MEASURES> &
+      Partial<Pick<MeUnit, keyof typeof NO_MEASURES>>,
+    roles: Role[],
+  ) => {
     const existing = out.find((u) => u.unitId === base.unitId);
     if (existing) existing.roles.push(...roles);
-    else out.push({ ...base, roles, capabilities: [], leaseIds: [] });
+    else out.push({ ...NO_MEASURES, ...base, roles, capabilities: [], leaseIds: [], recurringAvailable: false });
   };
   for (const u of account.units) {
     add(
@@ -64,7 +78,7 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
   }
   for (const o of account.owned) {
     const { from, measures, ...base } = o;
-    // CONTRACT-REQUEST #42: the register's measures of the unit (not in the contract yet).
+    // CR #42 (done): the register's measures of the unit.
     add({ ...base, ...measures }, [
       { role: "co_owner", source: "ownership", partyId: partyId(account, o.unitId), leaseId: null, from, to: null },
     ]);
@@ -83,6 +97,11 @@ export function myUnitsOf(account: MockAccount): MeUnit[] {
       unit.leaseIds.push(dto.id);
     }
     unit.capabilities = capabilitiesOf(unit);
+    // CR #49 (D-335): every juristic estate of the mock has an active gate (`…nogate…`: none).
+    if (unit.legalForm !== null && !has(account, "nogate") && unit.roles.some((r) => GATE_ROLES.has(r.role)))
+      unit.capabilities.push("gate");
+    // CR #44 (D-335): a recurring channel is configured (`…recurringoff…`: none) and I may set it up.
+    unit.recurringAvailable = !has(account, "recurringoff") && unit.roles.some((r) => RECURRING_ROLES.has(r.role));
   }
   return out;
 }

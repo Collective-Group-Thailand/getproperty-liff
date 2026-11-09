@@ -59,7 +59,8 @@ function anchorOf(field: InviteField): string {
 /**
  * A pass for a visitor before they come (D-327 (5)): who (kind tiles), when (from / until, Bangkok time), once or
  * several times, an optional name and plate the guard checks, a note. Checked on blur and on submit with a focusable
- * summary (J-DESIGN §2); the longest window is the API's (422 at the field, contract request #51). A contractor's pass
+ * summary (J-DESIGN §2); the longest window is the estate's `inviteMaxDays` (CR #51; the API's 422 at the field
+ * still answers). A contractor's pass
  * waits for the office. One Idempotency-Key per pass: a retry after a lost answer never makes a second one.
  */
 export function InviteForm({
@@ -68,12 +69,15 @@ export function InviteForm({
   place,
   now,
   locale,
+  maxDays = null,
 }: {
   unitId: string;
   unitName: string;
   place: string;
   now: number;
   locale: Locale;
+  /** The estate's longest pass in days (`ResidentGateDto.inviteMaxDays`, CR #51). */
+  maxDays?: number | null;
 }) {
   const t = useTranslations("resident.visitors.invite");
   const [draft, setDraft] = useState<InviteDraft>(() => ({
@@ -101,18 +105,18 @@ export function InviteForm({
   const set = (patch: Partial<InviteDraft>) => {
     const next = { ...draft, ...patch };
     setDraft(next);
-    if (touched) setErrors(validateInvite(next, Date.now()).errors);
+    if (touched) setErrors(validateInvite(next, Date.now(), maxDays).errors);
     setTooLong(null);
   };
   const blur = () => {
     setTouched(true);
-    setErrors(validateInvite(draft, Date.now()).errors);
+    setErrors(validateInvite(draft, Date.now(), maxDays).errors);
   };
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setTouched(true);
-    const { errors: found, body } = validateInvite(draft, Date.now());
+    const { errors: found, body } = validateInvite(draft, Date.now(), maxDays);
     setErrors(found);
     if (!body) {
       setSummary(true);
@@ -151,6 +155,7 @@ export function InviteForm({
     if (field === "toDate" && tooLong !== null)
       return tooLong ? t("error.windowTooLongDays", { days: tooLong }) : t("error.windowTooLong");
     if (!error) return undefined;
+    if (error === "window") return t("error.windowTooLongDays", { days: maxDays ?? 0 });
     return t(`error.${error}`, {
       min: INVITE_LIMITS.minUses,
       max: field === "maxUses" ? INVITE_LIMITS.maxUses : field === "note" ? INVITE_LIMITS.note : INVITE_LIMITS.name,

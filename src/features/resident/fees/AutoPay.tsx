@@ -26,16 +26,15 @@ import { IconWallet } from "@/ui/icons/glyphs/wallet";
 import { cn } from "@/ui/lib/cn";
 
 import { liveMandate } from "./model";
-import { rememberRecurringOff } from "./recurring";
 
 type Method = Schemas["PaymentMandateMethod"];
 
 /**
  * Auto-pay for the advance (quarterly, half-yearly, yearly) common-fee bills (D-308, D-325, channel `recurring`):
  * choose direct debit or a card → `POST …/payment-mandates` → the provider's page opens (`setupUrl`, the LIFF way) and
- * the mandate turns active on its callback. One mandate per unit; cancel stops further charges. When the building has
- * no provider yet the API answers `recurring.unavailable` (O-020): the screen says so plainly and the device stops
- * offering the link (contract request #44).
+ * the mandate turns active on its callback. One mandate per unit; cancel stops further charges. Where the unit's
+ * `recurringAvailable` is false (no provider, O-020; CR #44) or the API answers `recurring.unavailable`, the screen
+ * says so plainly.
  */
 export function AutoPay({
   unitId,
@@ -80,7 +79,6 @@ export function AutoPay({
       attempt.failed(caught);
       const problem = toApiError(caught);
       if (problem.code === "recurring.unavailable") {
-        rememberRecurringOff(unitId);
         setUnavailable(true);
       } else if (problem.code === "payment_mandate.open_exists") {
         router.refresh();
@@ -109,7 +107,7 @@ export function AutoPay({
     }
   }
 
-  if (unavailable) {
+  if (unavailable && !live) {
     return (
       <div data-testid="autopay-unavailable">
         <Callout tone="info" title={t("unavailable.title")}>

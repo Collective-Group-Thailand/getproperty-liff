@@ -175,25 +175,17 @@ export function kindWords(kind: PropertyKind | null | undefined): KindWords {
 }
 
 /**
- * The register's measures of a unit — **contract request #42** (`areaSqm`, `ownershipRatioPct`, `landAreaSqwa`,
- * `plotNo` on `ResidentMeUnitDto`). Read as optional extras of the API's object; nothing is printed when absent.
+ * The register's measures of a unit as `ResidentMeUnitDto` carries them (CR #42, D-335): `areaSqm`, `ownershipRatio`
+ * (the register's 6-decimal ratio — printed as returned, never converted to a percentage), `landAreaSqwa`, `plotNo`.
  */
-export interface UnitMeasures {
-  areaSqm?: string | null;
-  ownershipRatioPct?: string | null;
-  landAreaSqwa?: string | null;
-  plotNo?: string | null;
-}
+export type UnitMeasures = Pick<Schemas["ResidentMeUnitDto"], "areaSqm" | "ownershipRatio" | "landAreaSqwa" | "plotNo">;
 
-export function measuresOf(unit: object | null | undefined): UnitMeasures {
-  if (!unit) return {};
-  const value = unit as Record<string, unknown>;
-  const text = (key: string) => (typeof value[key] === "string" ? (value[key] as string) : null);
+export function measuresOf(unit: Partial<UnitMeasures> | null | undefined): UnitMeasures {
   return {
-    areaSqm: text("areaSqm"),
-    ownershipRatioPct: text("ownershipRatioPct"),
-    landAreaSqwa: text("landAreaSqwa"),
-    plotNo: text("plotNo"),
+    areaSqm: unit?.areaSqm ?? null,
+    ownershipRatio: unit?.ownershipRatio ?? null,
+    landAreaSqwa: unit?.landAreaSqwa ?? null,
+    plotNo: unit?.plotNo ?? null,
   };
 }
 
@@ -206,7 +198,7 @@ export function unitFacts(
   const value = words.size === "sqwa" ? measures.landAreaSqwa : measures.areaSqm;
   return {
     size: value ? { value, unit: words.size } : null,
-    share: words.share && measures.ownershipRatioPct ? measures.ownershipRatioPct : null,
+    share: words.share && measures.ownershipRatio ? measures.ownershipRatio : null,
     plot: measures.plotNo ?? null,
   };
 }
@@ -219,25 +211,38 @@ export interface PlanDraft {
 }
 
 export type PlanDraftErrors = Partial<
-  Record<"instalments" | "firstDueOn" | "note", "required" | "integer" | "min" | "past" | "tooLong">
+  Record<"instalments" | "firstDueOn" | "note", "required" | "integer" | "min" | "max" | "past" | "late" | "tooLong">
 >;
 
-/** The contract's own lower bound (`PaymentPlanRequestDto.instalments.minimum`). The upper one is the API's setting. */
+/** The contract's own lower bound (`PaymentPlanRequestDto.instalments.minimum`); the options may raise it. */
 export const PLAN_MIN_INSTALMENTS = 2;
+
+/** The office's limits for a request (`GET …/payment-plan-requests/options`, CR #45). */
+export type PlanLimits = Pick<
+  Schemas["PaymentPlanOptionsDto"],
+  "minInstalments" | "maxInstalments" | "earliestFirstDueOn" | "latestFirstDueOn"
+>;
 export const PLAN_NOTE_MAX = 1000;
 
 /**
- * Checks what the contract states (an integer ≥ 2, a first due date after today, a note ≤ 1000 characters); the
- * maximum instalments and the latest first due date are the API's settings (`juristic.plan_max_instalments`) and come
- * back as its 422 at the field (contract request #45).
+ * Checks what the contract states (an integer ≥ 2, a first due date after today, a note ≤ 1000 characters) and, when
+ * the options were read (CR #45), the office's range: `minInstalments` … `maxInstalments` and the first due date
+ * within `earliestFirstDueOn` … `latestFirstDueOn`. Without them the API's 422 still answers at the field.
  */
-export function validatePlanDraft(draft: PlanDraft, today: string): PlanDraftErrors {
+export function validatePlanDraft(draft: PlanDraft, today: string, limits?: PlanLimits | null): PlanDraftErrors {
   const errors: PlanDraftErrors = {};
   const raw = draft.instalments.trim();
+  const min = Math.max(PLAN_MIN_INSTALMENTS, limits?.minInstalments ?? PLAN_MIN_INSTALMENTS);
   if (!raw) errors.instalments = "required";
   else if (!/^\d+$/.test(raw)) errors.instalments = "integer";
-  else if (Number(raw) < PLAN_MIN_INSTALMENTS) errors.instalments = "min";
-  if (draft.firstDueOn && draft.firstDueOn <= today) errors.firstDueOn = "past";
+  else if (Number(raw) < min) errors.instalments = "min";
+  else if (limits && Number(raw) > limits.maxInstalments) errors.instalments = "max";
+  if (draft.firstDueOn) {
+    // The office's window when known (from today), else the conservative "after today".
+    if (limits ? draft.firstDueOn < limits.earliestFirstDueOn : draft.firstDueOn <= today) {
+      errors.firstDueOn = "past";
+    } else if (limits && draft.firstDueOn > limits.latestFirstDueOn) errors.firstDueOn = "late";
+  }
   if (draft.note.length > PLAN_NOTE_MAX) errors.note = "tooLong";
   return errors;
 }

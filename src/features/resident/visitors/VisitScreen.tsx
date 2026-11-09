@@ -13,7 +13,7 @@ import { Icon } from "@/ui/icons";
 import { IconInfo } from "@/ui/icons/glyphs/info";
 import { IconShield } from "@/ui/icons/glyphs/shield";
 
-import { policyLine, rememberDays, secondsLeft, waiting, type Answer } from "./model";
+import { policyLine, secondsLeft, waiting, type Answer } from "./model";
 import { VisitAnswer } from "./VisitAnswer";
 import { VisitCountdown } from "./VisitCountdown";
 import { VisitCard } from "./VisitParts";
@@ -31,7 +31,10 @@ export function VisitScreen({
   locale,
   unit,
   now,
+  rememberDays,
 }: {
+  /** The estate's `gate.remember_days` (`ResidentGateDto.rememberDays`, CR #50); `null` when the gate was not read. */
+  rememberDays: number | null;
   /** The request's time (the countdown's first value). */
   now: number;
   visit: ResidentVisit | null;
@@ -88,7 +91,7 @@ export function VisitScreen({
         visit={visit}
         me={me}
         answer={answer}
-        rememberDays={rememberDays(visit.policy)}
+        rememberDays={rememberDays}
         minutes={line.minutes}
         locale={locale}
       />

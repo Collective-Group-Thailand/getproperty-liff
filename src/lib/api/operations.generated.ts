@@ -996,6 +996,12 @@ export const OPERATIONS = [
   },
   { operationId: "resident.statements.list", method: "GET", path: "/v1/resident/statements", idempotent: false },
   {
+    operationId: "resident.statements.get",
+    method: "GET",
+    path: "/v1/resident/statements/{statementId}",
+    idempotent: false,
+  },
+  {
     operationId: "resident.statements.document",
     method: "GET",
     path: "/v1/resident/statements/{statementId}/document",
@@ -1040,6 +1046,12 @@ export const OPERATIONS = [
     idempotent: false,
   },
   {
+    operationId: "resident.units.debtClearance",
+    method: "GET",
+    path: "/v1/resident/units/{unitId}/debt-clearances/{debtClearanceId}",
+    idempotent: false,
+  },
+  {
     operationId: "resident.units.debtClearanceDocument",
     method: "GET",
     path: "/v1/resident/units/{unitId}/debt-clearances/{debtClearanceId}/document",
@@ -1077,9 +1089,21 @@ export const OPERATIONS = [
     idempotent: true,
   },
   {
+    operationId: "resident.units.paymentPlanOptions",
+    method: "GET",
+    path: "/v1/resident/units/{unitId}/payment-plan-requests/options",
+    idempotent: false,
+  },
+  {
     operationId: "resident.units.paymentPlans",
     method: "GET",
     path: "/v1/resident/units/{unitId}/payment-plans",
+    idempotent: false,
+  },
+  {
+    operationId: "resident.units.paymentPlan",
+    method: "GET",
+    path: "/v1/resident/units/{unitId}/payment-plans/{planId}",
     idempotent: false,
   },
   {
@@ -1136,6 +1160,12 @@ export const OPERATIONS = [
     method: "POST",
     path: "/v1/resident/units/{unitId}/visit-invites",
     idempotent: true,
+  },
+  {
+    operationId: "resident.units.visitInvite",
+    method: "GET",
+    path: "/v1/resident/units/{unitId}/visit-invites/{inviteId}",
+    idempotent: false,
   },
   {
     operationId: "resident.units.revokeVisitInvite",

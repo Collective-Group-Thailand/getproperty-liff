@@ -92,6 +92,8 @@ export function leaseView(lease: MockLease): Schemas["ResidentLeaseDto"] {
     nextActions,
     noticeEarliestDate: lease.dto.nextActions.includes("give-notice") ? earliestNoticeDate() : null,
     rulesAcknowledgedAt: lease.rulesAcknowledgedAt,
+    // CR #38 (D-335): the hash `GET …/contract` answers.
+    contractSha256: MOCK_CONTRACT_SHA,
   };
 }
 

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { INVITE_STATUS } from "@/domain/status/gate";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { loadGate, loadInvites } from "@/features/resident/visitors/data";
+import { loadGate, loadInvite } from "@/features/resident/visitors/data";
 import { RevokeInvite } from "@/features/resident/visitors/InviteRecord";
 import { canEditGate, gateUnit, plateText } from "@/features/resident/visitors/model";
 import { windowText } from "@/features/resident/visitors/words";
@@ -24,29 +24,29 @@ export async function generateMetadata() {
 }
 
 /**
- * `/visitors/invites/{inviteId}` — one pass (JL4). No single read exists (contract request #52): it is looked up in the
- * unit's list. The QR is never shown again (the API keeps only its hash).
+ * `/visitors/invites/{inviteId}` — one pass (JL4), read by id (CR #52). The QR is never shown again (the API keeps
+ * only its hash).
  */
 export default async function InvitePage({ params }: { params: Promise<{ inviteId: string }> }) {
   const { inviteId } = await params;
   const actor = await getActor();
   if (actor.status !== "signed-in" || !actor.unit || !gateUnit(actor.unit)) notFound();
   const unit = actor.unit;
-  const [t, status, locale, invites, gate] = await Promise.all([
+  const [t, status, locale, loaded, gate] = await Promise.all([
     getTranslations("resident.visitors"),
     getTranslations(),
     pageLocale(),
-    loadInvites(unit.unitId),
+    loadInvite(unit.unitId, inviteId),
     loadGate(unit.unitId),
   ]);
-  const invite = invites.data?.find((i) => i.id === inviteId);
-  if (invites.data && !invite) notFound();
+  if (loaded.data === null) notFound();
+  const invite = loaded.data;
   const badge = invite ? INVITE_STATUS[invite.state] : null;
   const name = invite ? (invite.visitorName ?? t(`invite.kinds.${invite.visitorKind}`)) : "";
   return (
     <ResidentShell active="visitors" back={{ href: "/visitors", label: t("title") }}>
-      {invites.error || !invite || !badge ? (
-        <ProblemPage error={invites.error!} />
+      {loaded.error || !invite || !badge ? (
+        <ProblemPage error={loaded.error!} />
       ) : (
         <Screen testId="invite-record" data-state={invite.state}>
           <ScreenHeader

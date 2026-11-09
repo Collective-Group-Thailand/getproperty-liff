@@ -177,6 +177,7 @@ export function purposesFor(account: MockAccount, language: "th" | "en"): Schema
       bodyMarkdown: text.body,
       granted: c.grantedVersion === c.version ? c.granted : null,
       grantedVersion: c.grantedVersion,
+      lastGranted: c.grantedVersion !== null ? c.granted : null,
       capturedAt: c.capturedAt,
     };
   });

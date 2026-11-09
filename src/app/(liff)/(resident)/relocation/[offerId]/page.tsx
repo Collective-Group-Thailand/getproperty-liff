@@ -155,6 +155,7 @@ export default async function RelocationOfferPage({ params }: { params: Promise<
                 <OfferListings
                   offerId={offer.id}
                   listings={offer.listings}
+                  enquired={offer.enquiredListingSlugs}
                   record={
                     shareable
                       ? { onTime: shareable.onTime, late: shareable.late, outstanding: shareable.outstanding }
