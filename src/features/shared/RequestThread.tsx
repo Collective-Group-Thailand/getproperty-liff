@@ -6,7 +6,7 @@ import { useEffect, useId, useState } from "react";
 import { formatDateTime } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ServiceMessage } from "@/lib/api/types";
 import { MESSAGE_EVENT, onRealtime } from "@/lib/realtime/events";

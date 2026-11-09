@@ -6,7 +6,11 @@
 - `server.ts` — `serverApi()` for Server Components: `API_INTERNAL_URL`, bearer from the session cookie,
   `Accept-Language`, the proxy's request id. Never refreshes (the proxy does, before rendering).
 - `browser.ts` — `browserApi` → `/bff`: CSRF header on non-GET, automatic `Idempotency-Key` for flagged
-  operations, `unwrap()` for TanStack Query; `bffJson()` for this app's own BFF routes (`/bff/auth/*`).
+  operations, `unwrap()` for TanStack Query; `bffJson()` for this app's own BFF routes (`/bff/auth/*`) and the shell's
+  realtime grant. `browserApi` loads the typed client (`client.ts`: openapi-fetch + the generated operation list) on its
+  first call or the page's first tap / key press, never with the page (D-179, JS-ui) — never import `client.ts` directly.
+- `key.ts` — `newIdempotencyKey()` alone (forms import it from here, not from `idempotency.ts`, whose generated
+  operation list would otherwise ship with the form).
 - `problem.ts` — `ApiError` (`code`, `detail`, `legalRef`, field errors, `requestId`).
 - `query.ts` — query-key factory and TanStack Query defaults (no 4xx retries, no mutation retries).
 - `upstream.ts` — the one server-side way to the API; the in-process mock API in mock builds.

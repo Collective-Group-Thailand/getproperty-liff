@@ -1,4 +1,4 @@
-// copied from getproperty-web@77b4f25 until collective-shared exists (D-155)
+// copied from getproperty-web@32f942e until collective-shared exists (D-155)
 import { cn } from "../lib/cn";
 
 /**
@@ -81,7 +81,13 @@ export function ActionPanel({
           ) : null}
         </div>
         {status ? <div className="flex flex-wrap gap-1.5">{status}</div> : null}
-        {description ? <p className="text-muted text-sm">{description}</p> : null}
+        {/* A sentence is a paragraph; richer content (an approval panel with lists) is a block — never <div> in <p>,
+            which the HTML parser splits and React then fails to hydrate. */}
+        {!description ? null : typeof description === "string" ? (
+          <p className="text-muted text-sm">{description}</p>
+        ) : (
+          <div className="text-muted text-sm">{description}</div>
+        )}
       </div>
       {facts && facts.length > 0 ? (
         <dl className="border-border flex flex-col gap-2 border-t px-5 py-4">

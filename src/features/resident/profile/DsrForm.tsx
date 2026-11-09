@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { DsrKind } from "@/lib/api/types";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";

@@ -10,7 +10,7 @@ import { SLIP_STATUS } from "@/domain/status/slip";
 import { formatDateTime, formatTHB } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { isApiError, type ApiError } from "@/lib/api/problem";
 import { qk } from "@/lib/api/query-keys";
 import type { ResidentPayment, SlipMimeType, SlipView } from "@/lib/api/types";

@@ -1,8 +1,7 @@
 "use client";
 
-import createClient from "openapi-fetch";
+import type { Client } from "openapi-fetch";
 
-import { needsIdempotencyKey, newIdempotencyKey } from "./idempotency";
 import { isNetworkFailure, networkError, problemFromParsed, problemFromResponse, type ApiError } from "./problem";
 import type { ApiPaths } from "./types";
 
@@ -24,27 +23,43 @@ export function acceptLanguage(): string {
   return documentLanguage() ?? "th";
 }
 
-export const browserApi = createClient<ApiPaths>({ baseUrl: BFF_BASE, credentials: "same-origin" });
+type TypedClient = Client<ApiPaths>;
+type Verb = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-browserApi.use({
-  onRequest({ request }) {
-    const path = new URL(request.url, "http://local").pathname.replace(/^\/bff/, "");
-    if (request.method !== "GET" && request.method !== "HEAD") {
-      request.headers.set("x-getproperty-csrf", "1");
-      if (needsIdempotencyKey(request.method, path) && !request.headers.has("idempotency-key")) {
-        request.headers.set("idempotency-key", newIdempotencyKey());
-      }
-    }
-    const language = documentLanguage();
-    if (language && !request.headers.has("accept-language")) request.headers.set("accept-language", language);
-    return request;
-  },
-  // A dropped connection makes `fetch` reject with a TypeError: thrown as an `ApiError` (`network.unavailable`, status
-  // 0) so every screen's catch shows "No connection — try again" instead of an unhandled rejection (review M1).
-  onError({ error }) {
-    if (isNetworkFailure(error)) return networkError();
-  },
-});
+let loading: Promise<TypedClient> | undefined;
+function loadClient(): Promise<TypedClient> {
+  loading ??= import("./client").then((module) => module.typedClient);
+  // A failed fetch of the chunk (offline) is not cached, so the next call tries again.
+  loading.catch(() => (loading = undefined));
+  return loading;
+}
+
+// Warmed on the first tap or key press anywhere (as `lazyWarm` overlays are), so an action rarely waits for it.
+const WARM_EVENTS = ["pointerdown", "keydown", "touchstart"] as const;
+function warm(): void {
+  for (const type of WARM_EVENTS) window.removeEventListener(type, warm, true);
+  loadClient().catch(() => undefined);
+}
+if (typeof window !== "undefined") {
+  for (const type of WARM_EVENTS) window.addEventListener(type, warm, { capture: true, passive: true });
+}
+
+function verb<V extends Verb>(name: V): TypedClient[V] {
+  return ((...args: unknown[]) =>
+    loadClient().then((client) => (client[name] as (...init: unknown[]) => unknown)(...args))) as TypedClient[V];
+}
+
+/**
+ * The typed client, loaded on first use (D-179, JS-ui): openapi-fetch and the generated operation list are ≈ 3.5 KB gz
+ * that every page carried for the shell alone. Same methods and types as openapi-fetch's client (`client.ts`).
+ */
+export const browserApi: Pick<TypedClient, Verb> = {
+  GET: verb("GET"),
+  POST: verb("POST"),
+  PUT: verb("PUT"),
+  PATCH: verb("PATCH"),
+  DELETE: verb("DELETE"),
+};
 
 /** openapi-fetch result → data or a thrown `ApiError` (what TanStack Query expects from a query function). */
 export function unwrap<T>(result: { data?: T; error?: unknown; response: Response }): T {
@@ -54,7 +69,8 @@ export function unwrap<T>(result: { data?: T; error?: unknown; response: Respons
 
 /**
  * A BFF call outside the typed client — for this app's own BFF routes (`/bff/auth/refresh`,
- * `/bff/auth/technician/refresh`). API operations always go through the typed `browserApi`.
+ * `/bff/auth/technician/refresh`) and the shell's calls made as a page opens (the realtime grant), which must not pull
+ * the typed client into every page's initial JS. Other API operations go through the typed `browserApi`.
  */
 export async function bffJson<T>(
   path: string,

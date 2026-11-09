@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { ContractDownload, SignatureOtp } from "@/lib/api/types";
 import { openExternal } from "@/lib/liff/client";

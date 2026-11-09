@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({ resolvers: [] as ((value: unknown) => void)[] }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }), usePathname: () => "/" }));
 vi.mock("@/lib/api/browser", () => ({
-  browserApi: { POST: () => new Promise((resolve) => api.resolvers.push(resolve)) },
+  bffJson: () =>
+    new Promise((resolve) => api.resolvers.push((grant) => resolve((grant as { data?: unknown } | undefined)?.data))),
 }));
 
 import { SIGNED_OUT_EVENT } from "@/lib/auth/signOut";

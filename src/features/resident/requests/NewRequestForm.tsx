@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 
 import { ChoiceCards, ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import { PhotoPicker, type PickedPhoto } from "@/features/shared/PhotoPicker";
@@ -10,14 +10,16 @@ import { ActionDock } from "@/features/shared/Screen";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { uploadResidentPhoto, withRetry } from "@/features/shared/upload";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import { VISIT_PREFERENCES, type VisitPreference } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Field } from "@/ui/components/Field";
 import { Textarea } from "@/ui/components/Input";
-import { NativeSelect, type NativeSelectOption } from "@/ui/components/NativeSelect";
+import { Skeleton } from "@/ui/components/Skeleton";
+import type { NativeSelectOption, NativeSelectProps } from "@/ui/components/NativeSelect";
 import type { IconGlyph } from "@/ui/icons";
+import { lazyWarm } from "@/ui/lib/lazy";
 import { IconElectric } from "@/ui/icons/glyphs/electric";
 import { IconMore } from "@/ui/icons/glyphs/more";
 import { IconWater } from "@/ui/icons/glyphs/water";
@@ -25,6 +27,11 @@ import { IconWrench } from "@/ui/icons/glyphs/wrench";
 
 import { IconBug, IconDoorOpen, IconRefrigerator, IconSnowflake, IconSprayCan } from "./categoryGlyphs";
 import { MAX_REQUEST_PHOTOS, RESIDENT_PRIORITIES } from "./model";
+
+/** The unit select shows only for a resident of several units: loaded only then (D-179: the form is near its budget). */
+const NativeSelect = lazyWarm<NativeSelectProps>(() =>
+  import("@/ui/components/NativeSelect").then((module) => module.NativeSelect),
+);
 
 /** The platform category keys' icons (D-072); a landlord's own category gets the wrench. */
 const CATEGORY_ICONS: Record<string, IconGlyph> = {
@@ -126,14 +133,16 @@ export function NewRequestForm({
     <form className="flex flex-1 flex-col gap-7" onSubmit={submit} noValidate data-testid="request-form">
       {units.length > 1 ? (
         <Field label={t("unit")}>
-          <NativeSelect
-            name="unit"
-            options={units}
-            value={unitId}
-            disabled={busy}
-            onChange={(e) => router.replace(`/requests/new?unit=${encodeURIComponent(e.target.value)}`)}
-            data-testid="request-unit"
-          />
+          <Suspense fallback={<Skeleton className="h-12 w-full" />}>
+            <NativeSelect
+              name="unit"
+              options={units}
+              value={unitId}
+              disabled={busy}
+              onChange={(e) => router.replace(`/requests/new?unit=${encodeURIComponent(e.target.value)}`)}
+              data-testid="request-unit"
+            />
+          </Suspense>
         </Field>
       ) : null}
 

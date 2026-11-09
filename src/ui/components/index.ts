@@ -1,4 +1,4 @@
-// copied from getproperty-web@2493107 until collective-shared exists (D-155) — adapted: only the components a resident app needs
+// copied from getproperty-web@32f942e until collective-shared exists (D-155) — adapted: only the components a resident app needs
 export { AlertDialog, type AlertDialogProps } from "./AlertDialog";
 export { AppShell, BottomNav, SidebarNav, TopBar, type AppShellProps, type NavItem } from "./AppShell";
 export { Badge, badgeVariants, StatusBadge, type BadgeProps, type StatusBadgeProps } from "./Badge";
@@ -45,3 +45,5 @@ export { Stepper, type StepperProps, type StepperStep } from "./Stepper";
 export { TabPanel, Tabs, type TabItem, type TabsProps } from "./Tabs";
 export { Timeline, type TimelineEvent } from "./Timeline";
 export { toast, Toaster } from "./Toast";
+export { PeriodStatement, type PeriodStatementRow } from "./PeriodStatement";
+export { ProgressLine } from "./ProgressLine";

@@ -1,7 +1,7 @@
-// copied from getproperty-web@f57d4dc until collective-shared exists (D-155)
+// copied from getproperty-web@32f942e until collective-shared exists (D-155)
 import { createElement } from "react";
 
-import { cn } from "../lib/cn";
+import { cx as cn } from "../lib/cx";
 import type { IconGlyph } from "./glyph";
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "ref" | "children"> {

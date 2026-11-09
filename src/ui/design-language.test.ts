@@ -108,6 +108,7 @@ describe("design language bans", () => {
       "src/ui/components/Sheet.tsx",
       "src/ui/components/Stepper.tsx",
       "src/ui/components/CountBadge.tsx",
+      "src/ui/components/PolicyTimer.tsx",
     ];
     expect(
       offenders(ui, /\brounded-full\b/, [], (file, text) => tracks.includes(file) || /\bsize-/.test(text)),

@@ -1,4 +1,4 @@
-// copied from getproperty-web@3d513cf until collective-shared exists (D-155) — adapted: + the JW4 gate glyphs of web's working tree (same keys), verbatim again at the JW4 re-sync
+// copied from getproperty-web@32f942e until collective-shared exists (D-155)
 /**
  * The curated icon set (design-system.md §2): our name for an icon's *meaning* → the Lucide glyph
  * drawn for it. Zones never import from `lucide-react`; `pnpm icons` turns this map into
@@ -147,6 +147,32 @@ export const CURATED_ICONS = {
   cctv: "cctv",
   "id-card": "id-card",
   "log-in": "log-in",
+  // J (JW2a): the light GL — ledger and journals, funds, petty cash, expense requests, bank statement files, unmatch,
+  // withholding-tax certificates
+  ledger: "book-text",
+  fund: "piggy-bank",
+  coins: "coins",
+  expense: "hand-coins",
+  spreadsheet: "file-spreadsheet",
+  unlink: "unlink-2",
+  certificate: "file-check-2",
+  // J (JW2b): vendors, service contracts, quotation rounds (comparing quotes), monthly evaluations and their trend,
+  // blocking a vendor
+  vendor: "briefcase-business",
+  contract: "file-signature",
+  quotation: "scale",
+  evaluation: "clipboard-check",
+  "trend-up": "trending-up",
+  "trend-down": "trending-down",
+  "trend-steady": "move-right",
+  block: "ban",
+  // J (JW3a): the import wizard — the rail entry, a file chip, an attachment, the legacy-vs-new comparison, the
+  // archive of a full export
+  import: "file-input",
+  file: "file-text",
+  attachment: "paperclip",
+  compare: "git-compare",
+  "file-archive": "file-archive",
   // theme & language
   "theme-system": "monitor",
   "theme-light": "sun",

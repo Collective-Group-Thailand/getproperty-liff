@@ -2,10 +2,17 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 
-import { ImageViewer } from "@/ui/components/ImageViewer";
+import type { ImageViewerProps } from "@/ui/components/ImageViewer";
 import { LazyDialog } from "@/ui/components/overlays";
+import { Skeleton } from "@/ui/components/Skeleton";
+import { lazyWarm } from "@/ui/lib/lazy";
+
+/** The zoomable viewer opens with the dialog (D-179: the technician's work order is at its budget). */
+const ImageViewer = lazyWarm<ImageViewerProps>(() =>
+  import("@/ui/components/ImageViewer").then((module) => module.ImageViewer),
+);
 
 export interface GalleryPhoto {
   id: string;
@@ -92,16 +99,18 @@ export function PhotoGallery({
         size="xl"
       >
         {open ? (
-          <ImageViewer
-            src={open.url}
-            alt={open.alt}
-            data-testid={`${testId}-full`}
-            labels={{
-              zoomIn: t("photo.zoomIn"),
-              zoomOut: t("photo.zoomOut"),
-              zoom: (percent) => t("photo.zoom", { percent }),
-            }}
-          />
+          <Suspense fallback={<Skeleton className="aspect-[4/3] w-full" />}>
+            <ImageViewer
+              src={open.url}
+              alt={open.alt}
+              data-testid={`${testId}-full`}
+              labels={{
+                zoomIn: t("photo.zoomIn"),
+                zoomOut: t("photo.zoomOut"),
+                zoom: (percent) => t("photo.zoom", { percent }),
+              }}
+            />
+          </Suspense>
         ) : null}
       </LazyDialog>
     </>
