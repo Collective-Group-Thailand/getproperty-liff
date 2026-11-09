@@ -68,6 +68,7 @@ function offersOf(account: MockAccount): StoredOffer[] {
             ? { areaSlug: "ari", province: null, district: null, maxRent: null }
             : null,
           enquiredListingIds: [],
+          enquiredListingSlugs: [],
           createdAt: bangkokIso(Date.now()),
         },
         replays: new Map(),
@@ -226,6 +227,7 @@ export const relocationHandlers: HttpHandler[] = [
     const shared = body.shareRentRecord ? shareWithEnquiry(found.account.userId, opened.enquiry, request) : null;
     const listingId = listingIdOf(slug);
     if (!found.offer.dto.enquiredListingIds.includes(listingId)) found.offer.dto.enquiredListingIds.push(listingId);
+    if (!found.offer.dto.enquiredListingSlugs.includes(slug)) found.offer.dto.enquiredListingSlugs.push(slug);
     const result: Schemas["RelocationEnquiryDto"] = {
       leadId: opened.enquiry.id,
       listingId,

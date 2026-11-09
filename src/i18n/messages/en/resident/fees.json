@@ -77,7 +77,7 @@
       "sqm": "{value} m²",
       "sqwa": "{value} sq. wa"
     },
-    "share": "Ownership ratio {value}%",
+    "share": "Ownership ratio {value}",
     "plot": "Plot {plot}"
   },
   "budget": {
@@ -185,23 +185,28 @@
       "nothingDueBody": "This unit has nothing to pay right now.",
       "instalments": "Number of instalments",
       "instalmentsHint": "Monthly, at least 2. The office sets the most it allows.",
+      "instalmentsRange": "Monthly, {min}–{max} instalments as the office allows.",
       "less": "Fewer instalments",
       "more": "More instalments",
       "months": "monthly",
       "firstDue": "First instalment due (optional)",
       "firstDueHint": "Left empty, the first instalment is due on the 1st of next month.",
+      "firstDueWindow": "Left empty, the first instalment is due on {date} · latest {latest}.",
       "note": "Note to the office (optional)",
       "noteHint": "For example the reason, or when paying suits you",
       "how": "The juristic office reviews it and tells you in LINE. When approved, what you owe at that time is split into the instalments.",
+      "principal": "To be split now: {amount}",
       "submit": "Send the request",
       "errors": {
         "instalments": {
           "required": "Enter the number of instalments",
           "integer": "Use a whole number",
-          "min": "At least {min} instalments"
+          "min": "At least {min} instalments",
+          "max": "At most {max} instalments"
         },
         "firstDueOn": {
-          "past": "Choose a day after today"
+          "past": "Choose a day after today",
+          "late": "Choose a date no later than {date}"
         },
         "note": {
           "tooLong": "At most {max} characters"

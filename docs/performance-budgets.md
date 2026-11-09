@@ -376,3 +376,25 @@ and the shell carried the typed client for two calls; G2's `NativeSelect` listbo
 
 **Least headroom: the technician work order (179.8 KB)** — its next client widget must be lazy. A component that calls
 `browserApi` while the page opens downloads the typed client then (≈ +4 KB): read on mount with `bffJson`.
+
+### JS-adopt-liff — api `d33fed1` adopted, #37–#52 consumed (2026-11-10, `pnpm lhci` — every set — in the sandbox with `CHROME_PATH=/usr/bin/google-chrome`, mock build; all pass)
+
+Every new read is on the server (single reads, plan options, the unit's gate for the remember days); new client code
+is small: the plan form's range checks and principal line (+0.3 KB on the plan request), the invite window check, the
+auto-pay link is now a server `Link` (no `useSyncExternalStore` / localStorage, −0.5 KB on `/fees`). The technician
+work order is unchanged (no technician code touched).
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/profile`, `/profile/privacy`, `/profile/notifications` | 170.7, 170.3, 173.3, 172.8, 171.6, 173.4, 175.2, 170.1, 173.2, 175.1, 173.7, 177.2 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>`, `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 168.8, 178.6, 174.4, 169.8, 168.8, 171.8, 176.7, 176.4, 170.4, 178.0 KB | 180 KB |
+| `technician` | `/technician`, a work order | 168.2, **179.8** KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 176.0, 176.9 KB | 180 KB |
+| `resident-contracts` | `/contracts`, `/contracts/<id>`, `…/sign`, `/renewals/<id>`, `/lease/<id>` | 168.8, 171.8, 176.0, 174.2, 173.4 KB | 180 KB |
+| `relocation-reviews` / `-forms` | `/relocation`, offer, review (published / form), `/lease/<id>` | 172.7, 176.9, 172.2 / 177.6, 173.4 KB | 180 KB |
+| `common-fees` | `/fees`, `/statements`, plan, debt clearance, auto-pay | 172.4, 171.9, 175.6, 177.0, 176.2 KB | 180 KB |
+| `visitors` | `/visitors`, `/visits/<id>`, `/visitors/open`, invite, policy, home | 177.0, 176.8, 176.2, 176.8, 173.8, 170.7 KB | 180 KB |
+| `units-roles` | home, `/invoices`, `/link/unit` | 170.7, 170.3, 174.7 KB | 180 KB |
+| `prospect`, `recommendations`, `public` | book, self-viewing, enquiry; four lists; `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 176.9, 173.2, 174.2; 170.7–166.7; 177.8 (181.8 in the run where the fake LIFF's redirect lands, as before — the assertion passes), 171.2, 175.0, 166.7 KB | 180 KB |
+
+**Least headroom is unchanged: the technician work order (179.8 KB)**, then `/requests/new` (178.6) and `/access` (178.0).

@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { ActionDock } from "@/features/shared/Screen";
-import { formatDate } from "@/i18n/format";
+import { formatDate, formatTHB } from "@/i18n/format";
 import { isLocale } from "@/i18n/routing";
 import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
@@ -29,40 +29,58 @@ import {
   validatePlanDraft,
   type PlanDraft,
   type PlanDraftErrors,
+  type PlanLimits,
 } from "./model";
 
 export interface PlanRequestFormProps {
   unitId: string;
   today: string;
+  /**
+   * The office's limits and what would be split now (`GET …/payment-plan-requests/options`, CR #45); `null` when they
+   * could not be read — the contract's minimum is then checked here and the rest comes back as the API's 422.
+   */
+  options?: (PlanLimits & { proposedPrincipal: string; defaultFirstDueOn: string }) | null;
   /** Called with the plan the API created (stories / tests); the page navigates to its record by default. */
   onCreated?: (plan: PaymentPlan) => void;
 }
 
 /**
- * Asking the juristic office to split what I owe on this unit into monthly instalments (D-325). The form checks what
- * the contract states (an integer from 2, a first due date after today); the office's own limits — at most
- * `juristic.plan_max_instalments` and a first instalment within its window — come back as the API's message at the
- * field (contract request #45). One `Idempotency-Key` per request, the body frozen for retries. `open_exists` points to
- * the plan already on file; `nothing_due` says there is nothing to split.
+ * Asking the juristic office to split what I owe on this unit into monthly instalments (D-325). The form checks the
+ * office's range from the request options (CR #45: instalments `minInstalments` … `maxInstalments`, the first due date
+ * within its window) and names what would be split now; the API's 422 still answers at the field. One
+ * `Idempotency-Key` per request, the body frozen for retries. `open_exists` points to the plan already on file;
+ * `nothing_due` says there is nothing to split.
  */
-export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormProps) {
+export function PlanRequestForm({ unitId, today, options = null, onCreated }: PlanRequestFormProps) {
   const t = useTranslations("resident.fees.plans.form");
   const current = useLocale();
   const locale = isLocale(current) ? current : "th";
   const router = useRouter();
   const attempt = useIdempotentAttempt<Schemas["PaymentPlanRequestDto"]>();
-  const [draft, setDraft] = useState<PlanDraft>({ instalments: "3", firstDueOn: "", note: "" });
+  const min = Math.max(PLAN_MIN_INSTALMENTS, options?.minInstalments ?? PLAN_MIN_INSTALMENTS);
+  const max = options?.maxInstalments ?? null;
+  const [draft, setDraft] = useState<PlanDraft>(() => ({
+    instalments: String(Math.max(min, Math.min(3, max ?? 3))),
+    firstDueOn: "",
+    note: "",
+  }));
   const [touched, setTouched] = useState<Partial<Record<keyof PlanDraft, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const summary = useRef<HTMLDivElement>(null);
 
-  const errors: PlanDraftErrors = validatePlanDraft(draft, today);
+  const errors: PlanDraftErrors = validatePlanDraft(draft, today, options);
   const shown = (field: keyof PlanDraft) => (submitted || touched[field] ? errors[field] : undefined);
   const message = (field: keyof PlanDraft): string | undefined => {
     const local = shown(field);
-    if (local) return t(`errors.${field}.${local}`, { min: PLAN_MIN_INSTALMENTS, max: PLAN_NOTE_MAX });
+    if (local) {
+      return t(`errors.${field}.${local}`, {
+        min,
+        max: field === "note" ? PLAN_NOTE_MAX : (max ?? PLAN_NOTE_MAX),
+        date: options ? formatDate(options.latestFirstDueOn, locale) : "",
+      });
+    }
     return error?.fieldError(field);
   };
   const set = (field: keyof PlanDraft, value: string) => {
@@ -71,8 +89,8 @@ export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormPro
   };
   const step = (delta: number) => {
     const value = Number.parseInt(draft.instalments, 10);
-    const next = Number.isFinite(value) ? value + delta : PLAN_MIN_INSTALMENTS;
-    set("instalments", String(Math.max(PLAN_MIN_INSTALMENTS, next)));
+    const next = Number.isFinite(value) ? value + delta : min;
+    set("instalments", String(Math.min(max ?? Infinity, Math.max(min, next))));
     setTouched((previous) => ({ ...previous, instalments: true }));
   };
 
@@ -152,7 +170,17 @@ export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormPro
         ) : null}
       </div>
 
-      <Field label={t("instalments")} hint={t("instalmentsHint")} error={message("instalments")}>
+      {options ? (
+        <p className="text-sm font-medium" data-testid="plan-principal">
+          {t("principal", { amount: formatTHB(options.proposedPrincipal, locale) })}
+        </p>
+      ) : null}
+
+      <Field
+        label={t("instalments")}
+        hint={max !== null ? t("instalmentsRange", { min, max }) : t("instalmentsHint")}
+        error={message("instalments")}
+      >
         <div className="flex items-center gap-2">
           <IconButton
             type="button"
@@ -161,7 +189,7 @@ export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormPro
             icon={IconRemove}
             label={t("less")}
             onClick={() => step(-1)}
-            disabled={Number.parseInt(draft.instalments, 10) <= PLAN_MIN_INSTALMENTS}
+            disabled={Number.parseInt(draft.instalments, 10) <= min}
           />
           <Input
             inputSize="lg"
@@ -179,6 +207,7 @@ export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormPro
             icon={IconAdd}
             label={t("more")}
             onClick={() => step(1)}
+            disabled={max !== null && Number.parseInt(draft.instalments, 10) >= max}
           />
           <span className="text-muted text-sm">{t("months")}</span>
         </div>
@@ -186,13 +215,21 @@ export function PlanRequestForm({ unitId, today, onCreated }: PlanRequestFormPro
 
       <Field
         label={t("firstDue")}
-        hint={t("firstDueHint", { today: formatDate(today, locale) })}
+        hint={
+          options
+            ? t("firstDueWindow", {
+                date: formatDate(options.defaultFirstDueOn, locale),
+                latest: formatDate(options.latestFirstDueOn, locale),
+              })
+            : t("firstDueHint", { today: formatDate(today, locale) })
+        }
         error={message("firstDueOn")}
       >
         <Input
           type="date"
           inputSize="lg"
-          min={today}
+          min={options?.earliestFirstDueOn ?? today}
+          max={options?.latestFirstDueOn}
           value={draft.firstDueOn}
           onChange={(event) => set("firstDueOn", event.target.value)}
           onBlur={() => setTouched((previous) => ({ ...previous, firstDueOn: true }))}

@@ -2,9 +2,9 @@ import { getTranslations } from "next-intl/server";
 
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
-import { loadVisit, requestTime } from "@/features/resident/visitors/data";
+import { loadGate, loadVisit, requestTime } from "@/features/resident/visitors/data";
 import { VisitScreen } from "@/features/resident/visitors/VisitScreen";
-import { parseAnswer } from "@/features/resident/visitors/model";
+import { parseAnswer, rememberDays } from "@/features/resident/visitors/model";
 import { ProblemPage } from "@/features/shared/ProblemNotice";
 import { getActor } from "@/lib/auth/actor";
 
@@ -27,6 +27,8 @@ export default async function VisitPage({
   const [{ visitId }, query] = await Promise.all([params, searchParams]);
   const [actor, locale, loaded] = await Promise.all([getActor(), pageLocale(), loadVisit(visitId)]);
   if (actor.status !== "signed-in") return null;
+  // CR #50: the estate's remember days come with the unit's gate (a failed read only drops the number from the copy).
+  const gate = loaded.data?.unitId ? await loadGate(loaded.data.unitId) : null;
   return (
     <ResidentShell active="visitors">
       {loaded.error ? (
@@ -38,6 +40,7 @@ export default async function VisitPage({
           answer={parseAnswer(query.answer)}
           locale={locale}
           now={requestTime()}
+          rememberDays={rememberDays(gate?.data)}
           unit={actor.units.find((u) => u.unitId === loaded.data?.unitId) ?? actor.unit}
         />
       )}

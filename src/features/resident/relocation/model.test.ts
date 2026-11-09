@@ -48,10 +48,12 @@ describe("relocation model (GL4, D-299)", () => {
     const purposes = [{ key: "resident.service" }, { key: "resident.relocation" }] as never[];
     expect(relocationPurpose(purposes)).toEqual({ key: "resident.relocation" });
     expect(relocationPurpose([])).toBeNull();
-    expect(purposeState({ granted: null, grantedVersion: null, version: 1 })).toBe("off");
-    expect(purposeState({ granted: true, grantedVersion: 1, version: 1 })).toBe("on");
-    expect(purposeState({ granted: null, grantedVersion: 1, version: 2 })).toBe("outdated");
-    expect(purposeState({ granted: false, grantedVersion: 1, version: 1 })).toBe("off");
+    expect(purposeState({ granted: null, grantedVersion: null, lastGranted: null, version: 1 })).toBe("off");
+    expect(purposeState({ granted: true, grantedVersion: 1, lastGranted: true, version: 1 })).toBe("on");
+    expect(purposeState({ granted: null, grantedVersion: 1, lastGranted: true, version: 2 })).toBe("outdated");
+    expect(purposeState({ granted: false, grantedVersion: 1, lastGranted: false, version: 1 })).toBe("off");
+    // CR #39: withdrawn at v1, then v2 published — still off, never "outdated" with a Stop button.
+    expect(purposeState({ granted: null, grantedVersion: 1, lastGranted: false, version: 2 })).toBe("off");
   });
 
   it("puts open offers first, newest first", () => {

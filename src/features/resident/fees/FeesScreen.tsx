@@ -148,7 +148,7 @@ export async function FeesScreen({
                       {live.masked ? <span className="font-mono">{live.masked}</span> : null}
                       <Icon icon={IconChevronRight} className="rtl:rotate-180" />
                     </Link>
-                  ) : mandates ? (
+                  ) : mandates && unit.recurringAvailable ? (
                     <AutoPayLink unitId={unit.unitId} label={t("autopayLink")} />
                   ) : null
                 ) : null}

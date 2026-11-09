@@ -24,6 +24,11 @@ function unit(roles: Role[], capabilities: ResidentMeUnit["capabilities"], extra
     leaseIds: [],
     propertyKind: null,
     legalForm: null,
+    areaSqm: null,
+    ownershipRatio: null,
+    landAreaSqwa: null,
+    plotNo: null,
+    recurringAvailable: false,
     ...extra,
   } satisfies ResidentMeUnit;
 }

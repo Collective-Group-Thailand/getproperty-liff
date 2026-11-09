@@ -14,7 +14,9 @@ import { IconForward } from "@/ui/icons/glyphs/forward";
 /**
  * The resident's e-signature of a lease (D-062, L3 3.1 §2) — the generic flow (`ESignFlow`) on the lease endpoints:
  * the document and its sha256 from `GET …/contract`, the SMS code from `POST …/signature/otp`, the signature to
- * `POST …/sign`; a changed document is `lease.contract_changed`.
+ * `POST …/sign`; a changed document is `lease.contract_changed`. The page rendered the reader for the lease's
+ * `contractSha256` (CR #38), so the flow compares hashes like it does for the library's documents instead of
+ * rendering the page again after the document read.
  */
 export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: React.ReactNode }) {
   const t = useTranslations("resident.lease.sign");
@@ -23,6 +25,7 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
     <ESignFlow<ResidentLease>
       namespace="resident.lease.sign"
       reader={reader}
+      renderedSha256={lease.contractSha256}
       changedCode="lease.contract_changed"
       alreadySignedCode="lease.already_signed"
       loadDocument={async () =>

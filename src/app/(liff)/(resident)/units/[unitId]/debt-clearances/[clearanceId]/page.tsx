@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { CertificateView } from "@/features/resident/fees/CertificateView";
-import { billedUnitOr404, loadClearances } from "@/features/resident/fees/data";
+import { billedUnitOr404, loadClearance } from "@/features/resident/fees/data";
 import { unitName } from "@/features/resident/fees/words";
 import { pageLocale } from "@/features/resident/lease/data";
 import { ResidentShell } from "@/features/resident/shell/ResidentShell";
@@ -14,21 +14,21 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-/** One certificate or request (JL1, D-306); the contract has no single read, so it comes from the unit's list. */
+/** One certificate or request (JL1, D-306), read by id (CR #48) — the LINE messages link here. */
 export default async function ClearancePage({ params }: { params: Promise<{ unitId: string; clearanceId: string }> }) {
   const { unitId, clearanceId } = await params;
   const unit = await billedUnitOr404(unitId);
-  const [t, locale, clearances] = await Promise.all([
+  const [t, locale, loaded] = await Promise.all([
     getTranslations("resident.fees"),
     pageLocale(),
-    loadClearances(unitId),
+    loadClearance(unitId, clearanceId),
   ]);
-  const clearance = clearances.data?.find((c) => c.id === clearanceId);
-  if (clearances.data && !clearance) notFound();
+  if (loaded.data === null) notFound();
+  const clearance = loaded.data;
   return (
     <ResidentShell active="bills" back={{ href: `/units/${unitId}/debt-clearances`, label: t("clearance.title") }}>
-      {clearances.error || !clearance ? (
-        <ProblemPage error={clearances.error!} />
+      {loaded.error || !clearance ? (
+        <ProblemPage error={loaded.error!} />
       ) : (
         <Screen testId="clearance-record">
           <ScreenHeader title={t("clearance.title")} lede={unitName(t, unit)} flush />

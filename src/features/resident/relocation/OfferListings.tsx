@@ -25,11 +25,14 @@ import { EmptyAction } from "@/features/shared/EmptyAction";
 export async function OfferListings({
   offerId,
   listings,
+  enquired = [],
   record,
   locale,
 }: {
   offerId: string;
   listings: ListingSummary[];
+  /** Slugs of the listings I already asked about from this offer (`enquiredListingSlugs`, CR #37). */
+  enquired?: readonly string[];
   record: Pick<Schemas["RentRecordDto"], "onTime" | "late" | "outstanding"> | null;
   locale: Locale;
 }) {
@@ -59,6 +62,7 @@ export async function OfferListings({
           [listing.district, listing.province].filter(Boolean).join(", ") || null,
         ].filter((fact): fact is string => !!fact);
         const transit = listing.nearestTransit;
+        const asked = enquired.includes(listing.slug);
         return (
           <li key={listing.slug}>
             <Card
@@ -67,6 +71,7 @@ export async function OfferListings({
               className="overflow-hidden"
               data-testid="relocation-listing"
               data-slug={listing.slug}
+              data-enquired={asked || undefined}
             >
               {listing.cover ? (
                 // eslint-disable-next-line @next/next/no-img-element -- signed object-storage rendition
@@ -96,8 +101,13 @@ export async function OfferListings({
                     {t("transit", { name: transit.name, distance: formatNumber(transit.distanceM, locale) })}
                   </p>
                 ) : null}
-                {listing.verifiedOwner || listing.verifiedVacant ? (
+                {listing.verifiedOwner || listing.verifiedVacant || asked ? (
                   <div className="flex flex-wrap gap-2">
+                    {asked ? (
+                      <Badge tone="neutral" size="sm" icon={IconCheckCircle}>
+                        {t("enquiredBadge")}
+                      </Badge>
+                    ) : null}
                     {listing.verifiedOwner ? (
                       <Badge tone="success" size="sm" icon={IconShield}>
                         {t("verifiedOwner")}

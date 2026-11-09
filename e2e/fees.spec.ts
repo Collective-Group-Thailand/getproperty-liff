@@ -45,7 +45,7 @@ test.describe("my common fees", () => {
     await expect(paper.getByTestId("fee-unit")).toHaveCount(2);
     await expect(paper.getByTestId("fee-unit").first()).toContainText("C-1203");
     await expect(paper.getByTestId("fee-unit").first()).toContainText("42.50 ตร.ม.");
-    await expect(paper.getByTestId("fee-unit").first()).toContainText("อัตราส่วนกรรมสิทธิ์ 0.3412%");
+    await expect(paper.getByTestId("fee-unit").first()).toContainText("อัตราส่วนกรรมสิทธิ์ 0.003412");
     await expect(paper.getByTestId("fee-unit").first()).toContainText("฿25,500.00");
     // Two invoices: no total is computed in the browser (contract request #43); each unit is paid on its own.
     await expect(page.getByTestId("fees-pay-first")).toContainText("C-1203");
@@ -142,10 +142,12 @@ test.describe("my common fees", () => {
     await expect(page.getByTestId("plan-form-summary")).toContainText("อย่างน้อย 2 งวด");
     await checkPage(page);
 
-    // Above the office's limit: the API's message at the field (contract request #45).
+    // Above the office's limit from the request options (CR #45): checked on the phone, named in the hint.
+    await expect(page.getByTestId("plan-principal")).toBeVisible();
+    await expect(page.getByText("ผ่อนรายเดือน 2–12 งวด ตามที่สำนักงานกำหนด")).toBeVisible();
     await page.getByTestId("plan-instalments").fill("24");
     await page.getByTestId("plan-submit").click();
-    await expect(page.getByText("ผ่อนได้ 2–12 งวด")).toBeVisible();
+    await expect(page.getByTestId("plan-form-summary")).toContainText("ไม่เกิน 12 งวด");
 
     await page.getByTestId("plan-instalments").fill("6");
     await page.getByTestId("plan-note").fill("ขอแบ่งจ่ายรายเดือน");
@@ -218,19 +220,17 @@ test.describe("my common fees", () => {
     await expect(page.getByTestId("clearance-row")).toHaveCount(1);
   });
 
-  test("auto-pay not offered in this building: explained once, then the link is hidden", async ({
+  test("auto-pay not offered in this building: no link (recurringAvailable false), the page explains", async ({
     page,
     context,
     baseURL,
   }) => {
     await seedSession(context, baseURL!, subject("coowner", "recurringoff"));
     await page.goto("/fees");
-    await page.getByTestId("fees-autopay").click();
-    await page.getByTestId("autopay-start").click();
-    await expect(page.getByTestId("autopay-unavailable")).toContainText("ยังไม่เปิดให้บริการในอาคารนี้");
-    await page.goto("/fees");
     await expect(page.getByTestId("fees-pay")).toBeVisible();
     await expect(page.getByTestId("fees-autopay")).toHaveCount(0);
+    await page.goto(`/units/${C1203}/auto-pay`);
+    await expect(page.getByTestId("autopay-unavailable")).toContainText("ยังไม่เปิดให้บริการในอาคารนี้");
   });
 
   test("auto-pay: set up at the provider, then cancelled", async ({ page, context, baseURL }) => {

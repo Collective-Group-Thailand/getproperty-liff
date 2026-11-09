@@ -28,12 +28,12 @@ export function relocationPurpose(purposes: readonly ConsentPurpose[]): ConsentP
 
 /**
  * - `on`: granted at the current version;
- * - `outdated`: granted an earlier version — the new text asks again;
- * - `off`: never answered, or withdrawn.
+ * - `outdated`: my last answer (`lastGranted`, CR #39) was a grant of an earlier version — the new text asks again;
+ * - `off`: never answered, or withdrawn (at any version — a withdrawal stays off when a new version is published).
  */
-export function purposeState(purpose: Pick<ConsentPurpose, "granted" | "grantedVersion" | "version">) {
+export function purposeState(purpose: Pick<ConsentPurpose, "granted" | "grantedVersion" | "lastGranted" | "version">) {
   if (purpose.granted === true && purpose.grantedVersion === purpose.version) return "on" as const;
-  return purpose.grantedVersion !== null && purpose.grantedVersion < purpose.version && purpose.granted !== false
+  return purpose.lastGranted === true && purpose.grantedVersion !== null && purpose.grantedVersion < purpose.version
     ? ("outdated" as const)
     : ("off" as const);
 }

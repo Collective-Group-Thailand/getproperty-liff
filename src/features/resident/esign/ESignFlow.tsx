@@ -69,8 +69,9 @@ export type SignNamespace = "resident.lease.sign" | "resident.contracts.sign";
  * - the server-rendered `reader` must show the version whose hash is signed: when the page knows the hash it rendered
  *   for (`renderedSha256`) and it equals the loaded document's, the reader is current; otherwise the page is rendered
  *   again (`router.refresh()`, the flow keeps its state) and *Next* waits for it — a reader rendered for yet another
- *   version loads the document again. Without a rendered hash (a lease) the page is rendered again after every load,
- *   so the reader is never older than the hash (a newer one is refused by the API with `changedCode`);
+ *   version loads the document again. Without a rendered hash (a lease whose contract is not rendered yet,
+ *   `contractSha256` null) the page is rendered again after every load, so the reader is never older than the hash
+ *   (a newer one is refused by the API with `changedCode`);
  * - a drawing belongs to one reading: going back to read (or a changed document) drops it, so the pad and what is
  *   sent never differ;
  * - *Open the PDF* fetches the document on every tap (its URL is valid 5 minutes, D-294); another hash there is a
@@ -89,7 +90,10 @@ export function ESignFlow<R>({
 }: {
   namespace: SignNamespace;
   reader: React.ReactNode;
-  /** The sha256 of the version the server rendered `reader` for, when the page knows it (`ContractDto.sha256`). */
+  /**
+   * The sha256 of the version the server rendered `reader` for, when the page knows it (`ContractDto.sha256`,
+   * `ResidentLeaseDto.contractSha256`).
+   */
   renderedSha256?: string | null;
   loadDocument: () => Promise<ContractDownload>;
   requestOtp: () => Promise<SignatureOtp>;
@@ -122,8 +126,8 @@ export function ESignFlow<R>({
   const [load] = useState(() => loadDocument);
 
   // Whether the reader on screen shows the version of the hash held (*Next* waits until it does):
-  // - with a rendered hash (contracts) it is derived: the two hashes are equal;
-  // - without one (a lease) the page is rendered again after the hash is read: `awaiting` holds that hash until the
+  // - with a rendered hash (documents, leases) it is derived: the two hashes are equal;
+  // - without one (a lease whose contract is not rendered yet) the page is rendered again after the hash is read: `awaiting` holds that hash until the
   //   refresh settles, `readerFor` then names it.
   const known = renderedSha256 ?? null;
   const [readerFor, setReaderFor] = useState<string | null>(null);

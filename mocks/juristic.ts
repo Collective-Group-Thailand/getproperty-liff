@@ -135,6 +135,7 @@ function storeOf(account: MockAccount): JuristicStore {
         unitId: unit.unitId,
         unitNo: unit.unitNo,
         partyId,
+        partyName: account.displayName,
         method: "direct_debit",
         provider: "fake",
         scope: "advance_invoices",
@@ -288,6 +289,10 @@ function budgetOf(account: MockAccount, buildingId: string): Schemas["BudgetActu
       { label: "เงินกองทุน", amount: village ? "558000.00" : "1020000.00" },
     ],
     expenseSideAvailable: false,
+    // The expense side (J2.1) is not shown while `expenseSideAvailable` is false.
+    budgetedExpense: "0.00",
+    actualExpense: "0.00",
+    expenseLines: [],
   };
 }
 
@@ -304,6 +309,15 @@ export const juristicHandlers: HttpHandler[] = [
       data: all.slice((page - 1) * perPage, page * perPage),
       meta: { page, perPage, total: all.length },
     });
+  }),
+
+  // CR #48 (D-335): one statement of mine; 404 otherwise.
+  http.get(mswPath("/v1/resident/statements/:statementId"), ({ request, params }) => {
+    const op = "resident.statements.get";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const statement = statementsOf(auth.account).find((s) => s.id === params.statementId);
+    return statement ? HttpResponse.json(statement) : problem(op, "http.not_found");
   }),
 
   http.get(mswPath("/v1/resident/statements/:statementId/document"), ({ request, params }) => {
@@ -334,6 +348,38 @@ export const juristicHandlers: HttpHandler[] = [
     if (found instanceof Response) return found;
     const store = storeOf(auth.account);
     return HttpResponse.json(store.plans.filter((p) => p.unitId === found.unit.unitId).reverse());
+  }),
+
+  // CR #45 (D-335): the same rules as the request below.
+  http.get(mswPath("/v1/resident/units/:unitId/payment-plan-requests/options"), ({ request, params }) => {
+    const op = "resident.units.paymentPlanOptions";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = billedUnit(auth.account, String(params.unitId), op);
+    if (found instanceof Response) return found;
+    const today = bangkokDate(Date.now());
+    const principal = openOf(auth.account, found.unit.unitId).reduce((sum, i) => sum + satang(i.dto.balance), 0);
+    const options: Schemas["PaymentPlanOptionsDto"] = {
+      minInstalments: 2,
+      maxInstalments: PLAN_MAX_INSTALMENTS,
+      earliestFirstDueOn: today,
+      latestFirstDueOn: addMonths(today, 3),
+      defaultFirstDueOn: firstOfNextMonth(),
+      proposedPrincipal: money(principal),
+      available: principal >= 200,
+    };
+    return HttpResponse.json(options);
+  }),
+
+  // CR #48 (D-335): one plan of the unit; 404 outside it.
+  http.get(mswPath("/v1/resident/units/:unitId/payment-plans/:planId"), ({ request, params }) => {
+    const op = "resident.units.paymentPlan";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = billedUnit(auth.account, String(params.unitId), op);
+    if (found instanceof Response) return found;
+    const plan = storeOf(auth.account).plans.find((p) => p.id === params.planId && p.unitId === found.unit.unitId);
+    return plan ? HttpResponse.json(plan) : problem(op, "http.not_found");
   }),
 
   http.post(mswPath("/v1/resident/units/:unitId/payment-plan-requests"), async ({ request, params }) => {
@@ -481,6 +527,7 @@ export const juristicHandlers: HttpHandler[] = [
       unitId: found.unit.unitId,
       unitNo: found.unit.unitNo,
       partyId: found.partyId,
+      partyName: auth.account.displayName,
       method: body.method,
       provider: "fake",
       scope: body.scope ?? "advance_invoices",
@@ -590,6 +637,19 @@ export const juristicHandlers: HttpHandler[] = [
     };
     store.clearances.push({ ...clearance, verifyCode: null });
     return remember(store, request, `clearance|${found.unit.unitId}`, 201, clearance);
+  }),
+
+  // CR #48 (D-335): one request / certificate of the unit (the verify code only right after issue); 404 outside it.
+  http.get(mswPath("/v1/resident/units/:unitId/debt-clearances/:debtClearanceId"), ({ request, params }) => {
+    const op = "resident.units.debtClearance";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const found = billedUnit(auth.account, String(params.unitId), op);
+    if (found instanceof Response) return found;
+    const clearance = storeOf(auth.account).clearances.find(
+      (c) => c.id === params.debtClearanceId && c.unitId === found.unit.unitId,
+    );
+    return clearance ? HttpResponse.json({ ...clearance, verifyCode: null }) : problem(op, "http.not_found");
   }),
 
   http.get(mswPath("/v1/resident/units/:unitId/debt-clearances/:debtClearanceId/document"), ({ request, params }) => {

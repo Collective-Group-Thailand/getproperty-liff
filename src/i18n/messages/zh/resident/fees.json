@@ -77,7 +77,7 @@
       "sqm": "{value} 平方米",
       "sqwa": "{value} 平方哇"
     },
-    "share": "产权比例 {value}%",
+    "share": "产权比例 {value}",
     "plot": "地块 {plot}"
   },
   "budget": {
@@ -185,23 +185,28 @@
       "nothingDueBody": "本单位目前没有应付金额。",
       "instalments": "期数",
       "instalmentsHint": "按月分期，至少 2 期，最多期数由办公室规定。",
+      "instalmentsRange": "按月分期，{min}–{max} 期，以办公室规定为准。",
       "less": "减少期数",
       "more": "增加期数",
       "months": "期（月）",
       "firstDue": "第一期到期日（可选）",
       "firstDueHint": "不选择时，第一期于下月 1 日到期。",
+      "firstDueWindow": "不选择时，第一期于 {date} 到期 · 最晚可选 {latest}。",
       "note": "给办公室的备注（可选）",
       "noteHint": "例如原因，或方便付款的时间",
       "how": "法人办公室审核后会在 LINE 通知您。批准时，当时的应付金额会被分成各期。",
+      "principal": "现在可分期的金额：{amount}",
       "submit": "发送分期申请",
       "errors": {
         "instalments": {
           "required": "请输入期数",
           "integer": "期数须为整数",
-          "min": "至少 {min} 期"
+          "min": "至少 {min} 期",
+          "max": "最多 {max} 期"
         },
         "firstDueOn": {
-          "past": "请选择今天之后的日期"
+          "past": "请选择今天之后的日期",
+          "late": "请选择不晚于 {date} 的日期"
         },
         "note": {
           "tooLong": "不超过 {max} 个字符"

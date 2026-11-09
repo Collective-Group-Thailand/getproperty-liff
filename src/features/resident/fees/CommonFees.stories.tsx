@@ -83,10 +83,22 @@ const issued: DebtClearance = {
 
 const clearanceProps = { unitId: "u1", unitName: "ห้องชุด C-1203", today: "2026-11-05", latest: "2027-01-04" };
 
-export const PlanRequest: Story = { render: () => <PlanRequestForm unitId="u1" today="2026-11-05" /> };
+const planOptions = {
+  minInstalments: 2,
+  maxInstalments: 12,
+  earliestFirstDueOn: "2026-11-05",
+  latestFirstDueOn: "2027-02-05",
+  defaultFirstDueOn: "2026-12-01",
+  proposedPrincipal: "25500.00",
+};
+export const PlanRequest: Story = {
+  render: () => <PlanRequestForm unitId="u1" today="2026-11-05" options={planOptions} />,
+};
+/** The options could not be read: the contract's minimum here, the rest is the API's 422. */
+export const PlanRequestWithoutOptions: Story = { render: () => <PlanRequestForm unitId="u1" today="2026-11-05" /> };
 export const PlanRequestEnglish: Story = {
   parameters: { locale: "en" },
-  render: () => <PlanRequestForm unitId="u1" today="2026-11-05" />,
+  render: () => <PlanRequestForm unitId="u1" today="2026-11-05" options={planOptions} />,
 };
 export const ClearanceForm: Story = { render: () => <ClearanceRequest {...clearanceProps} /> };
 export const ClearanceOutstanding: Story = {
@@ -136,6 +148,7 @@ const mandate: PaymentMandate = {
   unitId: "u1",
   unitNo: "C-1203",
   partyId: "p1",
+  partyName: "สมชาย ใจดี",
   method: "direct_debit",
   provider: "fake",
   scope: "advance_invoices",

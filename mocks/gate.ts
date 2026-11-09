@@ -12,6 +12,7 @@
  *   …geofence…   the estate asks for the phone location to open (inside: the mock estate's point)
  *   …gateoff…    the estate does not let residents open the barrier (`gate.resident_open.enabled` false)
  *   …quietgate…  no visits, invites or remembered cars yet
+ *   …nogate…     the estate has no active gate: no `gate` capability on its units (CR #49), so no visitors tab
  *
  * Mock-only controls (never in the contract or a real build):
  *   `POST /v1/resident/__mock/units/{unitId}/visits` {kind?, plate?, visitorName?, photo?, timeoutSeconds?} — the guard
@@ -46,7 +47,6 @@ const SOS_CANCEL_MS = 30_000;
 export const ESTATE_POINT = { lat: 13.6905, lng: 100.6851 };
 const RADIUS_M = 300;
 
-const GATE_ROLES = new Set(["co_owner", "tenant", "co_tenant", "family"]);
 const HOUSEHOLD = new Set(["co_owner", "tenant", "co_tenant"]);
 const DEFAULT_POLICY: Policy = {
   timeoutSeconds: 180,
@@ -92,9 +92,9 @@ export function idFrom(seed: string): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
 
-/** Units on which I hold a gate role, in a juristic estate. */
+/** Units with the `gate` capability (CR #49): an estate with an active gate on which I hold a gate role. */
 function gateUnits(account: MockAccount): MeUnit[] {
-  return myUnitsOf(account).filter((u) => u.legalForm !== null && u.roles.some((r) => GATE_ROLES.has(r.role)));
+  return myUnitsOf(account).filter((u) => u.capabilities.includes("gate"));
 }
 function gateUnit(account: MockAccount, unitId: string): MeUnit | undefined {
   return gateUnits(account).find((u) => u.unitId === unitId);
@@ -357,8 +357,7 @@ function listView(v: Visit): Schemas["VisitDto"] {
   return out as Schemas["VisitDto"];
 }
 
-function gateView(store: GateStore, unit: MeUnit) {
-  // CONTRACT-REQUEST #50: `rememberDays` (`gate.remember_days`) — not in the contract yet.
+function gateView(store: GateStore, unit: MeUnit): Schemas["ResidentGateDto"] {
   return {
     unitId: unit.unitId,
     unitNo: unit.unitNo,
@@ -367,6 +366,7 @@ function gateView(store: GateStore, unit: MeUnit) {
     gates: gatesOf(unit.propertyId, unit.propertyKind),
     privacyNotice: PRIVACY,
     rememberDays: REMEMBER_DAYS,
+    inviteMaxDays: INVITE_MAX_DAYS,
   };
 }
 
@@ -482,8 +482,7 @@ export const gateHandlers: HttpHandler[] = [
     if (auth instanceof Response) return auth;
     const found = visitForMe(auth.account, String(params.visitId));
     if (!found) return problem(op, "http.not_found");
-    // CONTRACT-REQUEST #50: `rememberDays` on the visit's policy.
-    return HttpResponse.json({ ...found.visit, policy: { ...found.visit.policy, rememberDays: REMEMBER_DAYS } });
+    return HttpResponse.json(found.visit);
   }),
 
   http.post(mswPath("/v1/resident/visits/:visitId/actions/approve"), answer("resident.visits.approve", "approve")),
@@ -558,6 +557,17 @@ export const gateHandlers: HttpHandler[] = [
         .invites.filter((i) => i.unitId === unit.unitId)
         .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
     );
+  }),
+
+  // CR #52 (D-335): one pass of the unit (never its token); 404 outside it.
+  http.get(mswPath("/v1/resident/units/:unitId/visit-invites/:inviteId"), ({ request, params }) => {
+    const op = "resident.units.visitInvite";
+    const auth = authenticate(request, "resident", op);
+    if (auth instanceof Response) return auth;
+    const unit = gateUnit(auth.account, String(params.unitId));
+    if (!unit) return problem(op, "http.not_found");
+    const invite = storeOf(auth.account).invites.find((i) => i.id === params.inviteId && i.unitId === unit.unitId);
+    return invite ? HttpResponse.json(invite) : problem(op, "http.not_found");
   }),
 
   http.post(mswPath("/v1/resident/units/:unitId/visit-invites"), async ({ request, params }) => {

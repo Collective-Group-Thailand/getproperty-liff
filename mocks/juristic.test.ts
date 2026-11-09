@@ -60,10 +60,11 @@ describe("JL1 mock: a co-owner's money with the juristic office", () => {
     const b = browser();
     await b.signIn("Umock-jl1-coowner-twounits-annual");
     const units = (await b.call("GET", "/v1/resident/me/units")).body.units;
-    expect(units.map((u: Body) => [u.unitNo, u.propertyKind, u.areaSqm])).toEqual([
-      ["C-1203", "condo", "42.50"],
-      [CONDO_UNIT_SECOND.unitNo, "condo", "35.00"],
+    expect(units.map((u: Body) => [u.unitNo, u.propertyKind, u.areaSqm, u.ownershipRatio])).toEqual([
+      ["C-1203", "condo", "42.50", "0.003412"],
+      [CONDO_UNIT_SECOND.unitNo, "condo", "35.00", "0.002810"],
     ]);
+    expect(units.every((u: Body) => u.recurringAvailable === true)).toBe(true);
     const open = (await b.call("GET", "/v1/resident/invoices?unpaid=true&perPage=100")).body.data;
     expect(open).toHaveLength(2);
     expect(open[0].periodEnd.slice(5)).toBe("12-31");
@@ -130,11 +131,31 @@ describe("JL1 mock: a co-owner's money with the juristic office", () => {
     const [listed] = (await b.call("GET", `/v1/resident/units/${U}/debt-clearances`)).body;
     expect(listed.verifyCode).toBeNull();
     expect(listed.verifyCodeHint).toBe(issued.body.verifyCode.slice(-4));
+    // CR #48: one certificate by id, without the verify code.
+    const one = await b.call("GET", `/v1/resident/units/${U}/debt-clearances/${issued.body.id}`);
+    expect(one.body).toMatchObject({ id: issued.body.id, verifyCode: null });
+    expect((await b.call("GET", `/v1/resident/units/${U}/debt-clearances/${crypto.randomUUID()}`)).status).toBe(404);
+  });
+
+  it("plan request options (CR #45) and one statement / plan by id (CR #48)", async () => {
+    const b = browser();
+    await b.signIn("Umock-jl1-coowner");
+    const options = (await b.call("GET", `/v1/resident/units/${U}/payment-plan-requests/options`)).body;
+    expect(options).toMatchObject({ minInstalments: 2, maxInstalments: 12, available: true });
+    expect(options.latestFirstDueOn > options.earliestFirstDueOn).toBe(true);
+    const plan = await b.call("POST", `/v1/resident/units/${U}/payment-plan-requests`, { instalments: 3 }, idem());
+    const read = await b.call("GET", `/v1/resident/units/${U}/payment-plans/${plan.body.id}`);
+    expect(read.body).toMatchObject({ id: plan.body.id, state: "proposed" });
+    const [statement] = (await b.call("GET", "/v1/resident/statements")).body.data;
+    expect((await b.call("GET", `/v1/resident/statements/${statement.id}`)).body.id).toBe(statement.id);
+    expect((await b.call("GET", `/v1/resident/statements/${crypto.randomUUID()}`)).status).toBe(404);
   });
 
   it("recurring: unavailable answers 409; otherwise pending → setup → active → cancelled", async () => {
     const off = browser();
     await off.signIn("Umock-jl1-coowner-recurringoff");
+    const [unit] = (await off.call("GET", "/v1/resident/me/units")).body.units;
+    expect(unit.recurringAvailable).toBe(false);
     const path = `/v1/resident/units/${U}/payment-mandates`;
     expect((await off.call("POST", path, { method: "direct_debit" }, idem())).body.code).toBe("recurring.unavailable");
     const b = browser();

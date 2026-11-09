@@ -71,13 +71,10 @@ export interface OwnedUnit {
   /** CR #41 (done): what the place is and the law its juristic management runs under. */
   propertyKind: components["schemas"]["PropertyKind"] | null;
   legalForm: components["schemas"]["BuildingLegalForm"] | null;
-  /** CONTRACT-REQUEST #42: the unit's measures from the register (`areaSqm`, `ownershipRatioPct`, `landAreaSqwa`, `plotNo`). */
-  measures?: {
-    areaSqm?: string | null;
-    ownershipRatioPct?: string | null;
-    landAreaSqwa?: string | null;
-    plotNo?: string | null;
-  };
+  /** CR #42 (done, D-335): the unit's measures from the register; `ownershipRatio` is the 6-decimal ratio. */
+  measures?: Partial<
+    Pick<components["schemas"]["ResidentMeUnitDto"], "areaSqm" | "ownershipRatio" | "landAreaSqwa" | "plotNo">
+  >;
 }
 
 export interface MockSession {
@@ -129,7 +126,7 @@ export const CONDO_UNIT: OwnedUnit = {
   from: "2026-01-15",
   propertyKind: "condo",
   legalForm: "condo_act",
-  measures: { areaSqm: "42.50", ownershipRatioPct: "0.3412" },
+  measures: { areaSqm: "42.50", ownershipRatio: "0.003412" },
 };
 
 /**
@@ -168,7 +165,7 @@ export const CONDO_UNIT_SECOND: OwnedUnit = {
   unitId: "c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e70",
   unitNo: "C-1205",
   from: "2026-03-01",
-  measures: { areaSqm: "35.00", ownershipRatioPct: "0.2810" },
+  measures: { areaSqm: "35.00", ownershipRatio: "0.002810" },
 };
 
 /** The resident purposes getproperty-api seeds (`prisma/seed/data/privacy.ts`), version 1. */
