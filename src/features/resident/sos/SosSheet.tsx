@@ -7,7 +7,7 @@ import { useCallback, useRef, useState } from "react";
 import { ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { IncidentKind } from "@/lib/api/types";
 import { Field } from "@/ui/components/Field";

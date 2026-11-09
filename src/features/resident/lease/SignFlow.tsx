@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { ESignFlow } from "@/features/resident/esign/ESignFlow";
-import { browserApi, unwrap } from "@/lib/api/browser";
-import type { ResidentLease } from "@/lib/api/types";
+import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
+import type { ContractDownload, ResidentLease } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
@@ -26,7 +26,8 @@ export function SignFlow({ lease, reader }: { lease: ResidentLease; reader: Reac
       changedCode="lease.contract_changed"
       alreadySignedCode="lease.already_signed"
       loadDocument={async () =>
-        unwrap(await browserApi.GET("/v1/resident/leases/{leaseId}/contract", { params: { path } }))
+        // Read as the page opens: plain `bffJson`, so the typed client stays off the first load (D-179).
+        bffJson<ContractDownload>(`/v1/resident/leases/${encodeURIComponent(path.leaseId)}/contract`)
       }
       requestOtp={async () =>
         unwrap(await browserApi.POST("/v1/resident/leases/{leaseId}/signature/otp", { params: { path }, body: {} }))

@@ -8,7 +8,7 @@ import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDate } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/idempotency";
+import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { RememberedVehicle, ResidentVehicle } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";

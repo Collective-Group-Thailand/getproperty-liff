@@ -3,7 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { browserApi } from "@/lib/api/browser";
+import { bffJson } from "@/lib/api/browser";
+import type { Schemas } from "@/lib/api/types";
 import { peekQueryClient } from "@/lib/api/query-runtime";
 import { createRealtimeConnection } from "@/lib/realtime/connection";
 import { backoff, pathMatches, queriesFor, routesFor, signalRealtime } from "@/lib/realtime/events";
@@ -54,7 +55,10 @@ export function RealtimeBridge() {
     };
     const connection = createRealtimeConnection({
       authorize: async () => {
-        const { data } = await browserApi.POST("/v1/resident/realtime/auth").catch(() => ({ data: undefined }));
+        // Plain `bffJson`: the bridge connects as every page opens, and the typed client loads only on first use.
+        const data = await bffJson<Schemas["RealtimeAuthDto"]>("/v1/resident/realtime/auth", {
+          method: "POST",
+        }).catch(() => undefined);
         return data ? `/bff${data.streamUrl}` : null;
       },
       open: (url) => new EventSource(url),

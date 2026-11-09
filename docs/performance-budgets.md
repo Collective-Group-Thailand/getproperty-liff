@@ -346,3 +346,33 @@ to 180.0 KB) — measured against a build of `82e5110` and bisected. The panel n
 | `relocation-reviews-forms` | `/relocation` (off: consent), `/lease/<id>/review` (form) | 174.8, 179.1 KB | 180 KB |
 | `prospect` | `/rent/<slug>?mode=book`, `/rent/<slug>/self-viewing`, `/rent/enquiries/<id>` | 176.6, 175.4, 178.8 KB | 180 KB |
 
+
+### JS-ui re-sync from getproperty-web `32f942e` (2026-11-10, `pnpm lhci` — every set — sandbox, `CHROME_PATH` = Playwright Chromium; all pass)
+
+Before this step `main` (`e0c3972`) was already over the hard limit on six URLs no step had re-measured since GL4 —
+`/requests/new` 184.0, the technician work order 183.7, `/access` 180.9, `/deposit` (proposed settlement) 180.6, the
+review form 180.6, `/profile/notifications` 180.2 KB (measured on a build of `e0c3972`; the re-copied `src/ui` changed
+no figure by more than 0.1 KB). Causes: the generated operation list grows with every contract adoption (285 operations)
+and the shell carried the typed client for two calls; G2's `NativeSelect` listbox on the forms. Fixes:
+- **`browserApi` loads the typed client on first use** (`src/lib/api/client.ts`: openapi-fetch + `idempotency.ts` + the
+  operation list; warmed on the first tap / key press, like `lazyWarm` overlays). The realtime grant (shell, every page)
+  and the sign flows' document read (on mount) use plain `bffJson`. ≈ −3.8 KB on every page.
+- `newIdempotencyKey` has its own module (`src/lib/api/key.ts`): forms no longer pull the operation list in.
+- `/requests/new`: the unit select (only for several units) and the image compression (on submit) load on demand.
+- `PhotoGallery`: `ImageViewer` loads with its dialog.
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `resident` | `/`, `/invoices`, `/invoices/<id>`, `/receipts`, `/link`, `/lease`, `/lease/<id>/notice`, `/deposit`, `/usage`, `/profile`, `/profile/privacy`, `/profile/notifications` | 170.7, 170.3, 173.3, 172.8, 171.6, 173.4, 175.2, 170.1, 173.2, 175.1, 173.7, 177.2 KB | 180 KB |
+| `resident-r2` | `/requests`, `/requests/new`, `/requests/<id>`, `/announcements`, `/parcels`, `/facilities`, `/facilities/<id>`, `/rules`, `/contacts`, `/access` | 168.8, 178.6, 174.4, 169.8, 168.8, 171.8, 176.7, 176.4, 170.4, 178.0 KB | 180 KB |
+| `technician` | `/technician`, a work order | 168.2, **179.8** KB | 180 KB |
+| `resident-sign`, `resident-moveout` | `/lease/<id>/sign`, `/deposit` | 176.0, 176.9 KB | 180 KB |
+| `resident-contracts` | `/contracts`, `/contracts/<id>`, `…/sign`, `/renewals/<id>`, `/lease/<id>` | 168.8, 171.8, 176.0, 174.2, 173.4 KB | 180 KB |
+| `relocation-reviews` / `-forms` | `/relocation`, offer, review (published / form), `/lease/<id>` | 172.7, 176.9, 172.2 / 177.6, 173.4 KB | 180 KB |
+| `common-fees` | `/fees`, `/statements`, plan, debt clearance, auto-pay | 172.9, 171.9, 175.3, 176.9, 176.2 KB | 180 KB |
+| `visitors` | `/visitors`, `/visits/<id>`, `/visitors/open`, invite, policy, home | 176.9, 176.8, 176.1, 176.8, 173.8, 170.7 KB | 180 KB |
+| `units-roles` | home, `/invoices`, `/link/unit` | 170.7, 170.3, 174.7 KB | 180 KB |
+| `prospect`, `recommendations`, `public` | book, self-viewing, enquiry; four lists; `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 176.9, 173.2, 174.2; 170.7–166.7; 177.8, 171.2, 175.0, 166.7 KB | 180 KB |
+
+**Least headroom: the technician work order (179.8 KB)** — its next client widget must be lazy. A component that calls
+`browserApi` while the page opens downloads the typed client then (≈ +4 KB): read on mount with `bffJson`.

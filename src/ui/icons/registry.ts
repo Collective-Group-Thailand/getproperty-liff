@@ -134,6 +134,26 @@ import { IconShieldAlert } from "./glyphs/shield-alert";
 import { IconCctv } from "./glyphs/cctv";
 import { IconIdCard } from "./glyphs/id-card";
 import { IconLogIn } from "./glyphs/log-in";
+import { IconLedger } from "./glyphs/ledger";
+import { IconFund } from "./glyphs/fund";
+import { IconCoins } from "./glyphs/coins";
+import { IconExpense } from "./glyphs/expense";
+import { IconSpreadsheet } from "./glyphs/spreadsheet";
+import { IconUnlink } from "./glyphs/unlink";
+import { IconCertificate } from "./glyphs/certificate";
+import { IconVendor } from "./glyphs/vendor";
+import { IconContract } from "./glyphs/contract";
+import { IconQuotation } from "./glyphs/quotation";
+import { IconEvaluation } from "./glyphs/evaluation";
+import { IconTrendUp } from "./glyphs/trend-up";
+import { IconTrendDown } from "./glyphs/trend-down";
+import { IconTrendSteady } from "./glyphs/trend-steady";
+import { IconBlock } from "./glyphs/block";
+import { IconImport } from "./glyphs/import";
+import { IconFile } from "./glyphs/file";
+import { IconAttachment } from "./glyphs/attachment";
+import { IconCompare } from "./glyphs/compare";
+import { IconFileArchive } from "./glyphs/file-archive";
 import { IconThemeSystem } from "./glyphs/theme-system";
 import { IconThemeLight } from "./glyphs/theme-light";
 import { IconThemeDark } from "./glyphs/theme-dark";
@@ -272,6 +292,26 @@ export const ICONS: { readonly [N in IconName]: IconGlyph<N> } = {
   cctv: IconCctv,
   "id-card": IconIdCard,
   "log-in": IconLogIn,
+  ledger: IconLedger,
+  fund: IconFund,
+  coins: IconCoins,
+  expense: IconExpense,
+  spreadsheet: IconSpreadsheet,
+  unlink: IconUnlink,
+  certificate: IconCertificate,
+  vendor: IconVendor,
+  contract: IconContract,
+  quotation: IconQuotation,
+  evaluation: IconEvaluation,
+  "trend-up": IconTrendUp,
+  "trend-down": IconTrendDown,
+  "trend-steady": IconTrendSteady,
+  block: IconBlock,
+  import: IconImport,
+  file: IconFile,
+  attachment: IconAttachment,
+  compare: IconCompare,
+  "file-archive": IconFileArchive,
   "theme-system": IconThemeSystem,
   "theme-light": IconThemeLight,
   "theme-dark": IconThemeDark,

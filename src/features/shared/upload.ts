@@ -3,7 +3,6 @@
 import { browserApi, CSRF_HEADERS, unwrap } from "@/lib/api/browser";
 import { isNetworkFailure, networkError, problemFromResponse } from "@/lib/api/problem";
 import type { UploadContentType, UploadPresign } from "@/lib/api/types";
-import { compressImage } from "@/ui/lib/image";
 
 /** What a resident photo is for, and the row it belongs to (the API checks both, D-203, B5.1). */
 export type ResidentUploadTarget =
@@ -26,7 +25,8 @@ export async function sha256Hex(blob: Blob): Promise<string> {
 export async function preparePhoto(
   file: Blob,
 ): Promise<{ photo: Blob; contentType: UploadContentType; sha256: string }> {
-  const compressed = await compressImage(file).catch(() => file);
+  // Loaded when a photo is prepared, not with the form (D-179).
+  const compressed = await import("@/ui/lib/image").then(({ compressImage }) => compressImage(file)).catch(() => file);
   const contentType = (UPLOAD_TYPES as readonly string[]).includes(compressed.type)
     ? (compressed.type as UploadContentType)
     : "image/jpeg";

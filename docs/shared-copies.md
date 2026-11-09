@@ -94,6 +94,9 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 
 **Re-sync 2026-11-04** (from getproperty-web's committed **`77b4f25`**, main after the console redesign — the cloud's `bdbfe85` has the identical tree; exported tree → `SHARED_SOURCE=… pnpm shared:check --strict`: 301 copies, 287 same, 14 adapted, 0 drift; 20 files re-copied verbatim, no new modules, glyphs, tokens or messages needed): `AppShell` (`bottomNavAlways`, nav entries with `testId` and section `children`, the `group/shell` that hides the bottom nav while a record's `data-record-bar` is on the page), `Badge` `w-fit`, `Callout` `size="sm"` and `live`, `DescriptionList` `layout="rows"`, `ActionPanel` `summary` and its phone sticky bar (`data-record-bar`), `RowList` row `icon` / `current` and `stacked`, `Progress` `size="sm"`, `Sheet` `side="left"` and the side sheet's row footer, `SimpleTable` `stackOnPhones` / `phone` slots / `footer`, `Stepper` `variant="bar"` and `labelled` (+ every story), `format.ts` `formatDuration` and `formatCountry` (+ test). All additive: no LIFF caller changed for the API. The resident screens keep their own frame (`features/shared/Screen.tsx` and `ActionDock`), so the shell's record-bar rule is dormant here; the landlord lead and the prospect enquiry now use `DescriptionList layout="rows"` for their facts, the lead its nationality through `formatCountry`, and the receipt a non-live `Callout` for its paid / voided status row.
 
+**Re-sync 2026-11-09 (JS-ui)** (from getproperty-web's committed **`32f942e`**, main after JW1b / JW4 / JW2a / JW2b / JW3a; `pnpm shared:check --strict`: 0 drift, 0 missing, 0 warnings): `curated.ts` **verbatim again** (the JW4 gate glyphs are committed there now, plus JW2a / JW2b / JW3a's `ledger`, `fund`, `coins`, `expense`, `spreadsheet`, `unlink`, `certificate`, `vendor`, `contract`, `quotation`, `evaluation`, `trend-up` / `-down` / `-steady`, `block`, `import`, `file`, `attachment`, `compare`, `file-archive`; glyph modules and `registry.ts` byte for byte, `pnpm icons:check` clean), `Icon.tsx` on the new `lib/cx.ts` (clsx without tailwind-merge), the `ActionPanel` fix (`DetailLayout.tsx`: a non-string `description` renders in a `<div>`, never `<div>` in `<p>`), `SimpleTable` phone slot `wide`; new here: **`StepTrack`**, **`PeriodStatement`**, **`ProgressLine`** (the barrel exports the last two, as web's does) and the **gate kiosk kit** — `Kiosk` (`KioskButton` / `KioskInput` / `KioskNote` / `KioskChip` / `KioskStatusLine` / `KioskAvatar`, + test), `PinPad`, `PlateKeypad`, `PlateBoxes`, `KindTiles`, `PolicyTimer`, `TakeoverBanner` — each with its stories (the axe gate runs them). The kiosk kit is not in the barrel and no resident screen draws it yet; web's `[data-surface="gate"]` type scale in `zones.css` is **not** copied (this app has no gate surface; `zones.css` stays adapted). `design-language.test.ts` (LIFF-owned) allows `PolicyTimer`'s `rounded-full` track as web's does.
+**`format.ts` is now `adapted`** (the JL1 warning resolved): web's `parsePeriodKey`, `PeriodFrequency` and quarter / half / year words are taken in whole, and its `PERIOD_WORDS` table gains `my`, `km`, `lo`, `zh` (the words of JL1's `resident/fees.json` `period.*`), because `Record<Locale, …>` must cover this app's six locales (D-064) — move those four entries to getproperty-web when its console gains those locales, then mark the row verbatim again. `format.test.ts` stays verbatim; the six-locale assertions live in this repo's own `src/i18n/format.locales.test.ts`. Still not copied (no resident screen needs them): `AgingStrip`, `BasisPreview`, `BulkBar`, `ErrorSummary`, `FieldError`, `GroupedTimeline`, `PickerField`, `ShareBar`, `Avatar`, `Chart`, web's new `src/domain/status` maps (`accounting`, `collections`, `gate`, `imports`, `juristic`, `vendors`; this repo's `index.ts` stays adapted).
+
 ## Design system — `src/ui`
 
 | Path | Mode | Source commit |
@@ -129,7 +132,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/DescriptionList.stories.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/DescriptionList.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/DetailLayout.stories.tsx` | verbatim | `77b4f25` |
-| `src/ui/components/DetailLayout.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/DetailLayout.tsx` | verbatim | `32f942e` |
 | `src/ui/components/PhotoPlaceholder.stories.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/PhotoPlaceholder.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/RowList.stories.tsx` | verbatim | `77b4f25` |
@@ -170,7 +173,7 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Sheet.stories.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/Sheet.tsx` | verbatim | `77b4f25` |
 | `src/ui/components/SimpleTable.stories.tsx` | verbatim | `77b4f25` |
-| `src/ui/components/SimpleTable.tsx` | verbatim | `77b4f25` |
+| `src/ui/components/SimpleTable.tsx` | verbatim | `32f942e` |
 | `src/ui/components/Skeleton.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/SignaturePad.stories.tsx` | verbatim | `6a8ffcf` |
 | `src/ui/components/SignaturePad.tsx` | verbatim | `7b560af` |
@@ -187,11 +190,32 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/components/Tabs.tsx` | verbatim | `e0750d8` |
 | `src/ui/components/Timeline.stories.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Timeline.tsx` | verbatim | `f57d4dc` |
+| `src/ui/components/Kiosk.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/Kiosk.test.tsx` | verbatim | `32f942e` |
+| `src/ui/components/Kiosk.tsx` | verbatim | `32f942e` |
+| `src/ui/components/KindTiles.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/KindTiles.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PeriodStatement.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PeriodStatement.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PinPad.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PinPad.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PlateBoxes.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PlateBoxes.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PlateKeypad.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PlateKeypad.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PolicyTimer.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/PolicyTimer.tsx` | verbatim | `32f942e` |
+| `src/ui/components/ProgressLine.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/ProgressLine.tsx` | verbatim | `32f942e` |
+| `src/ui/components/StepTrack.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/StepTrack.tsx` | verbatim | `32f942e` |
+| `src/ui/components/TakeoverBanner.stories.tsx` | verbatim | `32f942e` |
+| `src/ui/components/TakeoverBanner.tsx` | verbatim | `32f942e` |
 | `src/ui/components/Toast.stories.tsx` | verbatim | `08ff63b` |
 | `src/ui/components/Toast.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/Toast.test.tsx` | verbatim | `f57d4dc` |
 | `src/ui/components/ToastViewport.tsx` | verbatim | `f57d4dc` |
-| `src/ui/components/index.ts` | adapted | `2493107` |
+| `src/ui/components/index.ts` | adapted | `32f942e` |
 | `src/ui/components/overlays.tsx` | adapted | `f57d4dc` |
 | `src/ui/docs/Principles.mdx` | adapted | `79541bc` |
 | `src/ui/docs/Tokens.mdx` | verbatim | `a2bd4b6` |
@@ -204,16 +228,17 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 | `src/ui/fonts/index.ts` | verbatim | `2005ad0` |
 | `src/ui/generated/tokens.css` | generated | `e0750d8` |
 | `src/ui/icons/Icon.stories.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/Icon.tsx` | verbatim | `f57d4dc` |
+| `src/ui/icons/Icon.tsx` | verbatim | `32f942e` |
 | `src/ui/icons/Icon.test.tsx` | verbatim | `f57d4dc` |
-| `src/ui/icons/curated.ts` | adapted | `3d513cf` |
+| `src/ui/icons/curated.ts` | verbatim | `32f942e` |
 | `src/ui/icons/glyph.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/glyphs/*.ts` | generated | `3d513cf` |
+| `src/ui/icons/glyphs/*.ts` | generated | `32f942e` |
 | `src/ui/icons/index.ts` | verbatim | `f57d4dc` |
-| `src/ui/icons/registry.ts` | generated | `3d513cf` |
+| `src/ui/icons/registry.ts` | generated | `32f942e` |
 | `src/ui/index.ts` | verbatim | `f57d4dc` |
 | `src/ui/lib/cn.test.ts` | verbatim | `08ff63b` |
 | `src/ui/lib/cn.ts` | verbatim | `e0750d8` |
+| `src/ui/lib/cx.ts` | verbatim | `32f942e` |
 | `src/ui/lib/image.test.ts` | verbatim | `7b560af` |
 | `src/ui/lib/image.ts` | verbatim | `7b560af` |
 | `src/ui/lib/index.ts` | verbatim | `f57d4dc` |
@@ -247,8 +272,8 @@ move them there (and back into this manifest as `binary` rows) when getproperty-
 |---|---|---|
 | `src/domain/status/index.ts` | adapted | `f57d4dc` |
 | `src/domain/status/status.test.ts` | adapted | `f57d4dc` |
-| `src/i18n/format.test.ts` | verbatim | `77b4f25` |
-| `src/i18n/format.ts` | verbatim | `77b4f25` |
+| `src/i18n/format.test.ts` | verbatim | `32f942e` |
+| `src/i18n/format.ts` | adapted | `32f942e` |
 
 ## App, scripts, lint rules, Storybook
 

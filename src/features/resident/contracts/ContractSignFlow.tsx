@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ESignFlow } from "@/features/resident/esign/ESignFlow";
-import { browserApi, unwrap } from "@/lib/api/browser";
-import type { ResidentContract } from "@/lib/api/types";
+import { bffJson, browserApi, unwrap } from "@/lib/api/browser";
+import type { ContractDownload, ResidentContract } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
 import { IconCheckCircle } from "@/ui/icons/glyphs/check-circle";
@@ -28,7 +28,8 @@ export function ContractSignFlow({ contract, reader }: { contract: ResidentContr
       alreadySignedCode="contract.already_signed"
       renderedSha256={contract.sha256}
       loadDocument={async () =>
-        unwrap(await browserApi.GET("/v1/resident/contracts/{contractId}/document", { params: { path } }))
+        // Read as the page opens: plain `bffJson`, so the typed client stays off the first load (D-179).
+        bffJson<ContractDownload>(`/v1/resident/contracts/${encodeURIComponent(path.contractId)}/document`)
       }
       requestOtp={async () =>
         unwrap(

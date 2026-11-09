@@ -21,7 +21,4 @@ export function needsIdempotencyKey(method: string, path: string): boolean {
   return matchers.some((m) => m.method === upper && m.regex.test(bare));
 }
 
-/** A fresh key per user action; a retry of the same action must reuse it (callers keep it in their mutation). */
-export function newIdempotencyKey(): string {
-  return crypto.randomUUID();
-}
+export { newIdempotencyKey } from "./key";
