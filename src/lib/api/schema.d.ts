@@ -125237,7 +125237,7 @@ export interface operations {
             };
             path: {
                 importId: string;
-                sheet: string;
+                sheet: components["schemas"]["ImportSheet"];
             };
             cookie?: never;
         };
@@ -126172,7 +126172,7 @@ export interface operations {
                 "X-Tenant-Id"?: components["parameters"]["TenantIdHeader"];
             };
             path: {
-                sheet: string;
+                sheet: components["schemas"]["ImportSheet"];
             };
             cookie?: never;
         };

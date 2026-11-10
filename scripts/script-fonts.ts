@@ -118,8 +118,11 @@ export function css(faces: Face[]): string {
 }`,
   );
   const stacks = [...SCRIPTS, SC].map(
+    // One typeface (ADR-0001, 2026-10-24): `--font-sans` is Anuphan too, so both stacks name the display variables —
+    // `--font-gp-sans-*` no longer exist, and an undefined var() would void the whole stack.
     (s) => `html:lang(${s.locale}) {
-  --font-sans: var(--font-gp-sans-latin), "${s.family}", var(--font-gp-sans-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gp-display-latin), "${s.family}", var(--font-gp-display-thai), ui-sans-serif, system-ui,
+    sans-serif;
   --font-display: var(--font-gp-display-latin), "${s.family}", var(--font-gp-display-thai), ui-sans-serif, system-ui,
     sans-serif;
 }`,

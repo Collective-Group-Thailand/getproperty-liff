@@ -398,3 +398,11 @@ work order is unchanged (no technician code touched).
 | `prospect`, `recommendations`, `public` | book, self-viewing, enquiry; four lists; `/liff`, `/auth`, `/auth/otp`, `/signed-out` | 176.9, 173.2, 174.2; 170.7–166.7; 177.8 (181.8 in the run where the fake LIFF's redirect lands, as before — the assertion passes), 171.2, 175.0, 166.7 KB | 180 KB |
 
 **Least headroom is unchanged: the technician work order (179.8 KB)**, then `/requests/new` (178.6) and `/access` (178.0).
+
+### J deferred e2e — api `6c2830a` (2026-11-10, `pnpm lhci` — every set — `CHROME_PATH=/usr/bin/google-chrome`, mock build; all pass)
+
+Initial JS unchanged from JS-adopt-liff within 0.1 KB (`/link/unit` 174.8; max the technician work order 179.8 KB). **The
+pay sheet on demand**: the e2e budget (`bills.spec.ts`) now separates the typed API client — JS-ui moved it from every
+page's initial JS to the first interaction, which on home is usually the pay tap — from the sheet: sheet and what the
+first tap warms **48.5 KB** (≤ 50 KB), typed client **3.7 KB** (asserted ≤ 5 KB).
+

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import type { Locale } from "@/i18n/routing";
@@ -11,6 +11,7 @@ import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
 import type { InviteVisitorKind, VisitInviteCreated } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
+import { FieldNamed } from "@/features/shared/FieldNamed";
 import { Field } from "@/ui/components/Field";
 import { Input, Textarea } from "@/ui/components/Input";
 import { Icon, type IconGlyph } from "@/ui/icons";
@@ -94,6 +95,8 @@ export function InviteForm({
   const [errors, setErrors] = useState<Partial<Record<InviteField, InviteError>>>({});
   const [touched, setTouched] = useState(false);
   const [summary, setSummary] = useState(false);
+  /** Bumped on every refused submit; the summary takes the focus once it is committed (J deferred e2e). */
+  const [summaryFocus, setSummaryFocus] = useState(0);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ApiError | null>(null);
   const [tooLong, setTooLong] = useState<number | null>(null);
@@ -101,6 +104,10 @@ export function InviteForm({
   const [withPlate, setWithPlate] = useState(false);
   const key = useRef(newIdempotencyKey());
   const summaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (summaryFocus) summaryRef.current?.focus();
+  }, [summaryFocus]);
 
   const set = (patch: Partial<InviteDraft>) => {
     const next = { ...draft, ...patch };
@@ -120,7 +127,7 @@ export function InviteForm({
     setErrors(found);
     if (!body) {
       setSummary(true);
-      requestAnimationFrame(() => summaryRef.current?.focus());
+      setSummaryFocus((n) => n + 1);
       return;
     }
     setSummary(false);
@@ -208,14 +215,19 @@ export function InviteForm({
         <legend className="mb-3 text-base font-semibold">{t("when")}</legend>
         <div className="grid grid-cols-[1fr_auto] gap-3">
           <Field label={t("field.fromDate")} error={message("fromDate")}>
-            <Input
-              id="invite-fromDate"
-              type="date"
-              value={draft.fromDate}
-              onChange={(e) => set({ fromDate: e.target.value })}
-              onBlur={blur}
-              data-testid="invite-from-date"
-            />
+            <FieldNamed>
+              {(named) => (
+                <Input
+                  {...named}
+                  id="invite-fromDate"
+                  type="date"
+                  value={draft.fromDate}
+                  onChange={(e) => set({ fromDate: e.target.value })}
+                  onBlur={blur}
+                  data-testid="invite-from-date"
+                />
+              )}
+            </FieldNamed>
           </Field>
           <Field label={t("fromTime")}>
             <Input
@@ -227,14 +239,19 @@ export function InviteForm({
             />
           </Field>
           <Field label={t("field.toDate")} error={message("toDate")}>
-            <Input
-              id="invite-toDate"
-              type="date"
-              value={draft.toDate}
-              onChange={(e) => set({ toDate: e.target.value })}
-              onBlur={blur}
-              data-testid="invite-to-date"
-            />
+            <FieldNamed>
+              {(named) => (
+                <Input
+                  {...named}
+                  id="invite-toDate"
+                  type="date"
+                  value={draft.toDate}
+                  onChange={(e) => set({ toDate: e.target.value })}
+                  onBlur={blur}
+                  data-testid="invite-to-date"
+                />
+              )}
+            </FieldNamed>
           </Field>
           <Field label={t("toTime")}>
             <Input
@@ -266,28 +283,38 @@ export function InviteForm({
         </ChoiceGroup>
         {draft.usage === "multi" ? (
           <Field label={t("field.maxUses")} hint={t("maxUsesHint")} error={message("maxUses")}>
-            <Input
-              id="invite-maxUses"
-              inputMode="numeric"
-              className="max-w-32"
-              value={draft.maxUses}
-              onChange={(e) => set({ maxUses: e.target.value })}
-              onBlur={blur}
-              data-testid="invite-max-uses"
-            />
+            <FieldNamed>
+              {(named) => (
+                <Input
+                  {...named}
+                  id="invite-maxUses"
+                  inputMode="numeric"
+                  className="max-w-32"
+                  value={draft.maxUses}
+                  onChange={(e) => set({ maxUses: e.target.value })}
+                  onBlur={blur}
+                  data-testid="invite-max-uses"
+                />
+              )}
+            </FieldNamed>
           </Field>
         ) : null}
       </div>
 
       <Field label={t("field.visitorName")} hint={t("nameHint")} error={message("visitorName")}>
-        <Input
-          id="invite-visitorName"
-          maxLength={INVITE_LIMITS.name + 20}
-          value={draft.visitorName}
-          onChange={(e) => set({ visitorName: e.target.value })}
-          onBlur={blur}
-          data-testid="invite-name"
-        />
+        <FieldNamed>
+          {(named) => (
+            <Input
+              {...named}
+              id="invite-visitorName"
+              maxLength={INVITE_LIMITS.name + 20}
+              value={draft.visitorName}
+              onChange={(e) => set({ visitorName: e.target.value })}
+              onBlur={blur}
+              data-testid="invite-name"
+            />
+          )}
+        </FieldNamed>
       </Field>
 
       <fieldset className="flex flex-col gap-3">
@@ -315,14 +342,19 @@ export function InviteForm({
       </fieldset>
 
       <Field label={t("field.note")} hint={t("noteHint")} error={message("note")}>
-        <Textarea
-          id="invite-note"
-          rows={2}
-          value={draft.note}
-          onChange={(e) => set({ note: e.target.value })}
-          onBlur={blur}
-          data-testid="invite-note"
-        />
+        <FieldNamed>
+          {(named) => (
+            <Textarea
+              {...named}
+              id="invite-note"
+              rows={2}
+              value={draft.note}
+              onChange={(e) => set({ note: e.target.value })}
+              onBlur={blur}
+              data-testid="invite-note"
+            />
+          )}
+        </FieldNamed>
       </Field>
 
       {problem ? <ProblemCallout error={problem} /> : null}

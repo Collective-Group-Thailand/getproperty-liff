@@ -124,7 +124,8 @@ test.describe("my common fees", () => {
     await page.goto("/statements");
     await page.getByTestId("statement-row").first().click();
     await page.getByTestId("statement-pdf").click();
-    await expect(page.getByRole("alert")).toBeVisible();
+    // Scoped to the statement: Next's route announcer is a role=alert of its own.
+    await expect(page.getByTestId("statement").getByRole("alert")).toContainText("เอกสารกำลังจัดทำ");
   });
 
   test("payment plan: refused below the minimum, requested, read with instalments, withdrawn", async ({

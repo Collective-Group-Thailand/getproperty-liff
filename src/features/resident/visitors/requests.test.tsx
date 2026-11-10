@@ -213,6 +213,34 @@ describe("InviteForm", () => {
     expect(api.POST).not.toHaveBeenCalled();
   });
 
+  it("names every control by its visible label, keeping the summary's anchor ids (axe `label`)", async () => {
+    wrap(<InviteForm {...props} now={now} />);
+    fireEvent.click(screen.getByTestId("invite-usage-multi"));
+    fireEvent.click(screen.getByTestId("invite-plate-open"));
+    expect(await screen.findByRole("combobox", { name: "Province" })).toHaveAttribute("id", "invite-plate-province");
+    expect(screen.getByRole("textbox", { name: "Letters" })).toHaveAttribute("id", "invite-plate-category");
+    expect(screen.getByRole("textbox", { name: "Number" })).toHaveAttribute("id", "invite-plate-number");
+    expect(screen.getByLabelText("From")).toHaveAttribute("id", "invite-fromDate");
+    expect(screen.getByLabelText("Until")).toHaveAttribute("id", "invite-toDate");
+    expect(screen.getByRole("textbox", { name: "Number of times" })).toHaveAttribute("id", "invite-maxUses");
+    expect(screen.getByRole("textbox", { name: "Visitor's name (optional)" })).toHaveAttribute(
+      "id",
+      "invite-visitorName",
+    );
+    expect(screen.getByRole("textbox", { name: "Note for the gate (optional)" })).toHaveAttribute("id", "invite-note");
+  });
+
+  it("moves the focus to the summary once it is on screen (not on a frame that may come before the render)", async () => {
+    wrap(<InviteForm {...props} now={now} />);
+    fireEvent.change(screen.getByTestId("invite-to-time"), { target: { value: "08:00" } });
+    await act(async () => fireEvent.click(screen.getByTestId("invite-submit")));
+    expect(screen.getByTestId("invite-summary")).toHaveFocus();
+    // A second failed submit focuses it again.
+    screen.getByTestId("invite-submit").focus();
+    await act(async () => fireEvent.click(screen.getByTestId("invite-submit")));
+    expect(screen.getByTestId("invite-summary")).toHaveFocus();
+  });
+
   it("sends the pass with a key, shows the API's longest window at the field", async () => {
     api.POST.mockResolvedValueOnce(problem(422, "visit_invite.window_too_long", { params: { days: 30 } }));
     wrap(<InviteForm {...props} now={now} />);

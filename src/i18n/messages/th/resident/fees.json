@@ -90,7 +90,6 @@
     "pct": "({value})"
   },
   "documents": {
-    "title": "เอกสารและการเงิน",
     "titleFor": "เอกสารและการเงิน · {unit}",
     "receipt": "ใบเสร็จรับเงิน {period}",
     "receiptBody": "ชำระแล้ว · {number}",

@@ -90,7 +90,6 @@
     "pct": "（{value}）"
   },
   "documents": {
-    "title": "文件与财务",
     "titleFor": "文件与财务 · {unit}",
     "receipt": "收据 {period}",
     "receiptBody": "已支付 · {number}",
