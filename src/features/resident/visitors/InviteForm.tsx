@@ -6,10 +6,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import type { Locale } from "@/i18n/routing";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
-import type { InviteVisitorKind, VisitInviteCreated } from "@/lib/api/types";
+import { isRefusal } from "@/lib/api/refusal";
+import type { InviteVisitorKind, VisitInviteCreate, VisitInviteCreated } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { FieldNamed } from "@/features/shared/FieldNamed";
 import { Field } from "@/ui/components/Field";
@@ -62,7 +63,9 @@ function anchorOf(field: InviteField): string {
  * several times, an optional name and plate the guard checks, a note. Checked on blur and on submit with a focusable
  * summary (J-DESIGN §2); the longest window is the estate's `inviteMaxDays` (CR #51; the API's 422 at the field
  * still answers). A contractor's pass
- * waits for the office. One Idempotency-Key per pass: a retry after a lost answer never makes a second one.
+ * waits for the office. One Idempotency-Key per pass (review L1): the key and the body stay frozen while the pass is
+ * the same (kind, name, window, plate …), so a retry after a lost answer or a 5xx never makes a second one; only a
+ * real refusal (4xx, `idempotency.key_reused`) or a changed pass starts a new key.
  */
 export function InviteForm({
   unitId,
@@ -102,7 +105,7 @@ export function InviteForm({
   const [tooLong, setTooLong] = useState<number | null>(null);
   const [created, setCreated] = useState<VisitInviteCreated | null>(null);
   const [withPlate, setWithPlate] = useState(false);
-  const key = useRef(newIdempotencyKey());
+  const attempt = useIdempotentAttempt<VisitInviteCreate>();
   const summaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -133,13 +136,15 @@ export function InviteForm({
     setSummary(false);
     setBusy(true);
     setProblem(null);
+    const prepared = await attempt.prepare(body, () => body);
     try {
       const result = unwrap(
         await browserApi.POST("/v1/resident/units/{unitId}/visit-invites", {
-          params: { path: { unitId }, header: { "Idempotency-Key": key.current } },
-          body,
+          params: { path: { unitId }, header: { "Idempotency-Key": prepared.key } },
+          body: prepared.body,
         }),
       );
+      attempt.succeeded();
       setCreated(result);
     } catch (caught) {
       const error = toApiError(caught);
@@ -148,8 +153,9 @@ export function InviteForm({
         setTooLong(typeof days === "number" ? days : 0);
         document.getElementById("invite-toDate")?.focus();
       } else setProblem(error);
-      // A refused pass is not kept: the next try is a new intent.
-      key.current = newIdempotencyKey();
+      // A refused pass is not kept: the next try is a new action. A lost answer / 5xx keeps the key for the retry.
+      if (isRefusal(error)) attempt.succeeded();
+      else attempt.failed(error);
     } finally {
       setBusy(false);
     }

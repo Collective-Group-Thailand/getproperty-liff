@@ -2,13 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi, unwrap } from "@/lib/api/browser";
-import { newIdempotencyKey } from "@/lib/api/key";
 import { toApiError, type ApiError } from "@/lib/api/problem";
+import { isRefusal } from "@/lib/api/refusal";
 import type { IncidentKind } from "@/lib/api/types";
 import { Field } from "@/ui/components/Field";
 import { Textarea } from "@/ui/components/Input";
@@ -39,11 +40,14 @@ const KINDS: { value: IncidentKind; icon: IconGlyph }[] = [
 
 export const SOS_NOTE_MAX = 500;
 
+type SosBody = { unitId: string; kind: IncidentKind; note?: string };
+
 /**
  * "ฉุกเฉิน" (D-317, D-328): what is happening (four large tiles), an optional line for the guard, then hold to send —
- * every gate of the estate and the office are alerted at once. One Idempotency-Key per emergency: a retry after a
- * lost answer never raises a second one, and an SOS already open for the unit comes back (`existing`) — the status
- * page says so. Then the status page: sent → taken by the guard, with cancel while the API allows it.
+ * every gate of the estate and the office are alerted at once. One Idempotency-Key per emergency {unit, kind, note}
+ * with its body frozen (review L2): a retry after a lost answer never raises a second one; another kind or note is a
+ * new key. `idempotency.key_reused` is sent again at once with a new key — an SOS already open for the unit comes back
+ * (`existing`) and the status page says so. Then the status page: sent → taken by the guard, with cancel while the API allows it.
  */
 export default function SosSheet({ open, onOpenChange, unitId, unitName }: SosSheetProps) {
   const t = useTranslations("resident.visitors.sos");
@@ -52,25 +56,39 @@ export default function SosSheet({ open, onOpenChange, unitId, unitName }: SosSh
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-  const key = useRef(newIdempotencyKey());
+  const attempt = useIdempotentAttempt<SosBody>();
 
   const send = useCallback(async () => {
     if (!kind) return;
     setBusy(true);
     setError(null);
-    try {
-      const created = unwrap(
-        await browserApi.POST("/v1/resident/sos", {
-          params: { header: { "Idempotency-Key": key.current } },
-          body: { unitId, kind, ...(note.trim() ? { note: note.trim() } : {}) },
-        }),
+    const body: SosBody = { unitId, kind, ...(note.trim() ? { note: note.trim() } : {}) };
+    const post = async () => {
+      const { key, body: frozen } = await attempt.prepare(body, () => body);
+      return unwrap(
+        await browserApi.POST("/v1/resident/sos", { params: { header: { "Idempotency-Key": key } }, body: frozen }),
       );
+    };
+    try {
+      let created;
+      try {
+        created = await post();
+      } catch (caught) {
+        const first = toApiError(caught);
+        if (first.code !== "idempotency.key_reused") throw first;
+        attempt.failed(first); // a new key for the same emergency: the API answers with the one already open
+        created = await post();
+      }
+      attempt.succeeded();
       router.push(`/sos/${created.id}${created.existing ? "?existing=1" : ""}`);
     } catch (caught) {
-      setError(toApiError(caught));
+      const problem = toApiError(caught);
+      if (isRefusal(problem)) attempt.succeeded();
+      else attempt.failed(problem);
+      setError(problem);
       setBusy(false);
     }
-  }, [kind, note, unitId, router]);
+  }, [kind, note, unitId, router, attempt]);
 
   return (
     <Sheet

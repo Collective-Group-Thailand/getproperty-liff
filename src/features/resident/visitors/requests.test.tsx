@@ -16,7 +16,9 @@ vi.mock("@/lib/api/browser", async (original) => ({
 }));
 
 import { HoldToConfirm } from "../sos/HoldToConfirm";
+import SosSheet from "../sos/SosSheet";
 import { HOLD_MS } from "../sos/hold";
+import { OPENING_MS } from "./gateOpen";
 import { InviteForm } from "./InviteForm";
 import { OpenBarrier } from "./OpenBarrier";
 import { PolicyForm } from "./PolicyForm";
@@ -260,6 +262,73 @@ describe("InviteForm", () => {
   });
 });
 
+describe("InviteForm idempotency (review L1)", () => {
+  const props = { unitId: "u1", unitName: "House 88/12", place: "Lalita Village", locale: "en" as const };
+  const now = Date.parse("2099-01-01T09:07:00+07:00");
+  const keyOf = (n: number) => api.POST.mock.calls[n]![1].params.header["Idempotency-Key"] as string;
+  const submit = () => act(async () => fireEvent.click(screen.getByTestId("invite-submit")));
+
+  it("keeps the pass's key after a lost answer or a 5xx; a refusal or a changed pass gets a new one", async () => {
+    api.POST.mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"))
+      .mockResolvedValueOnce(problem(422, "validation.failed"))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"));
+    wrap(<InviteForm {...props} now={now} />);
+    await submit();
+    await submit();
+    expect(keyOf(1)).toBe(keyOf(0)); // network failure, then 503: the same pass, the same key
+    await submit();
+    expect(keyOf(2)).toBe(keyOf(0));
+    await submit(); // after the 422 refusal: a new action
+    expect(keyOf(3)).not.toBe(keyOf(0));
+    fireEvent.change(screen.getByRole("textbox", { name: "Visitor's name (optional)" }), {
+      target: { value: "Thana" },
+    });
+    await submit(); // another pass (name changed): a new key
+    expect(keyOf(4)).not.toBe(keyOf(3));
+    expect(api.POST.mock.calls[4]![1].body).toMatchObject({ visitorName: "Thana" });
+  });
+});
+
+describe("SosSheet idempotency (review L2)", () => {
+  const send = async () => {
+    fireEvent.click(screen.getByTestId("sos-hold-accessible"));
+    await act(async () => fireEvent.click(await screen.findByRole("button", { name: "Send emergency" })));
+  };
+  const keyOf = (n: number) => api.POST.mock.calls[n]![1].params.header["Idempotency-Key"] as string;
+  const props = { open: true, onOpenChange: vi.fn(), unitId: "u1", unitName: "House 88/12" };
+
+  it("one key per emergency {unit, kind, note}: a retry reuses it, another kind or note does not", async () => {
+    api.POST.mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValueOnce(ok({ id: "s1", existing: false }, 201));
+    wrap(<SosSheet {...props} />);
+    fireEvent.click(screen.getByTestId("sos-kind-medical"));
+    await send();
+    await send();
+    expect(keyOf(1)).toBe(keyOf(0));
+    fireEvent.change(screen.getByTestId("sos-note"), { target: { value: "upstairs" } });
+    await send();
+    expect(keyOf(2)).not.toBe(keyOf(0));
+    expect(api.POST.mock.calls[2]![1].body).toEqual({ unitId: "u1", kind: "medical", note: "upstairs" });
+    expect(nav.push).toHaveBeenCalledWith("/sos/s1");
+  });
+
+  it("idempotency.key_reused → sent again with a new key; the open SOS comes back (existing)", async () => {
+    api.POST.mockResolvedValueOnce(problem(422, "idempotency.key_reused")).mockResolvedValueOnce(
+      ok({ id: "s9", existing: true }, 200),
+    );
+    wrap(<SosSheet {...props} />);
+    fireEvent.click(screen.getByTestId("sos-kind-fire"));
+    await send();
+    expect(api.POST).toHaveBeenCalledTimes(2);
+    expect(keyOf(1)).not.toBe(keyOf(0));
+    expect(api.POST.mock.calls[1]![1].body).toEqual(api.POST.mock.calls[0]![1].body);
+    expect(nav.push).toHaveBeenCalledWith("/sos/s9?existing=1");
+  });
+});
+
 describe("PolicyForm by role", () => {
   const policy = {
     action: "guard_calls" as const,
@@ -332,6 +401,34 @@ describe("OpenBarrier", () => {
     wrap(<OpenBarrier gates={[gate]} locale="en" />);
     await act(async () => fireEvent.click(screen.getByTestId("open-barrier-button")));
     expect(screen.getByTestId("open-status").getAttribute("data-kind")).toBe("not_allowed");
+  });
+
+  it("one key per press intent (gate + car) for ~30 s: a retry after a lost answer reuses it (review L3)", async () => {
+    const keyOf = (n: number) => api.POST.mock.calls[n]![1].params?.header?.["Idempotency-Key"] as string | undefined;
+    api.POST.mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"))
+      .mockResolvedValueOnce(ok({ gateId: "g1", commands: [] }, 202))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"))
+      .mockResolvedValueOnce(problem(503, "service.unavailable"));
+    const now = vi.spyOn(Date, "now");
+    let clock = Date.parse("2099-01-01T09:00:00+07:00");
+    now.mockImplementation(() => clock);
+    const press = () => act(async () => fireEvent.click(screen.getByTestId("open-barrier-button")));
+    wrap(<OpenBarrier gates={[gate]} locale="en" />);
+    await press();
+    await press();
+    expect(keyOf(0)).toBeTruthy();
+    expect(keyOf(1)).toBe(keyOf(0));
+    await press(); // 202: the action is done
+    expect(keyOf(2)).toBe(keyOf(0));
+    clock += OPENING_MS + 1;
+    await act(() => new Promise((resolve) => setTimeout(resolve, 300))); // one tick: opening → sent
+    await press(); // a new press after the open: a new key
+    expect(keyOf(3)).not.toBe(keyOf(0));
+    clock += 31_000; // the same intent more than 30 s later is a new press
+    await press();
+    expect(keyOf(4)).not.toBe(keyOf(3));
+    now.mockRestore();
   });
 
   it("asks for the location only when the estate requires it, and says so when refused", async () => {

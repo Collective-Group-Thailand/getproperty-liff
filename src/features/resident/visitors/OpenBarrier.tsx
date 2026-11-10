@@ -6,8 +6,10 @@ import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
 import { ChoiceCards, ChoiceGroup, ChoiceTiles } from "@/features/shared/Choice";
 import { formatTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
+import { useIdempotentAttempt } from "@/lib/api/attempt";
 import { browserApi } from "@/lib/api/browser";
 import { problemFromParsed, toApiError } from "@/lib/api/problem";
+import { isRefusal } from "@/lib/api/refusal";
 import type { OpenableGate } from "@/lib/api/types";
 import { Button } from "@/ui/components/Button";
 import { Callout } from "@/ui/components/Callout";
@@ -19,6 +21,11 @@ import { IconInfo } from "@/ui/icons/glyphs/info";
 
 import { CHOICE_KEY, busy, canPress, parseRetryAfter, retryIn, step, type OpenEvent, type OpenState } from "./gateOpen";
 import { plateText } from "./model";
+
+/** How long one press intent keeps its Idempotency-Key (the API's command window is 30 s). */
+const PRESS_INTENT_MS = 30_000;
+
+type OpenBody = { vehicleId: string; location?: { lat: number; lng: number; accuracyM?: number } };
 
 function reducer(state: OpenState, event: OpenEvent): OpenState {
   return step(state, event);
@@ -68,11 +75,15 @@ function locate(): Promise<GeolocationPosition> {
  * last choice is remembered on the phone). The phone location is asked for only when the estate requires it, with
  * the reason first. The result is said in words next to the button: opening → sent (the API cannot see the barrier;
  * the screen never claims "open"), wait n seconds after another open, not allowed, too far, no location.
+ *
+ * One Idempotency-Key per press intent (gate + car) for 30 s (review L3): a press again after a lost answer or a 5xx
+ * resends the same request, so the API never opens twice for it; a 202 or a refusal ends the intent.
  */
 export function OpenBarrier({ gates, locale }: { gates: OpenableGate[]; locale: Locale }) {
   const t = useTranslations("resident.visitors.open");
   const [state, dispatch] = useReducer(reducer, { kind: "idle" } as OpenState);
   const [now, setNow] = useState(() => Date.now());
+  const attempt = useIdempotentAttempt<OpenBody>({ maxAgeMs: PRESS_INTENT_MS });
   // The last choice on this phone (read after hydration: the server renders the first gate and car).
   const saved = parseChoice(useSyncExternalStore(noSubscription, readChoice, () => "{}"));
   const [chosenGate, setGateId] = useState<string | null>(null);
@@ -116,18 +127,24 @@ export function OpenBarrier({ gates, locale }: { gates: OpenableGate[]; locale: 
         return;
       }
     }
+    const intent = { gateId: gate.gateId, vehicleId: vehicle.id };
+    const fresh: OpenBody = location ? { vehicleId: vehicle.id, location } : { vehicleId: vehicle.id };
+    const { key, body } = await attempt.prepare(intent, () => fresh);
     try {
       const { data, error, response } = await browserApi.POST("/v1/resident/gates/{gateId}/actions/open", {
-        params: { path: { gateId: gate.gateId } },
-        body: location ? { vehicleId: vehicle.id, location } : { vehicleId: vehicle.id },
+        params: { path: { gateId: gate.gateId }, header: { "Idempotency-Key": key } },
+        body,
       });
       const at = Date.now();
       setNow(at);
       if (data) {
+        attempt.succeeded();
         dispatch({ type: "accepted", now: at });
         return;
       }
       const problem = problemFromParsed(response, error);
+      if (isRefusal(problem)) attempt.succeeded();
+      else attempt.failed(problem);
       dispatch({
         type: "problem",
         status: response.status,
@@ -138,6 +155,7 @@ export function OpenBarrier({ gates, locale }: { gates: OpenableGate[]; locale: 
       });
     } catch (caught) {
       const problem = toApiError(caught);
+      attempt.failed(problem);
       dispatch({
         type: "problem",
         status: problem.status,

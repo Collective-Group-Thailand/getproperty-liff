@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { IdempotentAttempt } from "./attempt";
 import { ApiError, networkError, NETWORK_UNAVAILABLE, toApiError } from "./problem";
+import { isRefusal } from "./refusal";
 
 describe("IdempotentAttempt (review M2: one key and one frozen body per logical action)", () => {
   const keys = () => {
@@ -45,6 +46,19 @@ describe("IdempotentAttempt (review M2: one key and one frozen body per logical 
     const attempt = new IdempotentAttempt<string>({ newKey: keys() });
     await expect(attempt.prepare({}, () => Promise.reject(new TypeError("Failed to fetch")))).rejects.toThrow();
     expect(attempt.key).toBeUndefined();
+  });
+});
+
+describe("isRefusal (reviews L1–L3: when a retry is a new action)", () => {
+  it("a 4xx refusal ends the action; a lost answer, 5xx, 408, 429 and in_progress keep the key", () => {
+    expect(isRefusal(new ApiError(422, { code: "validation.failed" }))).toBe(true);
+    expect(isRefusal(new ApiError(422, { code: "idempotency.key_reused" }))).toBe(true);
+    expect(isRefusal(new ApiError(403, { code: "gate.resident_open_disabled" }))).toBe(true);
+    expect(isRefusal(networkError())).toBe(false);
+    expect(isRefusal(new ApiError(503, { code: "service.unavailable" }))).toBe(false);
+    expect(isRefusal(new ApiError(408, { code: "request.timeout" }))).toBe(false);
+    expect(isRefusal(new ApiError(429, { code: "rate_limited" }))).toBe(false);
+    expect(isRefusal(new ApiError(409, { code: "idempotency.in_progress" }))).toBe(false);
   });
 });
 

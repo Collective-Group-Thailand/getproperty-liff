@@ -406,3 +406,18 @@ pay sheet on demand**: the e2e budget (`bills.spec.ts`) now separates the typed 
 page's initial JS to the first interaction, which on home is usually the pay tap — from the sheet: sheet and what the
 first tap warms **48.5 KB** (≤ 50 KB), typed client **3.7 KB** (asserted ≤ 5 KB).
 
+
+### J review fixes L1–L3 (2026-11-10, `pnpm lhci` — every set — mock build, `CHROME_PATH` = the sandbox's Playwright Chromium; all pass)
+
+The invite form, the SOS sheet and the barrier button now freeze their `Idempotency-Key` per intent with
+`useIdempotentAttempt` (+ `isRefusal`, its own 0.2-KB module so the technician page does not carry it). `/visitors` and
+`/visitors/open` pull `attempt.ts` in with `OpenBarrier` (+0.5 KB each), the invite page +0.5 KB; the SOS sheet loads
+on first open. The technician work order is unchanged (no technician code touched).
+
+| Set | URL | Initial JS | Budget |
+|---|---|---|---|
+| `visitors` | `/visitors`, `/visits/<id>`, `/visitors/open`, invite, policy, home | 177.5, 176.8, 176.7, 177.3, 173.8, 170.7 KB | 180 KB |
+| `technician` | `/technician/work-orders/<id>` | **179.8** KB (unchanged) | 180 KB |
+
+Every other set is unchanged; least headroom stays the technician work order (179.8), then `/requests/new` (178.6),
+`/access` (178.0).
