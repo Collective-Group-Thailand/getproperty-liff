@@ -35,7 +35,8 @@ test.describe("units and roles", () => {
     await expect(tiles.getByRole("link", { name: /^ระเบียบอาคาร/ })).toBeVisible();
     await expect(tiles.getByRole("link", { name: /^เบอร์ติดต่อ/ })).toBeVisible();
     const nav = page.getByRole("navigation", { name: "เมนูด่วน" });
-    await expect(nav.getByRole("link")).toHaveText(["หน้าแรก", "บิล", "แจ้งซ่อม", "ฉัน"]);
+    // JL4 (J-DESIGN §7, D-335): the estate has a gate and a co-owner holds a gate role, so visitors sit third.
+    await expect(nav.getByRole("link")).toHaveText(["หน้าแรก", "บิล", "ผู้มาติดต่อ", "แจ้งซ่อม", "ฉัน"]);
     await checkPage(page);
 
     // Lease-bound and occupant-only screens are not there for them.
@@ -142,10 +143,12 @@ test.describe("units and roles", () => {
     await expect(page.getByText("ขอรหัสบ่อยเกินไป")).toBeVisible();
     await page.goto("/link/unit?code=OWN-MISMATCH-1");
     await page.getByTestId("unit-redeem-send").click();
+    await expect(page.getByLabel("หลักที่ 1")).toBeFocused();
     await page.keyboard.type("123456");
     await expect(page.getByTestId("unit-redeem-closed")).toHaveAttribute("data-problem", "partyMismatch");
     await page.goto("/link/unit?code=OWN-OK-9");
     await page.getByTestId("unit-redeem-send").click();
+    await expect(page.getByLabel("หลักที่ 1")).toBeFocused();
     await page.keyboard.type("000000");
     await expect(page.getByText("รหัสหมดอายุแล้ว")).toBeVisible();
     await expect(page.getByTestId("unit-redeem-resend")).toBeVisible();

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { FieldNamed } from "@/features/shared/FieldNamed";
 import { Field } from "@/ui/components/Field";
 import { Input } from "@/ui/components/Input";
 import { NativeSelect } from "@/ui/components/NativeSelect";
@@ -41,41 +42,56 @@ export function PlateFields({
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-3">
         <Field label={t("category")} hint={t("categoryHint")} error={message(errors.category)} required={required}>
-          <Input
-            id={`${idPrefix}-category`}
-            className="font-mono"
-            autoComplete="off"
-            maxLength={6}
-            value={value.category}
-            onChange={(event) => onChange({ ...value, category: event.target.value })}
-            onBlur={onBlur}
-            data-testid={`${idPrefix}-category`}
-          />
+          <FieldNamed>
+            {(named) => (
+              <Input
+                {...named}
+                id={`${idPrefix}-category`}
+                className="font-mono"
+                autoComplete="off"
+                maxLength={6}
+                value={value.category}
+                onChange={(event) => onChange({ ...value, category: event.target.value })}
+                onBlur={onBlur}
+                data-testid={`${idPrefix}-category`}
+              />
+            )}
+          </FieldNamed>
         </Field>
         <Field label={t("number")} hint={t("numberHint")} error={message(errors.number)} required={required}>
-          <Input
-            id={`${idPrefix}-number`}
-            className="font-mono"
-            inputMode="numeric"
-            autoComplete="off"
-            maxLength={6}
-            value={value.number}
-            onChange={(event) => onChange({ ...value, number: event.target.value })}
-            onBlur={onBlur}
-            data-testid={`${idPrefix}-number`}
-          />
+          <FieldNamed>
+            {(named) => (
+              <Input
+                {...named}
+                id={`${idPrefix}-number`}
+                className="font-mono"
+                inputMode="numeric"
+                autoComplete="off"
+                maxLength={6}
+                value={value.number}
+                onChange={(event) => onChange({ ...value, number: event.target.value })}
+                onBlur={onBlur}
+                data-testid={`${idPrefix}-number`}
+              />
+            )}
+          </FieldNamed>
         </Field>
       </div>
       <Field label={t("province")} error={message(errors.province)} required={required}>
-        <NativeSelect
-          id={`${idPrefix}-province`}
-          placeholder={t("provincePlaceholder")}
-          options={PROVINCES.map((p) => ({ value: p, label: p }))}
-          value={value.province}
-          onChange={(event) => onChange({ ...value, province: event.target.value })}
-          onBlur={onBlur}
-          data-testid={`${idPrefix}-province`}
-        />
+        <FieldNamed>
+          {(named) => (
+            <NativeSelect
+              {...named}
+              id={`${idPrefix}-province`}
+              placeholder={t("provincePlaceholder")}
+              options={PROVINCES.map((p) => ({ value: p, label: p }))}
+              value={value.province}
+              onChange={(event) => onChange({ ...value, province: event.target.value })}
+              onBlur={onBlur}
+              data-testid={`${idPrefix}-province`}
+            />
+          )}
+        </FieldNamed>
       </Field>
     </div>
   );

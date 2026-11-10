@@ -90,7 +90,6 @@
     "pct": "({value})"
   },
   "documents": {
-    "title": "Documents and money",
     "titleFor": "Documents and money · {unit}",
     "receipt": "Receipt, {period}",
     "receiptBody": "Paid · {number}",

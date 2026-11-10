@@ -77,7 +77,6 @@ export async function FeesScreen({
   const words = kindWords(unit.propertyKind);
   const unitName = t(`kind.unit.${words.unit}`, { unit: unit.unitNo });
   const live = mandates?.find((m) => m.state === "active" || m.state === "pending");
-  const several = units.length > 1;
 
   return (
     <Screen testId="fees">
@@ -173,7 +172,9 @@ export async function FeesScreen({
       {budget ? <BudgetCard budget={budget} locale={locale} /> : null}
 
       <Section
-        title={several ? t("documents.titleFor", { unit: unitName }) : t("documents.title")}
+        // J-DESIGN §7 JL1: the per-unit tools sit under "เอกสารและการเงิน · {unit}" — the unit is named even when it
+        // is the only one (a house speaks of บ้าน).
+        title={t("documents.titleFor", { unit: unitName })}
         titleId="fees-documents-title"
         testId="fees-documents"
       >

@@ -90,7 +90,6 @@
     "pct": "({value})"
   },
   "documents": {
-    "title": "စာရွက်စာတမ်းနှင့် ငွေကြေး",
     "titleFor": "စာရွက်စာတမ်းနှင့် ငွေကြေး · {unit}",
     "receipt": "ငွေလက်ခံဖြတ်ပိုင်း {period}",
     "receiptBody": "ပေးပြီး · {number}",

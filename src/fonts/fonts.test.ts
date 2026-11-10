@@ -66,6 +66,15 @@ describe("script fonts for my / km / lo / zh (L4 4.3, D-064)", () => {
     expect(committed).not.toMatch(/html:lang\((th|en)\)/);
   });
 
+  it("every font variable a locale stack names is one the design system defines (an undefined var() voids the stack)", () => {
+    const committed = readFileSync(join(__dirname, "scripts.css"), "utf8");
+    const fonts = readFileSync(join(__dirname, "../ui/fonts/index.ts"), "utf8");
+    const defined = new Set([...fonts.matchAll(/variable: "(--font-gp-[a-z-]+)"/g)].map((m) => m[1]));
+    const named = new Set([...committed.matchAll(/var\((--font-gp-[a-z-]+)\)/g)].map((m) => m[1]));
+    expect(defined.size).toBeGreaterThan(0);
+    expect([...named].filter((name) => !defined.has(name))).toEqual([]);
+  });
+
   it("reads a WOFF2 cmap (sanity: the Myanmar subset maps KA, the Latin one maps A)", () => {
     expect(woff2CodePoints(readFileSync(join(FILES, "noto-sans-myanmar.woff2"))).has(0x1000)).toBe(true);
     expect(covered(LATIN).has(0x41)).toBe(true);

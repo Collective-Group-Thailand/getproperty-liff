@@ -236,21 +236,37 @@ test.describe("pay, slips, receipts (L2 2.2)", () => {
   test("the pay sheet is loaded on demand by the tap: ≤ 50 KB of JS (D-179)", async ({ page, context, baseURL }) => {
     await seedSession(context, baseURL!, subject("weight"));
     await page.goto("/", { waitUntil: "networkidle" });
-    // Every script fetched from here on, gzipped as the server sends it (Lighthouse counts transferred bytes).
-    const sizes: Promise<number>[] = [];
+    // Every script fetched from here on, gzipped as the server sends it (Lighthouse counts transferred bytes). The tap
+    // is the page's first interaction, so it also warms what every page warms then — counted, except the typed API
+    // client: JS-ui moved it out of every page's initial JS to the first interaction (performance-budgets.md), a page
+    // cost the sheet does not add. It is measured on its own so it cannot grow unseen.
+    const sizes: Promise<{ bytes: number; client: boolean }>[] = [];
     const onResponse = (response: Response) => {
       if (response.request().resourceType() === "script")
-        sizes.push(response.body().then((body) => gzipSync(body).length));
+        sizes.push(
+          response.body().then((body) => ({
+            bytes: gzipSync(body).length,
+            client: body.toString("utf8").includes("x-getproperty-csrf"),
+          })),
+        );
     };
     page.on("response", onResponse);
     await page.getByTestId("home-pay").click();
     await expect(page.getByRole("dialog").getByTestId("pay-qr")).toBeVisible();
-    await page.waitForLoadState("networkidle");
+    // `networkidle` was reached by the goto, so waiting for it again returns at once: give the warmed chunks a moment.
+    await page.waitForTimeout(1500);
     page.off("response", onResponse);
-    const bytes = (await Promise.all(sizes)).reduce((sum, size) => sum + size, 0);
+    const scripts = await Promise.all(sizes);
+    const bytes = scripts.filter((s) => !s.client).reduce((sum, s) => sum + s.bytes, 0);
+    const client = scripts.filter((s) => s.client).reduce((sum, s) => sum + s.bytes, 0);
     test.info().annotations.push({ type: "pay sheet on demand", description: `${(bytes / 1024).toFixed(1)} KB` });
+    test
+      .info()
+      .annotations.push({ type: "typed client (first interaction)", description: `${(client / 1024).toFixed(1)} KB` });
     expect(bytes).toBeGreaterThan(0);
     expect(bytes).toBeLessThanOrEqual(50 * 1024);
+    expect(client).toBeGreaterThan(0);
+    expect(client).toBeLessThanOrEqual(5 * 1024);
   });
 
   test("the QR's validity counts down and an expired QR is renewed", async ({ page, context, baseURL }) => {

@@ -90,7 +90,6 @@
     "pct": "({value})"
   },
   "documents": {
-    "title": "ເອກະສານ ແລະ ການເງິນ",
     "titleFor": "ເອກະສານ ແລະ ການເງິນ · {unit}",
     "receipt": "ໃບຮັບເງິນ {period}",
     "receiptBody": "ຊຳລະແລ້ວ · {number}",

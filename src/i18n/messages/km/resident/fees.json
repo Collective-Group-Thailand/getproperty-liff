@@ -90,7 +90,6 @@
     "pct": "({value})"
   },
   "documents": {
-    "title": "ឯកសារ និងហិរញ្ញវត្ថុ",
     "titleFor": "ឯកសារ និងហិរញ្ញវត្ថុ · {unit}",
     "receipt": "បង្កាន់ដៃទទួលប្រាក់ {period}",
     "receiptBody": "បានបង់ · {number}",

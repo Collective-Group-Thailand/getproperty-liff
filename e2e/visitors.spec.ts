@@ -194,8 +194,9 @@ test.describe("visitors at the gate", () => {
     await expect(page.getByTestId("policy-readonly")).toBeVisible();
     await page.goto("/visitors/cars");
     await expect(page.getByTestId("car-add-open")).toHaveCount(0);
-    await page.goto("/visitors/invites/new");
-    await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("สร้างบัตรผ่าน");
+    // A family member reads the house's passes but makes none: the form is not there for them (a 404, no h1).
+    expect((await page.goto("/visitors/invites/new"))?.status()).toBe(404);
+    await expect(page.getByTestId("invite-screen")).toHaveCount(0);
   });
 
   test("SOS: kind, hold 1.5 s, sent → acknowledged; a second one shows the open one; cancel in the window", async ({

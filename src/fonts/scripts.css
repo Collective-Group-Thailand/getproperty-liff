@@ -211,25 +211,29 @@
 }
 
 html:lang(my) {
-  --font-sans: var(--font-gp-sans-latin), "GP Noto Sans Myanmar", var(--font-gp-sans-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gp-display-latin), "GP Noto Sans Myanmar", var(--font-gp-display-thai), ui-sans-serif, system-ui,
+    sans-serif;
   --font-display: var(--font-gp-display-latin), "GP Noto Sans Myanmar", var(--font-gp-display-thai), ui-sans-serif, system-ui,
     sans-serif;
 }
 
 html:lang(km) {
-  --font-sans: var(--font-gp-sans-latin), "GP Noto Sans Khmer", var(--font-gp-sans-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gp-display-latin), "GP Noto Sans Khmer", var(--font-gp-display-thai), ui-sans-serif, system-ui,
+    sans-serif;
   --font-display: var(--font-gp-display-latin), "GP Noto Sans Khmer", var(--font-gp-display-thai), ui-sans-serif, system-ui,
     sans-serif;
 }
 
 html:lang(lo) {
-  --font-sans: var(--font-gp-sans-latin), "GP Noto Sans Lao", var(--font-gp-sans-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gp-display-latin), "GP Noto Sans Lao", var(--font-gp-display-thai), ui-sans-serif, system-ui,
+    sans-serif;
   --font-display: var(--font-gp-display-latin), "GP Noto Sans Lao", var(--font-gp-display-thai), ui-sans-serif, system-ui,
     sans-serif;
 }
 
 html:lang(zh) {
-  --font-sans: var(--font-gp-sans-latin), "GP Noto Sans SC", var(--font-gp-sans-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-gp-display-latin), "GP Noto Sans SC", var(--font-gp-display-thai), ui-sans-serif, system-ui,
+    sans-serif;
   --font-display: var(--font-gp-display-latin), "GP Noto Sans SC", var(--font-gp-display-thai), ui-sans-serif, system-ui,
     sans-serif;
 }

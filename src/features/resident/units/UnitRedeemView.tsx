@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef } from "react";
 
 import { formatDate, formatDateTime } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
@@ -39,6 +40,28 @@ export interface UnitRedeemViewProps {
 
 function mmss(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+/**
+ * The six boxes. They are disabled while the code is checked, which drops the focus (and the phone's keyboard); a wrong
+ * code gives it back to the first box so the next try is just typing (J deferred e2e).
+ */
+function CodeDigits({
+  retry,
+  ...props
+}: React.ComponentProps<typeof OTPInput> & {
+  /** Changes on every wrong-code answer. */
+  retry: unknown;
+}) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (retry && !props.disabled) box.current?.querySelector("input")?.focus();
+  }, [retry, props.disabled]);
+  return (
+    <div ref={box}>
+      <OTPInput {...props} />
+    </div>
+  );
 }
 
 /** The words for a problem the resident can act on here (the closing ones have a screen of their own). */
@@ -196,7 +219,8 @@ export function UnitRedeemView({
           })}
         </p>
       </div>
-      <OTPInput
+      <CodeDigits
+        retry={problem?.kind === "wrongCode" ? problem : null}
         value={digits}
         onChange={onDigits}
         onComplete={(value) => {
