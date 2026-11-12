@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { ProblemCallout } from "@/features/shared/ProblemNotice";
 import { formatDateTime, formatTime } from "@/i18n/format";
@@ -64,8 +64,9 @@ export function SelfViewingAccess({
   // itself — before React re-renders — so the app-switcher snapshot and the back-forward cache never show it (review
   // G, L2; `hidden` on the element React removes next, rather than `flushSync`, whose `react-dom` import regroups the
   // shared chunks of every page, D-179).
+  // Layout effect: the listeners are in place in the same commit that shows the code, so no event can slip in between.
   const codeBox = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!code) return;
     const drop = () => {
       if (codeBox.current) codeBox.current.hidden = true;
